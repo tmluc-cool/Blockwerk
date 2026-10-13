@@ -38,20 +38,20 @@ function smoothNoise(u: number, v: number, period: number): number {
 
 /**
  * Generates the RGBA pixels of the default ground tile: a calm, slightly mottled
- * stone-grey surface with a soft seam at the tile border. Pure function, usable in tests.
+ * stone-grey surface with a thin seam at the tile border. Pure function, usable in tests.
  */
 export function generateGroundPixels(size: number = GROUND_TEXTURE_SIZE): Uint8Array {
   const data = new Uint8Array(size * size * 4);
-  const base = [148, 152, 140];
+  const base = [150, 151, 143];
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const u = x / size;
       const v = y / size;
       const noise =
-        0.55 * smoothNoise(u, v, 8) + 0.3 * smoothNoise(u, v, 32) + 0.15 * hashNoise(x, y);
+        0.4 * smoothNoise(u, v, 4) + 0.35 * smoothNoise(u, v, 16) + 0.25 * hashNoise(x, y);
       const edge = Math.min(u, v, 1 - u, 1 - v) * size;
-      const seam = edge < 1.5 ? 0.82 : edge < 3 ? 0.93 : 1;
-      const shade = (0.88 + noise * 0.2) * seam;
+      const seam = edge < 1.5 ? 0.78 : edge < 2.5 ? 0.9 : 1;
+      const shade = (0.95 + (noise - 0.5) * 0.09) * seam;
       const i = (y * size + x) * 4;
       data[i] = Math.min(255, Math.round((base[0] ?? 0) * shade));
       data[i + 1] = Math.min(255, Math.round((base[1] ?? 0) * shade));

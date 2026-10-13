@@ -41,7 +41,10 @@ const DEFAULTS: Required<EnvironmentOptions> = {
 };
 
 /** Color of the distance fog, matched to the sky near the horizon. */
-const FOG_COLOR = new Color(0.62, 0.71, 0.8);
+const FOG_COLOR = new Color(0.66, 0.74, 0.83);
+
+/** Strength of the ambient light baked from the sky, relative to the sun. */
+const ENVIRONMENT_INTENSITY = 0.32;
 
 /** Distance of the sun light from its focus point in meters. */
 const SUN_DISTANCE = 60;
@@ -81,7 +84,7 @@ export class Environment {
     setUniform(uniforms, 'cloudDensity', 0.35);
     this.root.add(this.sky);
 
-    this.sun = new DirectionalLight(0xfff4e5, 3.2);
+    this.sun = new DirectionalLight(0xfff1de, 4.6);
     this.sun.name = 'Sun';
     this.sun.castShadow = true;
     const shadow = this.sun.shadow;
@@ -170,7 +173,7 @@ export class Environment {
     this.environmentTarget = target;
     if (this.scene) {
       this.scene.environment = target.texture;
-      this.scene.environmentIntensity = 0.9;
+      this.scene.environmentIntensity = ENVIRONMENT_INTENSITY;
     }
   }
 
