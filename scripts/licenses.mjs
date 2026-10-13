@@ -8,7 +8,7 @@
 
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -70,7 +70,7 @@ const problems = [];
 const direct = new Map();
 for (const dir of workspaceDirs()) {
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
-  const workspace = relative(root, dir) || '(root)';
+  const workspace = relative(root, dir).split(sep).join('/') || '(root)';
   for (const [kind, deps] of [
     ['runtime', manifest.dependencies ?? {}],
     ['development', manifest.devDependencies ?? {}],
@@ -171,7 +171,13 @@ if (problems.length > 0) {
 const current = existsSync(outputPath) ? readFileSync(outputPath, 'utf8') : '';
 if (checkOnly) {
   if (current !== content) {
+    const expectedLines = content.split('\n');
+    const actualLines = current.split('\n');
+    const line = expectedLines.findIndex((text, index) => text !== actualLines[index]);
     console.error('THIRD_PARTY.md is outdated. Run `pnpm licenses` and commit the result.');
+    console.error(`First difference in line ${line + 1}:`);
+    console.error(`  expected: ${expectedLines[line] ?? '(end of file)'}`);
+    console.error(`  found:    ${actualLines[line] ?? '(end of file)'}`);
     process.exit(1);
   }
   console.log(`Licenses OK (${direct.size} direct, ${production.length} production packages).`);
