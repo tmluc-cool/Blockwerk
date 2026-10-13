@@ -10,8 +10,9 @@ export const DEMO_WORKSPACE = {
         y: 40,
         next: {
           block: {
-            type: 'motion.moveForward',
+            type: 'motion.move',
             id: 'demo-move',
+            fields: { direction: 'forward' },
             inputs: {
               meters: { shadow: { type: 'literal.number', id: 'demo-meters', fields: { NUM: 2 } } },
             },

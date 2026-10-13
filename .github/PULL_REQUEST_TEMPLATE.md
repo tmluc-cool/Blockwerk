@@ -8,7 +8,7 @@
 - [ ] Neue Blockarten haben einen Golden-Test (Block-JSON → erwartetes JS) und einen Laufzeittest.
 - [ ] Alle neuen Texte der Oberfläche stehen auf Deutsch und Englisch in den i18n-Dateien.
 - [ ] Oberflächen-Änderungen: Screenshot ist angehängt.
-- [ ] Neue Abhängigkeiten haben eine erlaubte Lizenz, `pnpm licenses` wurde ausgeführt.
+- [ ] Neue Abhängigkeiten haben eine erlaubte Lizenz, `pnpm run licenses` wurde ausgeführt.
 - [ ] Commits folgen Conventional Commits (`feat(runtime): …`).
 
 ## Screenshot

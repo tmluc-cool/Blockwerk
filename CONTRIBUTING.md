@@ -13,18 +13,18 @@ to human contributors too.
 
 ## Commands
 
-| Command            | What it does                                                                |
-| ------------------ | --------------------------------------------------------------------------- |
-| `pnpm dev`         | Editor in the browser with hot reload                                       |
-| `pnpm dev:desktop` | Editor in Electron (starts Vite and Electron)                               |
-| `pnpm test`        | All unit and golden tests (Vitest)                                          |
-| `pnpm test:e2e`    | Builds, then runs the Playwright tests for the browser and desktop app      |
-| `pnpm lint`        | ESLint, Prettier check and license check                                    |
-| `pnpm typecheck`   | TypeScript in every package                                                 |
-| `pnpm build`       | Type check, editor build, desktop build                                     |
-| `pnpm format`      | Formats all files with Prettier                                             |
-| `pnpm licenses`    | Checks dependency licenses and regenerates `THIRD_PARTY.md`                 |
-| `pnpm screenshot`  | Builds and writes the screenshot of the sample scene to `docs/screenshots/` |
+| Command             | What it does                                                                |
+| ------------------- | --------------------------------------------------------------------------- |
+| `pnpm dev`          | Editor in the browser with hot reload                                       |
+| `pnpm dev:desktop`  | Editor in Electron (starts Vite and Electron)                               |
+| `pnpm test`         | All unit and golden tests (Vitest)                                          |
+| `pnpm test:e2e`     | Builds, then runs the Playwright tests for the browser and desktop app      |
+| `pnpm lint`         | ESLint, Prettier check and license check                                    |
+| `pnpm typecheck`    | TypeScript in every package                                                 |
+| `pnpm build`        | Type check, editor build, desktop build                                     |
+| `pnpm format`       | Formats all files with Prettier                                             |
+| `pnpm run licenses` | Checks dependency licenses and regenerates `THIRD_PARTY.md`                 |
+| `pnpm screenshot`   | Builds and writes the screenshot of the sample scene to `docs/screenshots/` |
 
 ## Repository layout
 
@@ -50,7 +50,7 @@ docs/               Documentation sources and screenshots
   (`apps/editor/src/i18n/de.json` and `en.json`), never hard-coded. ESLint enforces this for JSX.
 - `packages/runtime` imports nothing from `apps/` or Blockly; `packages/blocks` and
   `packages/compiler` stay pure (no three.js, no Blockly).
-- New dependencies must be MIT, Apache-2.0, BSD, ISC, Zlib or CC0. Run `pnpm licenses` and commit
+- New dependencies must be MIT, Apache-2.0, BSD, ISC, Zlib or CC0. Run `pnpm run licenses` and commit
   the updated `THIRD_PARTY.md`.
 - The editor never uses the network. Only `pnpm assets:fetch` (development) and the optional AI
   assistant with the user's own API key may.
