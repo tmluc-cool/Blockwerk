@@ -1,6 +1,16 @@
-import type { BlockRegistry, CompileArgs, BlockInputs } from '@blockwerk/blocks';
+import type {
+  BlockDefinition,
+  BlockInputs,
+  BlockRegistry,
+  CompileArgs,
+  CompileMeta,
+  SocketInput,
+  ValueType,
+  VariableRef,
+} from '@blockwerk/blocks';
 import type { IRExpression, IRFunction, IRProgram, IRScript, IRStatement } from './ir';
 import { identifier, NameTable } from './names';
+import type { ScriptVariable } from './toIR';
 
 /** Generated JavaScript plus the mapping from output lines to block IDs. */
 export interface GeneratedCode {
@@ -14,12 +24,14 @@ export interface GeneratedCode {
 export interface CodegenOptions {
   /** Name of the block-script asset, written into the header comment. */
   readonly assetName: string;
+  /** Variables of the block script. */
+  readonly variables?: readonly ScriptVariable[];
 }
 
 const INDENT = '  ';
 const SUBSTACK_MARKER = (name: string): string => `/*@substack:${name}*/`;
 const SIMPLE_EXPRESSION =
-  /^(?:-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|"(?:[^"\\]|\\.)*"|[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*(?:\([^()]*\))?)$/;
+  /^(?:-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|"(?:[^"\\]|\\.)*"|[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\["(?:[^"\\]|\\.)*"\])*(?:\([^()]*\))?)$/;
 
 /** Thrown when IR references something that does not exist. */
 export class CodegenError extends Error {
@@ -39,11 +51,15 @@ class Writer {
 class Generator {
   private readonly names = new NameTable();
   private readonly writer = new Writer();
+  private readonly variables: ReadonlyMap<string, ScriptVariable>;
 
   constructor(
     private readonly registry: BlockRegistry,
     private readonly program: IRProgram,
-  ) {}
+    variables: readonly ScriptVariable[],
+  ) {
+    this.variables = new Map(variables.map((variable) => [variable.id, variable]));
+  }
 
   generate(options: CodegenOptions): GeneratedCode {
     const w = this.writer;
@@ -137,17 +153,11 @@ class Generator {
     ) {
       throw new CodegenError(`"${statement.type}" is not a statement block.`);
     }
-    const args: Record<string, string> = {};
-    for (const [name, input] of Object.entries(definition.inputs)) {
-      if (input.type === 'statement') {
-        args[name] = SUBSTACK_MARKER(name);
-      } else {
-        const arg = statement.args[name];
-        if (!arg) throw new CodegenError(`"${statement.type}" is missing input "${name}".`);
-        args[name] = this.expression(arg);
-      }
-    }
-    const code = definition.compile(args as CompileArgs<BlockInputs>);
+    const args = this.arguments(definition, statement.type, statement.args);
+    const code = definition.compile(
+      args,
+      this.meta(statement.blockId, statement.type, statement.args),
+    );
     for (const rawLine of code.split('\n')) {
       const leading = rawLine.length - rawLine.trimStart().length;
       const extraDepth = Math.floor(leading / INDENT.length);
@@ -178,16 +188,99 @@ class Generator {
         if (!definition || (definition.shape !== 'reporter' && definition.shape !== 'boolean')) {
           throw new CodegenError(`"${expression.type}" is not a value block.`);
         }
-        const args: Record<string, string> = {};
-        for (const name of Object.keys(definition.inputs)) {
-          const arg = expression.args[name];
-          if (!arg) throw new CodegenError(`"${expression.type}" is missing input "${name}".`);
-          args[name] = this.expression(arg);
-        }
-        const code = definition.compile(args as CompileArgs<BlockInputs>);
+        const args = this.arguments(definition, expression.type, expression.args);
+        const code = definition.compile(
+          args,
+          this.meta(expression.blockId, expression.type, expression.args),
+        );
         return SIMPLE_EXPRESSION.test(code) ? code : `(${code})`;
       }
     }
+  }
+
+  /** Code of every input; socket values are converted to the socket's type. */
+  private arguments(
+    definition: BlockDefinition,
+    type: string,
+    irArgs: Readonly<Record<string, IRExpression>>,
+  ): CompileArgs<BlockInputs> {
+    const args: Record<string, string> = {};
+    for (const [name, input] of Object.entries(definition.inputs)) {
+      if (input.type === 'statement') {
+        args[name] = SUBSTACK_MARKER(name);
+        continue;
+      }
+      const arg = irArgs[name];
+      if (!arg) throw new CodegenError(`"${type}" is missing input "${name}".`);
+      args[name] =
+        input.type === 'number' ||
+        input.type === 'string' ||
+        input.type === 'boolean' ||
+        input.type === 'any'
+          ? this.coerce(arg, input)
+          : this.expression(arg);
+    }
+    return args;
+  }
+
+  /**
+   * Converts a plugged value to the type of its socket (Scratch rules, SPEC 7.3): blocks may
+   * rely on number slots holding numbers, text slots holding text and condition slots
+   * holding booleans.
+   */
+  private coerce(arg: IRExpression, socket: SocketInput): string {
+    const code = this.expression(arg);
+    if (socket.type === 'any') return code;
+    const actual = this.typeOf(arg);
+    switch (socket.type) {
+      case 'number':
+        return actual === 'number' ? code : `game.num(${code})`;
+      case 'string':
+        if (arg.kind === 'literal' && typeof arg.value === 'number') {
+          return literal(literal(arg.value));
+        }
+        return actual === 'string' ? code : `game.str(${code})`;
+      case 'boolean':
+        return actual === 'boolean' ? code : `game.bool(${code})`;
+    }
+  }
+
+  /** Static type of an expression, `any` if unknown. */
+  private typeOf(expression: IRExpression): ValueType {
+    switch (expression.kind) {
+      case 'literal':
+        return typeof expression.value === 'number'
+          ? 'number'
+          : typeof expression.value === 'string'
+            ? 'string'
+            : 'boolean';
+      case 'block': {
+        const definition = this.registry.get(expression.type);
+        return definition && (definition.shape === 'reporter' || definition.shape === 'boolean')
+          ? definition.output
+          : 'any';
+      }
+      default:
+        return 'any';
+    }
+  }
+
+  private meta(
+    blockId: string,
+    type: string,
+    irArgs: Readonly<Record<string, IRExpression>>,
+  ): CompileMeta {
+    return {
+      uid: this.names.get('i_', blockId),
+      variable: (input: string): VariableRef => {
+        const arg = irArgs[input];
+        const id = arg?.kind === 'literal' ? String(arg.value) : '';
+        const variable = this.variables.get(id);
+        if (!variable) throw new CodegenError(`"${type}" uses unknown variable "${id}".`);
+        const container = variable.scope === 'object' ? 'self.vars' : 'game.vars';
+        return { ...variable, accessor: `${container}[${JSON.stringify(variable.id)}]` };
+      },
+    };
   }
 
   private call(functionId: string, args: readonly IRExpression[]): string {
@@ -214,5 +307,5 @@ export function generateCode(
   registry: BlockRegistry,
   options: CodegenOptions,
 ): GeneratedCode {
-  return new Generator(registry, program).generate(options);
+  return new Generator(registry, program, options.variables ?? []).generate(options);
 }

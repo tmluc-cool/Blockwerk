@@ -2,7 +2,13 @@ export type { IRExpression, IRFunction, IRProgram, IRScript, IRStatement } from 
 export { CompileError } from './diagnostics';
 export type { Diagnostic, DiagnosticCode } from './diagnostics';
 export { parseWorkspace, workspaceToIR } from './toIR';
-export type { IRResult, SerializedBlock, SerializedConnection, SerializedWorkspace } from './toIR';
+export type {
+  IRResult,
+  ScriptVariable,
+  SerializedBlock,
+  SerializedConnection,
+  SerializedWorkspace,
+} from './toIR';
 export { CodegenError, generateCode, literal } from './codegen';
 export type { CodegenOptions, GeneratedCode } from './codegen';
 export { compileBlockScript } from './compile';

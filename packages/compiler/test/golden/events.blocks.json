@@ -1,0 +1,137 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.everyFrame",
+        "id": "ev-1",
+        "next": {
+          "block": {
+            "type": "motion.move",
+            "id": "ev-2",
+            "fields": {
+              "direction": "up"
+            },
+            "inputs": {
+              "meters": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "ev-3",
+                  "fields": {
+                    "NUM": 0.1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x": 40,
+        "y": 40
+      },
+      {
+        "type": "events.whenKey",
+        "id": "ev-4",
+        "fields": {
+          "key": "W",
+          "mode": "held"
+        },
+        "next": {
+          "block": {
+            "type": "motion.move",
+            "id": "ev-5",
+            "fields": {
+              "direction": "forward"
+            },
+            "inputs": {
+              "meters": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "ev-6",
+                  "fields": {
+                    "NUM": 0.05
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x": 440,
+        "y": 40
+      },
+      {
+        "type": "events.whenKey",
+        "id": "ev-7",
+        "fields": {
+          "key": "Space",
+          "mode": "pressed"
+        },
+        "next": {
+          "block": {
+            "type": "looks.hide",
+            "id": "ev-8"
+          }
+        },
+        "x": 840,
+        "y": 40
+      },
+      {
+        "type": "events.whenClicked",
+        "id": "ev-9",
+        "next": {
+          "block": {
+            "type": "looks.show",
+            "id": "ev-10"
+          }
+        },
+        "x": 1240,
+        "y": 40
+      },
+      {
+        "type": "events.whenTouching",
+        "id": "ev-11",
+        "fields": {
+          "target": "tag:Einsammelbar",
+          "phase": "enter"
+        },
+        "next": {
+          "block": {
+            "type": "control.destroy",
+            "id": "ev-12",
+            "fields": {
+              "target": "self"
+            }
+          }
+        },
+        "x": 1640,
+        "y": 40
+      },
+      {
+        "type": "events.whenCreated",
+        "id": "ev-13",
+        "next": {
+          "block": {
+            "type": "sensing.resetTimer",
+            "id": "ev-14"
+          }
+        },
+        "x": 2040,
+        "y": 40
+      },
+      {
+        "type": "events.whenDestroyed",
+        "id": "ev-15",
+        "next": {
+          "block": {
+            "type": "control.clone",
+            "id": "ev-16",
+            "fields": {
+              "target": "self"
+            }
+          }
+        },
+        "x": 2440,
+        "y": 40
+      }
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import { isFieldType } from '@blockwerk/blocks';
 import type { BlockDefinition, BlockInput, BlockRegistry, FieldInput } from '@blockwerk/blocks';
 import { CompileError } from './diagnostics';
 import type { Diagnostic } from './diagnostics';
@@ -28,6 +29,13 @@ export interface SerializedWorkspace {
     readonly languageVersion?: number;
     readonly blocks?: readonly SerializedBlock[];
   };
+}
+
+/** A variable of the block script, as stored in the block-script document. */
+export interface ScriptVariable {
+  readonly id: string;
+  readonly name: string;
+  readonly scope: 'object' | 'game';
 }
 
 /** Result of converting a workspace to IR. */
@@ -85,7 +93,10 @@ function isDisabled(block: SerializedBlock): boolean {
 class IRBuilder {
   readonly diagnostics: Diagnostic[] = [];
 
-  constructor(private readonly registry: BlockRegistry) {}
+  constructor(
+    private readonly registry: BlockRegistry,
+    private readonly variables: ReadonlyMap<string, ScriptVariable>,
+  ) {}
 
   script(block: SerializedBlock): IRScript | null {
     const definition = this.definitionOf(block);
@@ -94,7 +105,8 @@ class IRBuilder {
     for (const [name, input] of Object.entries(definition.inputs)) {
       if (isField(input)) {
         const literal = this.fieldValue(block, name, input);
-        fields[name] = typeof literal === 'number' ? literal : String(literal);
+        if (literal === null) return null;
+        fields[name] = literal;
       }
     }
     return {
@@ -116,14 +128,18 @@ class IRBuilder {
       }
       const args: Record<string, IRExpression> = {};
       const substacks: Record<string, IRStatement[]> = {};
+      let valid = true;
       for (const [name, input] of Object.entries(definition.inputs)) {
         if (input.type === 'statement') {
           substacks[name] = this.statements(block.inputs?.[name]?.block);
         } else {
-          args[name] = this.argument(block, name, input);
+          const arg = this.argument(block, name, input);
+          if (arg === null) valid = false;
+          else args[name] = arg;
         }
       }
-      result.push({ kind: 'block', blockId: block.id, type: block.type, args, substacks });
+      if (valid)
+        result.push({ kind: 'block', blockId: block.id, type: block.type, args, substacks });
     }
     return result;
   }
@@ -137,7 +153,10 @@ class IRBuilder {
     }
     const args: Record<string, IRExpression> = {};
     for (const [name, input] of Object.entries(definition.inputs)) {
-      if (input.type !== 'statement') args[name] = this.argument(block, name, input);
+      if (input.type === 'statement') continue;
+      const arg = this.argument(block, name, input);
+      if (arg === null) return null;
+      args[name] = arg;
     }
     return { kind: 'block', blockId: block.id, type: block.type, args };
   }
@@ -146,9 +165,10 @@ class IRBuilder {
     block: SerializedBlock,
     name: string,
     input: Exclude<BlockInput, { type: 'statement' }>,
-  ): IRExpression {
+  ): IRExpression | null {
     if (isField(input)) {
-      return { kind: 'literal', value: this.fieldValue(block, name, input) };
+      const value = this.fieldValue(block, name, input);
+      return value === null ? null : { kind: 'literal', value };
     }
     const connection = block.inputs?.[name];
     const plugged = connection?.block ?? connection?.shadow;
@@ -158,13 +178,19 @@ class IRBuilder {
       case 'number':
         return { kind: 'literal', value: input.default };
       case 'string':
+      case 'any':
         return { kind: 'literal', value: input.default };
       case 'boolean':
         return { kind: 'literal', value: false };
     }
   }
 
-  private fieldValue(block: SerializedBlock, name: string, input: FieldInput): number | string {
+  /** The literal value of a field, or `null` if the block cannot be compiled. */
+  private fieldValue(
+    block: SerializedBlock,
+    name: string,
+    input: FieldInput,
+  ): number | string | null {
     const raw = block.fields?.[name];
     switch (input.type) {
       case 'numberField': {
@@ -185,6 +211,34 @@ class IRBuilder {
         }
         return value;
       }
+      case 'reference': {
+        const value = typeof raw === 'string' ? raw : input.default;
+        if (!REFERENCE_PATTERN.test(value)) {
+          this.report('warning', 'invalidField', block.id, { field: name });
+          return input.default;
+        }
+        return value;
+      }
+      case 'colorField': {
+        const value = typeof raw === 'string' ? raw.toLowerCase() : input.default;
+        if (!COLOR_PATTERN.test(value)) {
+          this.report('warning', 'invalidField', block.id, { field: name });
+          return input.default;
+        }
+        return value;
+      }
+      case 'variable': {
+        // Blockly stores variable fields as `{ id }`; plain strings are accepted too.
+        const id = isRecord(raw) ? raw['id'] : raw;
+        if (typeof id !== 'string' || !this.variables.has(id)) {
+          this.report('error', 'unknownVariable', block.id, {
+            field: name,
+            variable: typeof id === 'string' ? id : '',
+          });
+          return null;
+        }
+        return id;
+      }
     }
   }
 
@@ -204,18 +258,28 @@ class IRBuilder {
   }
 }
 
+const REFERENCE_PATTERN = /^(?:self|any|mouse|origin|object:.+|tag:.*)$/;
+const COLOR_PATTERN = /^#[0-9a-f]{6}$/;
+
 function isField(input: BlockInput): input is FieldInput {
-  return input.type === 'numberField' || input.type === 'textField' || input.type === 'dropdown';
+  return isFieldType(input.type);
 }
 
 /**
  * Converts a serialized Blockly workspace to IR. Every enabled hat block becomes a script;
- * loose blocks without a hat are ignored (as in Scratch). Unknown blocks are skipped and
- * reported as diagnostics.
+ * loose blocks without a hat are ignored (as in Scratch). Unknown blocks and blocks that use
+ * unknown variables are skipped and reported as diagnostics.
  */
-export function workspaceToIR(workspace: unknown, registry: BlockRegistry): IRResult {
+export function workspaceToIR(
+  workspace: unknown,
+  registry: BlockRegistry,
+  variables: readonly ScriptVariable[] = [],
+): IRResult {
   const parsed = parseWorkspace(workspace);
-  const builder = new IRBuilder(registry);
+  const builder = new IRBuilder(
+    registry,
+    new Map(variables.map((variable) => [variable.id, variable])),
+  );
   const scripts: IRScript[] = [];
   for (const block of parsed.blocks?.blocks ?? []) {
     if (isDisabled(block)) continue;

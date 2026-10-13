@@ -5,6 +5,7 @@ import type { GeneratedCode } from './codegen';
 import type { Diagnostic } from './diagnostics';
 import type { IRProgram } from './ir';
 import { workspaceToIR } from './toIR';
+import type { ScriptVariable } from './toIR';
 
 /** Options for {@link compileBlockScript}. */
 export interface CompileOptions {
@@ -12,6 +13,8 @@ export interface CompileOptions {
   readonly assetName: string;
   /** Block definitions to use. Defaults to the built-in catalog. */
   readonly registry?: BlockRegistry;
+  /** Variables of the block script. */
+  readonly variables?: readonly ScriptVariable[];
 }
 
 /** Result of compiling one block-script asset. */
@@ -26,7 +29,8 @@ export interface CompileResult extends GeneratedCode {
  */
 export function compileBlockScript(workspace: unknown, options: CompileOptions): CompileResult {
   const registry = options.registry ?? defaultRegistry;
-  const { program, diagnostics } = workspaceToIR(workspace, registry);
-  const generated = generateCode(program, registry, { assetName: options.assetName });
+  const variables = options.variables ?? [];
+  const { program, diagnostics } = workspaceToIR(workspace, registry, variables);
+  const generated = generateCode(program, registry, { assetName: options.assetName, variables });
   return { ...generated, program, diagnostics };
 }

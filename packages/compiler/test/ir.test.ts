@@ -4,6 +4,7 @@ import type { GameApi } from '@blockwerk/runtime';
 import { describe, expect, it } from 'vitest';
 import { CodegenError, CompileError, compileBlockScript, generateCode, literal } from '../src';
 import type { IRProgram } from '../src';
+import { b, set, workspace } from './dsl';
 
 describe('IR functions and local variables', () => {
   // Equivalent of: define (double (x)) { local y = x; return y + y }  -- built directly as IR,
@@ -20,16 +21,22 @@ describe('IR functions and local variables', () => {
           {
             kind: 'block',
             blockId: 'b1',
-            type: 'motion.moveForward',
-            args: { meters: { kind: 'local', name: 'distance' } },
+            type: 'motion.move',
+            args: {
+              meters: { kind: 'local', name: 'distance' },
+              direction: { kind: 'literal', value: 'forward' },
+            },
             substacks: {},
           },
           { kind: 'setLocal', name: 'distance', value: { kind: 'literal', value: 3 } },
           {
             kind: 'block',
             blockId: 'b2',
-            type: 'motion.moveForward',
-            args: { meters: { kind: 'local', name: 'distance' } },
+            type: 'motion.move',
+            args: {
+              meters: { kind: 'local', name: 'distance' },
+              direction: { kind: 'literal', value: 'forward' },
+            },
             substacks: {},
           },
           { kind: 'return', value: { kind: 'local', name: 'distance' } },
@@ -67,7 +74,8 @@ describe('IR functions and local variables', () => {
     const hero = new GameObject({ id: 'hero', name: 'Hero' });
     const script = module.scripts[0];
     if (!script) throw new Error('no script');
-    const iterator = script.run(hero, {} as GameApi);
+    const game = { num: (value: unknown) => Number(value) } as unknown as GameApi;
+    const iterator = script.run(hero, game);
     expect(iterator.next().done).toBe(true);
     // First call: 2 + 3 = 5 m, returns 3. Second call with 3: 3 + 3 = 6 m. Total 11 m.
     expect(hero.position.z).toBeCloseTo(11, 6);
@@ -77,7 +85,9 @@ describe('IR functions and local variables', () => {
     const generated = generateCode(program, defaultRegistry, { assetName: 'ir-test' });
     const lines = generated.code.split('\n');
     expect(generated.lineToBlock).toHaveLength(lines.length);
-    const index = lines.findIndex((line) => line.includes('self.moveLocal(0, 0, l_distance)'));
+    const index = lines.findIndex((line) =>
+      line.includes('self.move("forward", game.num(l_distance))'),
+    );
     expect(generated.lineToBlock[index]).toBe('b1');
   });
 
@@ -126,14 +136,14 @@ describe('compileBlockScript', () => {
             {
               type: 'events.whenGameStarts',
               id: 'h',
-              next: { block: { type: 'motion.moveForward', id: 'm' } },
+              next: { block: { type: 'motion.move', id: 'm' } },
             },
           ],
         },
       },
       { assetName: 'x' },
     );
-    expect(result.code).toContain('self.moveLocal(0, 0, 1);');
+    expect(result.code).toContain('self.move("forward", 1);');
   });
 
   it('skips disabled blocks', () => {
@@ -146,7 +156,7 @@ describe('compileBlockScript', () => {
               id: 'h',
               next: {
                 block: {
-                  type: 'motion.moveForward',
+                  type: 'motion.move',
                   id: 'm',
                   disabledReasons: ['MANUALLY_DISABLED'],
                 },
@@ -157,7 +167,61 @@ describe('compileBlockScript', () => {
       },
       { assetName: 'x' },
     );
-    expect(result.code).not.toContain('moveLocal');
+    expect(result.code).not.toContain('self.move(');
+  });
+
+  it('skips blocks that use unknown variables and reports them', () => {
+    const source = workspace([
+      b('events.whenGameStarts'),
+      set('missing00000', 1),
+      set('known0000000', b('variables.get', { variable: { id: 'gone00000000' } })),
+      b('motion.move', { direction: 'forward' }, { meters: 2 }),
+    ]);
+    const result = compileBlockScript(source, {
+      assetName: 'x',
+      variables: [{ id: 'known0000000', name: 'k', scope: 'object' }],
+    });
+    expect(result.diagnostics.map((item) => [item.code, item.params['variable']])).toEqual([
+      ['unknownVariable', 'missing00000'],
+      ['unknownVariable', 'gone00000000'],
+    ]);
+    // The value falls back to the slot default; the following block still compiles.
+    expect(result.code).toContain('self.vars["known0000000"] = "0";');
+    expect(result.code).not.toContain('missing00000');
+    expect(result.code).toContain('self.move("forward", 2);');
+  });
+
+  it('falls back to defaults for invalid reference, color and dropdown fields', () => {
+    const source = workspace([
+      b('events.whenTouching', { target: 'nonsense', phase: 'enter' }),
+      b('looks.setColor', { color: 'red' }),
+      b('motion.move', { direction: 'sideways' }),
+    ]);
+    const result = compileBlockScript(source, { assetName: 'x' });
+    expect(result.diagnostics.map((item) => [item.code, item.params['field']])).toEqual([
+      ['invalidField', 'target'],
+      ['invalidField', 'color'],
+      ['invalidField', 'direction'],
+    ]);
+    expect(result.program.scripts[0]?.event).toEqual({
+      type: 'touch',
+      params: { target: 'any', phase: 'enter' },
+    });
+    expect(result.code).toContain('game.setColor(self, "#e04040");');
+    expect(result.code).toContain('self.move("forward", 1);');
+  });
+
+  it('converts values to the type of their slot', () => {
+    const source = workspace([
+      b('events.whenGameStarts'),
+      b('motion.move', {}, { meters: b('operators.join', {}, { a: '1', b: '2' }) }),
+      b('control.if', {}, { condition: b('sensing.timer'), then: [b('looks.hide')] }),
+      b('looks.setSize', {}, { percent: b('sensing.timer') }),
+    ]);
+    const { code } = compileBlockScript(source, { assetName: 'x' });
+    expect(code).toContain('self.move("forward", game.num(("1" + "2")));');
+    expect(code).toContain('if (game.bool(game.timer)) {');
+    expect(code).toContain('game.setSizePercent(self, game.timer);');
   });
 
   it('compiles an empty workspace', () => {

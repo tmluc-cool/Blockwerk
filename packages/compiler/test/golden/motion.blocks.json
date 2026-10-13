@@ -1,0 +1,313 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenGameStarts",
+        "id": "mo-1",
+        "next": {
+          "block": {
+            "type": "motion.goToXYZ",
+            "id": "mo-2",
+            "inputs": {
+              "x": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "mo-3",
+                  "fields": {
+                    "NUM": 1
+                  }
+                }
+              },
+              "y": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "mo-4",
+                  "fields": {
+                    "NUM": 2
+                  }
+                }
+              },
+              "z": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "mo-5",
+                  "fields": {
+                    "NUM": -3
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "motion.turn",
+                "id": "mo-6",
+                "fields": {
+                  "direction": "right"
+                },
+                "inputs": {
+                  "degrees": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "mo-7",
+                      "fields": {
+                        "NUM": 90
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "motion.turn",
+                    "id": "mo-8",
+                    "fields": {
+                      "direction": "up"
+                    },
+                    "inputs": {
+                      "degrees": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "mo-9",
+                          "fields": {
+                            "NUM": 10
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "motion.setRotation",
+                        "id": "mo-10",
+                        "inputs": {
+                          "x": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "mo-11",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          },
+                          "y": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "mo-12",
+                              "fields": {
+                                "NUM": 45
+                              }
+                            }
+                          },
+                          "z": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "mo-13",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "motion.setScale",
+                            "id": "mo-14",
+                            "inputs": {
+                              "x": {
+                                "shadow": {
+                                  "type": "literal.number",
+                                  "id": "mo-15",
+                                  "fields": {
+                                    "NUM": 2
+                                  }
+                                }
+                              },
+                              "y": {
+                                "shadow": {
+                                  "type": "literal.number",
+                                  "id": "mo-16",
+                                  "fields": {
+                                    "NUM": 2
+                                  }
+                                }
+                              },
+                              "z": {
+                                "shadow": {
+                                  "type": "literal.number",
+                                  "id": "mo-17",
+                                  "fields": {
+                                    "NUM": 2
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "motion.goToObject",
+                                "id": "mo-18",
+                                "fields": {
+                                  "target": "object:target000001"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "motion.lookAt",
+                                    "id": "mo-19",
+                                    "fields": {
+                                      "target": "mouse"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "motion.glideToXYZ",
+                                        "id": "mo-20",
+                                        "fields": {
+                                          "easing": "linear"
+                                        },
+                                        "inputs": {
+                                          "seconds": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "mo-21",
+                                              "fields": {
+                                                "NUM": 0.5
+                                              }
+                                            }
+                                          },
+                                          "x": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "mo-22",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            }
+                                          },
+                                          "y": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "mo-23",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            }
+                                          },
+                                          "z": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "mo-24",
+                                              "fields": {
+                                                "NUM": 5
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "motion.glideToObject",
+                                            "id": "mo-25",
+                                            "fields": {
+                                              "target": "object:target000001",
+                                              "easing": "spring"
+                                            },
+                                            "inputs": {
+                                              "seconds": {
+                                                "shadow": {
+                                                  "type": "literal.number",
+                                                  "id": "mo-26",
+                                                  "fields": {
+                                                    "NUM": 1
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "motion.move",
+                                                "id": "mo-32",
+                                                "fields": {
+                                                  "direction": "left"
+                                                },
+                                                "inputs": {
+                                                  "meters": {
+                                                    "block": {
+                                                      "type": "operators.add",
+                                                      "id": "mo-31",
+                                                      "inputs": {
+                                                        "a": {
+                                                          "block": {
+                                                            "type": "motion.position",
+                                                            "id": "mo-27",
+                                                            "fields": {
+                                                              "axis": "x"
+                                                            }
+                                                          }
+                                                        },
+                                                        "b": {
+                                                          "block": {
+                                                            "type": "operators.divide",
+                                                            "id": "mo-29",
+                                                            "inputs": {
+                                                              "a": {
+                                                                "block": {
+                                                                  "type": "motion.heading",
+                                                                  "id": "mo-28"
+                                                                }
+                                                              },
+                                                              "b": {
+                                                                "shadow": {
+                                                                  "type": "literal.number",
+                                                                  "id": "mo-30",
+                                                                  "fields": {
+                                                                    "NUM": 90
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "looks.setSize",
+                                                    "id": "mo-34",
+                                                    "inputs": {
+                                                      "percent": {
+                                                        "block": {
+                                                          "type": "motion.propertyOf",
+                                                          "id": "mo-33",
+                                                          "fields": {
+                                                            "property": "size",
+                                                            "target": "object:target000001"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x": 40,
+        "y": 40
+      }
+    ]
+  }
+}

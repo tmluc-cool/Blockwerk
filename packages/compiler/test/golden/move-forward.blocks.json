@@ -1,53 +1,62 @@
 {
   "blocks": {
+    "languageVersion": 0,
     "blocks": [
       {
-        "id": "hat-start-1",
+        "type": "events.whenGameStarts",
+        "id": "mf-1",
         "next": {
           "block": {
-            "id": "move-1",
+            "type": "motion.move",
+            "id": "mf-2",
+            "fields": {
+              "direction": "forward"
+            },
             "inputs": {
               "meters": {
                 "shadow": {
+                  "type": "literal.number",
+                  "id": "mf-3",
                   "fields": {
                     "NUM": 2.5
-                  },
-                  "id": "num-1",
-                  "type": "literal.number"
+                  }
                 }
               }
             },
             "next": {
               "block": {
-                "id": "move-2",
+                "type": "motion.move",
+                "id": "mf-4",
+                "fields": {
+                  "direction": "backward"
+                },
                 "inputs": {
                   "meters": {
                     "shadow": {
+                      "type": "literal.number",
+                      "id": "mf-5",
                       "fields": {
-                        "NUM": -1
-                      },
-                      "id": "num-2",
-                      "type": "literal.number"
+                        "NUM": 1
+                      }
                     }
                   }
-                },
-                "type": "motion.moveForward"
+                }
               }
-            },
-            "type": "motion.moveForward"
+            }
           }
         },
-        "type": "events.whenGameStarts",
         "x": 40,
         "y": 40
       },
       {
-        "id": "loose-move",
-        "type": "motion.moveForward",
-        "x": 400,
+        "type": "motion.move",
+        "id": "mf-6",
+        "fields": {
+          "direction": "forward"
+        },
+        "x": 440,
         "y": 40
       }
-    ],
-    "languageVersion": 0
+    ]
   }
 }

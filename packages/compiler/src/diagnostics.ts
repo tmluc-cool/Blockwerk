@@ -1,5 +1,6 @@
 /** Machine-readable diagnostic codes. The editor turns them into localized messages. */
-export type DiagnosticCode = 'unknownBlock' | 'notAStatement' | 'notAValue' | 'invalidField';
+export type DiagnosticCode =
+  'unknownBlock' | 'notAStatement' | 'notAValue' | 'invalidField' | 'unknownVariable';
 
 /** A problem found while compiling, pointing at the block that caused it. */
 export interface Diagnostic {

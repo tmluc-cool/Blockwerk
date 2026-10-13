@@ -73,7 +73,8 @@ export interface GameApi {
   setSizePercent(self: GameObject, percent: number): void;
   setActive(self: GameObject, ref: ObjectRef, active: boolean): void;
   clone(self: GameObject, ref: ObjectRef): void;
-  destroy(self: GameObject, ref: ObjectRef): void;
+  /** Destroys an object at the end of the tick. Returns `true` if it is the caller itself. */
+  destroy(self: GameObject, ref: ObjectRef): boolean;
 
   resetTimer(): void;
   /** Stops all scripts of the game. */

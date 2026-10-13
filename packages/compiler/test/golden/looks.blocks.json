@@ -1,0 +1,71 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenGameStarts",
+        "id": "lo-1",
+        "next": {
+          "block": {
+            "type": "looks.setColor",
+            "id": "lo-2",
+            "fields": {
+              "color": "#33AA55"
+            },
+            "next": {
+              "block": {
+                "type": "looks.hide",
+                "id": "lo-3",
+                "next": {
+                  "block": {
+                    "type": "looks.show",
+                    "id": "lo-4",
+                    "next": {
+                      "block": {
+                        "type": "looks.setSize",
+                        "id": "lo-5",
+                        "inputs": {
+                          "percent": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "lo-6",
+                              "fields": {
+                                "NUM": 150
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "looks.setActive",
+                            "id": "lo-7",
+                            "fields": {
+                              "action": "deactivate",
+                              "target": "tag:Tür"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "looks.setActive",
+                                "id": "lo-8",
+                                "fields": {
+                                  "action": "activate",
+                                  "target": "object:target000001"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x": 40,
+        "y": 40
+      }
+    ]
+  }
+}

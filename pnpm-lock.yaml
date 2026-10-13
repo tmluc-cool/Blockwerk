@@ -116,6 +116,9 @@ importers:
         specifier: workspace:*
         version: link:../blocks
     devDependencies:
+      '@blockwerk/project':
+        specifier: workspace:*
+        version: link:../project
       '@blockwerk/runtime':
         specifier: workspace:*
         version: link:../runtime

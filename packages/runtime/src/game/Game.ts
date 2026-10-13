@@ -581,9 +581,10 @@ export class Game implements GameApi {
     }
   }
 
-  destroy(self: GameObject, ref: ObjectRef): void {
+  destroy(self: GameObject, ref: ObjectRef): boolean {
     const object = this.find(self, ref);
     if (object) this.destroyQueue.add(object);
+    return object === self;
   }
 
   stopAll(): void {
