@@ -4,7 +4,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 
 | Phase | Titel | Status |
 |---|---|---|
-| 0 | Fundament und Unity-Layout | in Arbeit |
+| 0 | Fundament und Unity-Layout | abgeschlossen |
 | 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | offen |
 | 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | offen |
 | 3 | Spieler, Physik, Animation | offen |
@@ -100,7 +100,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 **Abnahme**
 
 - [x] `pnpm dev` und `pnpm dev:desktop` öffnen den Editor. `pnpm test` (59 Tests), `pnpm lint`, `pnpm build` grün.
-- [ ] Repository ist auf GitHub (öffentlich), die CI läuft dort auf Windows und Linux grün. _(Ergebnis folgt)_
+- [x] Repository ist auf GitHub (öffentlich), die CI läuft dort auf Windows und Linux grün ([CI-Lauf](https://github.com/tmluc-cool/Blockwerk/actions/runs/38379593872)).
 - [x] Fenster lassen sich verschieben, als Reiter gruppieren und abtrennen; Layout bleibt nach Neustart erhalten (E2E im Browser per Neuladen und in Electron per echtem Neustart der App).
 - [x] Szenen-Kamera bedient sich wie in Unity: Fliegen, Umkreisen, Verschieben, Zoomen, Fokussieren (E2E-Tests).
 - [x] Die leere Szene sieht ordentlich aus: Himmel, Licht, weicher Schatten eines Testwürfels (`docs/screenshots/phase-00.png`).
