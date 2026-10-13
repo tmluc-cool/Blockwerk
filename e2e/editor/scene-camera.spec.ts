@@ -6,29 +6,41 @@ test.describe('scene view camera (Unity navigation)', () => {
     const center = await sceneCenter(page);
     await page.mouse.move(center.x, center.y);
     await page.mouse.down({ button: 'right' });
+
+    // Hold W until the camera has moved. Software rendering in CI can pause frames for a
+    // moment, so the test waits for the movement instead of holding the key for a fixed time.
     await page.keyboard.down('w');
-    await page.waitForTimeout(1000);
+    await expect
+      .poll(async () => distance((await camera(page)).position, start.position), {
+        timeout: 30_000,
+      })
+      .toBeGreaterThan(0.3);
     await page.keyboard.up('w');
     const afterForward = await camera(page);
+
     await page.keyboard.down('e');
-    await page.waitForTimeout(800);
+    await expect
+      .poll(async () => (await camera(page)).position[1] - afterForward.position[1], {
+        timeout: 30_000,
+      })
+      .toBeGreaterThan(0.2);
     await page.keyboard.up('e');
-    await page.mouse.up({ button: 'right' });
     const afterUp = await camera(page);
+    await page.mouse.up({ button: 'right' });
 
     // Moved along the viewing direction; the pivot moved with the camera.
     const moved = afterForward.position.map((value, index) => value - (start.position[index] ?? 0));
     const length = Math.hypot(...moved);
-    expect(length).toBeGreaterThan(0.3);
     const forward = forwardOf(start);
     const alignment =
       moved.reduce((sum, value, index) => sum + value * (forward[index] ?? 0), 0) / length;
     expect(alignment).toBeGreaterThan(0.99);
     expect(afterForward.distance).toBeCloseTo(start.distance, 5);
     expect(afterForward.yaw).toBeCloseTo(start.yaw, 5);
-    expect(afterUp.position[1]).toBeGreaterThan(afterForward.position[1] + 0.2);
+    // E moves straight up in world space.
     expect(afterUp.position[0]).toBeCloseTo(afterForward.position[0], 5);
-    // While flying, W must not switch to the move tool (it already is) and Q/E not to other tools.
+    expect(afterUp.position[2]).toBeCloseTo(afterForward.position[2], 5);
+    // While flying, W/E must not switch tools.
     expect(await page.evaluate(() => window.__blockwerk?.tool())).toBe('move');
   });
 
