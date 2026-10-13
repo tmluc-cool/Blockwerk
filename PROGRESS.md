@@ -76,6 +76,40 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 - **Electron-Menü:** Die Menüleiste ist Teil der Editor-Oberfläche (gleich in Browser und Desktop). Das native Electron-Menü ist ausgeblendet.
 - **Icons:** eigene, neutrale Symbole aus `lucide-react` (ISC), keine Unity- oder Scratch-Grafiken.
 
+- **Repository-Dokumente auf Englisch:** `README.md` hat eine deutsche Hauptbeschreibung mit englischer Kurzfassung; `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md` sind wie Code und Commits auf Englisch. `PROGRESS.md` bleibt Deutsch (Bericht an den Nutzer).
+- **Lizenzen MIT-0 und 0BSD** gelten als Varianten von MIT bzw. BSD und sind erlaubt. `lru-cache` (BlueOak-1.0.0) kommt nur über Blockly → jsdom (Node.js) ins Projekt und ist nicht im Editor-Bundle; das ist in `THIRD_PARTY.md` als Ausnahme begründet.
+- **Software-Rendering:** Die Electron-App weicht bei fehlender oder gesperrter GPU auf SwiftShader aus, damit die 3D-Ansichten immer laufen (nur lokale Inhalte, daher unbedenklich).
+- **Playwright 1.56** statt der neuesten Version, weil die Cloud-Umgebung genau dieses Chromium vorinstalliert hat. Die CI installiert dieselbe Version.
+- **ESLint 10 ohne `eslint-plugin-react`:** Die Regel „keine festen Texte in JSX“ ist eine kleine eigene Regel (`blockwerk/no-ui-literals`) in `eslint.config.js`.
+
 ### Ergebnis
 
-_Wird nach der Abnahme eingetragen._
+**Umgesetzt**
+
+- Monorepo mit `packages/blocks`, `compiler`, `runtime` (mit Inhalt) und `project`, `library`, `character` (Gerüste), `apps/editor`, `apps/desktop`. TypeScript strict, ESLint (inkl. Importgrenzen für `runtime`, `blocks`, `compiler`), Prettier, Vitest, Playwright, Lizenzprüfung.
+- Editor im Unity-Standard-Layout: Menüleiste, Werkzeugleiste (Q W E R T Y, Pivot/Mitte, Lokal/Global, Play/Pause/Einzelbild deaktiviert, Ebenen, Layout), Bereichs-Reiter mit `Alt+1…9` und eigenen Reitern, andockbare Fenster Hierarchie, Szene, Spiel, Block-Editor, Inspektor, Projekt, Asset-Bibliothek, Konsole.
+- Fenster verschieben, als Reiter gruppieren, schwebend lösen, in eigenes Fenster abtrennen (Browser und Electron). Layout wird automatisch gespeichert; Vorlagen „Standard“ und „Blöcke gross“; eigene Layouts speichern, laden, löschen; Fenster über „Fenster“ wieder öffnen; `Strg+1…5` fokussiert Fenster.
+- Szenen-Ansicht: berechneter Himmel mit Wolken, Sonne mit weichen Schatten, Umgebungslicht aus dem Himmel, texturierter Boden, Nebel, Editor-Raster, Kamera- und Sonnen-Gizmo, Auswahl per Klick. Kamera wie Unity: rechte Maustaste + WASD/QE fliegen (Shift schneller, Mausrad = Tempo), Alt + links umkreisen, Alt + rechts zoomen, mittlere Maustaste oder Hand-Werkzeug verschieben, Mausrad zoomen, `F` und Doppelklick fokussieren. Achsenwürfel mit Achsenansichten und Perspektivisch/Orthografisch.
+- Spiel-Ansicht aus der Hauptkamera mit Seitenverhältnis und Statistik (Bildzeit, Draw Calls, Dreiecke). Beispielszene: 4 Draw Calls, 38 Dreiecke.
+- `defineBlock` als einzige Quelle; daraus Blockly-JSON, Palette pro Bereich, Suchindex. Testblöcke „Wenn Spiel startet“ und „gehe ( ) Meter vorwärts“. Compiler Block-JSON → Zwischenrepräsentation (mit Funktionen, Rückgabewerten, lokalen Variablen) → Generator-Funktionen mit Zeilen-zu-Block-Zuordnung. Golden- und Laufzeittests, die jede Katalog-Blockart erzwingen.
+- Block-Editor mit Blockly (Zelos-Darstellung, Hut-Blöcke), Blockly-Medien lokal statt vom CDN. Blockly läuft in einer eigenen Seite (`blocks.html`) im Fenster, damit Ziehen, Palette und Zahlenfelder auch im schwebenden oder abgetrennten Fenster (zweiter Bildschirm) funktionieren.
+- Deutsch/Englisch komplett über i18n-Dateien (Menüs, Fenster, Blöcke, Blockly), dunkles und helles Design.
+- Electron-Hülle: Editor über `blockwerk://` mit Content-Security-Policy ohne Netzwerk, abgetrennte Fenster als Editor-Fenster, `pnpm dev:desktop`.
+- GitHub-Grundlage: `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `CHANGELOG.md`, `THIRD_PARTY.md` (generiert und geprüft), Issue-Vorlagen (Fehler, Idee, neuer Block, Asset-Paket), PR-Vorlage, `ci.yml` für Windows und Linux.
+
+**Abnahme**
+
+- [x] `pnpm dev` und `pnpm dev:desktop` öffnen den Editor. `pnpm test` (59 Tests), `pnpm lint`, `pnpm build` grün.
+- [ ] Repository ist auf GitHub (öffentlich), die CI läuft dort auf Windows und Linux grün. _(Ergebnis folgt)_
+- [x] Fenster lassen sich verschieben, als Reiter gruppieren und abtrennen; Layout bleibt nach Neustart erhalten (E2E im Browser per Neuladen und in Electron per echtem Neustart der App).
+- [x] Szenen-Kamera bedient sich wie in Unity: Fliegen, Umkreisen, Verschieben, Zoomen, Fokussieren (E2E-Tests).
+- [x] Die leere Szene sieht ordentlich aus: Himmel, Licht, weicher Schatten eines Testwürfels (`docs/screenshots/phase-00.png`).
+
+Tests: 59 Unit-/Golden-Tests (Vitest), 24 End-to-End-Tests (23 Browser, 1 Desktop-App mit Neustart). Ein Wächter in den E2E-Tests schlägt fehl, sobald der Editor eine Netzwerkanfrage ausserhalb von `localhost` macht.
+
+**Offen / Hinweise für später**
+
+- Play-Modus, Projektformat, echte Objekte und Inspektor-Bearbeitung kommen in Phase 1. Bis dahin sind Play/Pause/Einzelbild und viele Menüpunkte sichtbar, aber deaktiviert.
+- Vor Phase 1 zu bestätigen: Koordinatensystem für links/rechts (siehe Annahmen, „Laufrichtung“).
+- GitHub Discussions ist im Repository noch nicht aktiviert (Link in den Issue-Vorlagen), Labels (`good first issue`, `block`, …) und der Schutz von `main` müssen in den Repository-Einstellungen angelegt werden.
+- Die GitHub-Actions-Versionen (`@v4`) laufen noch mit einer Node-20-Hinweismeldung; beim nächsten CI-Umbau auf die aktuellen Hauptversionen anheben.
