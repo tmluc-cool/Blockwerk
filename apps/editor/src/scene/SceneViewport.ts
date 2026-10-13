@@ -125,7 +125,9 @@ export class SceneViewport {
     this.overlay.add(this.grid);
     this.overlay.add(this.proxy);
 
-    // Transform gizmos; the combined tool shows move and rotate handles together.
+    // Transform gizmos; the combined tool shows move and rotate handles together. The capture
+    // listener runs before the gizmos' own pointerdown handlers.
+    canvas.addEventListener('pointerdown', this.syncGizmos, { capture: true });
     const move = new TransformControls(this.perspective, canvas);
     const rotate = new TransformControls(this.perspective, canvas);
     rotate.setMode('rotate');
@@ -456,11 +458,24 @@ export class SceneViewport {
     return new Vector2((x / this.width) * 2 - 1, -(y / this.height) * 2 + 1);
   }
 
+  /**
+   * Puts the gizmo handles where the selection is now. They otherwise follow it only when a
+   * frame is drawn, so a click right after selecting in the hierarchy would grab the handles
+   * of the previous selection.
+   */
+  private readonly syncGizmos = (): void => {
+    for (const gizmo of this.gizmos) {
+      if (!gizmo.object) continue;
+      gizmo.camera = this.activeCamera();
+      gizmo.getHelper().updateMatrixWorld(true);
+    }
+  };
+
   private gizmoHit(x: number, y: number): boolean {
+    this.syncGizmos();
     const pointer = this.pointer(x, y);
     for (const gizmo of this.gizmos) {
       if (!gizmo.object || !gizmo.enabled) continue;
-      gizmo.camera = this.activeCamera();
       gizmo.pointerHover({ x: pointer.x, y: pointer.y, button: 0 } as unknown as PointerEvent);
       if (gizmo.axis !== null) return true;
     }
