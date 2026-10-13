@@ -39,6 +39,21 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(@types/node@24.19.2)(jsdom@29.1.1)(vite@8.3.4(@types/node@24.19.2))
 
+  apps/desktop:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      electron:
+        specifier: ^44.7.0
+        version: 44.7.0
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.3.4
+        version: 8.3.4(@types/node@24.19.2)
+
   apps/editor:
     dependencies:
       '@blockwerk/blocks':
@@ -251,6 +266,14 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
+
+  '@electron-internal/extract-zip@1.0.5':
+    resolution: {integrity: sha512-+bqFCP98pLI0Tt0XQo1TmlXtwjWchISndDOxCkEcIuUgXWpBnLyRI+2DU+mesvnMMX6L1XDqYNA0lXNDHd/yiA==}
+    engines: {node: '>=22.12.0'}
+
+  '@electron/get@5.1.0':
+    resolution: {integrity: sha512-3kSBtG8ObcTVfXanm5vVJ6UnBLEVmVsRk1M+vGqCuMBV+XLCbJYuWQful+yIy0GQDsSlK0kHEriEHn7SPk4EnA==}
+    engines: {node: '>=22.12.0'}
 
   '@eslint-community/eslint-utils@4.10.1':
     resolution: {integrity: sha512-cuadcxVFE8sDK6iWJbs8Sn0av2Nrh2QSGQhVlBW9AaAHqHwjWsZHT8LJ4hFGPh7ASBV2deFdM7H/DPjulmh8rg==}
@@ -679,9 +702,18 @@ packages:
   electron-to-chromium@1.5.453:
     resolution: {integrity: sha512-9r/nz9akllr3SZsHUhfK10ktUH6j0Dbo3cKdh91khw0FvR6HhXGnATmOq5X8ena2aq4GXLQ1koh3nvKaQJaNmQ==}
 
+  electron@44.7.0:
+    resolution: {integrity: sha512-aUq9/zLAAFYc+a9gy6cd0C3Y/N/RmovLCD8TV8LhIzNhuND6HEgsu96jJz9cbAxvckSPv+Trf2PKEjktoZgFkw==}
+    engines: {node: '>= 22.12.0'}
+    hasBin: true
+
   entities@8.1.0:
     resolution: {integrity: sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA==}
     engines: {node: '>=20.19.0'}
+
+  env-paths@3.0.0:
+    resolution: {integrity: sha512-dtJUTepzMW3Lm/NPxRf3wP4642UWhjL2sQxc+ym2YMj1m/H2zDNQOlezafzkHwn6sMstjHTwG6iQQsctDW/b1A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   es-module-lexer@2.3.2:
     resolution: {integrity: sha512-poHGpORABojJJucnV9KbOavETW8lBVnphkW77ER5/BQ5Fz7oXSoCNek7IH3vR5nRjdsEz926ibFYX8KtLQmdyw==}
@@ -804,6 +836,9 @@ packages:
   globals@17.13.0:
     resolution: {integrity: sha512-RwMTC61u7hrG3ZJMkZQOK4JLJrKS8QtoTii63EmWvFXHqycY9FObBJQCbsLxSO8kjKhWE5kV1GC+Vb1g3RI0Zg==}
     engines: {node: '>=18'}
+
+  graceful-fs@4.2.11:
+    resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
   hashery@1.5.1:
     resolution: {integrity: sha512-iZyKG96/JwPz1N55vj2Ie2vXbhu440zfUfJvSwEqEbeLluk7NnapfGqa7LH0mOsnDxTF85Mx8/dyR6HfqcbmbQ==}
@@ -1061,6 +1096,10 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  progress@2.0.3:
+    resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
+    engines: {node: '>=0.4.0'}
+
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -1117,6 +1156,10 @@ packages:
 
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
+
+  sumchecker@3.0.1:
+    resolution: {integrity: sha512-MvjXzkz/BOfyVDkG0oFOtBxHX2u3gKbMHIF/dXblZsgD3BWOFLmHovIpZY7BykJdAjcqRCBi1WYBNdEC9yI7vg==}
+    engines: {node: '>= 8.0'}
 
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
@@ -1508,6 +1551,21 @@ snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 
+  '@electron-internal/extract-zip@1.0.5': {}
+
+  '@electron/get@5.1.0':
+    dependencies:
+      debug: 4.4.3
+      env-paths: 3.0.0
+      graceful-fs: 4.2.11
+      progress: 2.0.3
+      semver: 7.8.5
+      sumchecker: 3.0.1
+    optionalDependencies:
+      undici: 7.30.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@eslint-community/eslint-utils@4.10.1(eslint@10.12.0)':
     dependencies:
       eslint: 10.12.0
@@ -1884,7 +1942,17 @@ snapshots:
 
   electron-to-chromium@1.5.453: {}
 
+  electron@44.7.0:
+    dependencies:
+      '@electron-internal/extract-zip': 1.0.5
+      '@electron/get': 5.1.0
+      '@types/node': 24.19.2
+    transitivePeerDependencies:
+      - supports-color
+
   entities@8.1.0: {}
+
+  env-paths@3.0.0: {}
 
   es-module-lexer@2.3.2: {}
 
@@ -2015,6 +2083,8 @@ snapshots:
       is-glob: 4.0.3
 
   globals@17.13.0: {}
+
+  graceful-fs@4.2.11: {}
 
   hashery@1.5.1:
     dependencies:
@@ -2231,6 +2301,8 @@ snapshots:
 
   prettier@3.9.10: {}
 
+  progress@2.0.3: {}
+
   punycode@2.3.1: {}
 
   qified@0.10.1:
@@ -2286,6 +2358,12 @@ snapshots:
   source-map-js@1.2.2: {}
 
   std-env@4.3.0: {}
+
+  sumchecker@3.0.1:
+    dependencies:
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
 
   symbol-tree@3.2.4: {}
 

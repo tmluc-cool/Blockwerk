@@ -1,0 +1,21 @@
+{
+  "name": "@blockwerk/desktop",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Electron shell of the Blockwerk editor.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "node scripts/dev.mjs",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "electron": "^44.7.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.4"
+  }
+}
