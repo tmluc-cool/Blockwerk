@@ -29,7 +29,6 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const [shading, setShading] = useState<ShadingMode>('shaded');
   const [grid, setGrid] = useState(true);
   const [sky, setSky] = useState(true);
-  const selection = useEditor((state) => state.selection);
   const tool = useEditor((state) => state.tool);
   const pivotMode = useEditor((state) => state.pivotMode);
   const space = useEditor((state) => state.space);
@@ -54,6 +53,10 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     viewportRef.current = viewport;
     registerSceneView(viewport);
     viewport.setSelection(useEditor.getState().selection);
+    // Synchronously, so a click right after selecting in the hierarchy sees the new gizmo.
+    const unsubscribeSelection = useEditor.subscribe((state, previous) => {
+      if (state.selection !== previous.selection) viewport.setSelection(state.selection);
+    });
     const activate = (): void => activateSceneView(viewport);
     host.addEventListener('pointerdown', activate);
     const resize = (): void => viewport.resize(host.clientWidth, host.clientHeight);
@@ -67,6 +70,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
       }
     });
     return () => {
+      unsubscribeSelection();
       host.removeEventListener('pointerdown', activate);
       observer.disconnect();
       dimensions.dispose();
@@ -76,10 +80,6 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
       viewportRef.current = null;
     };
   }, [api, supported]);
-
-  useEffect(() => {
-    viewportRef.current?.setSelection(selection);
-  }, [selection]);
 
   useEffect(() => {
     viewportRef.current?.refreshTool();
