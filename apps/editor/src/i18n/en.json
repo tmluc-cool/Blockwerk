@@ -67,6 +67,8 @@
   "panel.project": "Project",
   "panel.assetLibrary": "Asset Library",
   "panel.console": "Console",
+  "panel.failed": "This window could not be loaded.",
+  "panel.failedLog": "Error in window “{panel}”: {message}",
   "dock.close": "Close",
   "dock.float": "Undock (floating)",
   "dock.popout": "Move to New Window",

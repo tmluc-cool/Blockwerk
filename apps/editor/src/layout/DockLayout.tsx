@@ -15,10 +15,11 @@ import { useConsole } from '../state/console';
 import { t, useSettings, useT } from '../state/settings';
 import { POPOUT_URL, retitlePanels, setLayoutApi } from './layoutController';
 import type { PanelId } from './panels';
+import { withPanelBoundary } from './PanelBoundary';
 import { applyPreset } from './presets';
 import { loadCurrentLayout, saveCurrentLayout } from './storage';
 
-const COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPanelProps>>> = {
+const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPanelProps>>> = {
   hierarchy: HierarchyPanel,
   scene: ScenePanel,
   game: GamePanel,
@@ -28,6 +29,11 @@ const COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPanelProps
   assetLibrary: AssetLibraryPanel,
   console: ConsolePanel,
 };
+
+/** Window components, each wrapped in an error boundary. */
+const COMPONENTS = Object.fromEntries(
+  Object.entries(PANEL_COMPONENTS).map(([id, component]) => [id, withPanelBoundary(id, component)]),
+) as Record<PanelId, FunctionComponent<IDockviewPanelProps>>;
 
 const SAVE_DELAY_MS = 250;
 

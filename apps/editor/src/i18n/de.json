@@ -67,6 +67,8 @@
   "panel.project": "Projekt",
   "panel.assetLibrary": "Asset-Bibliothek",
   "panel.console": "Konsole",
+  "panel.failed": "Dieses Fenster konnte nicht geladen werden.",
+  "panel.failedLog": "Fehler im Fenster „{panel}“: {message}",
   "dock.close": "Schliessen",
   "dock.float": "Lösen (schwebend)",
   "dock.popout": "In eigenes Fenster abtrennen",

@@ -11,6 +11,9 @@ export interface BlockwerkDebugHooks {
   layout(): unknown;
   panelIds(): string[];
   panelLocation(id: string): string | null;
+  panelGroup(id: string): string | null;
+  activePanel(id: string): boolean;
+  panelVisible(id: string): boolean;
   selection(): string | null;
   locale(): string;
   tool(): string;
@@ -30,6 +33,9 @@ export function installTestHooks(): void {
     layout: () => useLayout.getState().api?.toJSON() ?? null,
     panelIds: () => useLayout.getState().api?.panels.map((panel) => panel.id) ?? [],
     panelLocation: (id) => useLayout.getState().api?.getPanel(id)?.group.api.location.type ?? null,
+    panelGroup: (id) => useLayout.getState().api?.getPanel(id)?.group.id ?? null,
+    activePanel: (id) => useLayout.getState().api?.getPanel(id)?.api.isActive ?? false,
+    panelVisible: (id) => useLayout.getState().api?.getPanel(id)?.api.isVisible ?? false,
     selection: () => useEditor.getState().selectedObjectId,
     locale: () => useSettings.getState().locale,
     tool: () => useEditor.getState().tool,

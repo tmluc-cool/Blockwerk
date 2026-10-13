@@ -19,12 +19,7 @@ export function GamePanel({ api }: IDockviewPanelProps) {
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    let viewport: GameViewport;
-    try {
-      viewport = new GameViewport(host, { stats: setStats });
-    } catch {
-      return;
-    }
+    const viewport = new GameViewport(host, { stats: setStats });
     viewportRef.current = viewport;
     const resize = (): void => viewport.resize(host.clientWidth, host.clientHeight);
     const observer = new ResizeObserver(resize);

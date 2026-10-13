@@ -51,10 +51,10 @@ const PRESETS: Readonly<Record<LayoutPreset, readonly PlacementStep[]>> = {
   largeBlocks: LARGE_BLOCKS,
 };
 
-/** Panels that should be active (front tab) after applying a preset. */
+/** Panels shown as front tab after applying a preset; the last one gets the focus. */
 const ACTIVE: Readonly<Record<LayoutPreset, readonly PanelId[]>> = {
-  standard: ['scene', 'project'],
-  largeBlocks: ['blockEditor', 'console', 'scene'],
+  standard: ['project', 'scene'],
+  largeBlocks: ['console', 'scene', 'blockEditor'],
 };
 
 /** Replaces the current layout with a built-in layout. */

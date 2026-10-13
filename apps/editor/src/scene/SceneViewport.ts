@@ -39,6 +39,10 @@ export interface SceneCameraSnapshot {
   readonly orthographic: boolean;
   readonly axisView: AxisView | null;
   readonly speed: number;
+  /** True while a focus or axis-view transition is running. */
+  readonly animating: boolean;
+  /** True while the right mouse button is held (fly mode). */
+  readonly flying: boolean;
   /** Camera rotation as quaternion `[x, y, z, w]`. */
   readonly quaternion: readonly [number, number, number, number];
 }
@@ -53,6 +57,8 @@ export interface SceneViewportCallbacks {
 
 const SELECTION_COLOR = new Color(0xffa133);
 const MAX_FRAME_RADIUS = 12;
+/** Longest time step per frame in seconds, so a stalled frame does not make the camera jump. */
+const MAX_FRAME_STEP = 0.25;
 const CAMERA_GIZMO_COLOR = 0xd8dde6;
 const CAMERA_GIZMO_FAR = 0.45;
 const CAMERA_GIZMO_SELECTED_FAR = 4;
@@ -150,6 +156,8 @@ export class SceneViewport {
       orthographic: camera.orthographic,
       axisView: camera.currentAxisView(),
       speed: camera.speed,
+      animating: camera.animating,
+      flying: this.input.flying,
       quaternion: [q.x, q.y, q.z, q.w],
     };
   }
@@ -314,10 +322,11 @@ export class SceneViewport {
   private readonly frame = (time: number): void => {
     this.frameHandle = 0;
     if (this.disposed) return;
-    const dt = this.lastTime ? Math.min(0.1, (time - this.lastTime) / 1000) : 1 / 60;
+    const dt = this.lastTime ? Math.min(MAX_FRAME_STEP, (time - this.lastTime) / 1000) : 1 / 60;
     this.lastTime = time;
-    let changed = this.dirty;
-    if (this.input.flying && this.camera.fly(this.input.flyInput(), dt)) changed = true;
+    // While flying the view is redrawn every frame (like Unity's scene view while navigating).
+    let changed = this.dirty || this.input.flying;
+    if (this.input.flying) this.camera.fly(this.input.flyInput(), dt);
     if (this.camera.update(dt)) changed = true;
     if (changed) {
       this.render();
