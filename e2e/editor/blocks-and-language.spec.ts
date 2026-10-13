@@ -1,11 +1,24 @@
 import { expect, tab, test } from './fixtures';
+import type { Page } from '@playwright/test';
+
+/** The Blockly page inside the block editor window. */
+function blocks(page: Page) {
+  return page.frameLocator('iframe.block-frame');
+}
+
+/** Number fields of blocks on the workspace (not in the palette). */
+function workspaceFields(page: Page) {
+  return blocks(page).locator(
+    'svg.blocklySvg > g.blocklyWorkspace > g.blocklyBlockCanvas .blocklyEditableField',
+  );
+}
 
 test.describe('block editor and language', () => {
   test('shows the test blocks generated from defineBlock and compiles them', async ({
     editor: page,
   }) => {
     await tab(page, 'Block-Editor').click();
-    const editor = page.getByTestId('block-editor');
+    const editor = blocks(page);
     await expect(editor.locator('.blocklyMainBackground')).toBeVisible();
     await expect(editor.getByText('Wenn Spiel startet').first()).toBeVisible();
     await expect(editor.getByText('Meter vorwärts').first()).toBeVisible();
@@ -17,11 +30,55 @@ test.describe('block editor and language', () => {
     ).toBeVisible();
     const code = await page.evaluate(() => window.__blockwerk?.compiledDemoScript() ?? '');
     expect(code).toContain('self.moveLocal(0, 0, 2);');
+
+    // Editing a number in a block updates the compiled script.
+    await workspaceFields(page).first().click();
+    await editor.locator('.blocklyWidgetDiv input').fill('3.5');
+    await page.keyboard.press('Enter');
+    await expect
+      .poll(() => page.evaluate(() => window.__blockwerk?.compiledDemoScript() ?? ''))
+      .toContain('self.moveLocal(0, 0, 3.5);');
+  });
+
+  test('works in a detached window (second screen)', async ({ editor: page }) => {
+    await tab(page, 'Block-Editor').click();
+    await expect(blocks(page).getByText('Meter vorwärts').first()).toBeVisible();
+    const popupPromise = page.waitForEvent('popup');
+    await tab(page, 'Block-Editor').click({ button: 'right' });
+    await page.getByText('In eigenes Fenster abtrennen').click();
+    const popup = await popupPromise;
+    await expect
+      .poll(() => page.evaluate(() => window.__blockwerk?.panelLocation('blockEditor')))
+      .toBe('popout');
+
+    const editor = blocks(popup);
+    await expect(editor.getByText('Meter vorwärts').first()).toBeVisible();
+    // Palette opens, numbers can be edited, blocks can be dragged.
+    await editor.locator('#motion.blocklyToolboxCategory').click();
+    await expect(editor.locator('.blocklyFlyout').first()).toBeVisible();
+    await editor.locator('.blocklyMainBackground').click({ position: { x: 500, y: 400 } });
+    await workspaceFields(popup).first().click();
+    await editor.locator('.blocklyWidgetDiv input').fill('7');
+    await popup.keyboard.press('Enter');
+    await expect
+      .poll(() => page.evaluate(() => window.__blockwerk?.compiledDemoScript() ?? ''))
+      .toContain('self.moveLocal(0, 0, 7);');
+
+    const hat = editor.getByText('Wenn Spiel startet').first();
+    const before = await hat.boundingBox();
+    if (!before) throw new Error('hat block not visible');
+    await popup.mouse.move(before.x + 10, before.y + 5);
+    await popup.mouse.down();
+    await popup.mouse.move(before.x + 160, before.y + 120, { steps: 8 });
+    await popup.mouse.up();
+    await expect
+      .poll(async () => ((await hat.boundingBox())?.x ?? 0) - before.x)
+      .toBeGreaterThan(100);
   });
 
   test('palette puts the categories of the active area first', async ({ editor: page }) => {
     await tab(page, 'Block-Editor').click();
-    const labels = page.getByTestId('block-editor').locator('.blocklyToolboxCategoryLabel');
+    const labels = blocks(page).locator('.blocklyToolboxCategoryLabel');
     await expect(labels.first()).toHaveText('Ereignisse');
     await page.getByTestId('area-player1').click();
     await expect(labels.first()).toHaveText('Bewegung');
@@ -38,7 +95,7 @@ test.describe('block editor and language', () => {
     await expect(tab(page, 'Scene')).toBeVisible();
     await expect(tab(page, 'Inspector')).toBeVisible();
     await expect(page.getByTestId('area-tabs')).toContainText('Player 1');
-    const editor = page.getByTestId('block-editor');
+    const editor = blocks(page);
     await expect(editor.getByText('when game starts').first()).toBeVisible();
     await expect(editor.getByText('m forward').first()).toBeVisible();
     await expect(
