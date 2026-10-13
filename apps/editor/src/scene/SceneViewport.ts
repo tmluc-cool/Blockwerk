@@ -1,30 +1,34 @@
 import { createRenderer } from '@blockwerk/runtime';
+import type { GameObject, World } from '@blockwerk/runtime';
+import type { TransformData } from '@blockwerk/project';
 import {
   ArrowHelper,
   Box3,
-  BoxHelper,
+  Box3Helper,
   CameraHelper,
   Color,
+  Group,
   Mesh,
-  MeshStandardMaterial,
+  MeshBasicMaterial,
+  Object3D,
   OrthographicCamera,
   PerspectiveCamera,
   Raycaster,
+  Scene,
   Sphere,
   SphereGeometry,
-  MeshBasicMaterial,
   Vector2,
   Vector3,
 } from 'three';
-import type { Object3D, WebGLRenderer } from 'three';
+import type { Camera, Intersection, WebGLRenderer, Matrix4 } from 'three';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { transformFromMatrix } from '../document/sceneOps';
 import type { Tool } from '../state/editor';
-import { findSceneObject, SAMPLE_SCENE } from '../state/scene';
 import { EditorGrid } from './EditorGrid';
-import { buildSampleWorld } from './sampleWorld';
-import type { SampleWorld } from './sampleWorld';
 import { SceneCamera } from './SceneCamera';
 import type { AxisView } from './SceneCamera';
 import { SceneInput } from './SceneInput';
+import { currentWorld, onWorldChange, registerRenderView } from './worlds';
 
 /** Shading modes of the scene view (Unity: Draw Mode). */
 export type ShadingMode = 'shaded' | 'wireframe';
@@ -47,38 +51,57 @@ export interface SceneCameraSnapshot {
   readonly quaternion: readonly [number, number, number, number];
 }
 
-/** Callbacks from the viewport to the React panel. */
+/** Callbacks from the viewport to the React panel and the editor state. */
 export interface SceneViewportCallbacks {
   cameraChanged(snapshot: SceneCameraSnapshot): void;
-  select(id: string | null): void;
+  /** A click selected an object (or nothing). `additive` when Ctrl/Shift was held. */
+  pick(id: string | null, additive: boolean): void;
   tool(): Tool;
+  pivotMode(): 'pivot' | 'center';
+  space(): 'local' | 'global';
   flyingChanged(flying: boolean): void;
+  /** The gizmo moved objects: new local transforms by object ID. */
+  transform(transforms: ReadonlyMap<string, TransformData>): void;
+  /** A gizmo drag ended. */
+  transformEnd(): void;
 }
 
 const SELECTION_COLOR = new Color(0xffa133);
-const MAX_FRAME_RADIUS = 12;
+const ICON_COLOR = 0xd8dde6;
+const SUN_COLOR = 0xffd34d;
+const MAX_FRAME_RADIUS = 30;
 /** Longest time step per frame in seconds, so a stalled frame does not make the camera jump. */
 const MAX_FRAME_STEP = 0.25;
-const CAMERA_GIZMO_COLOR = 0xd8dde6;
-const CAMERA_GIZMO_FAR = 0.45;
-const CAMERA_GIZMO_SELECTED_FAR = 4;
+/** Increments of Ctrl snapping (Unity defaults). */
+const SNAP = { move: 0.25, rotate: 15, scale: 0.1 } as const;
 
-/** Editor scene view: renders the sample scene with grid and gizmos and handles navigation. */
+interface Icon {
+  readonly root: Group;
+  readonly picker: Mesh;
+  readonly kind: 'camera' | 'light';
+  readonly update: (selected: boolean) => void;
+  readonly dispose: () => void;
+}
+
+/** Editor scene view: renders the shared world with grid, icons and gizmos, handles navigation. */
 export class SceneViewport {
   readonly camera = new SceneCamera();
   private readonly renderer: WebGLRenderer;
-  private readonly world: SampleWorld;
   private readonly perspective = new PerspectiveCamera();
   private readonly orthographic = new OrthographicCamera();
+  private readonly overlay = new Scene();
   private readonly grid = new EditorGrid();
   private readonly input: SceneInput;
   private readonly raycaster = new Raycaster();
-  private readonly gizmoPickers: { id: string; mesh: Mesh }[] = [];
-  private readonly frustumProxy = new PerspectiveCamera(60, 16 / 9, 0.05, CAMERA_GIZMO_FAR);
-  private readonly cameraHelper: CameraHelper;
-  private readonly sunArrow: ArrowHelper;
-  private selectionHelper: BoxHelper | null = null;
-  private selectedId: string | null = null;
+  private readonly gizmos: TransformControls[];
+  private readonly proxy = new Object3D();
+  private readonly icons = new Map<string, Icon>();
+  private readonly selectionBoxes = new Map<string, Box3Helper>();
+  private readonly wireframe = new MeshBasicMaterial({ color: 0xd0d4dc, wireframe: true });
+  private world: World | null = null;
+  private selection: readonly string[] = [];
+  private dragStart: { proxy: Matrix4; objects: Map<string, Matrix4> } | null = null;
+  private snapping = false;
   private frameHandle = 0;
   private lastTime = 0;
   private dirty = true;
@@ -86,6 +109,8 @@ export class SceneViewport {
   private height = 1;
   private disposed = false;
   private shading: ShadingMode = 'shaded';
+  private skyAndFog = true;
+  private readonly unsubscribe: () => void;
 
   constructor(
     private readonly container: HTMLElement,
@@ -97,44 +122,44 @@ export class SceneViewport {
     canvas.dataset['testid'] = 'scene-canvas';
     container.appendChild(canvas);
     this.renderer = createRenderer({ canvas });
-    this.world = buildSampleWorld();
-    this.world.environment.bakeLighting(this.renderer);
-    this.world.scene.add(this.grid);
+    this.overlay.add(this.grid);
+    this.overlay.add(this.proxy);
 
-    // Gizmos for objects without geometry (camera frustum and sun direction), like Unity's icons.
-    // Small frustum as camera icon; the full view frustum is shown while the camera is selected.
-    const mainCamera = this.world.mainCamera;
-    this.frustumProxy.position.copy(mainCamera.position);
-    this.frustumProxy.quaternion.copy(mainCamera.quaternion);
-    this.frustumProxy.updateMatrixWorld();
-    this.cameraHelper = new CameraHelper(this.frustumProxy);
-    this.styleCameraGizmo(false);
-    this.world.scene.add(this.cameraHelper);
-    const sunMarker = this.world.objects.get('sun');
-    const sunDirection = this.world.environment.getSunDirection().negate();
-    this.sunArrow = new ArrowHelper(
-      sunDirection,
-      sunMarker?.position ?? new Vector3(),
-      1.6,
-      0xffd34d,
-      0.35,
-      0.18,
-    );
-    this.world.scene.add(this.sunArrow);
-    this.addGizmoPicker('main-camera', mainCamera.position);
-    if (sunMarker) this.addGizmoPicker('sun', sunMarker.position);
+    // Transform gizmos; the combined tool shows move and rotate handles together.
+    const move = new TransformControls(this.perspective, canvas);
+    const rotate = new TransformControls(this.perspective, canvas);
+    rotate.setMode('rotate');
+    rotate.setSize(1.15);
+    this.gizmos = [move, rotate];
+    for (const gizmo of this.gizmos) {
+      this.overlay.add(gizmo.getHelper());
+      gizmo.addEventListener('mouseDown', () => this.beginDrag());
+      gizmo.addEventListener('objectChange', () => this.drag());
+      gizmo.addEventListener('mouseUp', () => this.endDrag());
+      gizmo.addEventListener('change', () => this.requestRender());
+    }
 
-    this.camera.lookAt(new Vector3(4.6, 3.1, 6.4), new Vector3(0, 0.5, 0));
-
+    this.camera.lookAt(new Vector3(6, 4.5, -8), new Vector3(0, 0.5, 0));
     this.input = new SceneInput(canvas, this.camera, {
       invalidate: () => this.requestRender(),
-      click: (x, y) => this.pick(x, y),
+      click: (x, y, additive) => this.pick(x, y, additive),
       tool: () => this.callbacks.tool(),
       flyingChanged: (flying) => {
         this.callbacks.flyingChanged(flying);
         this.requestRender();
       },
+      gizmoHit: (x, y) => this.gizmoHit(x, y),
     });
+    const view = container.ownerDocument.defaultView;
+    view?.addEventListener('keydown', this.onModifier);
+    view?.addEventListener('keyup', this.onModifier);
+    const unsubscribeWorld = onWorldChange(() => this.worldChanged());
+    const unregister = registerRenderView(this);
+    this.unsubscribe = () => {
+      unsubscribeWorld();
+      unregister();
+    };
+    this.worldChanged();
     this.resize(container.clientWidth, container.clientHeight);
   }
 
@@ -175,43 +200,37 @@ export class SceneViewport {
     this.requestRender();
   }
 
-  /** Highlights the selected object. */
-  setSelection(id: string | null): void {
-    if (id === this.selectedId) return;
-    this.selectedId = id;
-    if (this.selectionHelper) {
-      this.world.scene.remove(this.selectionHelper);
-      this.selectionHelper.dispose();
-      this.selectionHelper = null;
-    }
-    const object = id ? this.world.objects.get(id) : undefined;
-    const info = findSceneObject(id);
-    if (object && info && info.kind === 'cube') {
-      this.selectionHelper = new BoxHelper(object, SELECTION_COLOR);
-      this.world.scene.add(this.selectionHelper);
-    }
-    this.styleCameraGizmo(id === 'main-camera');
-    (this.sunArrow.line.material as MeshBasicMaterial).color.set(
-      id === 'sun' ? SELECTION_COLOR : 0xffd34d,
-    );
+  /** Shows the selection (outlines and gizmo). */
+  setSelection(ids: readonly string[]): void {
+    this.selection = ids;
+    this.updateSelection();
     this.requestRender();
   }
 
-  /** Frames an object (F key, double-click in the hierarchy). */
-  focus(id: string | null): void {
-    const object = id ? this.world.objects.get(id) : undefined;
-    const info = findSceneObject(id);
-    if (!object || !info) return;
-    const sphere = new Sphere();
-    if (info.kind === 'cube') {
-      new Box3().setFromObject(object).getBoundingSphere(sphere);
-    } else if (info.kind === 'ground') {
-      sphere.set(new Vector3(0, 0, 0), MAX_FRAME_RADIUS);
-    } else {
-      sphere.set(object.getWorldPosition(new Vector3()), 1);
-    }
-    this.camera.frame(sphere.center, Math.min(sphere.radius, MAX_FRAME_RADIUS));
+  /** Re-reads tool, pivot mode and space from the editor. */
+  refreshTool(): void {
+    this.updateGizmo();
     this.requestRender();
+  }
+
+  /** Frames the given objects (F key, double-click in the hierarchy). */
+  focus(ids: readonly string[]): void {
+    const objects = this.objects(ids);
+    if (objects.length === 0) return;
+    const box = new Box3();
+    for (const object of objects) {
+      const own = new Box3().setFromObject(object.object3d);
+      if (own.isEmpty()) own.expandByPoint(object.worldPosition());
+      box.union(own);
+    }
+    const sphere = box.getBoundingSphere(new Sphere());
+    this.camera.frame(sphere.center, Math.min(Math.max(sphere.radius, 0.5), MAX_FRAME_RADIUS));
+    this.requestRender();
+  }
+
+  /** The point new objects are placed at (Unity: the scene view pivot). */
+  placementPoint(): Vector3 {
+    return this.camera.pivot.clone();
   }
 
   /** Turns to an axis view (scene gizmo). */
@@ -228,11 +247,6 @@ export class SceneViewport {
 
   setShading(mode: ShadingMode): void {
     this.shading = mode;
-    this.world.scene.traverse((node) => {
-      if (node instanceof Mesh && node.material instanceof MeshStandardMaterial) {
-        node.material.wireframe = mode === 'wireframe';
-      }
-    });
     this.requestRender();
   }
 
@@ -246,10 +260,7 @@ export class SceneViewport {
   }
 
   setSkyAndFogVisible(visible: boolean): void {
-    this.world.environment.sky.visible = visible;
-    const fog = this.world.scene.fog;
-    if (fog && 'far' in fog) fog.far = visible ? 650 : 1e9;
-    this.world.scene.background = visible ? null : new Color(0x30343b);
+    this.skyAndFog = visible;
     this.requestRender();
   }
 
@@ -261,55 +272,304 @@ export class SceneViewport {
 
   dispose(): void {
     this.disposed = true;
+    this.unsubscribe();
     const view = this.container.ownerDocument.defaultView;
     if (this.frameHandle && view) view.cancelAnimationFrame(this.frameHandle);
+    view?.removeEventListener('keydown', this.onModifier);
+    view?.removeEventListener('keyup', this.onModifier);
     this.input.dispose();
-    this.selectionHelper?.dispose();
-    this.cameraHelper.dispose();
-    this.sunArrow.dispose();
-    for (const picker of this.gizmoPickers) picker.mesh.geometry.dispose();
+    for (const gizmo of this.gizmos) {
+      gizmo.detach();
+      gizmo.dispose();
+    }
+    for (const icon of this.icons.values()) icon.dispose();
+    for (const box of this.selectionBoxes.values()) box.dispose();
     this.grid.dispose();
-    this.world.dispose();
+    this.wireframe.dispose();
+    this.world?.environment.releaseRenderer(this.renderer);
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
 
-  private styleCameraGizmo(selected: boolean): void {
-    const line = new Color(selected ? SELECTION_COLOR : CAMERA_GIZMO_COLOR);
-    this.cameraHelper.setColors(line, line, line, line, new Color(CAMERA_GIZMO_COLOR));
-    this.frustumProxy.far = selected ? CAMERA_GIZMO_SELECTED_FAR : CAMERA_GIZMO_FAR;
-    this.frustumProxy.updateProjectionMatrix();
-    this.cameraHelper.update();
+  private objects(ids: readonly string[]): GameObject[] {
+    const world = this.world;
+    if (!world) return [];
+    return ids.map((id) => world.getObject(id)).filter((object): object is GameObject => !!object);
   }
 
-  private addGizmoPicker(id: string, position: Vector3): void {
-    const mesh = new Mesh(
+  private worldChanged(): void {
+    const world = currentWorld();
+    if (world !== this.world) {
+      this.world?.environment.releaseRenderer(this.renderer);
+      this.world = world;
+      for (const icon of this.icons.values()) icon.dispose();
+      this.icons.clear();
+    }
+    if (!this.dragStart) this.updateSelection();
+    this.requestRender();
+  }
+
+  private readonly onModifier = (event: KeyboardEvent): void => {
+    const snapping = event.ctrlKey || event.metaKey;
+    if (snapping === this.snapping) return;
+    this.snapping = snapping;
+    this.updateSnapping();
+  };
+
+  private updateSnapping(): void {
+    const [move, rotate] = this.gizmos;
+    const on = this.snapping;
+    const mode = this.callbacks.tool();
+    move?.setTranslationSnap(on ? SNAP.move : null);
+    move?.setScaleSnap(on ? SNAP.scale : null);
+    rotate?.setRotationSnap(on ? (SNAP.rotate * Math.PI) / 180 : null);
+    if (mode === 'scale') move?.setScaleSnap(on ? SNAP.scale : null);
+  }
+
+  /** Places outlines and gizmo for the current selection. */
+  private updateSelection(): void {
+    const objects = this.objects(this.selection);
+    for (const [id, box] of this.selectionBoxes) {
+      if (!objects.some((object) => object.id === id)) {
+        this.overlay.remove(box);
+        box.dispose();
+        this.selectionBoxes.delete(id);
+      }
+    }
+    for (const object of objects) {
+      if (this.selectionBoxes.has(object.id)) continue;
+      const box = new Box3Helper(new Box3(), SELECTION_COLOR);
+      this.selectionBoxes.set(object.id, box);
+      this.overlay.add(box);
+    }
+    this.updateGizmo();
+  }
+
+  private updateGizmo(): void {
+    const objects = this.objects(this.selection);
+    const tool = this.callbacks.tool();
+    const [move, rotate] = this.gizmos;
+    if (!move || !rotate) return;
+    const showMove = tool === 'move' || tool === 'scale' || tool === 'transform' || tool === 'rect';
+    const showRotate = tool === 'rotate' || tool === 'transform';
+    move.setMode(tool === 'scale' ? 'scale' : 'translate');
+    const space = this.callbacks.space() === 'local' || tool === 'scale' ? 'local' : 'world';
+    for (const gizmo of this.gizmos) gizmo.setSpace(space);
+    if (objects.length === 0) {
+      move.detach();
+      rotate.detach();
+      return;
+    }
+    this.placeProxy(objects);
+    if (showMove) move.attach(this.proxy);
+    else move.detach();
+    if (showRotate) rotate.attach(this.proxy);
+    else rotate.detach();
+    this.updateSnapping();
+  }
+
+  /** Puts the gizmo proxy at the pivot of the active object or the center of the selection. */
+  private placeProxy(objects: readonly GameObject[]): void {
+    const active = objects[objects.length - 1];
+    if (!active) return;
+    active.object3d.updateWorldMatrix(true, false);
+    const position = new Vector3();
+    if (this.callbacks.pivotMode() === 'center') {
+      const box = new Box3();
+      for (const object of objects) {
+        const own = new Box3().setFromObject(object.object3d);
+        if (own.isEmpty()) own.expandByPoint(object.worldPosition());
+        box.union(own);
+      }
+      box.getCenter(position);
+    } else {
+      position.setFromMatrixPosition(active.object3d.matrixWorld);
+    }
+    this.proxy.position.copy(position);
+    active.object3d.getWorldQuaternion(this.proxy.quaternion);
+    this.proxy.scale.set(1, 1, 1);
+    this.proxy.updateMatrixWorld(true);
+  }
+
+  private beginDrag(): void {
+    const objects = this.objects(this.selection);
+    this.proxy.updateMatrixWorld(true);
+    const starts = new Map<string, Matrix4>();
+    const selected = new Set(this.selection);
+    for (const object of objects) {
+      // Children of selected objects move with their parent.
+      let ancestorSelected = false;
+      for (let parent = object.parent; parent; parent = parent.parent) {
+        if (selected.has(parent.id)) ancestorSelected = true;
+      }
+      if (ancestorSelected) continue;
+      object.object3d.updateWorldMatrix(true, false);
+      starts.set(object.id, object.object3d.matrixWorld.clone());
+    }
+    this.dragStart = { proxy: this.proxy.matrixWorld.clone(), objects: starts };
+  }
+
+  private drag(): void {
+    const start = this.dragStart;
+    const world = this.world;
+    if (!start || !world) return;
+    this.proxy.updateMatrixWorld(true);
+    const delta = this.proxy.matrixWorld.clone().multiply(start.proxy.clone().invert());
+    const transforms = new Map<string, TransformData>();
+    for (const [id, matrix] of start.objects) {
+      const object = world.getObject(id);
+      if (!object) continue;
+      const next = delta.clone().multiply(matrix);
+      const parent = object.parent?.object3d;
+      if (parent) {
+        parent.updateWorldMatrix(true, false);
+        next.premultiply(parent.matrixWorld.clone().invert());
+      }
+      transforms.set(id, transformFromMatrix(next));
+    }
+    if (transforms.size > 0) this.callbacks.transform(transforms);
+  }
+
+  private endDrag(): void {
+    this.dragStart = null;
+    this.callbacks.transformEnd();
+    this.updateSelection();
+    this.requestRender();
+  }
+
+  private activeCamera(): Camera {
+    return this.camera.orthographic ? this.orthographic : this.perspective;
+  }
+
+  private pointer(x: number, y: number): Vector2 {
+    return new Vector2((x / this.width) * 2 - 1, -(y / this.height) * 2 + 1);
+  }
+
+  private gizmoHit(x: number, y: number): boolean {
+    const pointer = this.pointer(x, y);
+    for (const gizmo of this.gizmos) {
+      if (!gizmo.object || !gizmo.enabled) continue;
+      gizmo.camera = this.activeCamera();
+      gizmo.pointerHover({ x: pointer.x, y: pointer.y, button: 0 } as unknown as PointerEvent);
+      if (gizmo.axis !== null) return true;
+    }
+    return false;
+  }
+
+  private pick(x: number, y: number, additive: boolean): void {
+    const world = this.world;
+    if (!world) return;
+    this.raycaster.setFromCamera(this.pointer(x, y), this.activeCamera());
+    const pickers = [...this.icons.values()].map((icon) => icon.picker);
+    const iconHit = this.raycaster.intersectObjects(pickers, false)[0];
+    const meshHit = this.raycaster
+      .intersectObjects(world.scene.children, true)
+      .find((hit: Intersection) => isPickable(hit.object) && world.objectFromNode(hit.object));
+    let id: string | null = null;
+    if (iconHit && (!meshHit || iconHit.distance <= meshHit.distance)) {
+      id = [...this.icons].find(([, icon]) => icon.picker === iconHit.object)?.[0] ?? null;
+    } else if (meshHit) {
+      id = world.objectFromNode(meshHit.object)?.id ?? null;
+    }
+    this.callbacks.pick(id, additive);
+  }
+
+  /** Keeps camera and light icons in sync with the world (Unity: gizmo icons). */
+  private updateIcons(): void {
+    const world = this.world;
+    const seen = new Set<string>();
+    if (world) {
+      for (const object of world.allObjects()) {
+        const kind = object.findComponent('camera')
+          ? 'camera'
+          : object.findComponent('light')
+            ? 'light'
+            : null;
+        if (!kind || !object.activeInHierarchy) continue;
+        seen.add(object.id);
+        let icon = this.icons.get(object.id);
+        if (icon && icon.kind !== kind) {
+          icon.dispose();
+          icon = undefined;
+        }
+        if (!icon) {
+          icon = kind === 'camera' ? this.cameraIcon() : this.lightIcon();
+          this.icons.set(object.id, icon);
+        }
+        object.object3d.updateWorldMatrix(true, false);
+        icon.root.position.setFromMatrixPosition(object.object3d.matrixWorld);
+        object.object3d.getWorldQuaternion(icon.root.quaternion);
+        icon.root.updateMatrixWorld(true);
+        icon.update(this.selection.includes(object.id));
+      }
+    }
+    for (const [id, icon] of this.icons) {
+      if (!seen.has(id)) {
+        icon.dispose();
+        this.icons.delete(id);
+      }
+    }
+  }
+
+  private cameraIcon(): Icon {
+    const root = new Group();
+    const frustum = new PerspectiveCamera(60, 16 / 9, 0.05, 0.45);
+    // Game cameras look along +Z; the frustum helper draws along -Z, so turn it around.
+    frustum.rotation.y = Math.PI;
+    root.add(frustum);
+    const helper = new CameraHelper(frustum);
+    const picker = new Mesh(
       new SphereGeometry(0.45, 8, 6),
       new MeshBasicMaterial({ visible: false }),
     );
-    mesh.position.copy(position);
-    mesh.name = `${id}-picker`;
-    this.world.scene.add(mesh);
-    this.gizmoPickers.push({ id, mesh });
+    root.add(picker);
+    this.overlay.add(root, helper);
+    let wasSelected: boolean | null = null;
+    return {
+      root,
+      picker,
+      kind: 'camera',
+      update: (selected) => {
+        root.updateMatrixWorld(true);
+        if (selected !== wasSelected) {
+          wasSelected = selected;
+          const color = new Color(selected ? SELECTION_COLOR : ICON_COLOR);
+          helper.setColors(color, color, color, color, new Color(ICON_COLOR));
+          frustum.far = selected ? 4 : 0.45;
+          frustum.updateProjectionMatrix();
+        }
+        helper.update();
+      },
+      dispose: () => {
+        this.overlay.remove(root, helper);
+        helper.dispose();
+        picker.geometry.dispose();
+      },
+    };
   }
 
-  private pick(x: number, y: number): void {
-    const pointer = new Vector2((x / this.width) * 2 - 1, -(y / this.height) * 2 + 1);
-    const camera = this.camera.orthographic ? this.orthographic : this.perspective;
-    this.raycaster.setFromCamera(pointer, camera);
-    const candidates: { id: string; mesh: Object3D }[] = [
-      ...this.gizmoPickers,
-      ...this.world.pickables,
-    ];
-    const hits = this.raycaster.intersectObjects(
-      candidates.map((candidate) => candidate.mesh),
-      false,
+  private lightIcon(): Icon {
+    const root = new Group();
+    // Lights shine along +Z.
+    const arrow = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(), 1.6, SUN_COLOR, 0.35, 0.18);
+    root.add(arrow);
+    const picker = new Mesh(
+      new SphereGeometry(0.45, 8, 6),
+      new MeshBasicMaterial({ visible: false }),
     );
-    const hit = hits[0];
-    const id = hit
-      ? (candidates.find((candidate) => candidate.mesh === hit.object)?.id ?? null)
-      : null;
-    this.callbacks.select(id && SAMPLE_SCENE.some((object) => object.id === id) ? id : null);
+    root.add(picker);
+    this.overlay.add(root);
+    return {
+      root,
+      picker,
+      kind: 'light',
+      update: (selected) => arrow.setColor(selected ? SELECTION_COLOR : SUN_COLOR),
+      dispose: () => {
+        this.overlay.remove(root);
+        arrow.dispose();
+        picker.geometry.dispose();
+      },
+    };
   }
 
   private schedule(): void {
@@ -340,14 +600,61 @@ export class SceneViewport {
     }
   };
 
-  private render(): void {
+  /** Renders now (also called by the play loop for every game frame). */
+  render(): void {
     const aspect = this.width / this.height;
     this.camera.apply(this.perspective, this.orthographic, aspect);
-    const camera = this.camera.orthographic ? this.orthographic : this.perspective;
-    this.world.environment.setFocus(this.camera.pivot);
-    this.world.environment.update(camera);
+    const camera = this.activeCamera();
+    for (const gizmo of this.gizmos) gizmo.camera = camera;
     this.grid.update(camera, this.camera.distance);
-    this.selectionHelper?.update();
-    this.renderer.render(this.world.scene, camera);
+    this.updateIcons();
+    for (const [id, box] of this.selectionBoxes) {
+      const object = this.world?.getObject(id);
+      if (!object) continue;
+      box.box.setFromObject(object.object3d);
+      if (box.box.isEmpty())
+        box.box.setFromCenterAndSize(object.worldPosition(), new Vector3(0.3, 0.3, 0.3));
+    }
+    const renderer = this.renderer;
+    renderer.autoClear = true;
+    const world = this.world;
+    if (world) {
+      world.updateSun();
+      world.environment.setFocus(this.camera.pivot);
+      world.environment.prepare(renderer, camera);
+      const scene = world.scene;
+      const fog = scene.fog;
+      const sky = world.environment.sky.visible;
+      if (!this.skyAndFog) {
+        scene.fog = null;
+        world.environment.sky.visible = false;
+        scene.background = new Color(0x30343b);
+      }
+      if (this.shading === 'wireframe') {
+        scene.overrideMaterial = this.wireframe;
+        world.environment.sky.visible = false;
+        scene.background = new Color(0x26292f);
+      }
+      renderer.render(scene, camera);
+      scene.overrideMaterial = null;
+      scene.fog = fog;
+      scene.background = null;
+      world.environment.sky.visible = sky;
+    } else {
+      renderer.setClearColor(0x30343b);
+      renderer.clear();
+    }
+    renderer.autoClear = false;
+    renderer.render(this.overlay, camera);
+    renderer.autoClear = true;
   }
+}
+
+/** Visible meshes count for picking (helpers and invisible parts do not). */
+function isPickable(object: Object3D): boolean {
+  if (!(object as { isMesh?: boolean }).isMesh) return false;
+  for (let current: Object3D | null = object; current; current = current.parent) {
+    if (!current.visible) return false;
+  }
+  return true;
 }

@@ -5,8 +5,10 @@ import type { FlyInput, SceneCamera } from './SceneCamera';
 export interface SceneInputCallbacks {
   /** The camera changed; render a new frame. */
   invalidate(): void;
-  /** Left click without dragging, in element-relative CSS pixels. */
-  click(x: number, y: number): void;
+  /** Left click without dragging, in element-relative CSS pixels. `additive` with Ctrl or Shift. */
+  click(x: number, y: number, additive: boolean): void;
+  /** Whether a transform gizmo handle is under the pointer (the gizmo handles the drag). */
+  gizmoHit(x: number, y: number): boolean;
   /** Currently active toolbar tool. */
   tool(): Tool;
   /** Fly mode started or ended. */
@@ -39,6 +41,7 @@ export class SceneInput {
   private startX = 0;
   private startY = 0;
   private pointerId = -1;
+  private additive = false;
   private readonly keys = new Set<string>();
   private keyWindow: Window | null = null;
 
@@ -93,7 +96,12 @@ export class SceneInput {
     else if (event.button === 0) {
       if (event.altKey) mode = 'orbit';
       else if (this.callbacks.tool() === 'hand') mode = 'pan';
-      else mode = 'click';
+      else {
+        const rect = this.element.getBoundingClientRect();
+        if (this.callbacks.gizmoHit(event.clientX - rect.left, event.clientY - rect.top)) return;
+        mode = 'click';
+        this.additive = event.ctrlKey || event.metaKey || event.shiftKey;
+      }
     }
     if (mode === 'none') return;
     event.preventDefault();
@@ -143,7 +151,9 @@ export class SceneInput {
       Math.hypot(event.clientX - this.startX, event.clientY - this.startY) < CLICK_TOLERANCE;
     const rect = this.element.getBoundingClientRect();
     this.endDrag();
-    if (wasClick) this.callbacks.click(event.clientX - rect.left, event.clientY - rect.top);
+    if (wasClick) {
+      this.callbacks.click(event.clientX - rect.left, event.clientY - rect.top, this.additive);
+    }
   };
 
   private readonly onLostCapture = (): void => {

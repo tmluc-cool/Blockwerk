@@ -11,8 +11,14 @@ export type Theme = 'dark' | 'light';
 interface SettingsState {
   locale: Locale;
   theme: Theme;
+  /** Project opened last (reference of the storage backend). */
+  lastProject: string | null;
+  /** Save automatically a few seconds after every change. */
+  autosave: boolean;
   setLocale: (locale: Locale) => void;
   setTheme: (theme: Theme) => void;
+  setLastProject: (ref: string | null) => void;
+  setAutosave: (autosave: boolean) => void;
 }
 
 /** User preferences that survive restarts (stored in localStorage, not in the project). */
@@ -21,8 +27,12 @@ export const useSettings = create<SettingsState>()(
     (set) => ({
       locale: 'de',
       theme: 'dark',
+      lastProject: null,
+      autosave: true,
       setLocale: (locale) => set({ locale }),
       setTheme: (theme) => set({ theme }),
+      setLastProject: (lastProject) => set({ lastProject }),
+      setAutosave: (autosave) => set({ autosave }),
     }),
     { name: 'blockwerk.settings', version: 1 },
   ),

@@ -1,6 +1,7 @@
 import { CircleAlert, Info, TriangleAlert } from 'lucide-react';
 import type { IDockviewPanelProps } from 'dockview-react';
 import type { ReactElement } from 'react';
+import { revealLink } from '../navigation';
 import { useConsole, visibleRows } from '../state/console';
 import type { LogLevel } from '../state/console';
 import { useSettings, useT } from '../state/settings';
@@ -80,7 +81,13 @@ export function ConsolePanel(_props: IDockviewPanelProps) {
       <div className="console-list" role="log" tabIndex={0}>
         {rows.length === 0 && <div className="empty-hint">{t('console.empty')}</div>}
         {rows.map(({ entry, count }) => (
-          <div key={entry.id} className={`console-row level-${entry.level}`}>
+          <div
+            key={entry.id}
+            className={`console-row level-${entry.level}${entry.link ? ' linked' : ''}`}
+            title={entry.link ? t('console.jumpHint') : undefined}
+            data-testid="console-row"
+            onClick={() => entry.link && revealLink(entry.link)}
+          >
             {LEVEL_ICONS[entry.level]}
             <span className="console-time">{time.format(entry.time)}</span>
             <span className="console-message">{t(entry.key, entry.params)}</span>

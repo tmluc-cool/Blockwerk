@@ -5,6 +5,8 @@ import { AxisGizmo } from '../scene/AxisGizmo';
 import { activateSceneView, registerSceneView, unregisterSceneView } from '../scene/sceneViews';
 import { SceneViewport } from '../scene/SceneViewport';
 import type { SceneCameraSnapshot, ShadingMode } from '../scene/SceneViewport';
+import { editTransforms } from '../document/edits';
+import { sealHistory } from '../state/document';
 import { useEditor } from '../state/editor';
 import { useT } from '../state/settings';
 
@@ -27,20 +29,31 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const [shading, setShading] = useState<ShadingMode>('shaded');
   const [grid, setGrid] = useState(true);
   const [sky, setSky] = useState(true);
-  const selectedId = useEditor((state) => state.selectedObjectId);
+  const selection = useEditor((state) => state.selection);
+  const tool = useEditor((state) => state.tool);
+  const pivotMode = useEditor((state) => state.pivotMode);
+  const space = useEditor((state) => state.space);
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host || !supported) return;
     const viewport = new SceneViewport(host, {
       cameraChanged: setSnapshot,
-      select: (id) => useEditor.getState().select(id),
+      pick: (id, additive) => {
+        const editor = useEditor.getState();
+        if (additive) editor.select(id, 'toggle');
+        else editor.select(id);
+      },
       tool: () => useEditor.getState().tool,
+      pivotMode: () => useEditor.getState().pivotMode,
+      space: () => useEditor.getState().space,
       flyingChanged: (flying) => useEditor.getState().setFlying(flying),
+      transform: editTransforms,
+      transformEnd: sealHistory,
     });
     viewportRef.current = viewport;
     registerSceneView(viewport);
-    viewport.setSelection(useEditor.getState().selectedObjectId);
+    viewport.setSelection(useEditor.getState().selection);
     const activate = (): void => activateSceneView(viewport);
     host.addEventListener('pointerdown', activate);
     const resize = (): void => viewport.resize(host.clientWidth, host.clientHeight);
@@ -65,8 +78,12 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   }, [api, supported]);
 
   useEffect(() => {
-    viewportRef.current?.setSelection(selectedId);
-  }, [selectedId]);
+    viewportRef.current?.setSelection(selection);
+  }, [selection]);
+
+  useEffect(() => {
+    viewportRef.current?.refreshTool();
+  }, [tool, pivotMode, space]);
 
   if (!supported) {
     return (

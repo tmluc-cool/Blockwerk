@@ -449,6 +449,43 @@ button:focus-visible {
   cursor: default;
 }
 
+.tree-item.inactive .tree-label {
+  opacity: 0.5;
+}
+
+.tree-item.area-root .tree-label {
+  font-weight: 600;
+}
+
+.tree-item.drop-inside {
+  outline: 1px solid var(--bw-accent);
+  outline-offset: -1px;
+}
+
+.tree-item.drop-before {
+  box-shadow: inset 0 2px 0 var(--bw-accent);
+}
+
+.tree-item.drop-after {
+  box-shadow: inset 0 -2px 0 var(--bw-accent);
+}
+
+.tree-toggle {
+  display: inline-flex;
+  width: 13px;
+  justify-content: center;
+}
+
+.rename-field {
+  flex: 1;
+  min-width: 60px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--bw-accent);
+  background: var(--bw-input);
+  user-select: text;
+}
+
 .tree-item:hover {
   background: var(--bw-hover);
 }
@@ -470,7 +507,51 @@ button:focus-visible {
 }
 
 .folder-content {
+  display: flex;
   flex: 1;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  padding: 8px;
+  overflow: auto;
+}
+
+.asset-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 86px;
+  padding: 6px 4px;
+  border-radius: 4px;
+  text-align: center;
+  word-break: break-word;
+  color: var(--bw-text);
+}
+
+.asset-tile svg {
+  color: var(--bw-text-dim);
+}
+
+.asset-tile:hover {
+  background: var(--bw-hover);
+}
+
+.asset-tile.selected {
+  background: var(--bw-selection);
+  color: var(--bw-selection-text);
+}
+
+.asset-tile.open span {
+  font-weight: 600;
+}
+
+.asset-tile .rename-field {
+  width: 100%;
+}
+
+.folder-content > .empty-hint {
+  width: 100%;
 }
 
 /* Inspector */
@@ -527,7 +608,7 @@ button:focus-visible {
 }
 
 .field-label {
-  flex: 0 0 72px;
+  flex: 0 0 96px;
   color: var(--bw-text-dim);
 }
 
@@ -550,6 +631,175 @@ button:focus-visible {
 
 .vector-field input {
   width: 100%;
+}
+
+.number-input {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.number-input input {
+  width: 100%;
+  min-width: 0;
+}
+
+.drag-label {
+  cursor: ew-resize;
+  font-weight: 600;
+}
+
+.field-value {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field-value > select,
+.field-value > input[type='text'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.field-with-unit {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.unit {
+  color: var(--bw-text-dim);
+}
+
+.asset-field {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+}
+
+.asset-field select {
+  flex: 1;
+  min-width: 0;
+}
+
+.component-body {
+  padding-bottom: 6px;
+}
+
+.field-group .group-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0 0 16px;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: var(--bw-text);
+  font-weight: 600;
+}
+
+.script-variables {
+  margin-top: 4px;
+  border-top: 1px dashed var(--bw-border);
+  padding-top: 2px;
+}
+
+.empty-hint.small {
+  padding: 4px 24px;
+  text-align: left;
+}
+
+.keep-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 6px;
+  height: 20px;
+  border: 1px solid var(--bw-accent);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--bw-accent);
+  white-space: nowrap;
+}
+
+.keep-button.kept {
+  border-color: var(--bw-text-dim);
+  color: var(--bw-text-dim);
+}
+
+.play-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--bw-accent) 18%, transparent);
+}
+
+.inspector-count {
+  padding: 2px 8px;
+}
+
+.add-component {
+  position: relative;
+}
+
+.add-component-popup {
+  position: absolute;
+  left: 50%;
+  z-index: 20;
+  width: 240px;
+  max-height: 320px;
+  overflow: auto;
+  transform: translateX(-50%);
+  padding: 6px;
+  border: 1px solid var(--bw-border);
+  background: var(--bw-panel);
+  box-shadow: var(--bw-shadow);
+  text-align: left;
+}
+
+.add-component-popup input {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.category-title {
+  padding: 4px 2px 2px;
+  color: var(--bw-text-dim);
+  font-weight: 600;
+}
+
+.add-component .component-choice {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.icon-button.flat {
+  border: none;
+  background: transparent;
+}
+
+button.small {
+  height: 20px;
+  padding: 0 6px;
+}
+
+.component.unknown header {
+  color: var(--bw-warning);
+}
+
+.asset-inspector code {
+  user-select: text;
+  word-break: break-all;
 }
 
 .axis-x span {
@@ -786,4 +1036,154 @@ button:focus-visible {
   background: var(--bw-accent);
   border-color: var(--bw-accent);
   color: var(--bw-accent-text);
+}
+
+/* Play mode: the editor is tinted while the game runs (Unity: Play mode tint). */
+
+.app.playing .menu-bar,
+.app.playing .toolbar,
+.app.playing .area-tabs,
+.app.playing .dock-host {
+  background-color: color-mix(in srgb, var(--bw-accent) 14%, var(--bw-chrome));
+}
+
+.app.playing .panel {
+  background-color: color-mix(in srgb, var(--bw-accent) 7%, var(--bw-panel));
+}
+
+.time-scale {
+  height: 24px;
+  margin-left: 4px;
+}
+
+.context-menu {
+  z-index: 1000;
+}
+
+.overlay-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+  text-align: center;
+}
+
+.viewport-host {
+  position: relative;
+}
+
+/* On-screen variable displays of the game (Scratch: variable monitors). */
+.monitors {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.monitor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 8px;
+  border-radius: 4px;
+  background: rgba(20, 22, 26, 0.75);
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.monitor-value {
+  min-width: 28px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bw-accent);
+  color: var(--bw-accent-text);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Block editor */
+
+.block-editor-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.block-frame-host {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.variables-panel {
+  flex: 0 0 210px;
+  overflow: auto;
+  border-left: 1px solid var(--bw-border);
+  background: var(--bw-panel);
+}
+
+.variables-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: var(--bw-panel-alt);
+}
+
+.variable-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px;
+  padding: 6px;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel-alt);
+}
+
+.variable-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.variable-row select,
+.variable-row input[type='text'],
+.variable-name,
+.variable-default {
+  flex: 1;
+  min-width: 0;
+}
+
+.variable-name {
+  font-weight: 600;
+}
+
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow: auto;
+  margin: 8px 0;
+}
+
+.choice-list .choice {
+  text-align: left;
+}
+
+.console-row.linked {
+  cursor: pointer;
+}
+
+.console-row.linked:hover {
+  background: var(--bw-hover);
 }

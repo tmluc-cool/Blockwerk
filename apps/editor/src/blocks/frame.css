@@ -18,3 +18,16 @@ body[data-theme='light'] {
 .blocklyToolboxCategoryLabel {
   font-size: 13px;
 }
+
+/* Stacks of running scripts glow in play mode (SPEC 5.9). */
+.bw-running > .blocklyPath {
+  stroke: #ffd34d;
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px rgba(255, 211, 77, 0.8));
+}
+
+body[data-empty='true'] .blocklyToolbox,
+body[data-empty='true'] .blocklyFlyout {
+  pointer-events: none;
+  opacity: 0.4;
+}

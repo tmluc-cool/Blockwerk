@@ -11,8 +11,10 @@
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
+    "@blockly/field-colour": "13.3.0",
     "@blockwerk/blocks": "workspace:*",
     "@blockwerk/compiler": "workspace:*",
+    "@blockwerk/project": "workspace:*",
     "@blockwerk/runtime": "workspace:*",
     "blockly": "^13.3.0",
     "dockview-react": "^8.5.1",

@@ -41,6 +41,38 @@ function PromptDialog({ dialog }: { dialog: Extract<DialogRequest, { kind: 'prom
   );
 }
 
+function ChoiceDialog({ dialog }: { dialog: Extract<DialogRequest, { kind: 'choice' }> }) {
+  const t = useT();
+  const close = useDialogs((state) => state.close);
+  const finish = (result: string | null): void => {
+    close();
+    dialog.resolve(result);
+  };
+  return (
+    <div className="dialog" role="dialog" aria-modal="true" data-testid="choice-dialog">
+      <h2>{dialog.title}</h2>
+      <div className="choice-list">
+        {dialog.options.length === 0 && <p className="muted">{t('dialog.nothingToChoose')}</p>}
+        {dialog.options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className="choice"
+            onClick={() => finish(option.value)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+      <div className="dialog-buttons">
+        <button type="button" onClick={() => finish(null)}>
+          {t('dialog.cancel')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** Renders the open modal dialog, if any. */
 export function DialogHost() {
   const t = useT();
@@ -51,6 +83,8 @@ export function DialogHost() {
     <div className="dialog-backdrop">
       {dialog.kind === 'prompt' ? (
         <PromptDialog dialog={dialog} />
+      ) : dialog.kind === 'choice' ? (
+        <ChoiceDialog dialog={dialog} />
       ) : (
         <div className="dialog" role="dialog" aria-modal="true" data-testid="message-dialog">
           <h2>{dialog.title}</h2>

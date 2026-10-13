@@ -56,12 +56,18 @@ importers:
 
   apps/editor:
     dependencies:
+      '@blockly/field-colour':
+        specifier: 13.3.0
+        version: 13.3.0(blockly@13.3.0(jsdom@29.1.1))
       '@blockwerk/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
       '@blockwerk/compiler':
         specifier: workspace:*
         version: link:../../packages/compiler
+      '@blockwerk/project':
+        specifier: workspace:*
+        version: link:../../packages/project
       '@blockwerk/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -227,6 +233,16 @@ packages:
   '@babel/types@7.29.8':
     resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
+
+  '@blockly/field-colour@13.3.0':
+    resolution: {integrity: sha512-5Gm9dAyY3psU/JbEPh2CcWJ/01WtfxHV06PO3kYLGeStkr/eaZZD+AvnuBd7Q2opKh3X8uDvnceqrjgp3S7UvA==}
+    peerDependencies:
+      blockly: ^13.2.0
+
+  '@blockly/field-grid-dropdown@13.3.0':
+    resolution: {integrity: sha512-5q+CwaWOat9MQ5VuGcHEFT1yXtfFtgs89HRHZJ5cYs+UG2L2MUaCIvjnBgRDeKHwL5Jt+bJECfMlJd3B49c2IQ==}
+    peerDependencies:
+      blockly: ^13.2.0
 
   '@bramus/specificity@2.4.3':
     resolution: {integrity: sha512-0GEz8qJWokkUVYQYRukmkSHIFNoBH8QTreeHrAFbvz1XFYc3Y+puhMs8PQ5x8GNugiC2l5jvDBXKLbBIByeSBw==}
@@ -1518,6 +1534,15 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
+
+  '@blockly/field-colour@13.3.0(blockly@13.3.0(jsdom@29.1.1))':
+    dependencies:
+      '@blockly/field-grid-dropdown': 13.3.0(blockly@13.3.0(jsdom@29.1.1))
+      blockly: 13.3.0(jsdom@29.1.1)
+
+  '@blockly/field-grid-dropdown@13.3.0(blockly@13.3.0(jsdom@29.1.1))':
+    dependencies:
+      blockly: 13.3.0(jsdom@29.1.1)
 
   '@bramus/specificity@2.4.3':
     dependencies:

@@ -16,6 +16,9 @@ import { useState } from 'react';
 import type { TranslationKey } from '../i18n';
 import { useLayout } from '../layout/layoutController';
 import { useEditor } from '../state/editor';
+import { pause, setTimeScale, step, TIME_SCALES, togglePlay, usePlay } from '../state/play';
+import type { TimeScale } from '../state/play';
+import { useDocument } from '../state/document';
 import type { Tool } from '../state/editor';
 import { useT } from '../state/settings';
 import { MenuButton } from './Menu';
@@ -36,6 +39,10 @@ export function Toolbar() {
   const { tool, setTool, pivotMode, togglePivotMode, space, toggleSpace } = useEditor();
   useLayout((state) => state.named);
   const [openMenu, setOpenMenu] = useState<'layout' | 'layers' | null>(null);
+  const status = usePlay((state) => state.status);
+  const timeScale = usePlay((state) => state.timeScale);
+  const ready = useDocument((state) => state.scene !== null);
+  const playing = status !== 'stopped';
 
   return (
     <div className="toolbar" data-testid="toolbar">
@@ -76,19 +83,49 @@ export function Toolbar() {
       <div className="toolbar-center">
         <button
           type="button"
-          className="icon-button play"
-          title={t('toolbar.play')}
-          disabled
+          className={`icon-button play${playing ? ' toggled' : ''}`}
+          title={t(playing ? 'toolbar.stop' : 'toolbar.play')}
+          aria-pressed={playing}
+          disabled={!ready}
           data-testid="play"
+          onClick={togglePlay}
         >
           <Play size={16} />
         </button>
-        <button type="button" className="icon-button" title={t('toolbar.pause')} disabled>
+        <button
+          type="button"
+          className={`icon-button${status === 'paused' ? ' toggled' : ''}`}
+          title={t('toolbar.pause')}
+          aria-pressed={status === 'paused'}
+          disabled={!playing}
+          data-testid="pause"
+          onClick={pause}
+        >
           <Pause size={16} />
         </button>
-        <button type="button" className="icon-button" title={t('toolbar.step')} disabled>
+        <button
+          type="button"
+          className="icon-button"
+          title={t('toolbar.step')}
+          disabled={!ready}
+          data-testid="step"
+          onClick={step}
+        >
           <StepForward size={16} />
         </button>
+        <select
+          className="time-scale"
+          value={timeScale}
+          title={t('toolbar.timeScale')}
+          data-testid="time-scale"
+          onChange={(event) => setTimeScale(Number(event.target.value) as TimeScale)}
+        >
+          {TIME_SCALES.map((scale) => (
+            <option key={scale} value={scale}>
+              {t('toolbar.timeScaleValue', { value: scale.toLocaleString() })}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="toolbar-group right">
         <MenuButton
