@@ -10,6 +10,18 @@ const desktopDir = join(import.meta.dirname, '..', '..', 'apps', 'desktop');
 /** Chromium switches for CI: no GPU, and no sandbox on Linux runners (AppArmor) or as root. */
 const SWITCHES = [...WEBGL_ARGS, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])];
 
+/**
+ * Removes a temporary folder. Windows keeps files of a just-closed Electron app locked for a
+ * moment, so this retries and leaves the folder to the system if it is still locked.
+ */
+function removeTemp(folder: string): void {
+  try {
+    rmSync(folder, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+  } catch {
+    // Temporary files; the system cleans them up later.
+  }
+}
+
 async function launch(userData: string): Promise<{ app: ElectronApplication; window: Page }> {
   const env: Record<string, string> = {};
   for (const [key, value] of Object.entries(process.env)) if (value !== undefined) env[key] = value;
@@ -74,7 +86,7 @@ test('the desktop app opens the editor offline and keeps the layout across resta
     );
     expect(readFileSync(join(project, '.gitignore'), 'utf8')).toBe('.blockwerk/\n');
   } finally {
-    rmSync(userData, { recursive: true, force: true });
+    removeTemp(userData);
   }
 });
 
@@ -103,6 +115,6 @@ test('the desktop app saves edits to the project folder and reopens it', async (
     await expect(window.getByTestId('hierarchy').getByText('Kiste')).toBeVisible();
     await app.close();
   } finally {
-    rmSync(userData, { recursive: true, force: true });
+    removeTemp(userData);
   }
 });
