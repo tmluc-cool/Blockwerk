@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/three/build/three.module.js",
+          "three/addons/": "/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body style="margin: 0; background: transparent">
+    <script type="module">
+      import * as THREE from 'three';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+      import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+      const SIZE = Number(new URLSearchParams(location.search).get('size') ?? '192');
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        preserveDrawingBuffer: true,
+      });
+      renderer.setSize(SIZE, SIZE);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      document.body.appendChild(renderer.domElement);
+      const scene = new THREE.Scene();
+      scene.add(new THREE.HemisphereLight(0xdfe9ff, 0x4a4036, 2.2));
+      const sun = new THREE.DirectionalLight(0xffffff, 2.4);
+      sun.position.set(3, 5, 4);
+      scene.add(sun);
+      const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 1000);
+      const loader = new GLTFLoader();
+      loader.setMeshoptDecoder(MeshoptDecoder);
+
+      /** Renders a model in a three-quarter view and returns a PNG data URL. */
+      window.renderModel = async (url) => {
+        const gltf = await loader.loadAsync(url);
+        const model = gltf.scene;
+        scene.add(model);
+        const box = new THREE.Box3().setFromObject(model);
+        const sphere = box.getBoundingSphere(new THREE.Sphere());
+        const radius = Math.max(sphere.radius, 0.01);
+        const distance = (radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2))) * 1.05;
+        // Models face +Z (forward), so the camera looks at their front from the right side.
+        const direction = new THREE.Vector3(-0.8, 0.65, 1).normalize();
+        camera.position.copy(sphere.center).addScaledVector(direction, distance);
+        camera.near = distance / 100;
+        camera.far = distance * 10;
+        camera.updateProjectionMatrix();
+        camera.lookAt(sphere.center);
+        renderer.render(scene, camera);
+        const data = renderer.domElement.toDataURL('image/png');
+        scene.remove(model);
+        model.traverse((node) => {
+          if (node.geometry) node.geometry.dispose();
+          for (const material of [node.material].flat()) {
+            if (!material) continue;
+            for (const value of Object.values(material)) if (value?.isTexture) value.dispose();
+            material.dispose();
+          }
+        });
+        return data;
+      };
+      window.previewReady = true;
+    </script>
+  </body>
+</html>

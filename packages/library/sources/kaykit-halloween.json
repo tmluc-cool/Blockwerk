@@ -1,0 +1,28 @@
+{
+  "id": "kaykit-halloween",
+  "name": "KayKit Halloween Bits 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/halloween-bits",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Halloween-Bits-1.0",
+    "commit": "6dc69bf6b2fa766a985754f35ec6a0324090e6c6"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_halloween_bits/Assets/gltf/tree*.gltf"],
+      "category": "nature",
+      "tags": ["halloween"]
+    },
+    {
+      "include": ["addons/kaykit_halloween_bits/Assets/gltf/*.gltf"],
+      "exclude": ["addons/kaykit_halloween_bits/Assets/gltf/tree*.gltf"],
+      "category": "items",
+      "tags": ["halloween", "friedhof", "graveyard"]
+    }
+  ],
+  "dropWords": []
+}

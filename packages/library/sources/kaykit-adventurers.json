@@ -1,0 +1,28 @@
+{
+  "id": "kaykit-adventurers",
+  "name": "KayKit Character Pack: Adventurers 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/kaykit-adventurers",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+    "commit": "672074b73ba276876a19e8816ecdc5241817ab47"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_character_pack_adventures/Characters/gltf/*.glb"],
+      "category": "characters",
+      "tags": ["figur", "character", "held", "hero"],
+      "collider": "capsule"
+    },
+    {
+      "include": ["addons/kaykit_character_pack_adventures/Assets/gltf/*.gltf"],
+      "category": "items",
+      "tags": ["waffe", "weapon", "ausrüstung"]
+    }
+  ],
+  "dropWords": []
+}

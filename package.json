@@ -20,7 +20,8 @@
     "lint": "eslint . && prettier --check . && node scripts/licenses.mjs --check",
     "format": "prettier --write .",
     "licenses": "node scripts/licenses.mjs",
-    "screenshot": "pnpm build && node scripts/screenshot.mjs"
+    "screenshot": "pnpm build && node scripts/screenshot.mjs",
+    "assets:fetch": "pnpm --filter @blockwerk/library run assets:fetch"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
