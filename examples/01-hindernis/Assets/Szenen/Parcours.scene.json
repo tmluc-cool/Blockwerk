@@ -1,0 +1,881 @@
+{
+  "environment": {
+    "ambientIntensity": 0.32,
+    "fog": {
+      "enabled": true,
+      "far": 400,
+      "near": 60
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "hinda0000000": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hinda0000001": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hinda0000002": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hinda0000003": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hinda0000004": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hinda0000005": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hindcamera01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000018",
+          "type": "camera",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 0,
+      "parent": "hinda0000001",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          9,
+          -9
+        ],
+        "rotation": [
+          38,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hindcoin0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000025",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#ffd23f",
+            "metallic": 0.3,
+            "shape": "sphere",
+            "smoothness": 0.7
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000026",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000027",
+          "type": "blockScript",
+          "values": {
+            "script": "hindei000001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kugel 1",
+      "order": 0,
+      "parent": "hinda0000004",
+      "static": false,
+      "tag": "Einsammelbar",
+      "transform": {
+        "position": [
+          0,
+          0.8,
+          4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      }
+    },
+    "hindcoin0002": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000028",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#ffd23f",
+            "metallic": 0.3,
+            "shape": "sphere",
+            "smoothness": 0.7
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000029",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000030",
+          "type": "blockScript",
+          "values": {
+            "script": "hindei000001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kugel 2",
+      "order": 1,
+      "parent": "hinda0000004",
+      "static": false,
+      "tag": "Einsammelbar",
+      "transform": {
+        "position": [
+          0,
+          0.8,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      }
+    },
+    "hindcoin0003": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000031",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#ffd23f",
+            "metallic": 0.3,
+            "shape": "sphere",
+            "smoothness": 0.7
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000032",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000033",
+          "type": "blockScript",
+          "values": {
+            "script": "hindei000001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kugel 3",
+      "order": 2,
+      "parent": "hinda0000004",
+      "static": false,
+      "tag": "Einsammelbar",
+      "transform": {
+        "position": [
+          0,
+          0.8,
+          12
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ]
+      }
+    },
+    "hindgoal0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000016",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#3fb37f",
+            "shape": "cube"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000017",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Ziel",
+      "order": 8,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.05,
+          15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          4,
+          0.1,
+          1.5
+        ]
+      }
+    },
+    "hindground01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8a9a7b",
+            "shape": "plane",
+            "texture": "tiles",
+            "tiling": 10
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000003",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              -0.05,
+              0
+            ],
+            "size": [
+              10,
+              0.1,
+              10
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 1,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          10,
+          1,
+          10
+        ]
+      }
+    },
+    "hindpillar01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000012",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#d0d3d8",
+            "shape": "cylinder"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000013",
+          "type": "capsuleCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 1",
+      "order": 6,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.5,
+          1,
+          2.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          1,
+          0.6
+        ]
+      }
+    },
+    "hindpillar02": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000014",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#d0d3d8",
+            "shape": "cylinder"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000015",
+          "type": "capsuleCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 2",
+      "order": 7,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.5,
+          1,
+          5.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          1,
+          0.6
+        ]
+      }
+    },
+    "hindplayer01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000019",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#f08a24",
+            "shape": "cube"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000020",
+          "type": "boxCollider",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000021",
+          "type": "blockScript",
+          "values": {
+            "script": "hindst000001",
+            "variables": {
+              "vartempo0001": 4
+            }
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Spieler",
+      "order": 1,
+      "parent": "hinda0000001",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hindplayer02": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000022",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#3d7fe0",
+            "shape": "cube"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000023",
+          "type": "boxCollider",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000024",
+          "type": "blockScript",
+          "values": {
+            "script": "hindst000001",
+            "variables": {
+              "vartempo0001": 2
+            }
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zweiter Würfel",
+      "order": 0,
+      "parent": "hinda0000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          -4,
+          0.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hindramp0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000004",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#c9a46a",
+            "shape": "ramp"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000005",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Rampe",
+      "order": 2,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          0.5,
+          6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          1,
+          3
+        ]
+      }
+    },
+    "hindstairs01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000006",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b9b2a7",
+            "shape": "stairs"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000007",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Treppe",
+      "order": 3,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -3.5,
+          0.75,
+          9
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          2,
+          1.5,
+          2.5
+        ]
+      }
+    },
+    "hindsun00001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 0,
+      "parent": "hinda0000000",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          10,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "hindwall0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000008",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9c6b55",
+            "shape": "cube"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000009",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer links",
+      "order": 4,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          1,
+          7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.5,
+          2,
+          14
+        ]
+      }
+    },
+    "hindwall0002": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "hindc0000010",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9c6b55",
+            "shape": "cube"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "hindc0000011",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer rechts",
+      "order": 5,
+      "parent": "hinda0000000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6,
+          1,
+          7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.5,
+          2,
+          14
+        ]
+      }
+    }
+  }
+}

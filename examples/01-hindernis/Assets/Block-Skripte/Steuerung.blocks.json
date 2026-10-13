@@ -1,0 +1,329 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 3,
+      "id": "vartempo0001",
+      "inspector": true,
+      "name": "Tempo",
+      "scope": "object",
+      "type": "number"
+    },
+    {
+      "default": 0,
+      "id": "varpunkte001",
+      "inspector": false,
+      "name": "Punkte",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "b-1",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "varpunkte001"
+                }
+              },
+              "id": "b-2",
+              "type": "variables.show"
+            }
+          },
+          "type": "events.whenGameStarts",
+          "x": 40,
+          "y": 40
+        },
+        {
+          "fields": {
+            "key": "W",
+            "mode": "held"
+          },
+          "id": "b-7",
+          "next": {
+            "block": {
+              "fields": {
+                "direction": "forward"
+              },
+              "id": "b-9",
+              "inputs": {
+                "meters": {
+                  "block": {
+                    "id": "b-6",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "fields": {
+                            "variable": {
+                              "id": "vartempo0001"
+                            }
+                          },
+                          "id": "b-3",
+                          "type": "variables.get"
+                        },
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "n-4",
+                          "type": "literal.number"
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 60
+                          },
+                          "id": "n-5",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "operators.divide"
+                  },
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "n-8",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "motion.move"
+            }
+          },
+          "type": "events.whenKey",
+          "x": 40,
+          "y": 160
+        },
+        {
+          "fields": {
+            "key": "S",
+            "mode": "held"
+          },
+          "id": "b-14",
+          "next": {
+            "block": {
+              "fields": {
+                "direction": "backward"
+              },
+              "id": "b-16",
+              "inputs": {
+                "meters": {
+                  "block": {
+                    "id": "b-13",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "fields": {
+                            "variable": {
+                              "id": "vartempo0001"
+                            }
+                          },
+                          "id": "b-10",
+                          "type": "variables.get"
+                        },
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "n-11",
+                          "type": "literal.number"
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 60
+                          },
+                          "id": "n-12",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "operators.divide"
+                  },
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "n-15",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "motion.move"
+            }
+          },
+          "type": "events.whenKey",
+          "x": 40,
+          "y": 280
+        },
+        {
+          "fields": {
+            "key": "A",
+            "mode": "held"
+          },
+          "id": "b-21",
+          "next": {
+            "block": {
+              "fields": {
+                "direction": "left"
+              },
+              "id": "b-23",
+              "inputs": {
+                "meters": {
+                  "block": {
+                    "id": "b-20",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "fields": {
+                            "variable": {
+                              "id": "vartempo0001"
+                            }
+                          },
+                          "id": "b-17",
+                          "type": "variables.get"
+                        },
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "n-18",
+                          "type": "literal.number"
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 60
+                          },
+                          "id": "n-19",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "operators.divide"
+                  },
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "n-22",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "motion.move"
+            }
+          },
+          "type": "events.whenKey",
+          "x": 420,
+          "y": 160
+        },
+        {
+          "fields": {
+            "key": "D",
+            "mode": "held"
+          },
+          "id": "b-28",
+          "next": {
+            "block": {
+              "fields": {
+                "direction": "right"
+              },
+              "id": "b-30",
+              "inputs": {
+                "meters": {
+                  "block": {
+                    "id": "b-27",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "fields": {
+                            "variable": {
+                              "id": "vartempo0001"
+                            }
+                          },
+                          "id": "b-24",
+                          "type": "variables.get"
+                        },
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "n-25",
+                          "type": "literal.number"
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 60
+                          },
+                          "id": "n-26",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "operators.divide"
+                  },
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "n-29",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "motion.move"
+            }
+          },
+          "type": "events.whenKey",
+          "x": 420,
+          "y": 280
+        },
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Einsammelbar"
+          },
+          "id": "b-31",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "varpunkte001"
+                }
+              },
+              "id": "b-33",
+              "inputs": {
+                "by": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "n-32",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "variables.change"
+            }
+          },
+          "type": "events.whenTouching",
+          "x": 40,
+          "y": 420
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

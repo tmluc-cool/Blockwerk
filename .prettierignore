@@ -11,3 +11,6 @@ PROGRESS.md
 CODE_OF_CONDUCT.md
 *.expected.js
 THIRD_PARTY.md
+examples/*/Assets
+examples/*/Einstellungen
+examples/*/blockwerk.json
