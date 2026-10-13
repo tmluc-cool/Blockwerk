@@ -8,6 +8,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 
 | Package | Version | License | Kind | Used by |
 |---|---|---|---|---|
+| `@blockly/field-colour` | 13.3.0 | Apache-2.0 | runtime | apps/editor |
 | `@eslint/js` | 10.0.1 | MIT | development | (root) |
 | `@playwright/test` | 1.56.1 | Apache-2.0 | development | (root) |
 | `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor |
@@ -43,6 +44,8 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `@asamuzakjp/dom-selector` | 7.1.1 | MIT |
 | `@asamuzakjp/generational-cache` | 1.0.1 | MIT |
 | `@asamuzakjp/nwsapi` | 2.3.9 | MIT |
+| `@blockly/field-colour` | 13.3.0 | Apache-2.0 |
+| `@blockly/field-grid-dropdown` | 13.3.0 | Apache-2.0 |
 | `@bramus/specificity` | 2.4.3 | MIT |
 | `@csstools/color-helpers` | 6.1.2 | MIT-0 |
 | `@csstools/css-calc` | 3.4.3 | MIT |

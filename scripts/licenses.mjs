@@ -46,9 +46,12 @@ function isAllowed(expression) {
     );
 }
 
+/** Non-SPDX spellings found in package manifests, mapped to their SPDX identifier. */
+const SPELLINGS = { 'Apache 2.0': 'Apache-2.0', 'Apache License 2.0': 'Apache-2.0' };
+
 function licenseOf(manifest) {
   const license = manifest.license ?? manifest.licenses;
-  if (typeof license === 'string') return license;
+  if (typeof license === 'string') return SPELLINGS[license] ?? license;
   if (Array.isArray(license)) return license.map((item) => item.type ?? item).join(' OR ');
   if (license && typeof license === 'object') return license.type ?? 'UNKNOWN';
   return 'UNKNOWN';
@@ -106,7 +109,8 @@ const report = JSON.parse(
   execSync('pnpm licenses list --json --prod', { cwd: root, encoding: 'utf8' }),
 );
 const production = [];
-for (const [license, packages] of Object.entries(report)) {
+for (const [reported, packages] of Object.entries(report)) {
+  const license = SPELLINGS[reported] ?? reported;
   for (const pkg of packages) {
     production.push({ name: pkg.name, versions: [...pkg.versions].sort().join(', '), license });
     if (!isAllowed(license) && !NOT_SHIPPED[pkg.name]) {
