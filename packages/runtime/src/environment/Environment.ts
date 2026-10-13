@@ -46,6 +46,12 @@ const FOG_COLOR = new Color(0.66, 0.74, 0.83);
 /** Strength of the ambient light baked from the sky, relative to the sun. */
 const ENVIRONMENT_INTENSITY = 0.32;
 
+/**
+ * Edge length of the baked sky cube map. The sky is smooth, so a small map gives the same
+ * ambient light and soft reflections while baking is much faster (play mode starts at once).
+ */
+const SKY_LIGHT_SIZE = 64;
+
 /** Sun movement (radians) after which the ambient light is baked again. */
 const SUN_REBAKE_ANGLE = 0.02;
 
@@ -70,8 +76,14 @@ export class Environment {
   /** Ambient lighting baked per renderer (GPU resources cannot be shared between canvases). */
   private readonly baked = new Map<
     WebGLRenderer,
-    { readonly target: WebGLRenderTarget; readonly sunDirection: Vector3 }
+    {
+      readonly target: WebGLRenderTarget;
+      readonly sunDirection: Vector3;
+      readonly borrowed?: boolean;
+    }
   >();
+  /** Environment whose baked lighting may be reused while the sun is the same. */
+  private lightingSource: Environment | null = null;
   private ambientIntensity = ENVIRONMENT_INTENSITY;
   private scene: Scene | null = null;
 
@@ -176,13 +188,14 @@ export class Environment {
     bakeScene.add(bakeSky);
 
     const generator = new PMREMGenerator(renderer);
-    const target = generator.fromScene(bakeScene, 0, 1, 2000);
+    const target = generator.fromScene(bakeScene, 0, 1, 2000, { size: SKY_LIGHT_SIZE });
     generator.dispose();
     bakeSky.geometry.dispose();
     bakeSky.material.dispose();
     if (sunDisc) sunDisc.value = previousSunDisc;
 
-    this.baked.get(renderer)?.target.dispose();
+    const previous = this.baked.get(renderer);
+    if (previous && !previous.borrowed) previous.target.dispose();
     this.baked.set(renderer, { target, sunDirection: this.sunDirection.clone() });
     if (this.scene) {
       this.scene.environment = target.texture;
@@ -195,6 +208,12 @@ export class Environment {
    * the sun moved) and centers the sky on the camera. Lets several views render one scene.
    */
   prepare(renderer: WebGLRenderer, camera: Camera): void {
+    if (!this.baked.has(renderer)) {
+      const shared = this.lightingSource?.baked.get(renderer);
+      if (shared && shared.sunDirection.angleTo(this.sunDirection) <= SUN_REBAKE_ANGLE) {
+        this.baked.set(renderer, { ...shared, borrowed: true });
+      }
+    }
     const baked = this.baked.get(renderer);
     if (!baked || baked.sunDirection.angleTo(this.sunDirection) > SUN_REBAKE_ANGLE) {
       this.bakeLighting(renderer);
@@ -210,8 +229,16 @@ export class Environment {
     const baked = this.baked.get(renderer);
     if (!baked) return;
     if (this.scene?.environment === baked.target.texture) this.scene.environment = null;
-    baked.target.dispose();
+    if (!baked.borrowed) baked.target.dispose();
     this.baked.delete(renderer);
+  }
+
+  /**
+   * Reuses the lighting another environment baked (e.g. the play-mode copy of a scene uses the
+   * editor's), as long as both suns point the same way. Saves baking when play mode starts.
+   */
+  shareLightingFrom(source: Environment | null): void {
+    this.lightingSource = source;
   }
 
   /**
@@ -251,8 +278,9 @@ export class Environment {
 
   /** Releases GPU resources owned by the environment. */
   dispose(): void {
-    for (const baked of this.baked.values()) baked.target.dispose();
+    for (const baked of this.baked.values()) if (!baked.borrowed) baked.target.dispose();
     this.baked.clear();
+    this.lightingSource = null;
     this.sky.geometry.dispose();
     this.sky.material.dispose();
     this.sun.shadow.map?.dispose();

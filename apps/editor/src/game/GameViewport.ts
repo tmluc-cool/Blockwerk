@@ -3,7 +3,7 @@ import type { RenderStats, World } from '@blockwerk/runtime';
 import { Raycaster, Vector2, Vector3 } from 'three';
 import type { WebGLRenderer } from 'three';
 import { currentGame } from '../state/play';
-import { currentWorld, onWorldChange, registerRenderView } from '../scene/worlds';
+import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from '../scene/worlds';
 
 /** Aspect ratio presets of the Game view toolbar. `null` means free aspect. */
 export type AspectPreset = 'free' | '16:9' | '4:3';
@@ -115,7 +115,9 @@ export class GameViewport {
     for (const dispose of this.cleanup) dispose();
     const view = this.container.ownerDocument.defaultView;
     if (this.frameHandle && view) view.cancelAnimationFrame(this.frameHandle);
-    this.world?.environment.releaseRenderer(this.renderer);
+    for (const world of new Set([this.world, currentEditWorld()])) {
+      world?.environment.releaseRenderer(this.renderer);
+    }
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
@@ -185,7 +187,7 @@ export class GameViewport {
   render(): void {
     const world = currentWorld();
     if (world !== this.world) {
-      this.world?.environment.releaseRenderer(this.renderer);
+      // Baked lighting stays with its world (worlds free it when they are disposed).
       this.world = world;
     }
     const camera = world?.activeCamera() ?? null;

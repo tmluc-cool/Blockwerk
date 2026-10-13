@@ -152,6 +152,7 @@ export class Game implements GameApi {
   private readonly attached = new Map<GameObject, AttachedScript[]>();
   private readonly touchingBefore = new Map<GameObject, Set<GameObject>>();
   private readonly destroyQueue = new Set<GameObject>();
+  private readonly recentlyRun = new Map<string, { thread: Thread; tick: number }>();
   private readonly clickQueue: GameObject[] = [];
   private readonly monitorEntries = new Map<
     string,
@@ -289,14 +290,24 @@ export class Game implements GameApi {
     return result;
   }
 
-  /** IDs of hat blocks whose scripts are running (for highlighting in the block editor). */
-  runningScripts(): { objectId: string; assetId: string; hatId: string }[] {
-    return this.threads
-      .filter((thread) => !thread.done)
-      .map((thread) => {
-        const hatId = thread.key.slice(thread.key.indexOf('|') + 1);
-        return { objectId: thread.object.id, assetId: thread.asset.assetId, hatId };
-      });
+  /**
+   * Hat blocks whose scripts are running (for highlighting in the block editor), including
+   * scripts that ran within the last `recentTicks` ticks.
+   */
+  runningScripts(recentTicks = 0): { objectId: string; assetId: string; hatId: string }[] {
+    const result = new Map<string, { objectId: string; assetId: string; hatId: string }>();
+    const describe = (thread: Thread) => ({
+      objectId: thread.object.id,
+      assetId: thread.asset.assetId,
+      hatId: thread.key.slice(thread.key.indexOf('|') + 1),
+    });
+    for (const thread of this.threads) if (!thread.done) result.set(thread.key, describe(thread));
+    // Scripts that finished within the last ticks also count (so short scripts can glow).
+    for (const [key, entry] of this.recentlyRun) {
+      if (this.tick - entry.tick > recentTicks) this.recentlyRun.delete(key);
+      else if (!result.has(key)) result.set(key, describe(entry.thread));
+    }
+    return [...result.values()];
   }
 
   /**
@@ -758,6 +769,7 @@ export class Game implements GameApi {
       }
       if (!thread.object.activeInHierarchy) continue;
       this.current = thread;
+      this.recentlyRun.set(thread.key, { thread, tick: this.tick });
       try {
         if (thread.iterator.next().done) this.finish(thread);
       } catch (error) {

@@ -28,7 +28,7 @@ import { EditorGrid } from './EditorGrid';
 import { SceneCamera } from './SceneCamera';
 import type { AxisView } from './SceneCamera';
 import { SceneInput } from './SceneInput';
-import { currentWorld, onWorldChange, registerRenderView } from './worlds';
+import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from './worlds';
 
 /** Shading modes of the scene view (Unity: Draw Mode). */
 export type ShadingMode = 'shaded' | 'wireframe';
@@ -228,6 +228,15 @@ export class SceneViewport {
     this.requestRender();
   }
 
+  /** Where an object appears on the canvas in CSS pixels (tests, tooltips). */
+  screenPoint(id: string): { x: number; y: number } | null {
+    const object = this.world?.getObject(id);
+    if (!object) return null;
+    this.camera.apply(this.perspective, this.orthographic, this.width / this.height);
+    const point = object.worldPosition().project(this.activeCamera());
+    return { x: ((point.x + 1) / 2) * this.width, y: ((1 - point.y) / 2) * this.height };
+  }
+
   /** The point new objects are placed at (Unity: the scene view pivot). */
   placementPoint(): Vector3 {
     return this.camera.pivot.clone();
@@ -286,7 +295,9 @@ export class SceneViewport {
     for (const box of this.selectionBoxes.values()) box.dispose();
     this.grid.dispose();
     this.wireframe.dispose();
-    this.world?.environment.releaseRenderer(this.renderer);
+    for (const world of new Set([this.world, currentEditWorld()])) {
+      world?.environment.releaseRenderer(this.renderer);
+    }
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
@@ -300,7 +311,7 @@ export class SceneViewport {
   private worldChanged(): void {
     const world = currentWorld();
     if (world !== this.world) {
-      this.world?.environment.releaseRenderer(this.renderer);
+      // Baked lighting stays with its world (worlds free it when they are disposed).
       this.world = world;
       for (const icon of this.icons.values()) icon.dispose();
       this.icons.clear();

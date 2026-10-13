@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { _electron as electron, expect, test } from '@playwright/test';
@@ -25,7 +25,7 @@ test('the desktop app opens the editor offline and keeps the layout across resta
   const userData = mkdtempSync(join(tmpdir(), 'blockwerk-desktop-'));
   try {
     let { app, window } = await launch(userData);
-    expect(await window.title()).toBe('Blockwerk');
+    await expect.poll(() => window.title()).toBe('Mein Spiel – Blockwerk');
     expect(new URL(window.url()).protocol).toBe('blockwerk:');
     await expect(window.getByTestId('menu-bar')).toBeVisible();
     await expect(window.locator('.dv-tab', { hasText: 'Hierarchie' })).toBeVisible();
@@ -60,6 +60,47 @@ test('the desktop app opens the editor offline and keeps the layout across resta
     await expect
       .poll(() => window.evaluate(() => window.__blockwerk?.panelLocation('inspector')))
       .toBe('popout');
+    await app.close();
+
+    // The first project was created as a real folder (plain JSON files, ready for Git).
+    const project = join(userData, 'projects', 'Mein Spiel');
+    expect(JSON.parse(readFileSync(join(project, 'blockwerk.json'), 'utf8'))).toMatchObject({
+      name: 'Mein Spiel',
+      formatVersion: 1,
+    });
+    expect(existsSync(join(project, 'Assets', 'Szenen', 'Hauptszene.scene.json'))).toBe(true);
+    expect(existsSync(join(project, 'Assets', 'Szenen', 'Hauptszene.scene.json.meta.json'))).toBe(
+      true,
+    );
+    expect(readFileSync(join(project, '.gitignore'), 'utf8')).toBe('.blockwerk/\n');
+  } finally {
+    rmSync(userData, { recursive: true, force: true });
+  }
+});
+
+test('the desktop app saves edits to the project folder and reopens it', async () => {
+  const userData = mkdtempSync(join(tmpdir(), 'blockwerk-desktop-'));
+  try {
+    let { app, window } = await launch(userData);
+    await expect
+      .poll(() => window.evaluate(() => window.__blockwerk?.project().status))
+      .toBe('ready');
+    await window.getByTestId('menu-gameObject').click();
+    await window.getByTestId('menu-3d-object').hover();
+    await window.getByTestId('create-cube').click();
+    await window.getByTestId('rename-input').fill('Kiste');
+    await window.keyboard.press('Enter');
+    await window.keyboard.press('Control+s');
+    await expect.poll(() => window.evaluate(() => window.__blockwerk?.project().dirty)).toBe(false);
+    const scene = readFileSync(
+      join(userData, 'projects', 'Mein Spiel', 'Assets', 'Szenen', 'Hauptszene.scene.json'),
+      'utf8',
+    );
+    expect(scene).toContain('"name": "Kiste"');
+    await app.close();
+
+    ({ app, window } = await launch(userData));
+    await expect(window.getByTestId('hierarchy').getByText('Kiste')).toBeVisible();
     await app.close();
   } finally {
     rmSync(userData, { recursive: true, force: true });

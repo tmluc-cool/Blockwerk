@@ -17,6 +17,9 @@ import type { TranslationKey } from '../i18n';
 
 type ScriptEntry = { id: string; data: BlockScriptData; name: string };
 
+/** Scripts that ran within this many ticks still glow (a quarter second). */
+const GLOW_TICKS = 15;
+
 function openScriptEntry(): ScriptEntry | null {
   const { project } = useDocument.getState();
   const assetId = useEditor.getState().openScript?.assetId;
@@ -335,6 +338,9 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
         onCreateVariable: createVariable,
         onKeyDown: (event) => handleShortcut(event, { modifiersOnly: true }),
       });
+      // A console jump may have asked for a block before the page was ready.
+      const reveal = useEditor.getState().revealBlock;
+      if (reveal && reveal.assetId === current?.id) controllerRef.current.reveal(reveal.blockId);
     };
     frame.addEventListener('load', mount);
     if (
@@ -384,7 +390,7 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
     }
     const objectId = openScript?.objectId ?? null;
     const hats = game
-      .runningScripts()
+      .runningScripts(GLOW_TICKS)
       .filter(
         (script) =>
           script.assetId === entry.id && (objectId === null || script.objectId === objectId),

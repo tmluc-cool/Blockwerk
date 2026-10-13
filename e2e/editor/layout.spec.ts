@@ -78,8 +78,8 @@ test.describe('docking layout', () => {
     await expect(popup.getByTestId('inspector')).toBeVisible();
 
     // The detached window is a real editor window: selecting in the main window updates it.
-    await page.getByTestId('hierarchy').getByText('Testwürfel').click();
-    await expect(popup.getByTestId('inspector-name')).toHaveValue('Testwürfel');
+    await page.getByTestId('hierarchy').getByText('Boden').click();
+    await expect(popup.getByTestId('inspector-name')).toHaveValue('Boden');
 
     // Floating windows are part of the saved layout.
     await page.waitForTimeout(500);

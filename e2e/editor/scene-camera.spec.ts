@@ -1,4 +1,14 @@
-import { camera, distance, expect, forwardOf, sceneCenter, settle, test } from './fixtures';
+import {
+  createPrimitive,
+  objectId,
+  camera,
+  distance,
+  expect,
+  forwardOf,
+  sceneCenter,
+  settle,
+  test,
+} from './fixtures';
 
 test.describe('scene view camera (Unity navigation)', () => {
   test('right mouse button + W flies forward, Q/E move down/up', async ({ editor: page }) => {
@@ -102,6 +112,8 @@ test.describe('scene view camera (Unity navigation)', () => {
   });
 
   test('F frames the selection, double-click in the hierarchy too', async ({ editor: page }) => {
+    // A new cube appears at the scene view pivot (0, 0.5, 0).
+    await createPrimitive(page, 'cube');
     // Move away first.
     const center = await sceneCenter(page);
     await page.mouse.move(center.x, center.y);
@@ -110,7 +122,7 @@ test.describe('scene view camera (Unity navigation)', () => {
     await page.mouse.up({ button: 'middle' });
     expect(distance((await camera(page)).pivot, [0, 0.5, 0])).toBeGreaterThan(1);
 
-    await page.getByTestId('hierarchy').getByText('Testwürfel').click();
+    await page.getByTestId('hierarchy').getByText('Würfel').click();
     await page.keyboard.press('f');
     const framed = await settle(page);
     expect(distance(framed.pivot, [0, 0.5, 0])).toBeLessThan(0.01);
@@ -118,19 +130,29 @@ test.describe('scene view camera (Unity navigation)', () => {
 
     await page.getByTestId('hierarchy').getByText('Hauptkamera').dblclick();
     const atCamera = await settle(page);
-    expect(distance(atCamera.pivot, [-3.5, 2.2, 7.5])).toBeLessThan(0.01);
-    expect(await page.evaluate(() => window.__blockwerk?.selection())).toBe('main-camera');
+    expect(distance(atCamera.pivot, [0, 3, -8])).toBeLessThan(0.01);
+    expect(await page.evaluate(() => window.__blockwerk?.selection())).toBe(
+      await objectId(page, 'Hauptkamera'),
+    );
   });
 
-  test('clicking an object in the scene selects it', async ({ editor: page }) => {
-    await page.getByTestId('hierarchy').getByText('Testwürfel').click();
+  test('clicking an object in the scene selects it, Ctrl+click adds to the selection', async ({
+    editor: page,
+  }) => {
+    await createPrimitive(page, 'cube');
+    const cube = await objectId(page, 'Würfel');
     await page.keyboard.press('f');
     await settle(page);
     await page.getByTestId('hierarchy').getByText('Boden').click();
     const center = await sceneCenter(page);
     await page.mouse.click(center.x, center.y);
-    await expect.poll(() => page.evaluate(() => window.__blockwerk?.selection())).toBe('test-cube');
-    await expect(page.getByTestId('inspector-name')).toHaveValue('Testwürfel');
+    await expect.poll(() => page.evaluate(() => window.__blockwerk?.selection())).toBe(cube);
+    await expect(page.getByTestId('inspector-name')).toHaveValue('Würfel');
+    // Clicking empty sky clears the selection.
+    const box = await page.getByTestId('scene-canvas').boundingBox();
+    if (!box) throw new Error('no canvas');
+    await page.mouse.click(box.x + 20, box.y + 20);
+    await expect.poll(() => page.evaluate(() => window.__blockwerk?.selectionIds().length)).toBe(0);
   });
 
   test('axis gizmo switches to axis views and between perspective and orthographic', async ({

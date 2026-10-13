@@ -3,7 +3,7 @@ import type { SceneData } from '@blockwerk/project';
 import { useLayout } from './layout/layoutController';
 import { activeSceneView } from './scene/sceneViews';
 import type { SceneCameraSnapshot } from './scene/SceneViewport';
-import { hasUnsavedChanges, saveProject, useDocument } from './state/document';
+import { hasUnsavedChanges, importProject, saveProject, useDocument } from './state/document';
 import { useEditor } from './state/editor';
 import { currentGame, usePlay } from './state/play';
 import { useSettings } from './state/settings';
@@ -41,9 +41,17 @@ export interface BlockwerkDebugHooks {
   save(): Promise<void>;
   compiledScript(assetId: string): string;
   playStatus(): string;
+  /** Milliseconds from Play to the first rendered game frame. */
+  playStartupMs(): number | null;
   /** Live objects of the running game with a given name. */
   liveObjects(name: string): ObjectProbe[];
   gameVars(): Readonly<Record<string, unknown>>;
+  /** Imports project files as a new project and opens it. */
+  importFiles(name: string, files: Record<string, string>): Promise<void>;
+  /** Position of an object on the scene canvas in CSS pixels, or `null`. */
+  screenPoint(id: string): { x: number; y: number } | null;
+  /** Live inspector variable or game variable value by variable name (play mode). */
+  liveVariable(objectName: string | null, variableName: string): unknown;
 }
 
 declare global {
@@ -98,6 +106,7 @@ export function installTestHooks(): void {
       }).code;
     },
     playStatus: () => usePlay.getState().status,
+    playStartupMs: () => usePlay.getState().startupMs,
     liveObjects: (name) =>
       [...(currentGame()?.world.allObjects() ?? [])]
         .filter((object) => object.name === name && !object.destroyed)
@@ -109,5 +118,19 @@ export function installTestHooks(): void {
           visible: object.visible,
         })),
     gameVars: () => ({ ...(currentGame()?.vars ?? {}) }),
+    importFiles: (name, files) => importProject(name, files),
+    screenPoint: (id) => activeSceneView()?.screenPoint(id) ?? null,
+    liveVariable: (objectName, variableName) => {
+      const project = useDocument.getState().project;
+      const variable = project
+        ?.assetsOfType('blockScript')
+        .flatMap((entry) => entry.data.variables)
+        .find((item) => item.name === variableName);
+      const game = currentGame();
+      if (!variable || !game) return undefined;
+      if (variable.scope === 'game') return game.vars[variable.id];
+      const object = [...game.world.allObjects()].find((item) => item.name === objectName);
+      return object?.vars[variable.id];
+    },
   };
 }

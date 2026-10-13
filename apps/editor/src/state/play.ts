@@ -7,7 +7,7 @@ import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
 import { focusPanel } from '../layout/layoutController';
-import { defaultObjectName, renderViews, setPlayWorld } from '../scene/worlds';
+import { currentEditWorld, defaultObjectName, renderViews, setPlayWorld } from '../scene/worlds';
 import { useConsole } from './console';
 import { editScene, useDocument } from './document';
 
@@ -34,6 +34,8 @@ interface PlayState {
   monitors: VariableMonitor[];
   /** Logic tick of the running game. */
   tick: number;
+  /** Milliseconds from pressing Play to the first rendered game frame. */
+  startupMs: number | null;
 }
 
 /** Play mode state. */
@@ -44,6 +46,7 @@ export const usePlay = create<PlayState>()(() => ({
   frame: 0,
   monitors: [],
   tick: 0,
+  startupMs: null,
 }));
 
 let game: Game | null = null;
@@ -51,6 +54,7 @@ let compiled = new Map<string, { data: BlockScriptData; asset: ScriptAsset }>();
 let frameHandle = 0;
 let lastTime = 0;
 let lastUiUpdate = 0;
+let playStarted: number | null = null;
 
 /** The running game, if any. */
 export function currentGame(): Game | null {
@@ -189,25 +193,34 @@ function loop(time: number): void {
   game.paused = status !== 'playing';
   const alpha = game.advance(dt);
   game.renderInterpolated(alpha, renderViews);
+  if (playStarted !== null) {
+    const startupMs = Math.round(performance.now() - playStarted);
+    playStarted = null;
+    usePlay.setState({ startupMs });
+    useConsole.getState().log('info', 'console.playStarted', { ms: startupMs });
+  }
   updateUi();
   frameHandle = requestAnimationFrame(loop);
 }
 
 let unsubscribeAssets: (() => void) | null = null;
 
-/** Enters play mode (Ctrl+P). Returns the start-up time in milliseconds. */
-export function play(): number {
-  if (game) return 0;
-  const started = performance.now();
+/** Enters play mode (Ctrl+P). The start-up time is logged once the first frame is drawn. */
+export function play(): void {
+  if (game) return;
+  playStarted = performance.now();
   const { scene } = useDocument.getState();
-  if (!scene) return 0;
+  if (!scene) return;
   compileAll();
   game = new Game(scene, {
     scripts: (id) => compiled.get(id)?.asset ?? null,
     log: logGame,
     displayName: defaultObjectName,
   });
-  usePlay.setState({ status: 'playing', changes: {}, monitors: [], tick: 0 });
+  // Same sun as the edit world: reuse its baked ambient light instead of baking again.
+  game.world.updateSun();
+  game.world.environment.shareLightingFrom(currentEditWorld()?.environment ?? null);
+  usePlay.setState({ status: 'playing', changes: {}, monitors: [], tick: 0, startupMs: null });
   setPlayWorld(game.world);
   unsubscribeAssets = useDocument.subscribe((state, previous) => {
     if (state.assetsVersion !== previous.assetsVersion) hotReload();
@@ -217,9 +230,6 @@ export function play(): number {
   // Like Unity, the Game view comes to the front and receives the keyboard.
   focusPanel('game');
   gameView()?.focus();
-  const elapsed = Math.round(performance.now() - started);
-  useConsole.getState().log('info', 'console.playStarted', { ms: elapsed });
-  return elapsed;
 }
 
 /** Leaves play mode; everything not kept is reset. */

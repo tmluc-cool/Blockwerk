@@ -38,6 +38,9 @@ export const test = base.extend<{ editor: Page }>({
     await page.goto('/');
     await expect(page.getByTestId('scene-canvas')).toBeVisible();
     await expect.poll(() => sceneCamera(page)).not.toBeNull();
+    await expect
+      .poll(() => page.evaluate(() => window.__blockwerk?.project().status), { timeout: 20_000 })
+      .toBe('ready');
     await use(page);
     expect(problems).toEqual([]);
   },
@@ -86,4 +89,37 @@ export async function settle(page: Page): Promise<CameraSnapshot> {
 export function forwardOf(snapshot: CameraSnapshot): [number, number, number] {
   const { yaw, pitch } = snapshot;
   return [-Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch)];
+}
+
+/** ID of the object with this name in the open scene. */
+export async function objectId(page: Page, name: string): Promise<string> {
+  const ids = await page.evaluate((target) => window.__blockwerk?.objectIds(target) ?? [], name);
+  const id = ids[0];
+  if (!id) throw new Error(`no object named ${name}`);
+  return id;
+}
+
+/** Opens the bundled example project `01-hindernis` via File > Open Example Project. */
+export async function openExample(page: Page): Promise<void> {
+  await page.getByTestId('menu-file').click();
+  await page.getByTestId('menu-open-example').click();
+  await page.getByTestId('choice-dialog').getByText('Hindernisparcours').click();
+  await expect
+    .poll(() => page.evaluate(() => window.__blockwerk?.project().name))
+    .toBe('Hindernisparcours');
+  await expect(page.getByTestId('hierarchy').getByText('Spieler', { exact: true })).toBeVisible();
+}
+
+/** Creates a primitive with GameObject > 3D Object and keeps the suggested name. */
+export async function createPrimitive(page: Page, shape: string): Promise<void> {
+  await page.getByTestId('menu-gameObject').click();
+  await page.getByTestId('menu-3d-object').hover();
+  await page.getByTestId(`create-${shape}`).click();
+  await expect(page.getByTestId('rename-input')).toBeFocused();
+  await page.keyboard.press('Enter');
+}
+
+/** The Blockly page inside the block editor window. */
+export function blocks(page: Page) {
+  return page.frameLocator('iframe.block-frame');
 }

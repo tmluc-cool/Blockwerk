@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { MenuList } from './Menu';
 import type { MenuItem } from './Menu';
 
@@ -12,6 +12,17 @@ export interface ContextMenuState {
 /** A right-click menu at a position. Closes on outside click and Escape. */
 export function ContextMenu({ menu, onClose }: { menu: ContextMenuState; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: menu.x, y: menu.y });
+  // Keep the menu inside the window (it opens upwards / leftwards near the edges).
+  useLayoutEffect(() => {
+    const element = ref.current;
+    const view = element?.ownerDocument.defaultView;
+    if (!element || !view) return;
+    const { width, height } = element.getBoundingClientRect();
+    const x = Math.max(0, Math.min(menu.x, view.innerWidth - width - 4));
+    const y = Math.max(0, menu.y + height > view.innerHeight ? menu.y - height : menu.y);
+    if (x !== position.x || y !== position.y) setPosition({ x, y });
+  }, [menu.x, menu.y, position.x, position.y]);
   useEffect(() => {
     const doc = ref.current?.ownerDocument ?? document;
     const onPointerDown = (event: PointerEvent): void => {
@@ -32,7 +43,7 @@ export function ContextMenu({ menu, onClose }: { menu: ContextMenuState; onClose
       ref={ref}
       className="menu-popup context-menu"
       data-testid="context-menu"
-      style={{ position: 'fixed', left: menu.x, top: menu.y }}
+      style={{ position: 'fixed', left: position.x, top: position.y }}
     >
       <MenuList items={menu.items} onClose={onClose} />
     </div>
