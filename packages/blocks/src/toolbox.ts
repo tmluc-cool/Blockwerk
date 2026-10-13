@@ -21,13 +21,13 @@ export interface ToolboxCategoryJson {
   readonly colour: string;
   readonly categorystyle?: string;
   readonly toolboxitemid: CategoryId;
-  readonly contents: readonly ToolboxBlockJson[];
+  readonly contents: ToolboxBlockJson[];
 }
 
 /** A Blockly category toolbox. */
 export interface ToolboxJson {
   readonly kind: 'categoryToolbox';
-  readonly contents: readonly ToolboxCategoryJson[];
+  readonly contents: ToolboxCategoryJson[];
 }
 
 /** Options for {@link buildToolbox}. */
