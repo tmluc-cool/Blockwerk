@@ -5,6 +5,9 @@ import { cameraRegistry } from '../components/camera';
 import { resolveValues } from '../components/defineComponent';
 import { getComponentDefinition } from '../components';
 import { Environment } from '../environment/Environment';
+import { InstanceBatcher } from '../models/InstanceBatcher';
+import type { ModelCache } from '../models/ModelCache';
+import type { ModelTemplate } from '../models/ModelCache';
 import { GameObject } from './GameObject';
 import type { ComponentInstance } from './GameObject';
 
@@ -14,6 +17,10 @@ export interface WorldOptions {
   readonly displayName?: (id: string, data: SceneObjectData) => string;
   /** Called for components whose type is unknown (e.g. from a newer version). */
   readonly onUnknownComponent?: (objectId: string, component: ComponentData) => void;
+  /** Loads models referenced by Mesh Renderers. Without it, only built-in shapes are shown. */
+  readonly models?: ModelCache;
+  /** Called when a model finished loading and the world looks different (views re-render). */
+  readonly onModelLoaded?: () => void;
 }
 
 const FORWARD = new Vector3(0, 0, 1);
@@ -48,11 +55,15 @@ export class World {
   private data: SceneData;
   private sunOwner: GameObject | null = null;
   private readonly options: WorldOptions;
+  /** Draws equal model meshes together (automatic instancing). */
+  readonly batcher: InstanceBatcher;
+  private readonly pendingModels = new Set<Promise<unknown>>();
 
   constructor(data: SceneData, options: WorldOptions = {}) {
     this.options = options;
     this.environment = new Environment({ groundSize: 0 });
     this.environment.addTo(this.scene);
+    this.batcher = new InstanceBatcher(this.scene);
     this.data = { ...data, objects: {} };
     this.sync(data);
   }
@@ -149,6 +160,40 @@ export class World {
     this.environment.sun.visible = owner.activeInHierarchy;
   }
 
+  /** Brings everything that is derived per frame up to date (sun, instancing). Call before rendering. */
+  prepareRender(): void {
+    this.updateSun();
+    this.batcher.update();
+  }
+
+  /**
+   * Requests a model. `onLoaded` runs right away if the model is already loaded, otherwise once
+   * it has loaded (with `null` if it could not be loaded).
+   */
+  requestModel(ref: string, onLoaded: (template: ModelTemplate | null) => void): void {
+    const cache = this.options.models;
+    if (!cache) {
+      onLoaded(null);
+      return;
+    }
+    const ready = cache.peek(ref);
+    if (ready !== undefined) {
+      onLoaded(ready);
+      return;
+    }
+    const pending = cache.load(ref).then((template) => {
+      this.pendingModels.delete(pending);
+      onLoaded(template);
+      this.options.onModelLoaded?.();
+    });
+    this.pendingModels.add(pending);
+  }
+
+  /** Resolves once all models requested so far have loaded (or failed). */
+  async modelsLoaded(): Promise<void> {
+    while (this.pendingModels.size > 0) await Promise.all([...this.pendingModels]);
+  }
+
   /** Adds a component instance to an object from its data. */
   addComponent(object: GameObject, data: ComponentData): ComponentInstance | null {
     const instance = this.createComponent(object, data);
@@ -186,6 +231,7 @@ export class World {
   /** Releases all resources. */
   dispose(): void {
     for (const id of [...this.objects.keys()]) this.removeObject(id);
+    this.batcher.dispose();
     this.environment.dispose();
   }
 

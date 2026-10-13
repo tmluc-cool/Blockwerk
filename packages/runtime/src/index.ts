@@ -20,6 +20,9 @@ export type {
   VariableValue,
 } from './world/GameObject';
 export { applyTransformData, World } from './world/World';
+export { ModelCache } from './models/ModelCache';
+export type { ModelTemplate, ModelUrlResolver } from './models/ModelCache';
+export { InstanceBatcher } from './models/InstanceBatcher';
 export type { WorldOptions } from './world/World';
 export { defineComponent, resolveValues } from './components/defineComponent';
 export type * from './components/defineComponent';

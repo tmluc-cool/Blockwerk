@@ -61,11 +61,14 @@ export interface EnumFieldDefinition extends FieldBase {
   readonly options: readonly EnumOption[];
 }
 
-/** Reference to an asset by its stable ID. */
+/** Asset kinds an asset field can point to. */
+export type AssetFieldType = 'blockScript' | 'model';
+
+/** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {
   readonly type: 'asset';
   readonly default: null;
-  readonly assetType: 'blockScript';
+  readonly assetType: AssetFieldType;
 }
 
 /** Any inspector field of a component. */

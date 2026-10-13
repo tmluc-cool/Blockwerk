@@ -1,5 +1,6 @@
 import { Color, Mesh, MeshStandardMaterial } from 'three';
-import type { BufferGeometry, Texture } from 'three';
+import type { BufferGeometry, Object3D, Texture } from 'three';
+import { ModelCache } from '../models/ModelCache';
 import { createGroundTexture } from '../environment/groundTexture';
 import { createPrimitiveGeometry, PRIMITIVE_SHAPES } from '../primitives';
 import type { PrimitiveShape } from '../primitives';
@@ -34,7 +35,25 @@ function tiles(): Texture {
   return tilesTexture;
 }
 
-/** Mesh Renderer: shows a primitive shape with a PBR material (SPEC 8.15, phase 1 uses built-in shapes). */
+/** Prepares a model copy: picking, shadows and automatic instancing. */
+function setUpModel(root: Object3D, objectId: string, cast: boolean, receive: boolean): Mesh[] {
+  root.userData['model'] = true;
+  root.userData['gameObjectId'] = objectId;
+  const meshes: Mesh[] = [];
+  root.traverse((node) => {
+    if (!(node as { isMesh?: boolean }).isMesh) return;
+    const mesh = node as Mesh;
+    mesh.castShadow = cast;
+    mesh.receiveShadow = receive;
+    if (!(node as { isSkinnedMesh?: boolean }).isSkinnedMesh) meshes.push(mesh);
+  });
+  return meshes;
+}
+
+/**
+ * Mesh Renderer: shows a model (from the asset library or the project) or a built-in shape with
+ * a PBR material (SPEC 8.15). Models keep their own materials; equal models are instanced.
+ */
 export const meshRenderer = defineComponent({
   type: 'meshRenderer',
   category: 'rendering',
@@ -47,6 +66,12 @@ export const meshRenderer = defineComponent({
   },
   keywords: { de: ['form', 'modell', 'material'], en: ['mesh', 'shape', 'material'] },
   fields: {
+    model: {
+      type: 'asset',
+      default: null,
+      assetType: 'model',
+      text: { de: 'Modell', en: 'Model' },
+    },
     shape: {
       type: 'enum',
       default: 'cube',
@@ -106,14 +131,61 @@ export const meshRenderer = defineComponent({
       text: { de: 'Kachelung', en: 'Tiling' },
     },
   },
-  create({ object }) {
+  create({ object, world }) {
     const material = new MeshStandardMaterial();
     const mesh = new Mesh(sharedGeometry('cube'), material);
     mesh.userData['gameObjectId'] = object.id;
+    mesh.visible = object.visible;
     object.object3d.add(mesh);
     let texture: Texture | null = null;
+    let enabled = true;
+    let destroyed = false;
+    let modelRef: string | null = null;
+    let model: Object3D | null = null;
+    let modelMeshes: Mesh[] = [];
+    let shadows = { cast: true, receive: true };
+
+    const removeModel = (): void => {
+      for (const part of modelMeshes) world.batcher.remove(part);
+      modelMeshes = [];
+      model?.removeFromParent();
+      model = null;
+    };
+    /** The shape is only part of the object while no model replaces it. */
+    const useShape = (on: boolean): void => {
+      if (on && !mesh.parent) {
+        mesh.visible = enabled && object.visible;
+        object.object3d.add(mesh);
+      } else if (!on) {
+        mesh.removeFromParent();
+      }
+    };
+    const showModel = (ref: string): void => {
+      world.requestModel(ref, (template) => {
+        if (destroyed || modelRef !== ref || model) return;
+        // A missing model shows the shape instead, like Unity's placeholder.
+        useShape(template === null);
+        if (!template) return;
+        model = ModelCache.instantiate(template);
+        modelMeshes = setUpModel(model, object.id, shadows.cast, shadows.receive);
+        model.visible = enabled && object.visible;
+        object.object3d.add(model);
+        for (const part of modelMeshes) world.batcher.add(part);
+      });
+    };
+
     return {
       apply(values) {
+        shadows = { cast: values.castShadows, receive: values.receiveShadows };
+        if (values.model !== modelRef) {
+          removeModel();
+          modelRef = values.model;
+          useShape(!modelRef);
+          if (modelRef) showModel(modelRef);
+        } else if (model) {
+          setUpModel(model, object.id, shadows.cast, shadows.receive);
+          world.batcher.invalidate();
+        }
         mesh.geometry = sharedGeometry(values.shape as PrimitiveShape);
         mesh.castShadow = values.castShadows;
         mesh.receiveShadow = values.receiveShadows;
@@ -132,10 +204,14 @@ export const meshRenderer = defineComponent({
         }
         material.needsUpdate = true;
       },
-      setEnabled(enabled) {
-        mesh.visible = enabled;
+      setEnabled(value) {
+        enabled = value;
+        if (model) model.visible = value;
+        mesh.visible = value;
       },
       destroy() {
+        destroyed = true;
+        removeModel();
         mesh.removeFromParent();
         material.dispose();
         texture?.dispose();
