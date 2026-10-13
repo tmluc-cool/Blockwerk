@@ -1,0 +1,37 @@
+{
+  "name": "blockwerk",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Open-source 3D game engine that works like Unity, with Scratch-style logic blocks.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @blockwerk/editor dev",
+    "dev:desktop": "pnpm --filter @blockwerk/desktop dev",
+    "build": "pnpm typecheck && pnpm --filter @blockwerk/editor build && pnpm --filter @blockwerk/desktop build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "pnpm build && playwright test",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "licenses": "node scripts/licenses.mjs",
+    "screenshot": "node scripts/screenshot.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.56.1",
+    "@types/node": "^24.19.2",
+    "eslint": "10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.4"
+  }
+}
