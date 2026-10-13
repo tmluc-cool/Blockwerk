@@ -72,7 +72,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 - **Layouts** sind Benutzereinstellungen und kein Teil des Projekts (wie in Unity). Sie liegen im `localStorage` des Editors (in Electron im Benutzerordner) und überstehen Neustarts.
 - **KI-Knopf** in der Werkzeugleiste bleibt unsichtbar, solange kein API-Schlüssel hinterlegt ist (SPEC 9.4: „Ohne Schlüssel ist nichts davon sichtbar“).
 - **Play, Pause, Einzelbild** sind in Phase 0 sichtbar, aber deaktiviert. Der Play-Modus kommt in Phase 1.
-- **Laufrichtung:** „vorwärts“ ist lokal +Z (wie im Beispiel in SPEC 7.10 und in der glTF-Konvention). Wie links/rechts auf die X-Achse abgebildet werden, wird vor Phase 1 bestätigt (Koordinatensystem).
+- **Koordinatensystem (vom Nutzer bestätigt):** Y oben, 1 Einheit = 1 Meter, „vorwärts“ ist lokal +Z (wie SPEC 7.10 und glTF), „rechts“ ist lokal −X.
 - **Electron-Menü:** Die Menüleiste ist Teil der Editor-Oberfläche (gleich in Browser und Desktop). Das native Electron-Menü ist ausgeblendet.
 - **Icons:** eigene, neutrale Symbole aus `lucide-react` (ISC), keine Unity- oder Scratch-Grafiken.
 
@@ -110,6 +110,5 @@ Tests: 59 Unit-/Golden-Tests (Vitest), 24 End-to-End-Tests (23 Browser, 1 Deskto
 **Offen / Hinweise für später**
 
 - Play-Modus, Projektformat, echte Objekte und Inspektor-Bearbeitung kommen in Phase 1. Bis dahin sind Play/Pause/Einzelbild und viele Menüpunkte sichtbar, aber deaktiviert.
-- Vor Phase 1 zu bestätigen: Koordinatensystem für links/rechts (siehe Annahmen, „Laufrichtung“).
 - GitHub Discussions ist im Repository noch nicht aktiviert (Link in den Issue-Vorlagen), Labels (`good first issue`, `block`, …) und der Schutz von `main` müssen in den Repository-Einstellungen angelegt werden.
 - Die GitHub-Actions-Versionen (`@v4`) laufen noch mit einer Node-20-Hinweismeldung; beim nächsten CI-Umbau auf die aktuellen Hauptversionen anheben.
