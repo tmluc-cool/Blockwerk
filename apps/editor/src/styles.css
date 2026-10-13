@@ -721,10 +721,17 @@ button:focus-visible {
 
 /* Block editor */
 
-.block-editor-host {
-  position: relative;
+.block-frame {
+  display: block;
   flex: 1;
+  width: 100%;
   min-height: 0;
+  border: 0;
+  background: #1f2126;
+}
+
+[data-theme='light'] .block-frame {
+  background: #f4f5f7;
 }
 
 /* Dialogs */
@@ -779,8 +786,4 @@ button:focus-visible {
   background: var(--bw-accent);
   border-color: var(--bw-accent);
   color: var(--bw-accent-text);
-}
-
-.block-editor .blocklyToolboxCategoryLabel {
-  font-size: 13px;
 }

@@ -1,86 +1,84 @@
 import { compileBlockScript } from '@blockwerk/compiler';
-import * as Blockly from 'blockly/core';
 import type { IDockviewPanelProps } from 'dockview-react';
-import { useEffect, useRef, useState } from 'react';
-import { blocklyTheme, defineBlocks, DEMO_WORKSPACE, toolboxFor } from '../blocks/blocklySetup';
+import { useEffect, useRef } from 'react';
+import { DEMO_WORKSPACE } from '../blocks/demoScript';
+import type { BlockFrameController } from '../blocks/frameApi';
+import { handleShortcut } from '../shortcuts';
 import { useEditor } from '../state/editor';
 import { useSettings, useT } from '../state/settings';
 
-/** Serialized state of the demo script, kept across language switches and panel moves. */
-let savedState: object = DEMO_WORKSPACE;
+/** Serialized demo script (JSON), kept across language switches, panel moves and reloads of the frame. */
+let savedState = JSON.stringify(DEMO_WORKSPACE);
 
-/** Latest compiled JavaScript of the demo script (exposed for tests and later the code view). */
+/** Compiled JavaScript of the demo script (used by tests and, later, the code view). */
 export function compiledDemoScript(): string {
-  return compileBlockScript(savedState, { assetName: 'demo.blocks' }).code;
+  return compileBlockScript(JSON.parse(savedState), { assetName: 'demo.blocks' }).code;
+}
+
+function activeAreaKind() {
+  const editor = useEditor.getState();
+  return editor.areas.find((area) => area.id === editor.activeAreaId)?.kind ?? null;
 }
 
 /**
- * Block editor window (SPEC 5.9): Blockly with the palette of the active area and a header
- * that names the edited block script and object.
+ * Block editor window (SPEC 5.9). Blockly runs in its own page (`blocks.html`) inside an iframe,
+ * so it keeps working when the window is floated or detached to a second screen. The header
+ * names the edited block script and object.
  */
-export function BlockEditorPanel({ api }: IDockviewPanelProps) {
+export function BlockEditorPanel(_props: IDockviewPanelProps) {
   const t = useT();
-  const hostRef = useRef<HTMLDivElement>(null);
-  const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const controllerRef = useRef<BlockFrameController | null>(null);
   const locale = useSettings((state) => state.locale);
   const theme = useSettings((state) => state.theme);
-  // Blockly measures texts when it renders, which fails while the panel is detached (hidden tab).
-  // The workspace therefore only exists while the panel is visible.
-  const [visible, setVisible] = useState(api.isVisible);
   const areaKind = useEditor(
     (state) => state.areas.find((area) => area.id === state.activeAreaId)?.kind ?? null,
   );
 
+  // The frame reloads whenever the window moves to another document (e.g. a detached window);
+  // every load mounts Blockly again with the saved script.
   useEffect(() => {
-    const subscription = api.onDidVisibilityChange((event) => setVisible(event.isVisible));
-    return () => subscription.dispose();
-  }, [api]);
-
-  // Create the workspace when the panel becomes visible; recreate it when the language changes
-  // so blocks get their new texts. The script survives in `savedState`.
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host || !visible) return;
-    defineBlocks(locale);
-    const workspace = Blockly.inject(host, {
-      toolbox: toolboxFor(
-        locale,
-        useEditor.getState().areas.find((area) => area.id === useEditor.getState().activeAreaId)
-          ?.kind ?? null,
-      ),
-      renderer: 'zelos',
-      media: 'blockly-media/',
-      theme: blocklyTheme(useSettings.getState().theme),
-      trashcan: true,
-      sounds: false,
-      grid: { spacing: 24, length: 2, colour: '#4a4f5a', snap: true },
-      zoom: { controls: true, wheel: true, startScale: 0.8, maxScale: 2, minScale: 0.4 },
-      move: { scrollbars: true, drag: true, wheel: false },
-    });
-    workspaceRef.current = workspace;
-    Blockly.serialization.workspaces.load(savedState, workspace);
-    const onChange = (event: Blockly.Events.Abstract): void => {
-      if (event.isUiEvent) return;
-      savedState = Blockly.serialization.workspaces.save(workspace);
+    const frame = frameRef.current;
+    if (!frame) return;
+    const release = (): void => {
+      try {
+        controllerRef.current?.dispose();
+      } catch {
+        // The previous page may already be gone (frame moved to another window).
+      }
+      controllerRef.current = null;
     };
-    workspace.addChangeListener(onChange);
-    const resize = (): void => Blockly.svgResize(workspace);
-    const dimensions = api.onDidDimensionsChange(resize);
+    const mount = (): void => {
+      release();
+      const api = frame.contentWindow?.blockwerkBlockFrame;
+      if (!api) return;
+      const settings = useSettings.getState();
+      controllerRef.current = api.mount({
+        locale: settings.locale,
+        theme: settings.theme,
+        area: activeAreaKind(),
+        state: savedState,
+        onChange: (state) => {
+          savedState = state;
+        },
+        onKeyDown: (event) => handleShortcut(event, { modifiersOnly: true }),
+      });
+    };
+    frame.addEventListener('load', mount);
+    if (
+      frame.contentDocument?.readyState === 'complete' &&
+      frame.contentWindow?.blockwerkBlockFrame
+    )
+      mount();
     return () => {
-      dimensions.dispose();
-      savedState = Blockly.serialization.workspaces.save(workspace);
-      workspace.dispose();
-      workspaceRef.current = null;
+      frame.removeEventListener('load', mount);
+      release();
     };
-  }, [api, locale, visible]);
+  }, []);
 
-  useEffect(() => {
-    workspaceRef.current?.updateToolbox(toolboxFor(locale, areaKind));
-  }, [locale, areaKind]);
-
-  useEffect(() => {
-    workspaceRef.current?.setTheme(blocklyTheme(theme));
-  }, [theme]);
+  useEffect(() => controllerRef.current?.setLocale(locale), [locale]);
+  useEffect(() => controllerRef.current?.setTheme(theme), [theme]);
+  useEffect(() => controllerRef.current?.setArea(areaKind), [areaKind]);
 
   return (
     <div className="panel block-editor" data-testid="block-editor">
@@ -91,7 +89,12 @@ export function BlockEditorPanel({ api }: IDockviewPanelProps) {
         <span className="muted">{t('blockEditor.object')}:</span>
         <strong>{t('object.testCube')}</strong>
       </div>
-      <div className="block-editor-host" ref={hostRef} />
+      <iframe
+        ref={frameRef}
+        className="block-frame"
+        src="blocks.html"
+        title={t('panel.blockEditor')}
+      />
     </div>
   );
 }

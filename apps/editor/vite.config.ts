@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, extname, join, normalize, sep } from 'node:path';
+import { dirname, extname, join, normalize, resolve, sep } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
@@ -59,5 +59,12 @@ export default defineConfig({
   build: {
     target: 'es2022',
     chunkSizeWarningLimit: 4000,
+    rolldownOptions: {
+      // The block editor runs Blockly in its own page (iframe), see src/blocks/frame.ts.
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        blocks: resolve(import.meta.dirname, 'blocks.html'),
+      },
+    },
   },
 });
