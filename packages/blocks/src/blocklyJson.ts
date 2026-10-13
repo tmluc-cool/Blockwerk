@@ -10,6 +10,9 @@ export interface BlocklyArgJson {
   readonly value?: number;
   readonly text?: string;
   readonly options?: readonly (readonly [string, string])[];
+  readonly source?: string;
+  readonly variable?: null;
+  readonly colour?: string;
 }
 
 /** A block definition in Blockly's JSON format (`Blockly.defineBlocksWithJsonArray`). */
@@ -20,12 +23,13 @@ export interface BlocklyBlockJson {
   readonly inputsInline: boolean;
   readonly previousStatement?: null;
   readonly nextStatement?: null;
-  readonly output?: string;
+  readonly output?: string | null;
   readonly [message: `message${number}`]: string;
   readonly [args: `args${number}`]: readonly BlocklyArgJson[];
 }
 
-const BLOCKLY_TYPES: Readonly<Record<ValueType, string>> = {
+const BLOCKLY_TYPES: Readonly<Record<ValueType, string | null>> = {
+  any: null,
   number: 'Number',
   string: 'String',
   boolean: 'Boolean',
@@ -37,13 +41,21 @@ const BLOCKLY_TYPES: Readonly<Record<ValueType, string>> = {
   color: 'Color',
 };
 
-/** Blockly connection check name for a value type. */
-export function blocklyCheck(type: ValueType): string {
+/** Blockly connection check name for a value type (`null` accepts everything). */
+export function blocklyCheck(type: ValueType): string | null {
   return BLOCKLY_TYPES[type];
 }
 
 function argFor(name: string, input: BlockInput, locale: Locale): BlocklyArgJson {
   switch (input.type) {
+    case 'any':
+      return { type: 'input_value', name };
+    case 'reference':
+      return { type: 'field_bw_reference', name, source: input.source, text: input.default };
+    case 'variable':
+      return { type: 'field_variable', name, variable: null };
+    case 'colorField':
+      return { type: 'field_colour', name, colour: input.default };
     case 'number':
       return { type: 'input_value', name, check: ['Number', 'String'] };
     case 'string':
@@ -82,8 +94,11 @@ function connectionsFor(definition: BlockDefinition): ConnectionJson {
     case 'hat':
       return { nextStatement: null };
     case 'stack':
-    case 'c':
       return { previousStatement: null, nextStatement: null };
+    case 'c':
+      return definition.terminal
+        ? { previousStatement: null }
+        : { previousStatement: null, nextStatement: null };
     case 'cap':
       return { previousStatement: null };
     case 'reporter':
@@ -100,6 +115,11 @@ export function toBlocklyJson(definition: BlockDefinition, locale: Locale): Bloc
   let row = 1;
   for (const [name, input] of Object.entries(definition.inputs)) {
     if (input.type !== 'statement') continue;
+    if (input.label) {
+      rows[`message${row}`] = input.label[locale].replace(/%/g, '%%');
+      rows[`args${row}`] = [];
+      row++;
+    }
     rows[`message${row}`] = '%1';
     rows[`args${row}`] = [argFor(name, input, locale)];
     row++;

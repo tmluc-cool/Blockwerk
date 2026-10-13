@@ -15,6 +15,7 @@ export type BlockShape = 'hat' | 'stack' | 'reporter' | 'boolean' | 'c' | 'cap';
 
 /** Data types of SPEC 7.3. */
 export type ValueType =
+  | 'any'
   | 'number'
   | 'string'
   | 'boolean'
@@ -68,9 +69,18 @@ export interface BooleanSocket {
   readonly type: 'boolean';
 }
 
+/** Round slot that accepts any value (number, text or condition). */
+export interface AnySocket {
+  readonly type: 'any';
+  /** Text shown in the empty slot. */
+  readonly default: string;
+}
+
 /** Body of a C-shaped block. */
 export interface StatementSocket {
   readonly type: 'statement';
+  /** Text on its own row above the body, e.g. "else". */
+  readonly label?: LocalizedText;
 }
 
 /** Editable number written directly on the block (no plugging). */
@@ -98,21 +108,72 @@ export interface DropdownField {
   readonly default: string;
 }
 
+/**
+ * Where the options of a reference field come from (filled from the open scene):
+ * - `object`: the object itself ("myself") and all objects
+ * - `objectOrMouse`: the mouse pointer and all objects
+ * - `touchTarget`: anything, all tags and all objects
+ */
+export type ReferenceSource = 'object' | 'objectOrMouse' | 'touchTarget';
+
+/** Dropdown of objects or tags of the scene. Values: `self`, `any`, `mouse`, `object:<id>`, `tag:<name>`. */
+export interface ReferenceField {
+  readonly type: 'reference';
+  readonly source: ReferenceSource;
+  readonly default: string;
+}
+
+/** Variable of the block script (dropdown of its variables). */
+export interface VariableField {
+  readonly type: 'variable';
+}
+
+/** Color picker written on the block. */
+export interface ColorField {
+  readonly type: 'colorField';
+  readonly default: string;
+}
+
 /** Any block input. Sockets accept other blocks, fields are edited in place. */
 export type BlockInput =
   | NumberSocket
   | TextSocket
   | BooleanSocket
+  | AnySocket
   | StatementSocket
   | NumberField
   | TextField
-  | DropdownField;
+  | DropdownField
+  | ReferenceField
+  | VariableField
+  | ColorField;
 
 /** Named inputs of a block. */
 export type BlockInputs = Readonly<Record<string, BlockInput>>;
 
 /** Inputs whose value is fixed in the block itself (no plugged block). */
-export type FieldInput = NumberField | TextField | DropdownField;
+export type FieldInput =
+  NumberField | TextField | DropdownField | ReferenceField | VariableField | ColorField;
+
+/** Inputs that accept a plugged value block. */
+export type SocketInput = NumberSocket | TextSocket | BooleanSocket | AnySocket;
+
+/** A block-script variable as seen by `compile`. */
+export interface VariableRef {
+  readonly id: string;
+  readonly name: string;
+  readonly scope: 'object' | 'game';
+  /** JavaScript expression that reads and writes the variable. */
+  readonly accessor: string;
+}
+
+/** Extra information for `compile` beyond the input values. */
+export interface CompileMeta {
+  /** Identifier unique to this block in the generated code (for loop counters and the like). */
+  readonly uid: string;
+  /** The variable selected in a variable field. */
+  variable(input: string): VariableRef;
+}
 
 /**
  * Arguments passed to `compile`: for every input the JavaScript code of its value.
@@ -125,7 +186,7 @@ export type CompileArgs<I extends BlockInputs> = { readonly [K in keyof I]: stri
 export type FieldValues<I extends BlockInputs> = {
   readonly [K in keyof I]: I[K] extends NumberField
     ? number
-    : I[K] extends TextField | DropdownField
+    : I[K] extends TextField | DropdownField | ReferenceField | ColorField
       ? string
       : string | number;
 };
@@ -137,7 +198,7 @@ export interface EventBinding {
 }
 
 interface BlockDefinitionBase<I extends BlockInputs> {
-  /** Stable, globally unique ID such as `motion.moveForward`. Never rename after release. */
+  /** Stable, globally unique ID such as `motion.move`. Never rename after release. */
   readonly id: string;
   readonly category: CategoryId;
   readonly inputs: I;
@@ -163,12 +224,17 @@ export interface HatBlockDefinition<
   event(fields: FieldValues<I>): EventBinding;
 }
 
-/** Command block (stack, cap or C-shaped). `compile` returns JavaScript statements. */
+/**
+ * Command block (stack, cap or C-shaped). `compile` returns JavaScript statements; the body
+ * of a C block is a placeholder line that the compiler replaces.
+ */
 export interface StatementBlockDefinition<
   I extends BlockInputs = BlockInputs,
 > extends BlockDefinitionBase<I> {
   readonly shape: 'stack' | 'cap' | 'c';
-  compile(args: CompileArgs<I>): string;
+  /** C blocks only: nothing can follow (e.g. "forever"). */
+  readonly terminal?: boolean;
+  compile(args: CompileArgs<I>, meta: CompileMeta): string;
 }
 
 /** Value block (reporter or boolean). `compile` returns a JavaScript expression. */
@@ -177,7 +243,7 @@ export interface ValueBlockDefinition<
 > extends BlockDefinitionBase<I> {
   readonly shape: 'reporter' | 'boolean';
   readonly output: ValueType;
-  compile(args: CompileArgs<I>): string;
+  compile(args: CompileArgs<I>, meta: CompileMeta): string;
 }
 
 /** Any block definition. */

@@ -73,5 +73,12 @@ export function defineBlock<const I extends BlockInputs>(
 
 /** Whether an input type is edited directly on the block. */
 export function isFieldType(type: BlockInputs[string]['type']): boolean {
-  return type === 'numberField' || type === 'textField' || type === 'dropdown';
+  return (
+    type === 'numberField' ||
+    type === 'textField' ||
+    type === 'dropdown' ||
+    type === 'reference' ||
+    type === 'variable' ||
+    type === 'colorField'
+  );
 }

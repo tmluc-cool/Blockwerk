@@ -21,8 +21,13 @@ export interface ToolboxCategoryJson {
   readonly colour: string;
   readonly categorystyle?: string;
   readonly toolboxitemid: CategoryId;
-  readonly contents: ToolboxBlockJson[];
+  readonly contents?: ToolboxBlockJson[];
+  /** Name of a flyout callback that builds the contents (used for variables). */
+  readonly custom?: string;
 }
+
+/** Flyout callback name of the variables category (the editor registers it). */
+export const VARIABLES_FLYOUT = 'BW_VARIABLES';
 
 /** A Blockly category toolbox. */
 export interface ToolboxJson {
@@ -37,12 +42,13 @@ export interface ToolboxOptions {
   readonly area: AreaKind | null;
 }
 
-function toolboxBlock(definition: BlockDefinition): ToolboxBlockJson {
+/** Palette entry of a block, with shadow blocks in its number and text slots. */
+export function toolboxBlock(definition: BlockDefinition): ToolboxBlockJson {
   const inputs: Record<string, { shadow: { type: string; fields: Record<string, unknown> } }> = {};
   for (const [name, input] of Object.entries(definition.inputs)) {
     if (input.type === 'number') {
       inputs[name] = { shadow: { type: 'literal.number', fields: { NUM: input.default } } };
-    } else if (input.type === 'string') {
+    } else if (input.type === 'string' || input.type === 'any') {
       inputs[name] = { shadow: { type: 'literal.text', fields: { TEXT: input.default } } };
     }
   }
@@ -80,6 +86,16 @@ export function buildToolbox(registry: BlockRegistry, options: ToolboxOptions): 
       : blocks;
     const category = CATEGORIES.find((candidate) => candidate.id === categoryId);
     if (!category) continue;
+    if (categoryId === 'variables') {
+      contents.push({
+        kind: 'category',
+        name: category.name[options.locale],
+        colour: category.color,
+        toolboxitemid: categoryId,
+        custom: VARIABLES_FLYOUT,
+      });
+      continue;
+    }
     contents.push({
       kind: 'category',
       name: category.name[options.locale],

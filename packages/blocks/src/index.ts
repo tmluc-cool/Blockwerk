@@ -6,7 +6,7 @@ export { BLOCK_CATALOG } from './catalog';
 export { BlockRegistry, defaultRegistry } from './registry';
 export { blocklyCheck, toBlocklyJson } from './blocklyJson';
 export type { BlocklyArgJson, BlocklyBlockJson } from './blocklyJson';
-export { buildToolbox, orderCategories } from './toolbox';
+export { buildToolbox, orderCategories, toolboxBlock, VARIABLES_FLYOUT } from './toolbox';
 export type { ToolboxBlockJson, ToolboxCategoryJson, ToolboxJson, ToolboxOptions } from './toolbox';
 export { buildSearchIndex, searchBlocks } from './search';
 export type { BlockSearchEntry } from './search';

@@ -1,11 +1,156 @@
 import type { BlockDefinition } from '../types';
-import { whenGameStarts } from './events';
-import { numberLiteral } from './literals';
-import { moveForward } from './motion';
-
-/** Every block of the built-in catalog. */
-export const BLOCK_CATALOG: readonly BlockDefinition[] = [
+import {
+  createClone,
+  destroy,
+  forever,
+  ifElse,
+  ifThen,
+  repeat,
+  repeatUntil,
+  stop,
+  wait,
+  waitUntil,
+} from './control';
+import {
+  everyFrame,
+  whenClicked,
+  whenCreated,
+  whenDestroyed,
   whenGameStarts,
-  moveForward,
+  whenKey,
+  whenTouching,
+} from './events';
+import { numberLiteral, textLiteral } from './literals';
+import { hide, setActive, setColor, setSize, show } from './looks';
+import {
+  glideToObject,
+  glideToXYZ,
+  goToObject,
+  goToXYZ,
+  heading,
+  lookAt,
+  move,
+  position,
+  propertyOf,
+  setRotation,
+  setScale,
+  turn,
+} from './motion';
+import {
+  add,
+  and,
+  clamp,
+  contains,
+  divide,
+  equals,
+  greaterThan,
+  join,
+  length,
+  lerp,
+  lessThan,
+  letterOf,
+  mathFunction,
+  max,
+  min,
+  mod,
+  multiply,
+  not,
+  or,
+  round,
+  subtract,
+} from './operators';
+import {
+  distanceTo,
+  keyPressed,
+  mouseDown,
+  mouseX,
+  mouseY,
+  random,
+  resetTimer,
+  timer,
+  touching,
+} from './sensing';
+import { changeVariable, getVariable, hideVariable, setVariable, showVariable } from './variables';
+
+/** Every block of the built-in catalog, in palette order within each category. */
+export const BLOCK_CATALOG: readonly BlockDefinition[] = [
+  // Events
+  whenGameStarts,
+  everyFrame,
+  whenKey,
+  whenClicked,
+  whenTouching,
+  whenCreated,
+  whenDestroyed,
+  // Motion
+  move,
+  turn,
+  goToXYZ,
+  goToObject,
+  glideToObject,
+  glideToXYZ,
+  lookAt,
+  setRotation,
+  setScale,
+  position,
+  heading,
+  propertyOf,
+  // Looks
+  setColor,
+  show,
+  hide,
+  setSize,
+  setActive,
+  // Control
+  wait,
+  forever,
+  repeat,
+  repeatUntil,
+  ifThen,
+  ifElse,
+  waitUntil,
+  createClone,
+  destroy,
+  stop,
+  // Sensing
+  keyPressed,
+  touching,
+  distanceTo,
+  mouseX,
+  mouseY,
+  mouseDown,
+  timer,
+  resetTimer,
+  random,
+  // Operators
+  add,
+  subtract,
+  multiply,
+  divide,
+  mod,
+  round,
+  mathFunction,
+  min,
+  max,
+  clamp,
+  lerp,
+  lessThan,
+  equals,
+  greaterThan,
+  and,
+  or,
+  not,
+  join,
+  length,
+  letterOf,
+  contains,
+  // Variables
+  getVariable,
+  setVariable,
+  changeVariable,
+  showVariable,
+  hideVariable,
+  // Shadows
   numberLiteral,
+  textLiteral,
 ];

@@ -13,3 +13,17 @@ export const numberLiteral = defineBlock({
   since: 1,
   hidden: true,
 });
+
+/** Shadow block behind every text slot. */
+export const textLiteral = defineBlock({
+  id: 'literal.text',
+  category: 'operators',
+  shape: 'reporter',
+  output: 'string',
+  inputs: { TEXT: { type: 'textField', default: '' } },
+  text: { de: '{TEXT}', en: '{TEXT}' },
+  compile: ({ TEXT }) => TEXT,
+  docs: { de: 'Ein Text.', en: 'A text.' },
+  since: 1,
+  hidden: true,
+});
