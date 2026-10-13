@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, net, protocol } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { join, normalize, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { registerProjectFiles } from './projectFiles';
 
 /**
  * Electron shell of the Blockwerk editor. The built editor is served from the custom
@@ -33,7 +34,10 @@ const editorDist = normalize(
 
 // Tests use a fresh profile directory to check that layouts survive restarts.
 const userData = process.env['BLOCKWERK_USER_DATA'];
-if (userData) app.setPath('userData', userData);
+if (userData) {
+  app.setPath('userData', userData);
+  process.env['BLOCKWERK_PROJECTS_DIR'] ??= join(userData, 'projects');
+}
 
 // Fall back to software rendering when the GPU is missing or blocklisted, so the 3D views
 // always work. Safe here because the app only loads its own local content.
@@ -107,7 +111,11 @@ void app.whenReady().then(() => {
   // The menu bar is part of the editor UI (same in browser and desktop).
   Menu.setApplicationMenu(null);
   if (!devServerUrl) registerEditorProtocol();
-  createMainWindow();
+  let mainWindow: BrowserWindow | null = createMainWindow();
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+  registerProjectFiles(() => mainWindow);
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
