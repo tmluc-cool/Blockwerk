@@ -143,7 +143,9 @@ test.describe('scene view camera (Unity navigation)', () => {
     const cube = await objectId(page, 'Würfel');
     await page.keyboard.press('f');
     await settle(page);
-    await page.getByTestId('hierarchy').getByText('Boden').click();
+    // Select something whose gizmo is not in the middle of the view (clicks on gizmo handles
+    // drag instead of selecting, like in Unity).
+    await page.getByTestId('hierarchy').getByText('Sonne').click();
     const center = await sceneCenter(page);
     await page.mouse.click(center.x, center.y);
     await expect.poll(() => page.evaluate(() => window.__blockwerk?.selection())).toBe(cube);
