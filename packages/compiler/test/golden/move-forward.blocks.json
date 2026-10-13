@@ -1,0 +1,53 @@
+{
+  "blocks": {
+    "blocks": [
+      {
+        "id": "hat-start-1",
+        "next": {
+          "block": {
+            "id": "move-1",
+            "inputs": {
+              "meters": {
+                "shadow": {
+                  "fields": {
+                    "NUM": 2.5
+                  },
+                  "id": "num-1",
+                  "type": "literal.number"
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "id": "move-2",
+                "inputs": {
+                  "meters": {
+                    "shadow": {
+                      "fields": {
+                        "NUM": -1
+                      },
+                      "id": "num-2",
+                      "type": "literal.number"
+                    }
+                  }
+                },
+                "type": "motion.moveForward"
+              }
+            },
+            "type": "motion.moveForward"
+          }
+        },
+        "type": "events.whenGameStarts",
+        "x": 40,
+        "y": 40
+      },
+      {
+        "id": "loose-move",
+        "type": "motion.moveForward",
+        "x": 400,
+        "y": 40
+      }
+    ],
+    "languageVersion": 0
+  }
+}
