@@ -5,7 +5,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 | Phase | Titel | Status |
 |---|---|---|
 | 0 | Fundament und Unity-Layout | abgeschlossen |
-| 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | offen |
+| 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | in Arbeit |
 | 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | offen |
 | 3 | Spieler, Physik, Animation | offen |
 | 3b | Figuren-Studio | offen |
@@ -19,6 +19,64 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 | 11 | Feinschliff und Endabnahme | offen |
 
 ---
+
+## Phase 1: Objekte, Komponenten, Block-Skripte, Play-Modus
+
+Branch: `phase/01-objekte` (baut auf Phase 0 auf, PR #1 ist noch nicht gemergt).
+
+### Plan
+
+**Teilaufgaben**
+
+1. **Projektformat** (`packages/project`, SPEC 9.1)
+   - Dateisystem-Schnittstelle mit drei Umsetzungen: im Speicher (Tests), Node.js (Electron, Tests, Beispiele), Browser (Origin Private File System, Projekte bleiben im Browser gespeichert).
+   - zod-Schemas, Formatversion, Migrationen mit Sicherungskopie, deterministisches Schreiben (sortierte Schlüssel, 2 Leerzeichen, LF). Gespeichert werden nur Dateien, deren Inhalt sich geändert hat.
+   - Meta-Dateien mit stabiler ID pro Asset, Verweise nur über IDs. Umbenennen und Verschieben von Assets nimmt die Meta-Datei mit.
+2. **Laufzeit** (`packages/runtime`)
+   - `defineComponent` als einzige Quelle für Komponenten (Felder, Typen, Standardwerte, Texte). Komponenten in Phase 1: Transform, Modell-Renderer (Grundformen), Material, Box-/Kugel-/Kapsel-Collider (Überlappungstest ohne Physik, Rapier folgt in Phase 3), Kamera, Licht, Block-Skript.
+   - Welt aus Szenendaten aufbauen; Scheduler mit fester 60-Hz-Logikrate, Reihenfolge nach SPEC 8.1, Generator-Threads nach Anhang B, Interpolation fürs Rendern.
+   - Dienste für Skripte: Eingabe (Tasten, Maus), Zeit, Warten, Stoppuhr, Zufall, Berührungen, Erzeugen/Zerstören, Variablen (Objekt und Spiel), Variablen-Anzeigen auf dem Bildschirm.
+   - Fehler in Skripten stoppen nur den Thread und landen mit Block-ID in der Konsole.
+3. **Blöcke und Compiler**: alle Blöcke aus Anhang A mit „(1)“ (Ereignisse, Bewegung, Aussehen, Steuerung, Fühlen, Operatoren, Variablen). Scratch-artige Typumwandlung, Objekt-, Tag- und Tasten-Auswahllisten aus der Szene. Jede Blockart mit Golden- und Laufzeittest.
+4. **Editor**
+   - Projekt öffnen, speichern (`Strg+S`), automatisch speichern; Beispielprojekt öffnen; neues Projekt aus Vorlage.
+   - Hierarchie: Eltern-Kind, Ziehen und Ablegen, Umbenennen (`F2`), Duplizieren (`Strg+D`), Löschen (`Entf`), leeres Objekt (`Strg+Shift+N`). Bereichs-Reiter sind Wurzel-Objekte und filtern die Hierarchie.
+   - Szene: Gizmos für Verschieben, Drehen, Skalieren, Kombi mit Einrasten (`Strg`), Mehrfachauswahl (`Strg`/`Shift`), Grundformen im Menü „Objekt“.
+   - Inspektor: Kopfzeile (Aktiv, Name, Tag, Ebene, Statisch), Transform, Komponenten aus `defineComponent`, „Komponente hinzufügen“ mit Suche, Kontextmenü (Zurücksetzen, Kopieren, Einfügen, Entfernen, nach oben/unten), Mehrfachbearbeitung mit „—“.
+   - Block-Skript als Asset im Projekt-Fenster und als Komponente; Variablen-Liste im Block-Editor mit „im Inspektor zeigen“; Doppelklick öffnet den Block-Editor.
+   - Rückgängig/Wiederholen für alle Änderungen an der Szene.
+   - Play-Modus: Start in unter 1 Sekunde, Zurücksetzen beim Stoppen, „Diesen Wert behalten“, Pause, Einzelbild, Zeitlupe (0,25×, 0,5×), Hot Reload der Blöcke, Tönung des Editors.
+   - Konsole: Klick auf einen Eintrag springt zum Block bzw. Objekt.
+5. **Beispiel** `examples/01-hindernis` und Abnahme mit Tests und Screenshot.
+
+**Vorschlag Projektformat** (Details zu SPEC 9.1, vor der Umsetzung zur Bestätigung)
+
+```
+mein-spiel/
+  blockwerk.json                         { formatVersion, name, startScene (Asset-ID), settings }
+  Assets/
+    Szenen/hindernis.scene.json          Objekte als Map ID → Objekt (Name, Eltern-ID, Reihenfolge,
+                                         Aktiv, Tag, Ebene, Statisch, Transform, Komponenten-Liste)
+    Szenen/hindernis.scene.json.meta.json { formatVersion, id, type, importSettings, license }
+    Block-Skripte/steuerung.blocks.json  { formatVersion, variables[], workspace (Blockly-JSON) }
+    Block-Skripte/steuerung.blocks.json.meta.json
+  Einstellungen/tags-und-ebenen.json      Tags und Ebenen
+  .blockwerk/                            Sicherungskopien, Cache (in .gitignore)
+```
+
+- Objekte stehen als Map mit sortierten IDs in der Datei, die Reihenfolge unter Geschwistern als Zahl `order`. So erzeugt eine Änderung nur Diffs am betroffenen Objekt.
+- Bereichs-Reiter sind Wurzel-Objekte mit einem Feld `area` (Art des Bereichs).
+- Meta-Dateien heissen wie die Datei plus `.meta.json` (wie Unitys `.meta`).
+- IDs: 12 Zeichen Kleinbuchstaben und Ziffern, zufällig.
+
+**Betroffene Pakete:** `project` (neu befüllt), `runtime`, `blocks`, `compiler`, `apps/editor`, `apps/desktop` (Dateizugriff über IPC), `examples/`.
+
+**Risiken**
+
+- Umfang: Phase 1 ist die grösste Phase bisher. Reihenfolge: Laufzeit und Compiler zuerst (testbar ohne Oberfläche), dann Projektformat, dann Editor.
+- Isolation des Play-Modus: Skriptfehler werden pro Thread abgefangen. Endlosschleifen ohne Frame-Abgabe können in Phase 1 nicht entstehen (Schleifen geben immer den Frame ab); die Absicherung dafür kommt mit eigenen Blöcken „ohne Bildschirmaktualisierung“ (Phase 7/8).
+- Berührungen ohne Physik-Engine: einfache Überlappungstests der Collider. Rapier ersetzt das in Phase 3, die Blöcke bleiben gleich.
+- Browser-Speicher (OPFS) ist pro Browser-Profil; Export/Import als Ordner folgt mit der Desktop-App bzw. Phase 9.
 
 ## Phase 0: Fundament und Unity-Layout
 
