@@ -164,7 +164,7 @@ mein-spiel/
 - [x] Dasselbe Block-Skript an einem zweiten Würfel mit anderer Geschwindigkeit funktioniert unabhängig (Tempo 2 statt 4: halbe Strecke, geprüft in beiden Tests).
 - [x] Play-Modus startet in unter 1 Sekunde (gemessen vom Klick bis zum ersten Spielbild, im Software-Renderer der Tests etwa 30–160 ms), Stoppen setzt zurück, ein behaltener Wert bleibt (E2E).
 - [x] Speichern, schliessen, laden: identisch; erneutes Speichern ändert keine Datei (null Git-Diffs; geprüft am Beispiel auf der Festplatte, im Browser per Neuladen und in der Desktop-App per Neustart). Ein Asset umbenennen bricht keinen Verweis (Unit- und E2E-Test).
-- [x] `pnpm test`, `pnpm lint`, `pnpm build` grün; CI auf GitHub siehe Pull Request.
+- [x] `pnpm test`, `pnpm lint`, `pnpm build` grün; CI auf GitHub unter Windows und Linux grün ([CI-Lauf](https://github.com/tmluc-cool/Blockwerk/actions/runs/38411453659)).
 
 Messung im Beispielprojekt (Spielansicht, Software-Renderer): 27 Draw Calls, 14 160 Dreiecke, Bildzeit 3,5 ms.
 
