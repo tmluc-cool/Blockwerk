@@ -5,7 +5,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 | Phase | Titel | Status |
 |---|---|---|
 | 0 | Fundament und Unity-Layout | abgeschlossen |
-| 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | in Arbeit |
+| 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | abgeschlossen |
 | 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | offen |
 | 3 | Spieler, Physik, Animation | offen |
 | 3b | Figuren-Studio | offen |
@@ -77,6 +77,59 @@ mein-spiel/
 - Isolation des Play-Modus: Skriptfehler werden pro Thread abgefangen. Endlosschleifen ohne Frame-Abgabe können in Phase 1 nicht entstehen (Schleifen geben immer den Frame ab); die Absicherung dafür kommt mit eigenen Blöcken „ohne Bildschirmaktualisierung“ (Phase 7/8).
 - Berührungen ohne Physik-Engine: einfache Überlappungstests der Collider. Rapier ersetzt das in Phase 3, die Blöcke bleiben gleich.
 - Browser-Speicher (OPFS) ist pro Browser-Profil; Export/Import als Ordner folgt mit der Desktop-App bzw. Phase 9.
+
+### Annahmen
+
+- **Projektformat wie vorgeschlagen** (keine Einwände). Die Ordner unter `Assets/` heissen bei neuen Projekten wie die Oberfläche (deutsch „Szenen“, „Block-Skripte“; englisch „Scenes“, „Block Scripts“); `Einstellungen/` und `.blockwerk/` sind feste Namen wie in SPEC 9.1. Neue Projekte bekommen eine `.gitignore` mit `.blockwerk/`.
+- **Speicherort:** Im Browser liegen Projekte im privaten Dateisystem des Browsers (OPFS), in der Desktop-App als echte Ordner unter `Dokumente/Blockwerk` (oder in einem frei gewählten Ordner über „Projekt öffnen → Anderen Ordner wählen“). Die Desktop-App erlaubt Dateizugriffe nur in Projektordnern, die angelegt oder gewählt wurden.
+- **Automatisches Speichern** zwei Sekunden nach jeder Änderung und beim Verlassen der Seite, nie während des Spielens. Abschaltbar unter „Datei → Automatisch speichern“.
+- **Berührungen ohne Physik:** Collider werden auf Überlappung geprüft (Würfel, Kugel, Kapsel). Objekte laufen noch durch Hindernisse hindurch; Rapier kommt in Phase 3, die Blöcke bleiben gleich.
+- **Blöcke mit Phase-2-Bezug:** „erzeuge [Prefab | Asset] bei [ ] → gibt Objekt zurück“ gibt es in Phase 1 als „erzeuge Kopie von [Objekt]“ (Unity: Instantiate eines Szenenobjekts); die Prefab-Variante mit Rückgabewert folgt mit Prefabs in Phase 2. „setze Farbe / Material“ setzt in Phase 1 die Farbe (Material-Assets folgen). „aktiviere / deaktiviere“ wirkt auf Objekte; Komponenten folgen.
+- **„zerstöre [mich | Objekt]“** ist ein Stapelblock; zerstört er das eigene Objekt, endet das Skript sofort (wie „lösche diesen Klon“ in Scratch).
+- **Blickrichtung:** 0° schaut nach +Z, 90° nach +X, genau wie die Y-Drehung im Inspektor. Wegen des bestätigten Koordinatensystems (+X ist links) wird der Wert beim Rechtsdrehen kleiner.
+- **Maus x/y** in Pixeln ab der Mitte der Spielansicht, oben und rechts positiv (wie Scratch).
+- **Block-ID umbenannt:** Der Testblock `motion.moveForward` aus Phase 0 heisst jetzt `motion.move` mit Richtungsauswahl. Es gab noch kein Release, daher ohne Migration.
+- **Variablen** in Phase 1: Typen Zahl, Text, Wahrheitswert; Gültigkeit „für dieses Objekt“ (im Inspektor zeigbar, Wert pro Objekt in der Block-Skript-Komponente) oder „für das ganze Spiel“. Szenen- und lokale Variablen kommen mit Phase 5/7 (lokale Variablen sind im Compiler schon vorhanden), „wird gespeichert“ mit Phase 6.
+- **Play-Modus:** Szenen- und Spielansicht zeigen beide die laufende Spielwelt; Hierarchie und Inspektor zeigen live die Spielobjekte (auch Kopien). Änderungen im Inspektor oder mit Gizmos wirken nur aufs Spiel; „Diesen Wert behalten“ steht neben jedem geänderten Wert, „Alle Änderungen dieses Objekts behalten“ als Knopf über dem Inspektor (statt nur per Rechtsklick).
+- **Startzeit des Play-Modus** wird vom Klick bis zum ersten fertig gezeichneten Spielbild gemessen und in der Konsole ausgegeben. Dafür übernimmt die Spielwelt das vorberechnete Himmelslicht der Editor-Welt; die Himmelslicht-Karte ist 64 px gross (genügt für diffuses Licht, spart viel Zeit).
+- **Leuchten laufender Skripte:** Skripte, die in der letzten Viertelsekunde liefen, leuchten (sonst wären kurze Skripte wie „Wenn Taste gehalten“ nie sichtbar).
+- **Einrasten mit `Strg`** in Unity-Standardschritten: 0,25 m, 15°, Skalierung 0,1.
+- **Neue Objekte** erscheinen am Drehpunkt der Szenen-Kamera im aktiven Bereich (Unity: am Szenen-Drehpunkt). Grundformen bekommen wie in Unity passend einen Collider.
+- **Kombi-Werkzeug** zeigt Verschiebe- und Drehgriffe zusammen; das Rechteck-Werkzeug verhält sich bis zur UI-Phase wie Verschieben.
+- **Eingebaute Tags** wie in Unity: `Untagged`, `MainCamera`, `Player`; Ebene `Default`. Eigene Tags und Ebenen über die Auswahlliste im Inspektor.
+- **Unbekannte Komponenten** (z. B. aus einer neueren Version) bleiben beim Speichern unverändert erhalten.
+- **Beispielprojekte** werden im Editor über „Datei → Beispielprojekt öffnen“ als Kopie geöffnet; die Dateien in `examples/` bleiben unberührt. Prettier formatiert Projektdateien in `examples/` nicht (der Editor schreibt sie selbst deterministisch).
+
+### Ergebnis
+
+**Umgesetzt**
+
+- **Laufzeit:** Komponenten über `defineComponent` (Modell-Renderer mit Grundformen und Material, Box-/Kugel-/Kapsel-Collider, Kamera, Licht, Block-Skript); Welt aus Szenendaten mit inkrementellem Abgleich; Spiel mit fester 60-Hz-Logik, Generator-Threads, Interpolation, Ereignissen (Start, jeder Frame, Tasten, Klick, Berühren, Erstellen, Zerstören), Kopien, Variablen und Anzeigen. Skriptfehler stoppen nur den betroffenen Thread und melden die Block-ID.
+- **Blöcke:** alle Blöcke aus Anhang A mit „(1)“ (Ereignisse, Bewegung, Aussehen, Steuerung, Fühlen, Operatoren, Variablen), Auswahllisten mit Objekten und Tags der Szene (stabile IDs), Farbfeld, Variablenfelder. Scratch-artige Typumwandlung an Steckplätzen. Jeder Block mit Golden- und Laufzeittest.
+- **Projektformat:** `packages/project` mit Dateisystem-Schnittstelle (Speicher, Node, Browser, Desktop über IPC), Meta-Dateien mit stabilen IDs, deterministischem Schreiben nur geänderter Dateien, sicherem Umbenennen (auch nur Gross-/Kleinschreibung), Meldungen zu beschädigten, kopierten oder neueren Dateien, Migrationen mit Sicherungskopie.
+- **Editor:** Projekt neu/öffnen/Beispiel, Speichern (`Strg+S`), automatisches Speichern, Rückgängig/Wiederholen (`Strg+Z`/`Strg+Y`). Hierarchie mit Bereichen als Wurzel-Objekten, Ziehen und Ablegen (behält die Weltposition), Umbenennen (`F2`), Duplizieren (`Strg+D`), Löschen (`Entf`), Kontextmenü, Suche, Mehrfachauswahl (`Strg`/`Shift`). Szene mit Gizmos (Verschieben, Drehen, Skalieren, Kombi; Pivot/Mitte, Lokal/Global; Einrasten mit `Strg`), Kamera- und Licht-Symbolen, Auswahlrahmen. Inspektor aus den Komponenten-Definitionen mit Mehrfachbearbeitung („—“), Ziehen an Feldbeschriftungen, Kontextmenü (Zurücksetzen, Werte kopieren/einfügen, Entfernen, nach oben/unten), „Komponente hinzufügen“ mit Suche und Kategorien, Tags und Ebenen. Projekt-Fenster mit Ordnerbaum, Erstellen, Umbenennen, Löschen, Verschieben per Ziehen, Doppelklick öffnet. Block-Editor mit Skriptauswahl, Kopfzeile (Skript und Objekt), Variablenliste rechts (Typ, Gültigkeit, Startwert, „im Inspektor zeigen“).
+- **Play-Modus:** Play/Pause/Einzelbild (`Strg+P`, `Strg+Shift+P`, `Strg+Alt+P`), Zeitlupe 0,5× und 0,25×, Tönung des Editors, Spielansicht bekommt die Tastatur, Variablen-Anzeigen, Hot Reload der Blöcke, leuchtende Skripte, „Diesen Wert behalten“, Zurücksetzen beim Stoppen. Konsole mit Sprung zu Block und Objekt.
+- **Desktop:** Projekte als echte Ordner, Zugriff nur auf freigegebene Projektordner.
+- **Beispiel** `examples/01-hindernis`: Parcours aus Grundformen, gesteuerter Würfel (Block-Skript „Steuerung“ mit Inspektor-Feld „Tempo“), zweiter Würfel mit demselben Skript und anderem Tempo, drei Kugeln mit Tag `Einsammelbar` (Skript „Einsammeln“), Punkteanzeige.
+
+**Abnahme**
+
+- [x] `examples/01-hindernis`: Ein Würfel mit Block-Skript wird mit WASD gesteuert, sammelt drei Kugeln (Tag `Einsammelbar`), Punkte erscheinen; die Geschwindigkeit ist ein Inspektor-Feld (Unit-Test ohne Oberfläche und E2E-Test im Editor mit echten Tastendrücken).
+- [x] Dasselbe Block-Skript an einem zweiten Würfel mit anderer Geschwindigkeit funktioniert unabhängig (Tempo 2 statt 4: halbe Strecke, geprüft in beiden Tests).
+- [x] Play-Modus startet in unter 1 Sekunde (gemessen vom Klick bis zum ersten Spielbild, im Software-Renderer der Tests etwa 30–160 ms), Stoppen setzt zurück, ein behaltener Wert bleibt (E2E).
+- [x] Speichern, schliessen, laden: identisch; erneutes Speichern ändert keine Datei (null Git-Diffs; geprüft am Beispiel auf der Festplatte, im Browser per Neuladen und in der Desktop-App per Neustart). Ein Asset umbenennen bricht keinen Verweis (Unit- und E2E-Test).
+- [x] `pnpm test`, `pnpm lint`, `pnpm build` grün; CI auf GitHub siehe Pull Request.
+
+Messung im Beispielprojekt (Spielansicht, Software-Renderer): 27 Draw Calls, 14 160 Dreiecke, Bildzeit 3,5 ms.
+
+Tests: 135 Unit-/Golden-/Laufzeittests (Vitest), 33 End-to-End-Tests (31 Browser, 2 Desktop-App). Screenshot: `docs/screenshots/phase-01.png`.
+
+**Offen / Hinweise für später**
+
+- Physik (Rapier) kommt in Phase 3; bis dahin gibt es keine Schwerkraft und keine festen Hindernisse.
+- Gleiche Modelle teilen sich die Geometrie, werden aber noch nicht automatisch instanziiert (kommt mit den Bibliotheksmodellen in Phase 2).
+- Objekte aus der Hierarchie auf Block-Steckplätze bzw. Verweise per Ziehen in Inspektor-Felder ziehen (SPEC 5.7, 5.9), Tippen zum Block-Suchen (7.8), „Von hier spielen“ (5.5), Einrasten an Eckpunkten (`V`) und das Ebenen-Menü sind noch nicht umgesetzt.
+- Browser-Projekte bleiben im jeweiligen Browserprofil; Import/Export als Ordner bzw. `.blockwerk`-Datei folgt.
 
 ## Phase 0: Fundament und Unity-Layout
 

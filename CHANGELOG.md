@@ -5,6 +5,21 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 1: objects, components, block scripts, play mode
+
+- Projects on disk (desktop) or in browser storage: deterministic JSON, meta files with stable IDs,
+  saving only changed files, migrations with backups, autosave, undo and redo.
+- Hierarchy with area roots, drag and drop, rename, duplicate and delete; scene gizmos for move,
+  rotate, scale and combined with snapping; inspector generated from component definitions with
+  multi-editing, add component, copy and paste values.
+- Components: Mesh Renderer with primitive shapes and material, Box/Sphere/Capsule Collider,
+  Camera, Light, Block Script with inspector variables.
+- Block catalog of phase 1 (events, motion, looks, control, sensing, operators, variables) with
+  golden and runtime tests; variables panel in the block editor.
+- Play mode with pause, step, slow motion, hot reload, glowing scripts, keep value, editor tint
+  and console links to blocks.
+- Example project `examples/01-hindernis`.
+
 ### Phase 0: foundation and Unity layout
 
 - pnpm monorepo with TypeScript (strict), ESLint, Prettier, Vitest and Playwright.

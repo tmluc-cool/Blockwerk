@@ -10,9 +10,11 @@ _English: Blockwerk is a free, open-source 3D game engine with a Unity-style edi
 built with Scratch-like command blocks instead of C#. The user interface is available in German
 and English._
 
-![Blockwerk-Editor, Phase 0](docs/screenshots/phase-00.png)
+![Blockwerk-Editor mit dem Beispiel aus Phase 1](docs/screenshots/phase-01.png)
 
-> **Status:** frühe Entwicklung. Phase 0 (Fundament und Unity-Layout) ist umgesetzt.
+> **Status:** frühe Entwicklung. Phase 0 (Fundament und Unity-Layout) und Phase 1 (Objekte,
+> Komponenten, Block-Skripte, Play-Modus) sind umgesetzt. Zum Ausprobieren: „Datei →
+> Beispielprojekt öffnen“ und Play drücken.
 > Es gibt noch kein Release. Den aktuellen Stand zeigt die [Roadmap](#roadmap).
 
 ## Download
@@ -62,7 +64,7 @@ Die englische Oberfläche verwendet die Unity-Begriffe direkt.
 | Phase | Inhalt                                          | Status       |
 | ----- | ----------------------------------------------- | ------------ |
 | 0     | Fundament und Unity-Layout                      | ✅ umgesetzt |
-| 1     | Objekte, Komponenten, Block-Skripte, Play-Modus | geplant      |
+| 1     | Objekte, Komponenten, Block-Skripte, Play-Modus | ✅ umgesetzt |
 | 2     | Projekt-Fenster, Asset-Bibliothek, Prefabs      | geplant      |
 | 3     | Spieler, Physik, Animation                      | geplant      |
 | 3b    | Figuren-Studio                                  | geplant      |
