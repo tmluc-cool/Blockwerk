@@ -6,7 +6,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 |---|---|---|
 | 0 | Fundament und Unity-Layout | abgeschlossen |
 | 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | abgeschlossen |
-| 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | offen |
+| 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | in Arbeit |
 | 3 | Spieler, Physik, Animation | offen |
 | 3b | Figuren-Studio | offen |
 | 4 | Umgebung und Grafik | offen |
@@ -19,6 +19,52 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 | 11 | Feinschliff und Endabnahme | offen |
 
 ---
+
+## Phase 2: Projekt-Fenster, Asset-Bibliothek, Prefabs
+
+Branch: `phase/02-bibliothek` (baut auf Phase 1 auf).
+
+### Plan
+
+**Teilaufgaben**
+
+1. **Asset-Bibliothek bauen** (`packages/library`, SPEC 6.1, 6.2, Anhang C)
+   - Quellenbeschreibungen in `packages/library/sources/*.json` (URL, Lizenz, Urheber, Kategorien und Tags nach Dateinamen, Übersetzungen der Namen, Collider-Vorschlag, Animationsnamen).
+   - `pnpm assets:fetch`: lädt die Pakete (Git oder ZIP), prüft die Lizenz (nur CC0), optimiert jedes Modell mit `@gltf-transform` (Duplikate, Schweissen, Meshopt-Kompression), normalisiert Massstab und Drehpunkt (unten mittig), rendert Vorschaubilder (Playwright + three.js) und schreibt `library/index.json` und `library/LICENSES.md`. Bereits verarbeitete Modelle werden übersprungen (Cache).
+   - Startpaket: KayKit-Pakete (CC0, offiziell auf GitHub): Mittelalter-Hexagon, Dungeon, Stadt, Möbel, Restaurant, Halloween, Raumbasis, Prototyp, Abenteurer- und Skelett-Figuren (zusammen rund 900 Modelle). Kenney, Quaternius und Poly Haven bekommen ebenfalls Quellenbeschreibungen.
+2. **Laufzeit:** Modelle laden (GLTF mit Meshopt), Modell-Feld im Modell-Renderer (Bibliotheks- oder Projekt-Modell statt Grundform), **automatische Instanziierung** gleicher Modelle (`InstancedMesh`), Collider-Vorschlag aus den Modellmassen.
+3. **Projektformat** (Erweiterung, siehe Vorschlag unten): Binärdateien, Asset-Typen „Modell“ und „Prefab“, Prefab-Exemplare mit Überschreibungen, Varianten, verschachtelte Prefabs.
+4. **Editor**
+   - Asset-Bibliothek: Raster mit Vorschaubildern, Kategorien, unscharfe Suche (de/en), Filter (animiert, Polygonanzahl), Favoriten, zuletzt benutzt, drehbare 3D-Vorschau, „In Projekt importieren“.
+   - Hineinziehen in die Szene mit Aufsetzen auf die Oberfläche unter dem Mauszeiger; **Pinsel** zum Verteilen vieler Objekte mit zufälliger Drehung und Grösse.
+   - Projekt-Fenster: Modelle importieren (Datei hineinziehen oder Menü; GLB/glTF direkt, FBX/OBJ werden zu GLB), Import-Inspektor (Massstab mit 1,8-m-Vergleichsfigur, Drehpunkt, Collider erzeugen, Lizenz), Vorschaubilder, Grössenregler, Typfilter.
+   - Prefabs wie Unity: Objekt aus der Hierarchie ins Projekt-Fenster ziehen erzeugt ein Prefab; Exemplare blau in der Hierarchie; Prefab-Modus per Doppelklick; überschriebene Werte fett mit Randmarkierung, „Übernehmen“/„Zurücksetzen“ pro Wert und für alles; Varianten; verschachtelte Prefabs; „Meine Prefabs“ (projektübergreifend, mit Abhängigkeiten).
+5. **Beispiel** `examples/02-dorf` (Häuser, Brunnen, Zäune, 200 Bäume) und Abnahme mit Tests, Messung der Bildrate und Screenshot.
+
+**Vorschlag Formaterweiterung** (zur Bestätigung; Umsetzung erst nach der Bibliothek)
+
+```
+Assets/Modelle/haus.glb               importiertes Modell (binär) + haus.glb.meta.json
+                                      meta.importSettings: { scale, pivot, generateCollider }, meta.license
+Assets/Prefabs/laterne.prefab.json    { formatVersion, root, objects: { ID → Objekt wie in Szenen },
+                                        base?: Prefab-ID der Basis (Variante), overrides: [...] }
+Szene, Prefab-Exemplar:               Objekt erhält  prefab: { asset: Prefab-ID, object: ID im Prefab }
+                                      und am Exemplar-Wurzelobjekt  overrides: [ { object, path, value } ]
+Modell-Renderer:                      Feld  model: "library:<ID>" oder Projekt-Asset-ID (statt Grundform)
+```
+
+- Exemplare werden in der Szene vollständig gespeichert (lesbar, die Laufzeit braucht keine Prefab-Logik). Beim Laden und nach jeder Prefab-Änderung werden sie aus dem Prefab neu erzeugt, die Überschreibungen bleiben. Position, Drehung und Name des Exemplar-Wurzelobjekts gelten immer als überschrieben (wie in Unity).
+- Varianten speichern nur ihre Unterschiede zur Basis (gleiche Überschreibungs-Liste). Verschachtelte Prefabs sind Prefab-Exemplare innerhalb eines Prefabs.
+- Bibliotheksmodelle werden nur per stabiler ID verwiesen und nicht ins Projekt kopiert; „In Projekt importieren“ kopiert das GLB nach `Assets/Modelle/`.
+
+**Betroffene Pakete:** `library` (neu befüllt), `runtime`, `project`, `apps/editor`, `apps/desktop` (Bibliothek ausliefern, Binärdateien), `examples/`, `.github/workflows` (Bibliothek in der CI laden und zwischenspeichern).
+
+**Risiken**
+
+- Netzwerk: In dieser Cloud-Umgebung sind kenney.nl, quaternius.com, itch.io und polyhaven.com gesperrt, GitHub ist erreichbar. Das Startpaket kommt deshalb hier aus den KayKit-Paketen auf GitHub; die übrigen Quellen funktionieren auf Rechnern mit normalem Internetzugang und in der CI.
+- Texturkompression: `sharp` (Standardweg von `@gltf-transform`) bringt libvips unter LGPL mit und ist nicht erlaubt. KayKit nutzt eine kleine Farbpalette als Textur, daher bleiben Texturen PNG; Meshopt verkleinert die Geometrie.
+- Bildrate: Die CI rendert ohne Grafikkarte (SwiftShader). 60 FPS werden über Draw Calls (Instanziierung) und die Bildzeit gemessen; Messwerte aus der Software-Darstellung sind nur ein Anhaltspunkt.
+- Grösse: Die Bibliothek (rund 100 MB) liegt nicht im Repository (`library/` ist in `.gitignore`), die CI lädt und speichert sie zwischen.
 
 ## Phase 1: Objekte, Komponenten, Block-Skripte, Play-Modus
 
