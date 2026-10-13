@@ -46,6 +46,9 @@ const FOG_COLOR = new Color(0.66, 0.74, 0.83);
 /** Strength of the ambient light baked from the sky, relative to the sun. */
 const ENVIRONMENT_INTENSITY = 0.32;
 
+/** Sun movement (radians) after which the ambient light is baked again. */
+const SUN_REBAKE_ANGLE = 0.02;
+
 /** Distance of the sun light from its focus point in meters. */
 const SUN_DISTANCE = 60;
 
@@ -64,7 +67,11 @@ export class Environment {
   private readonly options: Required<EnvironmentOptions>;
   private readonly sunDirection = new Vector3();
   private readonly focus = new Vector3();
-  private environmentTarget: WebGLRenderTarget | null = null;
+  /** Ambient lighting baked per renderer (GPU resources cannot be shared between canvases). */
+  private readonly baked = new Map<
+    WebGLRenderer,
+    { readonly target: WebGLRenderTarget; readonly sunDirection: Vector3 }
+  >();
   private ambientIntensity = ENVIRONMENT_INTENSITY;
   private scene: Scene | null = null;
 
@@ -125,9 +132,8 @@ export class Environment {
     scene.add(this.root);
     const fog = this.options.fog;
     scene.fog = fog ? new Fog(FOG_COLOR, fog.near, fog.far) : null;
-    if (this.environmentTarget) {
-      scene.environment = this.environmentTarget.texture;
-    }
+    const first = this.baked.values().next();
+    if (!first.done) scene.environment = first.value.target.texture;
   }
 
   /** Places the sun. Elevation and azimuth are in degrees. */
@@ -176,12 +182,36 @@ export class Environment {
     bakeSky.material.dispose();
     if (sunDisc) sunDisc.value = previousSunDisc;
 
-    this.environmentTarget?.dispose();
-    this.environmentTarget = target;
+    this.baked.get(renderer)?.target.dispose();
+    this.baked.set(renderer, { target, sunDirection: this.sunDirection.clone() });
     if (this.scene) {
       this.scene.environment = target.texture;
       this.scene.environmentIntensity = this.ambientIntensity;
     }
+  }
+
+  /**
+   * Prepares rendering with a renderer: uses the ambient light baked for it (baking again when
+   * the sun moved) and centers the sky on the camera. Lets several views render one scene.
+   */
+  prepare(renderer: WebGLRenderer, camera: Camera): void {
+    const baked = this.baked.get(renderer);
+    if (!baked || baked.sunDirection.angleTo(this.sunDirection) > SUN_REBAKE_ANGLE) {
+      this.bakeLighting(renderer);
+    } else if (this.scene) {
+      this.scene.environment = baked.target.texture;
+      this.scene.environmentIntensity = this.ambientIntensity;
+    }
+    this.update(camera);
+  }
+
+  /** Frees the lighting baked for a renderer that is no longer used. */
+  releaseRenderer(renderer: WebGLRenderer): void {
+    const baked = this.baked.get(renderer);
+    if (!baked) return;
+    if (this.scene?.environment === baked.target.texture) this.scene.environment = null;
+    baked.target.dispose();
+    this.baked.delete(renderer);
   }
 
   /**
@@ -221,8 +251,8 @@ export class Environment {
 
   /** Releases GPU resources owned by the environment. */
   dispose(): void {
-    this.environmentTarget?.dispose();
-    this.environmentTarget = null;
+    for (const baked of this.baked.values()) baked.target.dispose();
+    this.baked.clear();
     this.sky.geometry.dispose();
     this.sky.material.dispose();
     this.sun.shadow.map?.dispose();

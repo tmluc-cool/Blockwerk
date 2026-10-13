@@ -1,6 +1,6 @@
 import type { ComponentData, SceneData, SceneObjectData } from '@blockwerk/project';
 import { Euler, MathUtils, Scene, Vector3 } from 'three';
-import type { PerspectiveCamera } from 'three';
+import type { Object3D, PerspectiveCamera } from 'three';
 import { cameraRegistry } from '../components/camera';
 import { resolveValues } from '../components/defineComponent';
 import { getComponentDefinition } from '../components';
@@ -95,6 +95,15 @@ export class World {
   /** Looks up an object by ID. */
   getObject(id: string): GameObject | undefined {
     return this.objects.get(id);
+  }
+
+  /** The game object a scene graph node belongs to (for picking with the mouse). */
+  objectFromNode(node: Object3D | null): GameObject | undefined {
+    for (let current = node; current; current = current.parent) {
+      const id: unknown = current.userData['gameObjectId'];
+      if (typeof id === 'string') return this.objects.get(id);
+    }
+    return undefined;
   }
 
   /** All objects in hierarchy order (depth first). */

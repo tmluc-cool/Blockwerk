@@ -31,6 +31,9 @@ describe('World', () => {
     expect(cube?.object3d.rotation.y).toBeCloseTo(Math.PI / 2, 6);
     expect(cube?.findComponent('meshRenderer')?.values['shape']).toBe('sphere');
     expect(world.roots.map((root) => root.id)).toEqual(['area00000001', 'sun000000001']);
+    const mesh = cube?.object3d.children[0] ?? null;
+    expect(world.objectFromNode(mesh)?.id).toBe('cube00000001');
+    expect(world.objectFromNode(world.scene)).toBeUndefined();
     world.dispose();
   });
 
