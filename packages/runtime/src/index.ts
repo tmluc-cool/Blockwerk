@@ -9,15 +9,38 @@ export {
   generateGroundPixels,
   GROUND_TEXTURE_SIZE,
 } from './environment/groundTexture';
-export { createPrimitive } from './primitives';
+export { createPrimitive, createPrimitiveGeometry, PRIMITIVE_SHAPES } from './primitives';
 export type { PrimitiveOptions, PrimitiveShape } from './primitives';
-export { GameObject } from './GameObject';
-export type { GameObjectOptions } from './GameObject';
-export { loadScriptModule, ScriptModuleError } from './scripts';
+export { GameObject } from './world/GameObject';
 export type {
-  CompiledScriptModule,
-  GameServices,
-  ScriptEntry,
-  ScriptEvent,
-  ScriptThread,
-} from './scripts';
+  ComponentInstance,
+  GameObjectOptions,
+  MoveDirection,
+  TurnDirection,
+  VariableValue,
+} from './world/GameObject';
+export { applyTransformData, World } from './world/World';
+export type { WorldOptions } from './world/World';
+export { defineComponent, resolveValues } from './components/defineComponent';
+export type * from './components/defineComponent';
+export { COMPONENTS, getComponentDefinition } from './components';
+export { colliderRegistry } from './components/colliders';
+export type { ColliderShape, ColliderState } from './components/colliders';
+export { cameraRegistry } from './components/camera';
+export type { Locale, LocalizedText } from './text';
+export { loadScriptModule, ScriptModuleError } from './scripts';
+export type { CompiledScriptModule, ScriptEntry, ScriptEvent, ScriptThread } from './scripts';
+export { Game, TICK_SECONDS } from './game/Game';
+export type { GameLogEntry, GameOptions, ScriptAsset, VariableMonitor } from './game/Game';
+export type {
+  Easing,
+  GameApi,
+  MathFunction,
+  ObjectProperty,
+  ObjectRef,
+  VariableScope,
+} from './game/api';
+export { ANY_KEY, InputState, normalizeKey } from './game/input';
+export { shapesOverlap, toWorldShape } from './game/collisions';
+export type { WorldShape } from './game/collisions';
+export { errorLine, FUNCTION_HEADER_LINES } from './scripts';

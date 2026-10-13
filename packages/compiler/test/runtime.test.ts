@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BLOCK_CATALOG } from '@blockwerk/blocks';
 import { GameObject, loadScriptModule } from '@blockwerk/runtime';
-import type { GameServices } from '@blockwerk/runtime';
+import type { GameApi } from '@blockwerk/runtime';
 import { describe, expect, it } from 'vitest';
 import { compileBlockScript } from '../src';
 
@@ -16,7 +16,7 @@ interface RuntimeCase {
   readonly run: () => void;
 }
 
-const game: GameServices = { tick: 0 };
+const game = {} as GameApi;
 
 function loadFixture(name: string): unknown {
   return JSON.parse(readFileSync(join(import.meta.dirname, 'golden', name), 'utf8'));

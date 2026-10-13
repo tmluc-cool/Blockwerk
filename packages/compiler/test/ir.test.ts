@@ -1,5 +1,6 @@
 import { defaultRegistry } from '@blockwerk/blocks';
 import { GameObject, loadScriptModule } from '@blockwerk/runtime';
+import type { GameApi } from '@blockwerk/runtime';
 import { describe, expect, it } from 'vitest';
 import { CodegenError, CompileError, compileBlockScript, generateCode, literal } from '../src';
 import type { IRProgram } from '../src';
@@ -66,7 +67,7 @@ describe('IR functions and local variables', () => {
     const hero = new GameObject({ id: 'hero', name: 'Hero' });
     const script = module.scripts[0];
     if (!script) throw new Error('no script');
-    const iterator = script.run(hero, { tick: 0 });
+    const iterator = script.run(hero, {} as GameApi);
     expect(iterator.next().done).toBe(true);
     // First call: 2 + 3 = 5 m, returns 3. Second call with 3: 3 + 3 = 6 m. Total 11 m.
     expect(hero.position.z).toBeCloseTo(11, 6);

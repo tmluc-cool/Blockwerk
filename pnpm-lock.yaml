@@ -122,10 +122,17 @@ importers:
 
   packages/library: {}
 
-  packages/project: {}
+  packages/project:
+    dependencies:
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
 
   packages/runtime:
     dependencies:
+      '@blockwerk/project':
+        specifier: workspace:*
+        version: link:../project
       three:
         specifier: ^0.186.1
         version: 0.186.1

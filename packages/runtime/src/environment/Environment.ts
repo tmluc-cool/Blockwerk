@@ -65,6 +65,7 @@ export class Environment {
   private readonly sunDirection = new Vector3();
   private readonly focus = new Vector3();
   private environmentTarget: WebGLRenderTarget | null = null;
+  private ambientIntensity = ENVIRONMENT_INTENSITY;
   private scene: Scene | null = null;
 
   constructor(options: EnvironmentOptions = {}) {
@@ -133,7 +134,13 @@ export class Environment {
   setSun(elevationDegrees: number, azimuthDegrees: number): void {
     const phi = MathUtils.degToRad(90 - elevationDegrees);
     const theta = MathUtils.degToRad(azimuthDegrees);
-    this.sunDirection.setFromSphericalCoords(1, phi, theta);
+    this.setSunDirection(new Vector3().setFromSphericalCoords(1, phi, theta));
+  }
+
+  /** Places the sun along a direction pointing from the ground towards the sun. */
+  setSunDirection(towardsSun: Vector3): void {
+    if (towardsSun.lengthSq() === 0) return;
+    this.sunDirection.copy(towardsSun).normalize();
     const sunPosition = this.sky.material.uniforms['sunPosition'];
     if (sunPosition) {
       (sunPosition.value as Vector3).copy(this.sunDirection);
@@ -173,7 +180,7 @@ export class Environment {
     this.environmentTarget = target;
     if (this.scene) {
       this.scene.environment = target.texture;
-      this.scene.environmentIntensity = ENVIRONMENT_INTENSITY;
+      this.scene.environmentIntensity = this.ambientIntensity;
     }
   }
 
@@ -184,6 +191,27 @@ export class Environment {
   setFocus(point: Vector3): void {
     this.focus.copy(point);
     this.updateSunPosition();
+  }
+
+  /** Turns distance fog on or off and sets its range in meters. */
+  setFog(enabled: boolean, near: number, far: number): void {
+    if (!this.scene) return;
+    if (!enabled) {
+      this.scene.fog = null;
+      return;
+    }
+    if (this.scene.fog instanceof Fog) {
+      this.scene.fog.near = near;
+      this.scene.fog.far = far;
+    } else {
+      this.scene.fog = new Fog(FOG_COLOR, near, far);
+    }
+  }
+
+  /** Sets the strength of the ambient light baked from the sky. */
+  setAmbientIntensity(intensity: number): void {
+    this.ambientIntensity = intensity;
+    if (this.scene) this.scene.environmentIntensity = intensity;
   }
 
   /** Keeps the sky centered on the camera. Call before rendering. */

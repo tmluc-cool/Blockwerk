@@ -1,13 +1,8 @@
-import type { GameObject } from './GameObject';
-
-/** Services available to compiled block scripts as `game`. Grows with each phase. */
-export interface GameServices {
-  /** Number of logic ticks since the game started. */
-  readonly tick: number;
-}
+import type { GameApi } from './game/api';
+import type { GameObject } from './world/GameObject';
 
 /** A compiled block script thread. Each `yield` hands control back until the next logic tick. */
-export type ScriptThread = (self: GameObject, game: GameServices) => Generator<void, void, void>;
+export type ScriptThread = (self: GameObject, game: GameApi) => Generator<void, void, void>;
 
 /** The event that starts a script (the hat block). */
 export interface ScriptEvent {
@@ -48,12 +43,16 @@ function isScriptEntry(value: unknown): value is ScriptEntry {
   );
 }
 
+/** Lines that `new Function` puts before the body (`function anonymous(\n) {\n`). */
+export const FUNCTION_HEADER_LINES = 2;
+
 /**
- * Evaluates compiler output (a function body that returns `{ scripts }`) and returns
- * the script entries. The code runs without access to the enclosing scope.
+ * Evaluates compiler output (a function body that returns `{ scripts }`) and returns the script
+ * entries. `sourceUrl` names the code in stack traces, so errors can be mapped back to blocks.
  */
-export function loadScriptModule(code: string): CompiledScriptModule {
-  const factory = new Function(code) as () => unknown;
+export function loadScriptModule(code: string, sourceUrl?: string): CompiledScriptModule {
+  const source = sourceUrl ? `${code}\n//# sourceURL=${sourceUrl}\n` : code;
+  const factory = new Function(source) as () => unknown;
   const result = factory();
   if (typeof result !== 'object' || result === null) {
     throw new ScriptModuleError('Generated code did not return a module object.');
@@ -63,4 +62,16 @@ export function loadScriptModule(code: string): CompiledScriptModule {
     throw new ScriptModuleError('Generated code returned an invalid script list.');
   }
   return { scripts };
+}
+
+/**
+ * Finds the line (0-based, in the generated code) where an error happened, using the stack
+ * trace entry of `sourceUrl`. Returns `null` if the stack does not mention it.
+ */
+export function errorLine(error: unknown, sourceUrl: string): number | null {
+  const stack = error instanceof Error ? (error.stack ?? '') : '';
+  const escaped = sourceUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(`${escaped}:(\\d+):\\d+`).exec(stack);
+  if (!match?.[1]) return null;
+  return Number(match[1]) - 1 - FUNCTION_HEADER_LINES;
 }

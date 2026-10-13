@@ -82,6 +82,11 @@ export default defineConfig(
     },
   },
   {
+    // Tests write block scripts by hand as generators; many of them finish without yielding.
+    files: ['**/test/**/*.ts'],
+    rules: { 'require-yield': 'off' },
+  },
+  {
     files: ['apps/editor/src/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat['recommended-latest']],
     plugins: { blockwerk: blockwerkPlugin },
