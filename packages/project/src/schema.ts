@@ -190,8 +190,8 @@ export const DEFAULT_MODEL_IMPORT_SETTINGS: ModelImportSettings = {
   generateCollider: true,
 };
 
-/** Asset types. Models are binary GLB files; all others are JSON. */
-export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model'] as const;
+/** Asset types. Models (GLB) and images (PNG) are binary files; all others are JSON. */
+export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model', 'image'] as const;
 export const assetTypeSchema = z.enum(ASSET_TYPES);
 export type AssetType = z.infer<typeof assetTypeSchema>;
 

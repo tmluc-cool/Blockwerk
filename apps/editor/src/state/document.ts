@@ -49,6 +49,7 @@ function newProjectFolders(): NewProjectFolders {
     blockScripts: t('project.folder.blockScripts'),
     prefabs: t('project.folder.prefabs'),
     models: t('project.folder.models'),
+    images: t('project.folder.images'),
   };
 }
 
@@ -591,7 +592,7 @@ export function adoptAssets(
   for (const file of files) {
     const content = file.bytes
       ? { bytes: file.bytes }
-      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model'>] };
+      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model' | 'image'>] };
     if (project.adoptAsset(file.path, file.meta, content)) added++;
   }
   if (added > 0) assetsChanged();

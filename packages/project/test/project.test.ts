@@ -32,6 +32,7 @@ const FOLDERS = {
   blockScripts: 'Block-Skripte',
   prefabs: 'Prefabs',
   models: 'Modelle',
+  images: 'Bilder',
 };
 
 function newProject(fs: ProjectFileSystem): Promise<Project> {
@@ -283,6 +284,20 @@ describe('model assets', () => {
     );
   });
 
+  it('saves images (portraits) as binary files and loads them back without diffs', async () => {
+    const fs = new MemoryFileSystem();
+    const project = await newProject(fs);
+    const image = project.createImage('Assets/Bilder/Held.png', glb(3));
+    await project.save(fs);
+    expect(fs.snapshot()['Assets/Bilder/Held.png']).toBe('<64 bytes>');
+    const loaded = await loadProject(fs);
+    expect(loaded.assetOfType(image.id, 'image')?.data.byteLength).toBe(64);
+    expect(loaded.assetBytes(image.id)).toEqual(glb(3));
+    expect(loaded.dirty).toBe(false);
+    expect(await loaded.save(fs)).toEqual({ written: [], removed: [] });
+    expect(() => project.createImage('Assets/Bilder/Held.jpg', glb(3))).toThrow(/\.png/);
+  });
+
   it('refuses model paths without .glb', async () => {
     const project = await newProject(new MemoryFileSystem());
     expect(() => project.createModel('Assets/Modelle/Haus.fbx', glb(1))).toThrow(/\.glb/);
@@ -331,7 +346,7 @@ describe('loading problems', () => {
     await fs.writeText('Assets/kaputt.scene.json', '{ nope');
     await fs.writeText('Assets/falsch.blocks.json', '{"formatVersion":1}');
     await fs.writeText('Assets/weg.scene.json.meta.json', '{}');
-    await fs.writeText('Assets/Textur.png', 'binary');
+    await fs.writeText('Assets/Klang.wav', 'binary');
     const loaded = await loadProject(fs);
     expect(loaded.problems.map((problem) => [problem.code, problem.path])).toEqual([
       ['invalidFile', 'Assets/falsch.blocks.json'],

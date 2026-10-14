@@ -179,7 +179,7 @@ function HumanoidMap({
     );
   }
   const current = (bone: string): string => overrides[bone] ?? skeleton.automatic[bone] ?? '';
-  const missing = REQUIRED_BONES.filter((bone) => !current(bone.name)).length;
+  const missing = REQUIRED_BONES.filter((bone) => !current(bone)).length;
   return (
     <div className="humanoid-map" data-testid="humanoid-map">
       <div className="field-row">
@@ -191,16 +191,16 @@ function HumanoidMap({
         </div>
       </div>
       {REQUIRED_BONES.map((bone) => (
-        <div className="field-row" key={bone.name}>
-          <span className="field-label">{bone.name}</span>
+        <div className="field-row" key={bone}>
+          <span className="field-label">{bone}</span>
           <div className="field-value">
             <select
-              value={current(bone.name)}
-              data-testid={`humanoid-bone-${bone.name}`}
+              value={current(bone)}
+              data-testid={`humanoid-bone-${bone}`}
               onChange={(event) => {
                 const next = { ...overrides };
-                if (event.target.value) next[bone.name] = event.target.value;
-                else Reflect.deleteProperty(next, bone.name);
+                if (event.target.value) next[bone] = event.target.value;
+                else Reflect.deleteProperty(next, bone);
                 onChange(next);
               }}
             >
