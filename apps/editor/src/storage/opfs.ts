@@ -49,6 +49,25 @@ export class OpfsFileSystem implements ProjectFileSystem {
     await writable.close();
   }
 
+  async readBytes(path: string): Promise<Uint8Array> {
+    try {
+      const { folders, name } = this.split(path);
+      const file = await (await this.folder(folders, false)).getFileHandle(name);
+      return new Uint8Array(await (await file.getFile()).arrayBuffer());
+    } catch (error) {
+      if (isNotFound(error)) throw new FileNotFoundError(path);
+      throw error;
+    }
+  }
+
+  async writeBytes(path: string, data: Uint8Array): Promise<void> {
+    const { folders, name } = this.split(path);
+    const file = await (await this.folder(folders, true)).getFileHandle(name, { create: true });
+    const writable = await file.createWritable();
+    await writable.write(new Uint8Array(data));
+    await writable.close();
+  }
+
   async exists(path: string): Promise<boolean> {
     const { folders, name } = this.split(path);
     if (name === '') return true;
@@ -87,8 +106,8 @@ export class OpfsFileSystem implements ProjectFileSystem {
   }
 
   async rename(from: string, to: string): Promise<void> {
-    const text = await this.readText(from);
-    await this.writeText(to, text);
+    const data = await this.readBytes(from);
+    await this.writeBytes(to, data);
     if (normalizePath(from).toLowerCase() !== normalizePath(to).toLowerCase())
       await this.remove(from);
   }

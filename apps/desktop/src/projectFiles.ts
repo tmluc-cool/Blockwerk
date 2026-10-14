@@ -170,6 +170,20 @@ export function registerProjectFiles(mainWindow: () => BrowserWindow | null): vo
       await writeFile(target, text, 'utf8');
     }),
   );
+  handle('fs:readBytes', (_event, root = '', path = '') =>
+    guard(async () => new Uint8Array(await readFile(resolveInside(root, path)))),
+  );
+  // Binary writes carry a Uint8Array, so they are checked here instead of by `handle`.
+  ipcMain.handle('fs:writeBytes', (_event, root: unknown, path: unknown, data: unknown) => {
+    if (typeof root !== 'string' || typeof path !== 'string' || !(data instanceof Uint8Array)) {
+      throw new Error('Invalid arguments.');
+    }
+    return guard(async () => {
+      const target = resolveInside(root, path);
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, data);
+    });
+  });
   handle('fs:exists', async (_event, root = '', path = '') => {
     try {
       await stat(resolveInside(root, path));
