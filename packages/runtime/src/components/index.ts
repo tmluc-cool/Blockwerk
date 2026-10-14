@@ -28,6 +28,7 @@ import { meshRenderer } from './meshRenderer';
 import { particleSystem } from './particleSystem';
 import { postProcessing } from './postProcessing';
 import { terrain } from './terrain';
+import { water } from './water';
 
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
@@ -60,6 +61,7 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   postProcessing,
   particleSystem,
   terrain,
+  water,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];

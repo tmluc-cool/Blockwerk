@@ -15,6 +15,12 @@ import { Effects } from '../effects/Effects';
 import { GameObject } from './GameObject';
 import type { ComponentInstance } from './GameObject';
 
+/** A body of water the world knows about (for swimming). */
+export interface WaterBody {
+  /** Surface height at a world position, or `null` if the position is outside this water. */
+  surfaceAt(x: number, z: number): number | null;
+}
+
 /** Options for {@link World}. */
 export interface WorldOptions {
   /** Name shown for objects whose stored name is `null` (built-in area roots). */
@@ -63,6 +69,8 @@ export class World {
   readonly batcher: InstanceBatcher;
   /** One-shot particle effects (dust, sparks, …). */
   readonly effects: Effects;
+  /** Bodies of water that things can swim in (kept by the water components). */
+  readonly waters = new Set<WaterBody>();
   private readonly pendingModels = new Set<Promise<unknown>>();
 
   constructor(data: SceneData, options: WorldOptions = {}) {
@@ -75,6 +83,19 @@ export class World {
     this.sync(data);
     // Sky, fog and weather of the scene apply from the start, not only when they change.
     this.applyEnvironment();
+  }
+
+  /**
+   * Height of the water surface at a position, or `null` if there is no swimmable water there.
+   * Where waters overlap, the highest surface counts.
+   */
+  waterSurfaceAt(x: number, z: number): number | null {
+    let best: number | null = null;
+    for (const water of this.waters) {
+      const level = water.surfaceAt(x, z);
+      if (level !== null && (best === null || level > best)) best = level;
+    }
+    return best;
   }
 
   /** The scene data the world currently shows. */

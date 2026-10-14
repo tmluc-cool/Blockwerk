@@ -241,6 +241,11 @@ export class Environment {
     this.applyLighting();
   }
 
+  /** How much daylight there is (0 at night, 1 by day). */
+  get daylightLevel(): number {
+    return this.daylight;
+  }
+
   /** Places the sun. Elevation and azimuth are in degrees. */
   setSun(elevationDegrees: number, azimuthDegrees: number): void {
     const phi = MathUtils.degToRad(90 - elevationDegrees);

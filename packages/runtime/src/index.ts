@@ -149,3 +149,5 @@ export {
 export type { WeatherLook, WeatherState, WeatherType } from './environment/Weather';
 export { seededRandom, TERRAIN_LAYERS, TERRAIN_TOOLS, TerrainData } from './terrain/TerrainData';
 export type { TerrainBrush, TerrainRegion, TerrainTool } from './terrain/TerrainData';
+export { WaterSurface } from './water/WaterSurface';
+export type { WaterReflection, WaterSettings } from './water/WaterSurface';
