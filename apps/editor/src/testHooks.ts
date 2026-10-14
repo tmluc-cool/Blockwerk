@@ -1,4 +1,5 @@
 import { assetDisplayName } from '@blockwerk/project';
+import { animatorRegistry, controlRegistry } from '@blockwerk/runtime';
 import { compileBlockScript } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
 import { lastGameViewStats } from './game/GameViewport';
@@ -62,6 +63,15 @@ export interface BlockwerkDebugHooks {
   importFiles(name: string, files: Record<string, string>): Promise<void>;
   /** Position of an object on the scene canvas in CSS pixels, or `null`. */
   screenPoint(id: string): { x: number; y: number } | null;
+  /** Views the running game renders (one, or two with split screen) and how they are split. */
+  gameViews(): { count: number; split: string; players: string[] };
+  /** Animation state, speed and ground contact of a live object (play mode). */
+  characterState(name: string): {
+    animation: string | null;
+    speed: number;
+    grounded: boolean;
+    running: boolean;
+  } | null;
   /** Live inspector variable or game variable value by variable name (play mode). */
   liveVariable(objectName: string | null, variableName: string): unknown;
 }
@@ -147,6 +157,27 @@ export function installTestHooks(): void {
     gameVars: () => ({ ...(currentGame()?.vars ?? {}) }),
     importFiles: (name, files) => importProject(name, files),
     screenPoint: (id) => activeSceneView()?.screenPoint(id) ?? null,
+    gameViews: () => {
+      const views = currentGame()?.views();
+      return {
+        count: views?.views.length ?? 0,
+        split: views?.split ?? 'vertical',
+        players: views?.views.map((view) => view.player) ?? [],
+      };
+    },
+    characterState: (name) => {
+      const object = [...(currentGame()?.world.allObjects() ?? [])].find(
+        (item) => item.name === name,
+      );
+      const control = object ? controlRegistry.get(object) : undefined;
+      if (!object || !control) return null;
+      return {
+        animation: animatorRegistry.get(object)?.current ?? null,
+        speed: control.speed,
+        grounded: control.grounded,
+        running: control.running,
+      };
+    },
     liveVariable: (objectName, variableName) => {
       const project = useDocument.getState().project;
       const variable = project

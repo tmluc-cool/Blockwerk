@@ -6,8 +6,8 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 |---|---|---|
 | 0 | Foundation and Unity layout | done |
 | 1 | Objects, components, block scripts, Play Mode | done |
-| 2 | Project window, Asset Library, Prefabs | in progress |
-| 3 | Player, physics, animation | open |
+| 2 | Project window, Asset Library, Prefabs | done |
+| 3 | Player, physics, animation | in progress |
 | 3b | Character Studio | open |
 | 4 | Environment and graphics | open |
 | 5 | NPCs and game logic | open |
@@ -22,7 +22,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 
 ## Phase 3: Player, physics, animation
 
-Branch: `phase/03-spieler` (builds on Phase 2, PR #3 is not merged yet).
+Branch: `phase/03-spieler` (builds on Phase 2, which is merged).
 
 ### Plan
 
