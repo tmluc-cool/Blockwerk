@@ -38,6 +38,20 @@ export { colliderRegistry } from './components/colliders';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';
 export { motorRegistry } from './components/characterController';
+export { ATTACHMENT_POINTS, DEFAULT_ANIMATION_SOURCE, figureRegistry } from './components/figure';
+export { parseAttachments, parseList } from './components/lists';
+export type { AttachmentPoint, FigureInfo } from './components/figure';
+export {
+  applyMovementProfile,
+  isProfileName,
+  jumpArc,
+  MOVEMENT_PROFILES,
+  PROFILE_NAMES,
+  PROFILE_TEXT,
+} from './character/movement';
+export type { ProfileName, ProfileValues } from './character/movement';
+export { abilityRegistry, ABILITY_NAMES } from './components/abilities';
+export type { AbilityConfig, AbilityName } from './components/abilities';
 export { animatorRegistry } from './components/animator';
 export type { AnimatorHandle } from './components/animator';
 export { renderedModels } from './components/meshRenderer';
@@ -49,7 +63,12 @@ export { CameraTransitions } from './camera/transitions';
 export type { GameView, GameViews } from './camera/transitions';
 export type { CharacterMotor } from './components/characterController';
 export { controlRegistry, smoothDampAngle } from './components/controls';
-export type { ControlMode, ControlSettings, ControlState } from './components/controls';
+export type {
+  ControlEvent,
+  ControlMode,
+  ControlSettings,
+  ControlState,
+} from './components/controls';
 export type { Locale, LocalizedText } from './text';
 export { loadScriptModule, ScriptModuleError } from './scripts';
 export type { CompiledScriptModule, ScriptEntry, ScriptEvent, ScriptThread } from './scripts';

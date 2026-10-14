@@ -93,6 +93,18 @@ export interface GameApi {
   /** Puts the object at another object and stops its movement. */
   teleport(self: GameObject, ref: ObjectRef): void;
 
+  // Character (SPEC 5.10)
+  attach(self: GameObject, item: string, point: string): void;
+  detach(self: GameObject, point: string): void;
+  setPartVisible(self: GameObject, part: string, visible: boolean): void;
+  switchPart(self: GameObject, from: string, to: string): void;
+  setPartColor(self: GameObject, part: string, color: string): void;
+  setProfile(self: GameObject, name: string): void;
+  enableAbility(self: GameObject, name: string, on: boolean): void;
+  hasAbility(self: GameObject, name: string): boolean;
+  setStamina(self: GameObject, percent: number): void;
+  staminaPercent(self: GameObject): number;
+
   // Camera (SPEC 8.6)
   switchCamera(view: string): void;
   switchCameraTo(self: GameObject, ref: ObjectRef): void;

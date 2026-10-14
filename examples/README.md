@@ -6,9 +6,10 @@ section 10) and must run in play mode.
 | Phase | Example                                                     | Status  |
 | ----- | ----------------------------------------------------------- | ------- |
 | 0     | Built-in sample scene of the editor (no project format yet) | done    |
-| 1     | `01-hindernis`                                              | planned |
-| 2     | `02-dorf`                                                   | planned |
-| 3     | `03-held`                                                   | planned |
+| 1     | `01-hindernis`                                              | done    |
+| 2     | `02-dorf`                                                   | done    |
+| 3     | `03-held`                                                   | done    |
+| 3b    | `03b-figur`                                                 | done    |
 | 4     | `04-landschaft`                                             | planned |
 | 5     | `05-quest`                                                  | planned |
 | 7     | `07-gross`                                                  | planned |

@@ -35,6 +35,7 @@ import { loadedRapier } from '../physics/rapier';
 import type { TickContext, TickStage } from '../components/defineComponent';
 import { CameraTransitions } from '../camera/transitions';
 import { animatorRegistry } from '../components/animator';
+import { controlRegistry } from '../components/controls';
 import * as gameplay from './gameplayApi';
 import type { GameViews } from '../camera/transitions';
 
@@ -369,11 +370,29 @@ export class Game implements GameApi {
     });
   }
 
-  /** "When [object | tag] enters / leaves the zone": runs on the zone object. */
-  /** Fires "when animation … started / finished" for animators of scripted objects. */
+  /** How often each ability (`roll:started`) and animation (`animation:step:started`) event happened (tests, statistics). */
+  readonly eventCounts: Record<string, number> = {};
+
+  private count(key: string): void {
+    this.eventCounts[key] = (this.eventCounts[key] ?? 0) + 1;
+  }
+
+  /** Hands ability and animation events to scripts; events of objects without scripts are dropped. */
   private animationEvents(): void {
-    for (const object of [...this.attached.keys()]) {
+    for (const object of [...this.world.allObjects()]) {
+      for (const event of controlRegistry.get(object)?.takeEvents() ?? []) {
+        this.count(`${event.ability}:${event.phase}`);
+        this.fireFor(
+          object,
+          'ability',
+          (params) =>
+            String(params['ability'] ?? 'roll') === event.ability &&
+            String(params['phase'] ?? 'started') === event.phase,
+          true,
+        );
+      }
       for (const event of animatorRegistry.get(object)?.takeEvents() ?? []) {
+        this.count(`animation:${event.name}:${event.phase}`);
         this.fireFor(
           object,
           'animation',
@@ -755,6 +774,46 @@ export class Game implements GameApi {
   teleport(self: GameObject, ref: ObjectRef): void {
     this.goTo(self, ref);
     this.physics?.setVelocity(self, new Vector3());
+  }
+
+  attach(self: GameObject, item: string, point: string): void {
+    gameplay.attachItem(self, item, point);
+  }
+
+  detach(self: GameObject, point: string): void {
+    gameplay.detachItem(self, point);
+  }
+
+  setPartVisible(self: GameObject, part: string, visible: boolean): void {
+    gameplay.setPartVisible(self, part, visible);
+  }
+
+  switchPart(self: GameObject, from: string, to: string): void {
+    gameplay.switchPart(self, from, to);
+  }
+
+  setPartColor(self: GameObject, part: string, color: string): void {
+    gameplay.setPartColor(self, part, color);
+  }
+
+  setProfile(self: GameObject, name: string): void {
+    gameplay.setProfile(self, name);
+  }
+
+  enableAbility(self: GameObject, name: string, on: boolean): void {
+    gameplay.enableAbility(self, name, on);
+  }
+
+  hasAbility(self: GameObject, name: string): boolean {
+    return gameplay.hasAbility(self, name);
+  }
+
+  setStamina(self: GameObject, percent: number): void {
+    gameplay.setStamina(self, percent);
+  }
+
+  staminaPercent(self: GameObject): number {
+    return gameplay.staminaPercent(self);
   }
 
   switchCamera(view: string): void {

@@ -9,6 +9,7 @@ export const ACTIONS = [
   'crouch',
   'interact',
   'attack',
+  'roll',
   'pause',
 ] as const;
 
@@ -47,6 +48,7 @@ export const GAMEPAD_BUTTONS: Readonly<Record<ButtonAction, readonly number[]>> 
   crouch: [1],
   interact: [3],
   attack: [2, 7],
+  roll: [5],
   pause: [9],
 };
 
@@ -67,6 +69,7 @@ export const DEFAULT_BINDINGS: Readonly<Record<1 | 2, PlayerBindings>> = {
       crouch: ['KeyC', 'ControlLeft'],
       interact: ['KeyE'],
       attack: ['KeyF'],
+      roll: ['KeyQ'],
       pause: ['KeyP', 'Escape'],
     },
     mouse: true,
@@ -86,6 +89,7 @@ export const DEFAULT_BINDINGS: Readonly<Record<1 | 2, PlayerBindings>> = {
       crouch: ['NumpadDecimal'],
       interact: ['NumpadEnter'],
       attack: ['NumpadAdd'],
+      roll: ['NumpadSubtract'],
       pause: ['NumpadMultiply'],
     },
     mouse: false,

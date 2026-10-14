@@ -49,6 +49,7 @@ function newProjectFolders(): NewProjectFolders {
     blockScripts: t('project.folder.blockScripts'),
     prefabs: t('project.folder.prefabs'),
     models: t('project.folder.models'),
+    images: t('project.folder.images'),
   };
 }
 
@@ -71,7 +72,14 @@ setProjectModelSource(async (assetId) => {
     modelUrls.set(assetId, cached);
   }
   const settings = modelImportSettings(entry.meta);
-  return { url: cached.url, scale: settings.scale, pivot: settings.pivot };
+  return {
+    url: cached.url,
+    scale: settings.scale,
+    pivot: settings.pivot,
+    yaw: settings.yaw,
+    boneMap: settings.boneMap,
+    animationMap: settings.animationMap,
+  };
 });
 
 interface DocumentState {
@@ -571,6 +579,19 @@ export function importModelAsset(
   return entry;
 }
 
+/** Adds an image (PNG), e.g. a character portrait, to the project. */
+export function importImageAsset(
+  folder: string,
+  name: string,
+  data: Uint8Array,
+): AssetEntry<'image'> | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const entry = project.createImage(project.uniqueAssetPath(folder, name, 'image'), data);
+  assetsChanged();
+  return entry;
+}
+
 /**
  * Adds assets that keep their IDs (from "My Prefabs"). Assets the project already has are
  * skipped. Returns how many were added.
@@ -584,7 +605,7 @@ export function adoptAssets(
   for (const file of files) {
     const content = file.bytes
       ? { bytes: file.bytes }
-      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model'>] };
+      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model' | 'image'>] };
     if (project.adoptAsset(file.path, file.meta, content)) added++;
   }
   if (added > 0) assetsChanged();

@@ -141,6 +141,7 @@ describe('buildToolbox', () => {
       'variables',
       'player',
       'camera',
+      'character',
       'physics',
     ]);
     const motion = toolbox.contents.find((category) => category.toolboxitemid === 'motion');
@@ -169,11 +170,18 @@ describe('buildToolbox', () => {
   });
 
   it('puts the categories of the active area first', () => {
-    expect(orderCategories('player').slice(0, 4)).toEqual(['player', 'motion', 'camera', 'looks']);
+    expect(orderCategories('player').slice(0, 5)).toEqual([
+      'player',
+      'character',
+      'motion',
+      'camera',
+      'looks',
+    ]);
     expect(orderCategories(null)).toEqual(CATEGORIES.map((category) => category.id));
     const toolbox = buildToolbox(defaultRegistry, { locale: 'en', area: 'player' });
-    expect(toolbox.contents.slice(0, 4).map((category) => category.toolboxitemid)).toEqual([
+    expect(toolbox.contents.slice(0, 5).map((category) => category.toolboxitemid)).toEqual([
       'player',
+      'character',
       'motion',
       'camera',
       'looks',

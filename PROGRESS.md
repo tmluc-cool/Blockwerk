@@ -7,8 +7,8 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 0 | Foundation and Unity layout | done |
 | 1 | Objects, components, block scripts, Play Mode | done |
 | 2 | Project window, Asset Library, Prefabs | done |
-| 3 | Player, physics, animation | in progress |
-| 3b | Character Studio | open |
+| 3 | Player, physics, animation | in review (PR #6, CI green) |
+| 3b | Character Studio | in review |
 | 4 | Environment and graphics | open |
 | 5 | NPCs and game logic | open |
 | 6 | UI, menus, saving | open |
@@ -19,6 +19,71 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 3b: Character Studio
+
+Branch: `phase/03b-figuren-studio` (builds on Phase 3; PR #6 is not merged yet).
+
+### Plan
+
+**Subtasks** (SPEC 5.10, 8.7)
+
+1. **Standard skeleton and retargeting** (`packages/character`): the VRM 1.0 humanoid bone names are the internal standard (15 required bones, optional spine/chest/neck, fingers, toes). Automatic bone mapping of a loaded skeleton by name patterns (Mixamo-style, KayKit Rig_Medium, Blender `.L/.R`, VRM) and by hierarchy; mapping stored with the model and editable. Retargeting of animation clips from one humanoid skeleton onto another (rotation retargeting in rest-pose space, hip translation scaled by leg length).
+2. **Model import:** GLB/glTF and VRM (the humanoid bones and the license note are read from the file, see Assumptions), FBX and OBJ through the existing converter; models without a skeleton become rigid figures with automatic bobbing, leaning and squash.
+3. **Character component** (single definition, also shown in the Inspector): model, bone map, body height, colors per part, attachments, movement profile, abilities, collision capsule, sound set, portrait. Every character is a Prefab; "Player 2: like Player 1 with other colors" is a Prefab Variant.
+4. **Character Studio window** (first tab in the Player 1, Player 2 and NPC areas): turntable preview with studio light, meter grid, comparison figure, collision capsule with handles, jump arc; animation list with preview, speed, fade, loop, slow motion and an event timeline; movement sliders and the five movement profiles; ability cards (double jump, sprint with stamina, roll, crouch, swim, climb, glide, wall jump, dive, pick up/carry, interact); camera preview with draggable distance, height and shoulder offset; portrait rendering saved as an image asset; "Play in Test Area".
+5. **Builder:** parts from modular CC0 characters with a shared skeleton, color palettes and a random button, body sliders through bone scaling; attachment points (right/left hand, back, head, hip, custom) with library items that follow the animation.
+6. **Abilities as components** with their blocks (double jump, roll, stamina, climb, glide …) and golden/runtime tests; blocks from SPEC Appendix A "Character" (attach item, switch part, set color, switch movement profile, enable ability, has ability, stamina, "when I roll/glide/climb/swim").
+7. **Example and acceptance:** `examples/03b-figur` and tests (below), screenshot, PR.
+
+**Affected packages:** `character` (new), `runtime` (character component, retargeting, abilities, rigid-figure motion), `blocks`, `compiler`, `project` (character settings, portrait asset), `library` (modular character pack source), `apps/editor` (Studio window, import).
+
+**Risks**
+
+- Retargeting quality depends on rest poses; automatic tests compare bone directions and foot sliding against the source clip with tolerances, the visual result needs a look on a machine with a graphics card.
+- The modular CC0 characters (Quaternius) are on a host that is blocked in this cloud environment; the builder is developed against the KayKit characters here and gets the Quaternius source description for machines with normal internet access. A CC0 VRM test model has to be found on a reachable host (GitHub).
+- VRM license metadata and spring bones: spring bones are not simulated in this phase (assumption).
+- The Studio is a large UI: it is built as panels over the character component so that each panel stays small and testable.
+
+### Assumptions
+
+- **Standard skeleton:** the VRM 1.0 humanoid names (55 bones, 15 required) are the internal skeleton. Models are mapped by name (Mixamo, VRoid, Blender rigify, KayKit, plain names) and by hierarchy; corrections are stored in the model's import settings (`boneMap`) or on the Character component. Decision confirmed by the user: **retargeting at runtime** and a **Character component on the prefab**.
+- **Retargeting:** world-space rotation change of the source bone applied to the rest pose of the target bone (A-pose and T-pose are aligned), hips movement scaled by the hip height, and the bone scale of the clip transferred relative to the rest scale (KayKit keeps its bones scaled in the rest pose and lets every clip set the real scale). The body height is measured in the standing (idle) pose for the same reason.
+- **VRM without a dependency:** `@pixiv/three-vrm` is not needed for what Blockwerk uses of a VRM file (humanoid bones, license, facing direction), so `packages/character/src/vrm.ts` reads those from the GLB directly (VRM 0.x and 1.0). The file stays an ordinary GLB; expressions and spring bones are not simulated. VRM 0.x avatars face backwards and get a yaw of 180° in their import settings (new optional import settings `yaw`, `boneMap`, `animationMap`).
+- **Images:** the portrait needs an image in the project, so there is a new binary asset type `image` (PNG, with a meta file and stable ID like models). Old projects are unaffected; the format version stays 1. `Assets/Bilder/` (`Images`) is the default folder.
+- **Loose gear:** meshes without skin on a skinned model (swords, shields, helmet, cape of the KayKit characters) are hidden until they are listed in the new Character field `shownGear`; the builder and the blocks switch them. Body parts are shown unless listed in `hiddenParts`.
+- **Builder:** the modular Quaternius characters are on a host that is blocked in this cloud environment, so the builder works with what a model offers: its parts (shown/hidden), colors per part with palettes and a random button, body sliders (build, head size, arm and leg length through bone scaling, 0.6 to 1.8×), and library items on the attachment points. The Quaternius source description follows when the library is built on a machine with normal internet access.
+- **Abilities:** double jump, roll, glide and stamina are components that publish their settings; the control reads them every tick. Swimming, climbing, wall jump, dive roll, carrying and interacting are shown as cards but come with the water (Phase 4) and the NPC/item mechanics (Phase 5).
+- **Sound sets:** the Character component has a field `sounds` (event=sound) and the Studio a section for it; the sounds play once the audio system exists (Phase 4).
+- **Animation events:** the Animator has the field `markers` (`state@seconds=name`); a marker passed by the clip raises "when animation [name] started".
+- **Studio:** the window is a dockable panel "Figur" (first tab next to Scene, Game and Block Editor). It edits the figure with ordinary scene edits (undo works), and shows a preview game with only the Character component and the Animator. Collision capsule, jump arc and comparison figure are drawn on the turntable; the capsule is edited with sliders (no mouse handles).
+- **Player 2:** "Like Player 1, other colors" makes the figure a prefab (if it is none), creates a prefab variant of it with the next color palette and steering for player 2, puts it into the Player 2 area and creates a camera for it (player 1's camera then shows player 1 only).
+- **Test model for the automatic tests:** a small rigged humanoid generated in the tests themselves (`packages/character/test/avatars.ts`, CC0): GLB with and without skeleton, VRM 1.0 and ASCII FBX. No third-party model is shipped.
+
+### Result
+
+**Implemented**
+
+- **`packages/character`:** standard skeleton, bone mapping by name and hierarchy, retargeting (rotation, hips, scale), VRM reader; 17 tests.
+- **Runtime:** Character component (model, body height, build/head/arm/leg sliders, hidden/shown parts, colors, attachments, movement profile, library animation source, bone map, sound set), rigid figures that bob, lean and squash, movement profiles (Arcade, Realistic, Agile, Heavy, Floating), jump arc simulation (matches the real jump within 10 %), ability components Double Jump, Roll, Glide and Stamina, Animator events.
+- **Blocks (Appendix A "Character"):** attach item, put away, switch part, set part color, switch movement profile, enable/disable ability, has ability, set stamina, stamina, "when I roll/glide/double jump". Golden and runtime tests for each.
+- **Editor:** VRM, GLB, glTF, FBX and OBJ import with humanoid bone assignment in the import settings; the Character Studio (model, builder, colors, equipment, movement, collision, sounds, portrait, animation list with timeline, camera preview, ability cards, Play in Test Area, Player 2, save to My Characters); image assets.
+- **Example** `examples/03b-figur`.
+
+**Acceptance**
+
+- [x] A VRM avatar and a rigged FBX model are uploaded and walk, run and jump with the library animations; the only manual work is confirming the bone assignment (end-to-end test with generated CC0 test models; the VRM uses bone names no recognition understands, so only the VRM humanoid makes it work).
+- [x] A model without a skeleton is a rigid figure (end-to-end test; unit test for bobbing, leaning and squash).
+- [x] Builder: show parts, color palette, sword into the right hand; the sword follows the animation (end-to-end test measures the hand position while running).
+- [x] Profile Arcade → Heavy: the numbers and the arc change (1.80 m → 0.60 m), the knight walks at 1.4 m/s in the Test Area, and the real jump of the running game is 0.54 to 0.66 m (end-to-end test steps the paused game tick by tick).
+- [x] Ability cards Double Jump and Roll dragged onto the figure work in the Test Area without a single block (end-to-end test counts the ability events).
+- [x] Portrait becomes an image asset; "Like Player 1, other colors" creates a prefab variant for player 2 (end-to-end test).
+- [x] `pnpm test` (265 tests), `pnpm lint`, `pnpm typecheck` and `pnpm build` green locally; end-to-end 49/49.
+- [ ] CI on GitHub: see pull request.
+
+Not demonstrable here: the look of the retargeted animations on other characters than the KayKit knight (needs a look with a graphics card), the modular Quaternius characters (host blocked), 60 FPS.
+
+Screenshot: `docs/screenshots/phase-03b.png`.
 
 ## Phase 3: Player, physics, animation
 

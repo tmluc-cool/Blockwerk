@@ -1,4 +1,4 @@
-import { assetDependencies, assetDisplayName } from '@blockwerk/project';
+import { assetDependencies, assetDisplayName, isBinaryAssetType } from '@blockwerk/project';
 import type { JsonValue, MetaData } from '@blockwerk/project';
 import { create } from 'zustand';
 import { useConsole } from '../state/console';
@@ -98,7 +98,9 @@ export async function saveToMyPrefabs(prefabId: string): Promise<boolean> {
     prefabId,
     (id) => {
       const asset = project.asset(id);
-      return asset && asset.type !== 'model' ? (asset.data as unknown as JsonValue) : undefined;
+      return asset && !isBinaryAssetType(asset.type)
+        ? (asset.data as unknown as JsonValue)
+        : undefined;
     },
     (id) => project.asset(id) !== undefined,
   );
@@ -106,8 +108,8 @@ export async function saveToMyPrefabs(prefabId: string): Promise<boolean> {
   for (const id of ids) {
     const asset = project.asset(id);
     if (!asset) continue;
-    if (asset.type === 'model') {
-      const bytes = project.modelBytes(id);
+    if (isBinaryAssetType(asset.type)) {
+      const bytes = project.assetBytes(id);
       if (bytes) files.push({ path: asset.path, meta: asset.meta, bytes });
     } else {
       files.push({ path: asset.path, meta: asset.meta, json: asset.data as unknown as JsonValue });

@@ -24,7 +24,8 @@ interface PlacementStep {
  * Console at the bottom.
  */
 const STANDARD: readonly PlacementStep[] = [
-  { id: 'scene', position: null },
+  { id: 'figure', position: null },
+  { id: 'scene', position: { referencePanel: 'figure', direction: 'within' } },
   { id: 'game', position: { referencePanel: 'scene', direction: 'within' } },
   { id: 'blockEditor', position: { referencePanel: 'scene', direction: 'within' } },
   { id: 'project', position: { referencePanel: 'scene', direction: 'below' }, height: 230 },
@@ -43,6 +44,7 @@ const LARGE_BLOCKS: readonly PlacementStep[] = [
   { id: 'hierarchy', position: { referencePanel: 'blockEditor', direction: 'left' }, width: 220 },
   { id: 'scene', position: { direction: 'right' }, width: 440 },
   { id: 'game', position: { referencePanel: 'scene', direction: 'within' } },
+  { id: 'figure', position: { referencePanel: 'scene', direction: 'within' } },
   { id: 'inspector', position: { referencePanel: 'scene', direction: 'below' }, height: 360 },
 ];
 

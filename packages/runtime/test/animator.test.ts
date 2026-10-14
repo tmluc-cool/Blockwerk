@@ -36,7 +36,7 @@ function template(): ModelTemplate {
   return { scene, animations, skinned: false };
 }
 
-function makeGame(): Game {
+function makeGame(animatorValues: Record<string, unknown> = {}): Game {
   const models = new ModelCache(() => null);
   models.provide('library:test/hero', template());
   const ground = objectData({
@@ -48,7 +48,7 @@ function makeGame(): Game {
     name: 'Hero',
     components: [
       component('meshRenderer', { model: 'library:test/hero' }, 'heromesh0001'),
-      component('animator', { crossFade: 0.2 }, 'heroanim0001'),
+      component('animator', { crossFade: 0.2, ...animatorValues }, 'heroanim0001'),
       component('characterController', {}, 'heroccontr01'),
       component('thirdPersonControl', {}, 'herocontrol1'),
     ],
@@ -129,6 +129,22 @@ describe('animator', () => {
     run(game, 0.5);
     expect(animator.current).toBe('idle');
     expect(marker(game)).toBeCloseTo(0, 0);
+    game.dispose();
+  });
+
+  it('fires animation events at the marked time of a clip', async () => {
+    const game = makeGame({ markers: 'walk@0.5=step' });
+    await game.world.modelsLoaded();
+    const animator = animatorRegistry.get(game.world.getObject('hero00000001') as GameObject);
+    if (!animator) throw new Error('animator');
+    run(game, 0.5);
+    animator.play('walk', { fade: 0.05 });
+    const before = game.eventCounts['animation:step:started'] ?? 0;
+    run(game, 3);
+    const heard = (game.eventCounts['animation:step:started'] ?? 0) - before;
+    // The walk clip is 1.2 s long: the marker at 0.5 s passes about every 1.2 s.
+    expect(heard).toBeGreaterThanOrEqual(2);
+    expect(heard).toBeLessThanOrEqual(3);
     game.dispose();
   });
 });

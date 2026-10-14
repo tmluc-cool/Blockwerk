@@ -50,7 +50,15 @@ export const ASSET_EXTENSIONS: Readonly<Record<AssetType, string>> = {
   blockScript: '.blocks.json',
   prefab: '.prefab.json',
   model: '.glb',
+  image: '.png',
 };
+
+/** An image asset (PNG) in memory: the file itself is kept by the project (see {@link Project.assetBytes}). */
+export interface ImageData {
+  /** Content hash of the file. */
+  readonly hash: string;
+  readonly byteLength: number;
+}
 
 /** A model asset in memory: the GLB itself is kept by the project (see {@link Project.modelBytes}). */
 export interface ModelData {
@@ -65,10 +73,20 @@ export interface AssetDataByType {
   blockScript: BlockScriptData;
   prefab: PrefabData;
   model: ModelData;
+  image: ImageData;
 }
 
-/** Asset types stored as JSON (all but models). */
-type JsonAssetType = Exclude<AssetType, 'model'>;
+/** Asset types stored as binary files next to their meta file. */
+const BINARY_TYPES = ['model', 'image'] as const;
+type BinaryAssetType = (typeof BINARY_TYPES)[number];
+
+/** Whether an asset type is a binary file. */
+export function isBinaryAssetType(type: AssetType): type is BinaryAssetType {
+  return (BINARY_TYPES as readonly string[]).includes(type);
+}
+
+/** Asset types stored as JSON (all but binary ones). */
+type JsonAssetType = Exclude<AssetType, BinaryAssetType>;
 
 /** 64-bit FNV-1a hash of binary data as 16 hex digits (change detection, not security). */
 export function hashBytes(data: Uint8Array): string {
@@ -340,6 +358,22 @@ export class Project {
     return entry;
   }
 
+  /** Adds an image (PNG), e.g. a character portrait. The path must be free and end with `.png`. */
+  createImage(path: string, data: Uint8Array, license: string | null = null): AssetEntry<'image'> {
+    const normalized = this.checkAssetPath('image', path);
+    const meta: MetaData = { ...newMeta('image'), license };
+    const entry: AssetEntry<'image'> = {
+      id: meta.id,
+      type: 'image',
+      path: normalized,
+      meta,
+      data: { hash: hashBytes(data), byteLength: data.byteLength },
+    };
+    this.bytes.set(entry.id, data);
+    this.entries.set(entry.id, entry);
+    return entry;
+  }
+
   /**
    * Adds an asset that keeps its identity (meta data with ID), e.g. from "My Prefabs". The path is
    * made unique if taken. Returns `null` if an asset with this ID already exists.
@@ -357,7 +391,8 @@ export class Project {
       : this.checkAssetPath(type, normalized);
     let entry: AnyAsset;
     if ('bytes' in content) {
-      if (type !== 'model') throw new Error(`Only models are binary: ${normalized}`);
+      if (!isBinaryAssetType(type))
+        throw new Error(`Only models and images are binary: ${normalized}`);
       entry = {
         id: meta.id,
         type,
@@ -367,7 +402,7 @@ export class Project {
       };
       this.bytes.set(meta.id, content.bytes);
     } else {
-      if (type === 'model') throw new Error(`Models need their bytes: ${normalized}`);
+      if (isBinaryAssetType(type)) throw new Error(`Binary assets need their bytes: ${normalized}`);
       entry = { id: meta.id, type, path: free, meta, data: content.data } as AnyAsset;
     }
     this.entries.set(entry.id, entry);
@@ -376,6 +411,11 @@ export class Project {
 
   /** The GLB file of a model asset. */
   modelBytes(id: string): Uint8Array | undefined {
+    return this.bytes.get(id);
+  }
+
+  /** The file of a binary asset (model or image). */
+  assetBytes(id: string): Uint8Array | undefined {
     return this.bytes.get(id);
   }
 
@@ -416,7 +456,9 @@ export class Project {
     files.set(PROJECT_FILE, stringifyDeterministic(this.settings));
     files.set(TAGS_AND_LAYERS_FILE, stringifyDeterministic(this.tagsAndLayers));
     for (const entry of this.assets) {
-      if (entry.type !== 'model') files.set(entry.path, stringifyDeterministic(entry.data));
+      if (!isBinaryAssetType(entry.type)) {
+        files.set(entry.path, stringifyDeterministic(entry.data));
+      }
       files.set(entry.path + META_SUFFIX, stringifyDeterministic(entry.meta));
     }
     return files;
@@ -425,8 +467,10 @@ export class Project {
   /** Binary files (models) as they should be on disk: path → asset ID and content hash. */
   binaryFiles(): Map<string, { id: string; hash: string }> {
     const files = new Map<string, { id: string; hash: string }>();
-    for (const entry of this.assetsOfType('model')) {
-      files.set(entry.path, { id: entry.id, hash: entry.data.hash });
+    for (const entry of this.assets) {
+      if (isBinaryAssetType(entry.type)) {
+        files.set(entry.path, { id: entry.id, hash: (entry.data as ModelData).hash });
+      }
     }
     return files;
   }
@@ -591,7 +635,7 @@ export class Project {
       }
       let data: AssetDataByType[AssetType];
       let bytes: Uint8Array | null = null;
-      if (type === 'model') {
+      if (isBinaryAssetType(type)) {
         bytes = await fs.readBytes(path);
         data = { hash: hashBytes(bytes), byteLength: bytes.byteLength };
         project.diskBinary.set(path, data.hash);
@@ -669,6 +713,7 @@ export function defaultAssetFolder(type: AssetType, folders: NewProjectFolders):
     blockScript: folders.blockScripts,
     prefab: folders.prefabs,
     model: folders.models,
+    image: folders.images,
   };
   return joinPath(ASSETS_FOLDER, names[type]);
 }
@@ -679,6 +724,7 @@ export interface NewProjectFolders {
   readonly blockScripts: string;
   readonly prefabs: string;
   readonly models: string;
+  readonly images: string;
 }
 
 /** Options for {@link createProject}. */
