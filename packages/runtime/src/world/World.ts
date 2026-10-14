@@ -2,6 +2,7 @@ import type { ComponentData, SceneData, SceneObjectData } from '@blockwerk/proje
 import { Euler, MathUtils, Scene, Vector3 } from 'three';
 import type { Object3D, PerspectiveCamera } from 'three';
 import { cameraRegistry } from '../components/camera';
+import type { CameraEntry } from '../components/camera';
 import { resolveValues } from '../components/defineComponent';
 import { getComponentDefinition } from '../components';
 import { Environment } from '../environment/Environment';
@@ -130,6 +131,54 @@ export class World {
       if (entry?.enabled) return entry.camera;
     }
     return null;
+  }
+
+  /**
+   * The cameras of the game view: one shared camera, or one per player for split screen when
+   * active cameras are set to player 1 and player 2.
+   */
+  viewCameras(): {
+    readonly views: readonly {
+      readonly camera: PerspectiveCamera;
+      readonly player: 'all' | '1' | '2';
+    }[];
+    readonly split: 'horizontal' | 'vertical';
+  } {
+    const found = new Map<'all' | '1' | '2', CameraEntry>();
+    for (const object of this.allObjects()) {
+      if (!object.activeInHierarchy) continue;
+      const entry = cameraRegistry.get(object);
+      if (entry?.enabled && !found.has(entry.player)) found.set(entry.player, entry);
+    }
+    const one = found.get('1');
+    const two = found.get('2');
+    if (one && two) {
+      return {
+        views: [
+          { camera: one.camera, player: '1' },
+          { camera: two.camera, player: '2' },
+        ],
+        split: one.split,
+      };
+    }
+    const single = found.get('all') ?? one ?? two;
+    return {
+      views: single ? [{ camera: single.camera, player: single.player }] : [],
+      split: 'vertical',
+    };
+  }
+
+  /** The camera that shows a player (for camera-relative controls). */
+  cameraForPlayer(player: 1 | 2): PerspectiveCamera | null {
+    let shared: PerspectiveCamera | null = null;
+    for (const object of this.allObjects()) {
+      if (!object.activeInHierarchy) continue;
+      const entry = cameraRegistry.get(object);
+      if (!entry?.enabled) continue;
+      if (entry.player === String(player)) return entry.camera;
+      shared ??= entry.player === 'all' ? entry.camera : null;
+    }
+    return shared;
   }
 
   /** Called by light components: the first directional light becomes the sun of the sky. */

@@ -1,5 +1,6 @@
 import { blockScript } from './blockScript';
 import { camera } from './camera';
+import { characterController } from './characterController';
 import {
   boxCollider,
   capsuleCollider,
@@ -7,6 +8,7 @@ import {
   meshCollider,
   sphereCollider,
 } from './colliders';
+import { firstPersonControl, thirdPersonControl, topDownControl, vehicleControl } from './controls';
 import { rigidbody } from './rigidbody';
 import type { ComponentDefinition } from './defineComponent';
 import { light } from './light';
@@ -21,6 +23,11 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   capsuleCollider,
   cylinderCollider,
   meshCollider,
+  characterController,
+  thirdPersonControl,
+  firstPersonControl,
+  topDownControl,
+  vehicleControl,
   camera,
   light,
   blockScript,

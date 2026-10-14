@@ -32,12 +32,37 @@ export interface CharacterShape {
   readonly radius: number;
   readonly height: number;
   readonly center: Vec3;
+  /** Contact offset; the capsule floats this far above the feet so the feet touch the ground. */
+  readonly skin: number;
   readonly enabled: boolean;
   readonly version: number;
 }
 
 /** Character controller shapes by object (filled by the character controller component). */
 export const characterRegistry = new WeakMap<object, CharacterShape>();
+
+/** Settings of a character move (character controller component). */
+export interface CharacterMoveSettings {
+  /** Steepest slope the character can walk up, in degrees. */
+  readonly slopeLimit: number;
+  /** Highest step it climbs automatically, in meters. */
+  readonly stepOffset: number;
+  /** Gap kept to surfaces, in meters. */
+  readonly skinWidth: number;
+  /** Distance it sticks to the ground when walking down, in meters. */
+  readonly snapDistance: number;
+  /** Mass used to push dynamic bodies, in kg. */
+  readonly pushMass: number;
+}
+
+/** Result of a character move. */
+export interface CharacterMoveResult {
+  /** The movement actually made (after sliding, stepping and snapping). */
+  readonly movement: Vector3;
+  readonly grounded: boolean;
+  /** Whether something above stopped an upward move. */
+  readonly hitCeiling: boolean;
+}
 
 /** Something hit by a ray or shape cast. */
 export interface PhysicsHit {
@@ -304,8 +329,123 @@ export class Physics {
     return hit ? hit.time_of_impact : distance;
   }
 
+  private readonly characters = new Map<
+    GameObject,
+    { controller: ReturnType<RapierWorld['createCharacterController']>; ground: RigidBody | null }
+  >();
+
+  /**
+   * Moves a character by `desired` with Rapier's kinematic character controller (SPEC 8.5):
+   * slopes up to the limit, sliding down steeper ones, climbing steps, sticking to the ground,
+   * gliding along walls, pushing dynamic bodies and riding moving platforms.
+   */
+  moveCharacter(
+    object: GameObject,
+    desired: Vector3,
+    settings: CharacterMoveSettings,
+  ): CharacterMoveResult {
+    const entry = this.entries.get(object);
+    const collider = entry?.colliders[0];
+    if (!entry || !collider) {
+      object.object3d.position.add(desired);
+      return { movement: desired.clone(), grounded: false, hitCeiling: false };
+    }
+    let character = this.characters.get(object);
+    if (!character) {
+      character = {
+        controller: this.world.createCharacterController(settings.skinWidth),
+        ground: null,
+      };
+      character.controller.setUp({ x: 0, y: 1, z: 0 });
+      character.controller.setSlideEnabled(true);
+      this.characters.set(object, character);
+    }
+    const controller = character.controller;
+    controller.setOffset(settings.skinWidth);
+    controller.setMaxSlopeClimbAngle((settings.slopeLimit * Math.PI) / 180);
+    controller.setMinSlopeSlideAngle((settings.slopeLimit * Math.PI) / 180);
+    if (settings.stepOffset > 0) controller.enableAutostep(settings.stepOffset, 0.05, false);
+    else controller.disableAutostep();
+    if (settings.snapDistance > 0) controller.enableSnapToGround(settings.snapDistance);
+    else controller.disableSnapToGround();
+    controller.setApplyImpulsesToDynamicBodies(true);
+    controller.setCharacterMass(settings.pushMass);
+    // Ride a moving platform: take over its movement of this tick.
+    const ride = new Vector3();
+    const ground = character.ground;
+    if (ground && this.world.bodies.contains(ground.handle) && ground.isKinematic()) {
+      const velocity = ground.linvel();
+      ride.set(velocity.x, Math.max(0, velocity.y), velocity.z).multiplyScalar(this.world.timestep);
+    }
+    const wanted = desired.clone().add(ride);
+    this.depenetrate(entry.body, collider, settings.skinWidth);
+    controller.computeColliderMovement(
+      collider,
+      { x: wanted.x, y: wanted.y, z: wanted.z },
+      this.rapier.QueryFilterFlags.EXCLUDE_SENSORS,
+    );
+    const computed = controller.computedMovement();
+    const movement = new Vector3(computed.x, computed.y, computed.z);
+    const grounded = controller.computedGrounded();
+    character.ground = null;
+    for (let index = 0; index < controller.numComputedCollisions(); index++) {
+      const collision = controller.computedCollision(index);
+      const body = collision?.collider?.parent();
+      if (collision && body && collision.normal1.y > 0.7) character.ground = body;
+    }
+    const hitCeiling = wanted.y > 0 && movement.y < wanted.y * 0.5;
+    const translation = entry.body.translation();
+    const position = new Vector3(translation.x, translation.y, translation.z).add(movement);
+    const rotation = entry.owner.object3d.getWorldQuaternion(new Quaternion());
+    setWorldPose(object, position, rotation);
+    entry.body.setTranslation({ x: position.x, y: position.y, z: position.z }, true);
+    entry.body.setNextKinematicTranslation({ x: position.x, y: position.y, z: position.z });
+    entry.lastPosition.copy(position);
+    return { movement, grounded, hitCeiling };
+  }
+
+  /**
+   * Pushes a character capsule out of fixed and kinematic colliders it overlaps (spawned inside
+   * something, a platform moved into it). Rapier's character controller does not resolve
+   * overlaps by itself and would otherwise sink further. The capsule ends up `skin` away, where
+   * the controller keeps it anyway.
+   */
+  private depenetrate(body: RigidBody, collider: Collider, skin: number): void {
+    const push = new Vector3();
+    const center = collider.translation();
+    const extent = collider.halfHeight() + collider.radius() + skin;
+    const groups = collider.collisionGroups();
+    const owner = this.colliderOwners.get(collider.handle);
+    this.world.collidersWithAabbIntersectingAabb(
+      center,
+      { x: extent, y: extent, z: extent },
+      (other) => {
+        if (other.handle === collider.handle || other.isSensor() || other.parent()?.isDynamic())
+          return true;
+        if (this.colliderOwners.get(other.handle) === owner) return true;
+        // Same filter as the physics: each side's membership must be in the other's filter.
+        const otherGroups = other.collisionGroups();
+        if (((groups >>> 16) & otherGroups) === 0 || ((otherGroups >>> 16) & groups) === 0)
+          return true;
+        const contact = collider.contactCollider(other, skin);
+        if (contact && contact.distance < skin * 0.8) {
+          const n = contact.normal1;
+          push.add(new Vector3(n.x, n.y, n.z).multiplyScalar(contact.distance - skin));
+        }
+        return true;
+      },
+    );
+    if (push.lengthSq() < 1e-10) return;
+    const t = body.translation();
+    body.setTranslation({ x: t.x + push.x, y: t.y + push.y, z: t.z + push.z }, true);
+    this.world.propagateModifiedBodyPositionsToColliders();
+  }
+
   /** Frees the physics world. */
   dispose(): void {
+    for (const { controller } of this.characters.values())
+      this.world.removeCharacterController(controller);
+    this.characters.clear();
     this.eventQueue.free();
     this.world.free();
     this.entries.clear();
@@ -467,7 +607,7 @@ export class Physics {
       const desc = rapier.ColliderDesc.capsule(half, radius)
         .setTranslation(
           character.center[0] * scale.x,
-          character.center[1] * scale.y,
+          character.center[1] * scale.y + character.skin,
           character.center[2] * scale.z,
         )
         .setCollisionGroups(this.groupsOf(owner))
@@ -627,9 +767,17 @@ export class Physics {
         break;
       case 'moving':
       case 'kinematic':
-      case 'character':
         entry.body.setNextKinematicTranslation(translation);
         entry.body.setNextKinematicRotation(rotation);
+        break;
+      case 'character':
+        // Characters move with moveCharacter; anything else (teleport, turning) is applied as is.
+        if (moved) {
+          entry.body.setTranslation(translation, true);
+          entry.body.setRotation(rotation, true);
+          entry.body.setNextKinematicTranslation(translation);
+          entry.body.setNextKinematicRotation(rotation);
+        }
         break;
     }
     entry.lastPosition.copy(position);
