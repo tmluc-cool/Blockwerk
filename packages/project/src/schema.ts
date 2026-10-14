@@ -59,6 +59,31 @@ export const areaKindSchema = z.enum(AREA_KINDS);
 /** Kind of an area root object. */
 export type AreaKindData = z.infer<typeof areaKindSchema>;
 
+/**
+ * A changed value of a prefab instance or variant. `object` is the ID of the object inside the
+ * prefab; `path` names the value: `name`, `active`, `tag`, `layer`, `static`,
+ * `transform.position`, `transform.rotation`, `transform.scale`,
+ * `component:<component ID>:enabled` or `component:<component ID>:<field>`.
+ */
+export const prefabOverrideSchema = z.object({
+  object: idSchema,
+  path: z.string().min(1),
+  value: jsonValueSchema,
+});
+/** A changed value of a prefab instance or variant. */
+export type PrefabOverride = z.infer<typeof prefabOverrideSchema>;
+
+export const prefabLinkSchema = z.object({
+  /** Asset ID of the prefab. */
+  asset: idSchema,
+  /** ID of the corresponding object inside the prefab. */
+  object: idSchema,
+  /** Only on the root object of an instance: its changed values. */
+  overrides: z.array(prefabOverrideSchema).optional(),
+});
+/** Marks an object as part of a prefab instance (Unity: prefab instance, shown blue). */
+export type PrefabLinkData = z.infer<typeof prefabLinkSchema>;
+
 export const sceneObjectSchema = z.object({
   /** Display name; `null` on built-in area roots means "use the translated default name". */
   name: z.string().nullable(),
@@ -75,6 +100,8 @@ export const sceneObjectSchema = z.object({
   color: z.string().optional(),
   transform: transformSchema,
   components: z.array(componentSchema),
+  /** Set on every object of a prefab instance. */
+  prefab: prefabLinkSchema.optional(),
 });
 /** An object of a scene (Unity: GameObject). */
 export type SceneObjectData = z.infer<typeof sceneObjectSchema>;
@@ -122,8 +149,41 @@ export const blockScriptSchema = z.object({
 /** Contents of a `*.blocks.json` file. */
 export type BlockScriptData = z.infer<typeof blockScriptSchema>;
 
-/** Asset types known in phase 1. */
-export const ASSET_TYPES = ['scene', 'blockScript'] as const;
+export const prefabSchema = z.object({
+  formatVersion: z.literal(FORMAT_VERSION),
+  /** For prefab variants: asset ID of the base prefab. */
+  base: idSchema.nullable(),
+  /** ID of the root object (for variants: the root of the base). */
+  root: idSchema,
+  /** Objects like in scenes. Variants list only objects they add. */
+  objects: z.record(idSchema, sceneObjectSchema),
+  /** For variants: values changed against the base. */
+  overrides: z.array(prefabOverrideSchema),
+});
+/** Contents of a `*.prefab.json` file. */
+export type PrefabData = z.infer<typeof prefabSchema>;
+
+/** Settings of an imported model (SPEC 6.3), stored in its meta file. */
+export const modelImportSettingsSchema = z.object({
+  /** Uniform scale to meters. */
+  scale: z.number().positive(),
+  /** `bottom`: bottom center at the origin (library convention); `center`; `original`. */
+  pivot: z.enum(['bottom', 'center', 'original']),
+  /** Add a box collider of the model's size when it is placed. */
+  generateCollider: z.boolean(),
+});
+/** Import settings of a model. */
+export type ModelImportSettings = z.infer<typeof modelImportSettingsSchema>;
+
+/** Import settings of new models. */
+export const DEFAULT_MODEL_IMPORT_SETTINGS: ModelImportSettings = {
+  scale: 1,
+  pivot: 'bottom',
+  generateCollider: true,
+};
+
+/** Asset types. Models are binary GLB files; all others are JSON. */
+export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model'] as const;
 export const assetTypeSchema = z.enum(ASSET_TYPES);
 export type AssetType = z.infer<typeof assetTypeSchema>;
 

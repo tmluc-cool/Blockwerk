@@ -31,6 +31,21 @@ export class NodeFileSystem implements ProjectFileSystem {
     await writeFile(target, text, 'utf8');
   }
 
+  async readBytes(path: string): Promise<Uint8Array> {
+    try {
+      return new Uint8Array(await readFile(this.resolve(path)));
+    } catch (error) {
+      if (isMissing(error)) throw new FileNotFoundError(path);
+      throw error;
+    }
+  }
+
+  async writeBytes(path: string, data: Uint8Array): Promise<void> {
+    const target = this.resolve(path);
+    await mkdir(nodeDirname(target), { recursive: true });
+    await writeFile(target, data);
+  }
+
   async exists(path: string): Promise<boolean> {
     try {
       await stat(this.resolve(path));

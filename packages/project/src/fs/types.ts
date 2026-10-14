@@ -13,6 +13,10 @@ export interface ProjectFileSystem {
   readText(path: string): Promise<string>;
   /** Writes a text file, creating missing folders. */
   writeText(path: string, text: string): Promise<void>;
+  /** Reads a binary file (models). Throws {@link FileNotFoundError} if it does not exist. */
+  readBytes(path: string): Promise<Uint8Array>;
+  /** Writes a binary file, creating missing folders. */
+  writeBytes(path: string, data: Uint8Array): Promise<void>;
   /** Whether a file or folder exists. */
   exists(path: string): Promise<boolean>;
   /** Lists a folder. Returns an empty list if it does not exist. */

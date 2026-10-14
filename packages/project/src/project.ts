@@ -14,8 +14,11 @@ import { FormatTooNewError, migrate, MIGRATIONS } from './migrations';
 import type { FileKind, MigrationRegistry } from './migrations';
 import {
   blockScriptSchema,
+  DEFAULT_MODEL_IMPORT_SETTINGS,
   FORMAT_VERSION,
   metaSchema,
+  modelImportSettingsSchema,
+  prefabSchema,
   projectFileSchema,
   sceneSchema,
   tagsAndLayersSchema,
@@ -24,6 +27,8 @@ import type {
   AssetType,
   BlockScriptData,
   MetaData,
+  ModelImportSettings,
+  PrefabData,
   ProjectFileData,
   SceneData,
   TagsAndLayersData,
@@ -43,12 +48,50 @@ export const META_SUFFIX = '.meta.json';
 export const ASSET_EXTENSIONS: Readonly<Record<AssetType, string>> = {
   scene: '.scene.json',
   blockScript: '.blocks.json',
+  prefab: '.prefab.json',
+  model: '.glb',
 };
+
+/** A model asset in memory: the GLB itself is kept by the project (see {@link Project.modelBytes}). */
+export interface ModelData {
+  /** Content hash of the GLB file. */
+  readonly hash: string;
+  readonly byteLength: number;
+}
 
 /** Data of each asset type. */
 export interface AssetDataByType {
   scene: SceneData;
   blockScript: BlockScriptData;
+  prefab: PrefabData;
+  model: ModelData;
+}
+
+/** Asset types stored as JSON (all but models). */
+type JsonAssetType = Exclude<AssetType, 'model'>;
+
+/** 64-bit FNV-1a hash of binary data as 16 hex digits (change detection, not security). */
+export function hashBytes(data: Uint8Array): string {
+  let high = 0xcbf29ce4;
+  let low = 0x84222325;
+  for (const byte of data) {
+    low = (low ^ byte) >>> 0;
+    // Multiply the 64-bit value by the FNV prime 2^40 + 0x1b3.
+    const lowProduct = low * 0x1b3;
+    const carry = Math.floor(lowProduct / 0x100000000);
+    high = (high * 0x1b3 + (low << 8) + carry) >>> 0;
+    low = lowProduct >>> 0;
+  }
+  return high.toString(16).padStart(8, '0') + low.toString(16).padStart(8, '0');
+}
+
+/** Import settings of a model asset (defaults for missing or invalid values). */
+export function modelImportSettings(meta: MetaData): ModelImportSettings {
+  const parsed = modelImportSettingsSchema.safeParse({
+    ...DEFAULT_MODEL_IMPORT_SETTINGS,
+    ...meta.importSettings,
+  });
+  return parsed.success ? parsed.data : DEFAULT_MODEL_IMPORT_SETTINGS;
 }
 
 /** An asset of the project: file, meta data and parsed content. */
@@ -122,7 +165,8 @@ export function assetDisplayName(path: string): string {
 const SCHEMAS = {
   scene: sceneSchema,
   blockScript: blockScriptSchema,
-} satisfies Record<AssetType, z.ZodType>;
+  prefab: prefabSchema,
+} satisfies Record<JsonAssetType, z.ZodType>;
 
 function describeIssues(error: z.ZodError): string {
   return error.issues
@@ -203,6 +247,10 @@ export class Project {
   private readonly disk = new Map<string, string>();
   /** Files below `Assets/` that are not managed (broken or unknown), never overwritten. */
   private readonly foreign = new Set<string>();
+  /** GLB files of model assets by asset ID. */
+  private readonly bytes = new Map<string, Uint8Array>();
+  /** Binary files on disk with their content hash. */
+  private readonly diskBinary = new Map<string, string>();
 
   constructor(
     settings: ProjectFileData,
@@ -256,7 +304,11 @@ export class Project {
   }
 
   /** Adds a new asset with a new stable ID. The path must be free and end with the type's ending. */
-  createAsset<T extends AssetType>(type: T, path: string, data: AssetDataByType[T]): AssetEntry<T> {
+  createAsset<T extends JsonAssetType>(
+    type: T,
+    path: string,
+    data: AssetDataByType[T],
+  ): AssetEntry<T> {
     const normalized = this.checkAssetPath(type, path);
     const meta = newMeta(type);
     const entry = { id: meta.id, type, path: normalized, meta, data } as AssetEntry<T>;
@@ -264,8 +316,44 @@ export class Project {
     return entry;
   }
 
+  /**
+   * Adds an imported model (GLB) with import settings and license (SPEC 6.3). The path must be
+   * free and end with `.glb`.
+   */
+  createModel(
+    path: string,
+    data: Uint8Array,
+    settings: ModelImportSettings = DEFAULT_MODEL_IMPORT_SETTINGS,
+    license: string | null = null,
+  ): AssetEntry<'model'> {
+    const normalized = this.checkAssetPath('model', path);
+    const meta: MetaData = { ...newMeta('model'), importSettings: { ...settings }, license };
+    const entry: AssetEntry<'model'> = {
+      id: meta.id,
+      type: 'model',
+      path: normalized,
+      meta,
+      data: { hash: hashBytes(data), byteLength: data.byteLength },
+    };
+    this.bytes.set(entry.id, data);
+    this.entries.set(entry.id, entry);
+    return entry;
+  }
+
+  /** The GLB file of a model asset. */
+  modelBytes(id: string): Uint8Array | undefined {
+    return this.bytes.get(id);
+  }
+
+  /** Replaces the meta data of an asset (import settings, license); the ID stays. */
+  updateMeta(id: string, meta: Omit<MetaData, 'id' | 'type' | 'formatVersion'>): void {
+    const entry = this.entries.get(id);
+    if (!entry) throw new Error(`Unknown asset ${id}.`);
+    this.entries.set(id, { ...entry, meta: { ...entry.meta, ...meta } } as AnyAsset);
+  }
+
   /** Replaces the data of an asset. */
-  updateAsset<T extends AssetType>(id: string, type: T, data: AssetDataByType[T]): void {
+  updateAsset<T extends JsonAssetType>(id: string, type: T, data: AssetDataByType[T]): void {
     const entry = this.assetOfType(id, type);
     if (!entry) throw new Error(`Unknown ${type} asset ${id}.`);
     this.entries.set(id, { ...entry, data } as unknown as AnyAsset);
@@ -285,16 +373,26 @@ export class Project {
   /** Removes an asset; its files are deleted on the next save. */
   deleteAsset(id: string): void {
     this.entries.delete(id);
+    this.bytes.delete(id);
   }
 
-  /** The text of every managed file as it should be on disk. */
+  /** The text of every managed text file as it should be on disk. */
   files(): Map<string, string> {
     const files = new Map<string, string>();
     files.set(PROJECT_FILE, stringifyDeterministic(this.settings));
     files.set(TAGS_AND_LAYERS_FILE, stringifyDeterministic(this.tagsAndLayers));
     for (const entry of this.assets) {
-      files.set(entry.path, stringifyDeterministic(entry.data));
+      if (entry.type !== 'model') files.set(entry.path, stringifyDeterministic(entry.data));
       files.set(entry.path + META_SUFFIX, stringifyDeterministic(entry.meta));
+    }
+    return files;
+  }
+
+  /** Binary files (models) as they should be on disk: path → asset ID and content hash. */
+  binaryFiles(): Map<string, { id: string; hash: string }> {
+    const files = new Map<string, { id: string; hash: string }>();
+    for (const entry of this.assetsOfType('model')) {
+      files.set(entry.path, { id: entry.id, hash: entry.data.hash });
     }
     return files;
   }
@@ -303,7 +401,10 @@ export class Project {
   get dirty(): boolean {
     const files = this.files();
     if ([...this.disk.keys()].some((path) => !files.has(path))) return true;
-    return [...files].some(([path, text]) => this.disk.get(path) !== text);
+    if ([...files].some(([path, text]) => this.disk.get(path) !== text)) return true;
+    const binaries = this.binaryFiles();
+    if ([...this.diskBinary.keys()].some((path) => !binaries.has(path))) return true;
+    return [...binaries].some(([path, file]) => this.diskBinary.get(path) !== file.hash);
   }
 
   /** Writes changed files and deletes files of removed or moved assets. */
@@ -328,6 +429,30 @@ export class Project {
       await fs.writeText(path, text);
       this.disk.set(path, text);
       written.push(path);
+    }
+    const binaries = this.binaryFiles();
+    // Moved models are renamed on disk (no need to write the bytes again).
+    for (const [path, file] of binaries) {
+      if (this.diskBinary.get(path) === file.hash) continue;
+      const old = [...this.diskBinary].find(
+        ([oldPath, hash]) => hash === file.hash && !binaries.has(oldPath),
+      );
+      if (old) {
+        await fs.rename(old[0], path);
+        this.diskBinary.delete(old[0]);
+      } else {
+        const data = this.bytes.get(file.id);
+        if (!data) continue;
+        await fs.writeBytes(path, data);
+      }
+      this.diskBinary.set(path, file.hash);
+      written.push(path);
+    }
+    for (const path of [...this.diskBinary.keys()]) {
+      if (binaries.has(path)) continue;
+      await fs.remove(path);
+      this.diskBinary.delete(path);
+      removed.push(path);
     }
     for (const path of [...this.disk.keys()]) {
       if (files.has(path)) continue;
@@ -426,29 +551,38 @@ export class Project {
       }
       const type = assetTypeOfPath(path);
       if (!type) {
-        // Other files (models, textures …) arrive with later phases.
+        // Other files (textures, sounds …) arrive with later phases.
         project.foreign.add(path);
         continue;
       }
-      const text = await fs.readText(path);
-      const parsed = parseFile(
-        path,
-        text,
-        type,
-        SCHEMAS[type] as z.ZodType<AssetDataByType[typeof type]>,
-        migrations,
-      );
-      if (!parsed.ok) {
-        project.problems.push(parsed.problem);
-        project.foreign.add(path);
-        if (fileSet.has(path + META_SUFFIX)) project.foreign.add(path + META_SUFFIX);
-        continue;
+      let data: AssetDataByType[AssetType];
+      let bytes: Uint8Array | null = null;
+      if (type === 'model') {
+        bytes = await fs.readBytes(path);
+        data = { hash: hashBytes(bytes), byteLength: bytes.byteLength };
+        project.diskBinary.set(path, data.hash);
+      } else {
+        const text = await fs.readText(path);
+        const parsed = parseFile(
+          path,
+          text,
+          type,
+          SCHEMAS[type] as z.ZodType<AssetDataByType[typeof type]>,
+          migrations,
+        );
+        if (!parsed.ok) {
+          project.problems.push(parsed.problem);
+          project.foreign.add(path);
+          if (fileSet.has(path + META_SUFFIX)) project.foreign.add(path + META_SUFFIX);
+          continue;
+        }
+        if (parsed.migratedFrom !== null) {
+          await backup(path, text);
+          project.problems.push({ severity: 'info', code: 'migrated', path });
+        }
+        project.remember(path, text);
+        data = parsed.value;
       }
-      if (parsed.migratedFrom !== null) {
-        await backup(path, text);
-        project.problems.push({ severity: 'info', code: 'migrated', path });
-      }
-      project.remember(path, text);
 
       let meta: MetaData | null = null;
       const metaPath = path + META_SUFFIX;
@@ -476,8 +610,9 @@ export class Project {
         meta = { ...meta, id: createId() };
       }
       meta ??= newMeta(type);
-      const entry = { id: meta.id, type, path, meta, data: parsed.value } as AnyAsset;
+      const entry = { id: meta.id, type, path, meta, data } as AnyAsset;
       project.entries.set(entry.id, entry);
+      if (bytes) project.bytes.set(entry.id, bytes);
     }
     return project;
   }
@@ -493,15 +628,23 @@ export function loadProject(fs: ProjectFileSystem, options: LoadOptions = {}): P
   return Project.load(fs, options);
 }
 
-/** Folder of new scenes and block scripts. */
+/** Folder of new assets of a type. */
 export function defaultAssetFolder(type: AssetType, folders: NewProjectFolders): string {
-  return joinPath(ASSETS_FOLDER, type === 'scene' ? folders.scenes : folders.blockScripts);
+  const names: Readonly<Record<AssetType, string>> = {
+    scene: folders.scenes,
+    blockScript: folders.blockScripts,
+    prefab: folders.prefabs,
+    model: folders.models,
+  };
+  return joinPath(ASSETS_FOLDER, names[type]);
 }
 
 /** Folder names below `Assets/` for a new project, in the user's language. */
 export interface NewProjectFolders {
   readonly scenes: string;
   readonly blockScripts: string;
+  readonly prefabs: string;
+  readonly models: string;
 }
 
 /** Options for {@link createProject}. */

@@ -1,7 +1,7 @@
 import { FORMAT_VERSION } from './schema';
 
 /** Kinds of project files with their own format. */
-export type FileKind = 'project' | 'scene' | 'blockScript' | 'meta' | 'tagsAndLayers';
+export type FileKind = 'project' | 'scene' | 'blockScript' | 'prefab' | 'meta' | 'tagsAndLayers';
 
 /** Upgrades raw file data from `from` to `from + 1`. */
 export interface Migration {
@@ -17,6 +17,7 @@ export const MIGRATIONS: MigrationRegistry = {
   project: [],
   scene: [],
   blockScript: [],
+  prefab: [],
   meta: [],
   tagsAndLayers: [],
 };

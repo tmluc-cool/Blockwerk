@@ -6,6 +6,8 @@ import {
   createDefaultScene,
   createProject,
   FORMAT_VERSION,
+  hashBytes,
+  modelImportSettings,
   FormatTooNewError,
   loadProject,
   MemoryFileSystem,
@@ -25,7 +27,12 @@ import type {
 import { NodeFileSystem } from '../src/node';
 
 const NAMES = { camera: 'Main Camera', sun: 'Sonne', ground: 'Boden' };
-const FOLDERS = { scenes: 'Szenen', blockScripts: 'Block-Skripte' };
+const FOLDERS = {
+  scenes: 'Szenen',
+  blockScripts: 'Block-Skripte',
+  prefabs: 'Prefabs',
+  models: 'Modelle',
+};
 
 function newProject(fs: ProjectFileSystem): Promise<Project> {
   return createProject(fs, {
@@ -203,6 +210,66 @@ describe('project files', () => {
   });
 });
 
+describe('model assets', () => {
+  const glb = (fill: number, length = 64): Uint8Array => new Uint8Array(length).fill(fill);
+
+  it('hashes bytes stably (FNV-1a 64)', () => {
+    expect(hashBytes(new Uint8Array())).toBe('cbf29ce484222325');
+    expect(hashBytes(new TextEncoder().encode('a'))).toBe('af63dc4c8601ec8c');
+    expect(hashBytes(new TextEncoder().encode('foobar'))).toBe('85944171f73967e8');
+  });
+
+  it('saves models as binary files with import settings and license, and loads them', async () => {
+    const fs = new MemoryFileSystem();
+    const project = await newProject(fs);
+    const model = project.createModel(
+      'Assets/Modelle/Haus.glb',
+      glb(7),
+      { scale: 0.5, pivot: 'center', generateCollider: false },
+      'CC0-1.0',
+    );
+    expect(project.dirty).toBe(true);
+    const saved = await project.save(fs);
+    expect(saved.written).toContain('Assets/Modelle/Haus.glb');
+    expect(fs.snapshot()['Assets/Modelle/Haus.glb']).toBe('<64 bytes>');
+
+    const loaded = await loadProject(fs);
+    const entry = loaded.assetOfType(model.id, 'model');
+    expect(entry?.data).toEqual({ hash: hashBytes(glb(7)), byteLength: 64 });
+    expect(entry && modelImportSettings(entry.meta)).toEqual({
+      scale: 0.5,
+      pivot: 'center',
+      generateCollider: false,
+    });
+    expect(entry?.meta.license).toBe('CC0-1.0');
+    expect(loaded.modelBytes(model.id)).toEqual(glb(7));
+    expect(loaded.dirty).toBe(false);
+    expect(await loaded.save(fs)).toEqual({ written: [], removed: [] });
+  });
+
+  it('moves and deletes model files', async () => {
+    const fs = new MemoryFileSystem();
+    const project = await newProject(fs);
+    const model = project.createModel('Assets/Modelle/Baum.glb', glb(1));
+    await project.save(fs);
+    project.moveAsset(model.id, 'Assets/Natur/Eiche.glb');
+    const moved = await project.save(fs);
+    expect(moved.written).toContain('Assets/Natur/Eiche.glb');
+    expect(await fs.exists('Assets/Modelle/Baum.glb')).toBe(false);
+    expect(await fs.readBytes('Assets/Natur/Eiche.glb')).toEqual(glb(1));
+    project.deleteAsset(model.id);
+    const removed = await project.save(fs);
+    expect(removed.removed).toEqual(
+      expect.arrayContaining(['Assets/Natur/Eiche.glb', 'Assets/Natur/Eiche.glb.meta.json']),
+    );
+  });
+
+  it('refuses model paths without .glb', async () => {
+    const project = await newProject(new MemoryFileSystem());
+    expect(() => project.createModel('Assets/Modelle/Haus.fbx', glb(1))).toThrow(/\.glb/);
+  });
+});
+
 describe('loading problems', () => {
   async function prepared(): Promise<{ fs: MemoryFileSystem; project: Project }> {
     const fs = new MemoryFileSystem();
@@ -245,7 +312,7 @@ describe('loading problems', () => {
     await fs.writeText('Assets/kaputt.scene.json', '{ nope');
     await fs.writeText('Assets/falsch.blocks.json', '{"formatVersion":1}');
     await fs.writeText('Assets/weg.scene.json.meta.json', '{}');
-    await fs.writeText('Assets/Modell.glb', 'binary');
+    await fs.writeText('Assets/Textur.png', 'binary');
     const loaded = await loadProject(fs);
     expect(loaded.problems.map((problem) => [problem.code, problem.path])).toEqual([
       ['invalidFile', 'Assets/falsch.blocks.json'],
@@ -372,5 +439,10 @@ describe('NodeFileSystem', () => {
     ]);
     expect(await fs.list('gibt-es-nicht')).toEqual([]);
     await expect(fs.readText('gibt-es-nicht.json')).rejects.toThrow(/not found/);
+    await expect(fs.readBytes('gibt-es-nicht.glb')).rejects.toThrow(/not found/);
+
+    const bytes = new Uint8Array([0, 1, 2, 255]);
+    await fs.writeBytes('Assets/Modelle/x.glb', bytes);
+    expect(await fs.readBytes('Assets/Modelle/x.glb')).toEqual(bytes);
   });
 });
