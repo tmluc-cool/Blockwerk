@@ -330,6 +330,30 @@ describe('prefabs', () => {
     expect(objects[lampId]?.components.map((item) => item.id)).toContain('extra0000001');
   });
 
+  it('records values the prefab leaves at their default as overrides', () => {
+    const { source, roots, ...rest } = setUp();
+    const root = roots[1] ?? '';
+    const object = rest.objects[root];
+    if (!object) throw new Error('no root');
+    const objects = updateInstanceOverrides(
+      {
+        ...rest.objects,
+        [root]: {
+          ...object,
+          components: object.components.map((component) => ({
+            ...component,
+            values: { ...component.values, color: '#3366ff' },
+          })),
+        },
+      },
+      root,
+      source,
+    );
+    expect(objects[root]?.prefab?.overrides).toEqual([
+      { object: object.prefab?.object, path: 'component:render000001:color', value: '#3366ff' },
+    ]);
+  });
+
   it('keeps unchanged objects identical when syncing', () => {
     const { source, objects } = setUp();
     const synced = syncPrefabInstances(objects, source, nextId);

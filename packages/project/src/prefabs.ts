@@ -133,8 +133,13 @@ export function diffObjects(
     const after = edited[id];
     if (!after) continue;
     const old = objectValues(before);
+    const baseComponents = new Set(before.components.map((component) => component.id));
     for (const [path, value] of objectValues(after)) {
-      if (!old.has(path) || skip(id, path)) continue;
+      if (skip(id, path)) continue;
+      // Fields the base leaves at their default are not stored there, but are still values of
+      // its components; only components the base lacks are not overrides.
+      const component = /^component:([^:]+):/.exec(path)?.[1];
+      if (!old.has(path) && (component === undefined || !baseComponents.has(component))) continue;
       if (!same(old.get(path), value)) overrides.push({ object: id, path, value });
     }
   }
