@@ -73,13 +73,13 @@ Branch: `phase/04-umgebung` (builds on `main` with Phases 3 and 3b merged).
 **Acceptance**
 
 - [x] `examples/04-landschaft` runs in play mode (hill landscape with lake, forest, village, day-night cycle and rain). Unit test on the real project (`apps/editor/test/example04.test.ts`): the knight stands on the hills, floats in the lake, the clock moves 1.33 h in 10 s, lamps turn on at 21:00 and off at 10:00, rain starts after 45 s, music and the 3D stream play, footsteps follow the ground, F and E give sparks, sound and shake.
-- [ ] 60 FPS on "High": **not measurable here** (software rendering at 0.5–2 FPS). Measured instead in the end-to-end test: **119 draw calls** (limit 500) and about 0.5 M triangles on "High"; the logic tick costs about 3 ms (3300 ticks including physics, scripts and 380 objects in 10 s in Node); the grass is capped at 90 000 clumps with distance fade. A real graphics card is needed to confirm 60 FPS (Game view → Statistics).
+- [ ] 60 FPS on "High": **not measurable here** (software rendering at 0.5–2 FPS). Measured instead in the end-to-end test: **about 120 draw calls** (limit 500, checked at every level in the end-to-end test) and under 1 M triangles on "High"; the logic tick costs about 3 ms (3300 ticks including physics, scripts and 380 objects in 10 s in Node); the grass is capped at 90 000 clumps with distance fade. A real graphics card is needed to confirm 60 FPS (Game view → Statistics).
 - [x] Unity-feel checklist 4 (real shadows, soft light, sky, fog, bloom, ambient occlusion): sun shadows with a level-dependent map, baked sky light, sky shader, fog, Post-Processing component on the example's camera (screenshot).
 - [x] Checklist 6 (sound: footsteps, jumps, hits; quieter with distance, from the right direction): footsteps, jump, landing and splash from the sound set, hit and explosion sounds on keys F and E; 3D sounds use a linear distance model with a panner (unit tests read panner position, distance model and listener from a recording context). The sound itself cannot be heard here.
 - [x] Checklist 7 (feedback: dust on landing, particles on hits, short camera shake): `landing dust` test in `character.test.ts`; key F in the example gives sparks and `shake camera`.
 - [x] Graphics level switches while playing without a restart: end-to-end test runs Low → Ultra → Medium → High in one play session (frames keep coming, start time unchanged, draw calls stay under 500); unit test on the example.
 - [x] Terrain brush, lighting window, audio source: end-to-end tests (brush strokes and undo, time of day/weather/quality with undo, built-in sound choice).
-- [x] `pnpm test` (332 tests), `pnpm lint`, `pnpm typecheck` green locally.
+- [x] `pnpm test` (332 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end 53/53.
 - [ ] CI on GitHub: see pull request.
 
 Not demonstrable here: 60 FPS, the sound itself (no speakers), the look on a real graphics card (shadow softness, bloom strength) and the desktop installer.
