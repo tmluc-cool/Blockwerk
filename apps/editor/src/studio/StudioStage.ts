@@ -5,6 +5,7 @@ import {
   figureRegistry,
   Game,
   initPhysics,
+  isSoftwareRenderer,
   jumpArc,
   TICK_SECONDS,
 } from '@blockwerk/runtime';
@@ -145,6 +146,7 @@ export class StageViewport {
   private lastTime = 0;
   private accumulator = 0;
   private disposed = false;
+  private drawn = 0;
   private preview: { canvas: HTMLCanvasElement; settings: CameraPreview } | null = null;
   private readonly cleanup: (() => void)[] = [];
 
@@ -274,6 +276,8 @@ export class StageViewport {
     };
     const game = new Game(scene, { scripts: () => null, models: editorModels });
     this.game = game;
+    // Machines that draw with the CPU get a smaller shadow map: the figure is small and close.
+    if (isSoftwareRenderer(this.renderer)) game.world.environment.setShadowMapSize(1024);
     this.rebuildHelpers();
     await game.world.modelsLoaded();
     game.stepTick();
@@ -521,7 +525,10 @@ export class StageViewport {
     game.world.prepareRender();
     const scene = game.world.scene;
     scene.background = new Color(0x2a2d33);
-    if (this.preview) this.drawCameraView(game);
+    // The camera preview is a second full draw; on CPU-drawn machines it refreshes every third frame.
+    if (this.preview && (this.drawn++ % 3 === 0 || !isSoftwareRenderer(this.renderer))) {
+      this.drawCameraView(game);
+    }
     const target = new Vector3(0, this.height * 0.5, 0);
     const distance = (this.height * 2.6 + 0.8) * this.zoom;
     this.camera.position.set(
