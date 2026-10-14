@@ -15,13 +15,15 @@
     {
       "include": ["addons/kaykit_halloween_bits/Assets/gltf/tree*.gltf"],
       "category": "nature",
-      "tags": ["halloween"]
+      "tags": ["halloween"],
+      "scale": 0.6
     },
     {
       "include": ["addons/kaykit_halloween_bits/Assets/gltf/*.gltf"],
       "exclude": ["addons/kaykit_halloween_bits/Assets/gltf/tree*.gltf"],
       "category": "items",
-      "tags": ["halloween", "friedhof", "graveyard"]
+      "tags": ["halloween", "friedhof", "graveyard"],
+      "scale": 0.6
     }
   ],
   "dropWords": []

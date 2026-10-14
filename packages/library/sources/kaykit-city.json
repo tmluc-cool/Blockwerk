@@ -15,13 +15,15 @@
     {
       "include": ["addons/kaykit_city_builder_bits/Assets/gltf/car_*.gltf"],
       "category": "vehicles",
-      "tags": ["stadt", "city", "auto", "car"]
+      "tags": ["stadt", "city", "auto", "car"],
+      "scale": 5
     },
     {
       "include": ["addons/kaykit_city_builder_bits/Assets/gltf/*.gltf"],
       "exclude": ["addons/kaykit_city_builder_bits/Assets/gltf/car_*.gltf"],
       "category": "buildings",
-      "tags": ["stadt", "city"]
+      "tags": ["stadt", "city"],
+      "scale": 5
     }
   ],
   "dropWords": ["building"]

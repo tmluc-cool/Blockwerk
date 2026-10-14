@@ -16,12 +16,14 @@
       "include": ["addons/kaykit_character_pack_adventures/Characters/gltf/*.glb"],
       "category": "characters",
       "tags": ["figur", "character", "held", "hero"],
-      "collider": "capsule"
+      "collider": "capsule",
+      "scale": 0.55
     },
     {
       "include": ["addons/kaykit_character_pack_adventures/Assets/gltf/*.gltf"],
       "category": "items",
-      "tags": ["waffe", "weapon", "ausrüstung"]
+      "tags": ["waffe", "weapon", "ausrüstung"],
+      "scale": 0.55
     }
   ],
   "dropWords": []

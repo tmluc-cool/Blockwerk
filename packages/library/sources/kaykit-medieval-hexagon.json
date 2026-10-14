@@ -15,22 +15,26 @@
     {
       "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/buildings/**/*.gltf"],
       "category": "buildings",
-      "tags": ["mittelalter", "medieval", "dorf", "village"]
+      "tags": ["mittelalter", "medieval", "dorf", "village"],
+      "scale": 4
     },
     {
       "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/decoration/nature/*.gltf"],
       "category": "nature",
-      "tags": ["natur", "nature"]
+      "tags": ["natur", "nature"],
+      "scale": 4
     },
     {
       "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/decoration/props/*.gltf"],
       "category": "items",
-      "tags": ["mittelalter", "medieval"]
+      "tags": ["mittelalter", "medieval"],
+      "scale": 4
     },
     {
       "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/tiles/**/*.gltf"],
       "category": "terrain",
-      "tags": ["sechseck", "hexagon", "tile"]
+      "tags": ["sechseck", "hexagon", "tile"],
+      "scale": 4
     }
   ],
   "dropWords": ["building"]

@@ -15,7 +15,8 @@
     {
       "include": ["addons/kaykit_furniture_bits/Assets/gltf/*.gltf"],
       "category": "interior",
-      "tags": ["möbel", "furniture"]
+      "tags": ["möbel", "furniture"],
+      "scale": 0.8
     }
   ],
   "dropWords": []

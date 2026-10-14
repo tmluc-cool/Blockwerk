@@ -15,13 +15,15 @@
     {
       "include": ["addons/kaykit_restaurant_bits/Assets/gltf/food_*.gltf"],
       "category": "items",
-      "tags": ["essen", "food"]
+      "tags": ["essen", "food"],
+      "scale": 0.75
     },
     {
       "include": ["addons/kaykit_restaurant_bits/Assets/gltf/*.gltf"],
       "exclude": ["addons/kaykit_restaurant_bits/Assets/gltf/food_*.gltf"],
       "category": "interior",
-      "tags": ["restaurant", "küche", "kitchen"]
+      "tags": ["restaurant", "küche", "kitchen"],
+      "scale": 0.75
     }
   ],
   "dropWords": ["food", "ingredient"]

@@ -15,7 +15,8 @@
     {
       "include": ["addons/kaykit_dungeon_remastered/Assets/gltf/*.glb"],
       "category": "dungeon",
-      "tags": ["dungeon", "verlies"]
+      "tags": ["dungeon", "verlies"],
+      "scale": 0.7
     }
   ],
   "dropWords": []

@@ -15,7 +15,8 @@
     {
       "include": ["addons/kaykit_space_base_bits/Assets/gltf/*.gltf"],
       "category": "scifi",
-      "tags": ["weltraum", "space", "sci-fi"]
+      "tags": ["weltraum", "space", "sci-fi"],
+      "scale": 3
     }
   ],
   "dropWords": []
