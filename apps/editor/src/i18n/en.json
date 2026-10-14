@@ -591,5 +591,11 @@
   "lighting.graphics": "Graphics",
   "lighting.graphicsNow": "Graphics level now",
   "lighting.graphicsDefault": "Project default",
-  "lighting.graphicsAuto": "Automatic"
+  "lighting.graphicsAuto": "Automatic",
+  "component.group.emission": "Emission",
+  "component.group.shape": "Shape",
+  "component.group.lifetime": "Lifetime and Speed",
+  "component.group.size": "Size over Lifetime",
+  "component.group.color": "Color over Lifetime",
+  "component.group.forces": "Forces"
 }

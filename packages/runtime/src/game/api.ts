@@ -117,6 +117,9 @@ export interface GameApi {
   setSunBrightness(percent: number): void;
   setLightEnabled(self: GameObject, ref: ObjectRef, on: boolean): void;
   setLightColor(self: GameObject, ref: ObjectRef, color: string): void;
+  spawnEffect(self: GameObject, effect: string, at: ObjectRef): void;
+  startParticles(self: GameObject, ref: ObjectRef): void;
+  stopParticles(self: GameObject, ref: ObjectRef): void;
   setGraphicsLevel(level: string): void;
   graphicsLevel(): string;
 

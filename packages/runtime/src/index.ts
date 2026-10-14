@@ -51,6 +51,17 @@ export type { WorldOptions } from './world/World';
 export { defineComponent, isFieldVisible, resolveValues } from './components/defineComponent';
 export type * from './components/defineComponent';
 export { COMPONENTS, getComponentDefinition } from './components';
+export { emitterRegistry } from './components/particleSystem';
+export { Effects } from './effects/Effects';
+export { ParticleEmitter } from './effects/ParticleEmitter';
+export {
+  DEFAULT_PARTICLE_PARAMS,
+  isParticlePreset,
+  PARTICLE_PRESET_NAMES,
+  PARTICLE_PRESETS,
+  particleTemplateValues,
+} from './effects/presets';
+export type { ParticleParams, ParticlePresetName } from './effects/presets';
 export { colliderRegistry } from './components/colliders';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';

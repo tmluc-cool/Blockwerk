@@ -144,6 +144,7 @@ describe('buildToolbox', () => {
       'character',
       'physics',
       'environment',
+      'effects',
     ]);
     const motion = toolbox.contents.find((category) => category.toolboxitemid === 'motion');
     expect(motion?.name).toBe('Bewegung');

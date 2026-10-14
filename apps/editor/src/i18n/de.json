@@ -591,5 +591,11 @@
   "lighting.graphics": "Grafik",
   "lighting.graphicsNow": "Grafikstufe jetzt",
   "lighting.graphicsDefault": "Standard des Projekts",
-  "lighting.graphicsAuto": "Automatisch"
+  "lighting.graphicsAuto": "Automatisch",
+  "component.group.emission": "Emission",
+  "component.group.shape": "Form",
+  "component.group.lifetime": "Lebensdauer und Tempo",
+  "component.group.size": "Grösse",
+  "component.group.color": "Farbe",
+  "component.group.forces": "Kräfte"
 }

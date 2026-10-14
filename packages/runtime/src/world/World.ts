@@ -11,6 +11,7 @@ import { Environment } from '../environment/Environment';
 import { InstanceBatcher } from '../models/InstanceBatcher';
 import type { ModelCache } from '../models/ModelCache';
 import type { ModelTemplate } from '../models/ModelCache';
+import { Effects } from '../effects/Effects';
 import { GameObject } from './GameObject';
 import type { ComponentInstance } from './GameObject';
 
@@ -60,6 +61,8 @@ export class World {
   private readonly options: WorldOptions;
   /** Draws equal model meshes together (automatic instancing). */
   readonly batcher: InstanceBatcher;
+  /** One-shot particle effects (dust, sparks, …). */
+  readonly effects: Effects;
   private readonly pendingModels = new Set<Promise<unknown>>();
 
   constructor(data: SceneData, options: WorldOptions = {}) {
@@ -67,6 +70,7 @@ export class World {
     this.environment = new Environment({ groundSize: 0 });
     this.environment.addTo(this.scene);
     this.batcher = new InstanceBatcher(this.scene);
+    this.effects = new Effects(this.scene);
     this.data = { ...data, objects: {} };
     this.sync(data);
     // Sky, fog and weather of the scene apply from the start, not only when they change.
@@ -306,6 +310,7 @@ export class World {
   /** Releases all resources. */
   dispose(): void {
     for (const id of [...this.objects.keys()]) this.removeObject(id);
+    this.effects.clear();
     this.batcher.dispose();
     this.environment.dispose();
   }

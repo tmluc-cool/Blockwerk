@@ -38,6 +38,8 @@ import { animatorRegistry } from '../components/animator';
 import { controlRegistry } from '../components/controls';
 import * as gameplay from './gameplayApi';
 import { isWeatherType } from '../environment/Weather';
+import { emitterRegistry } from '../components/particleSystem';
+import { isParticlePreset } from '../effects/presets';
 import { currentQuality, isQualityName, setQuality } from '../rendering/quality';
 import type { GameViews } from '../camera/transitions';
 
@@ -355,6 +357,7 @@ export class Game implements GameApi {
     this.transitions.update(this.world, TICK_SECONDS);
     this.tick += 1;
     this.world.environment.advance(TICK_SECONDS);
+    this.world.effects.update(TICK_SECONDS);
     this.world.updateSun();
   }
 
@@ -864,6 +867,20 @@ export class Game implements GameApi {
 
   setSunBrightness(percent: number): void {
     this.world.environment.setSunBrightness(percent / 100);
+  }
+
+  spawnEffect(self: GameObject, effect: string, at: ObjectRef): void {
+    const target = this.find(self, at);
+    if (!target || !isParticlePreset(effect)) return;
+    this.world.effects.spawn(effect, target.worldPosition());
+  }
+
+  startParticles(self: GameObject, ref: ObjectRef): void {
+    emitterRegistry.get(this.find(self, ref) ?? self)?.play();
+  }
+
+  stopParticles(self: GameObject, ref: ObjectRef): void {
+    emitterRegistry.get(this.find(self, ref) ?? self)?.stop();
   }
 
   setLightEnabled(self: GameObject, ref: ObjectRef, on: boolean): void {

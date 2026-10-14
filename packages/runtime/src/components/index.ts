@@ -25,6 +25,7 @@ import { rigidbody } from './rigidbody';
 import type { ComponentDefinition } from './defineComponent';
 import { light } from './light';
 import { meshRenderer } from './meshRenderer';
+import { particleSystem } from './particleSystem';
 import { postProcessing } from './postProcessing';
 
 /** All built-in component types in "Add Component" order. */
@@ -56,6 +57,7 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   cameraPath,
   sharedCamera,
   postProcessing,
+  particleSystem,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];

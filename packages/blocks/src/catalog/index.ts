@@ -11,6 +11,7 @@ import {
   switchPart,
   whenAbility,
 } from './character';
+import { spawnEffect, startParticles, stopParticles } from './effects';
 import {
   setFogDensity,
   setGraphicsLevel,
@@ -185,6 +186,10 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   setLight,
   setLightColor,
   setGraphicsLevel,
+  // Effects
+  spawnEffect,
+  startParticles,
+  stopParticles,
   // Physics
   push,
   setVelocity,

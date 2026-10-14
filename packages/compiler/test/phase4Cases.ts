@@ -1,4 +1,4 @@
-import { currentQuality, setQuality } from '@blockwerk/runtime';
+import { currentQuality, emitterRegistry, setQuality } from '@blockwerk/runtime';
 import type { Fog } from 'three';
 import { expect } from 'vitest';
 import { b, set, workspace } from './dsl';
@@ -66,6 +66,47 @@ export const phase4Cases: RuntimeCase[] = [
       expect(currentQuality()).toBe('medium');
       game.dispose();
       setQuality(before);
+    },
+  },
+  {
+    name: 'effect blocks play one-shot effects and start and stop particle systems',
+    covers: ['effects.spawn', 'effects.start', 'effects.stop'],
+    run: () => {
+      const fire = object(
+        'Fire',
+        [3, 0, 0],
+        [component('particleSystem', { preset: 'fire', playOnAwake: false }, 'firesystem001')],
+      );
+      const game = launch({
+        objects: { ground000001: ground, hero00000001: hero([], 'hero'), fire00000001: fire },
+        scripts: {
+          hero: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('effects.spawn', { effect: 'explosion', at: 'self' }),
+              b('effects.start', { target: 'object:fire00000001' }),
+            ),
+            when(
+              b('events.whenKey', { key: 'F', mode: 'pressed' }),
+              b('effects.stop', { target: 'object:fire00000001' }),
+            ),
+          ),
+        },
+      });
+      const emitter = emitterRegistry.get(get(game, 'fire00000001'));
+      if (!emitter) throw new Error('no emitter');
+      run(game, 0.3);
+      expect(game.world.effects.active).toBe(1);
+      expect(emitter.isPlaying).toBe(true);
+      expect(emitter.alive).toBeGreaterThan(0);
+      game.input.keyEvent('f', true, 'KeyF');
+      run(game, 0.1);
+      expect(emitter.isPlaying).toBe(false);
+      // The explosion plays once and removes itself.
+      run(game, 3);
+      expect(game.world.effects.active).toBe(0);
+      expect(emitter.alive).toBe(0);
+      game.dispose();
     },
   },
 ];

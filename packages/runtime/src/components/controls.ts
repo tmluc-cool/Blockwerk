@@ -66,6 +66,9 @@ export interface ControlState {
   setCrouch(crouch: boolean): void;
 }
 
+/** Fall speed in m/s above which landing raises dust. */
+const LANDING_DUST_SPEED = 4;
+
 /** Control states by object. */
 export const controlRegistry = new WeakMap<object, ControlState>();
 
@@ -342,8 +345,16 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     const look = locked ? new Vector2() : input.look();
     const grounded = motor.grounded;
     // Landing and leaving the ground.
-    if (grounded && !wasGrounded) state.ticksSinceLanding = 0;
-    else state.ticksSinceLanding += 1;
+    if (grounded && !wasGrounded) {
+      state.ticksSinceLanding = 0;
+      // A hard landing raises dust at the feet (louder the faster the fall).
+      if (verticalVelocity < -LANDING_DUST_SPEED) {
+        const size = Math.min(1.6, -verticalVelocity / 8);
+        context.world.effects.spawn('dust', object.worldPosition(), { scale: size });
+      }
+    } else {
+      state.ticksSinceLanding += 1;
+    }
     state.ticksSinceJump += 1;
     wasGrounded = grounded;
     coyote = grounded ? v.coyoteTime : Math.max(0, coyote - dt);
