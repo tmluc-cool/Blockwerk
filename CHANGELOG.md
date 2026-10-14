@@ -5,6 +5,20 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 2: project window, asset library, prefabs
+
+- Asset library built by `pnpm assets:fetch` from pinned CC0 sources: license check, optimized
+  GLB (meshopt, pivot at the bottom center, normalized scale), previews, index and license list.
+  Start pack: 903 KayKit models.
+- Asset Library window with fuzzy search in German and English, categories, filters, favorites,
+  recently used, rotatable 3D preview, drag into the scene onto surfaces, brush for spreading many
+  models, "Import into Project" and "My Prefabs" shared by all projects.
+- Models in the Mesh Renderer (library or imported GLB, glTF, FBX, OBJ) with import settings, and
+  automatic instancing of equal models.
+- Prefabs like Unity: create by dragging into the project window, blue instances, prefab mode,
+  overrides with apply and revert, variants, nested prefabs, unpack; block "create [prefab] at".
+- Example project `examples/02-dorf` and frames per second in the Game view statistics.
+
 ### Phase 1: objects, components, block scripts, play mode
 
 - Projects on disk (desktop) or in browser storage: deterministic JSON, meta files with stable IDs,
