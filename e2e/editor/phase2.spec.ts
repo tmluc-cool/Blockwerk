@@ -273,3 +273,119 @@ test('the brush spreads trees with spacing; one stroke is one undo step', async 
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('brush-hint')).toHaveCount(0);
 });
+
+/** A 1 × 2 × 1 m box as an OBJ file (Y up, corner at the origin). */
+const BOX_OBJ = [
+  'v 0 0 0',
+  'v 1 0 0',
+  'v 1 2 0',
+  'v 0 2 0',
+  'v 0 0 1',
+  'v 1 0 1',
+  'v 1 2 1',
+  'v 0 2 1',
+  'f 1 2 3 4',
+  'f 5 8 7 6',
+  'f 1 5 6 2',
+  'f 2 6 7 3',
+  'f 3 7 8 4',
+  'f 4 8 5 1',
+].join('\n');
+
+test('imports an OBJ model with import settings and places it with a collider', async ({
+  editor: page,
+}) => {
+  await tab(page, 'Projekt').click();
+  await page.getByTestId('project-create-button').click();
+  await page.getByTestId('project-create').hover();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByTestId('project-import-model').click();
+  await (
+    await chooser
+  ).setFiles({ name: 'Kiste.obj', mimeType: 'text/plain', buffer: Buffer.from(BOX_OBJ) });
+  await expect(page.getByTestId('asset-Kiste')).toBeVisible();
+  const asset = await page.evaluate(
+    () => window.__blockwerk?.assets().find((item) => item.name === 'Kiste')?.path,
+  );
+  expect(asset).toBe('Assets/Kiste.glb');
+
+  // Import inspector: size, then twice the scale.
+  await page.getByTestId('asset-Kiste').click();
+  await expect(page.getByTestId('model-size')).toContainText('1.00 × 2.00 × 1.00');
+  await page.getByTestId('import-scale').fill('2');
+  await page.getByTestId('import-scale').press('Enter');
+  await expect(page.getByTestId('model-size')).toContainText('2.00 × 4.00 × 2.00');
+
+  // Dragged into the scene: stands on the ground with a box collider of its size.
+  const target = await page.getByTestId('scene-drop').boundingBox();
+  if (!target) throw new Error('no scene view');
+  await page.getByTestId('asset-Kiste').dragTo(page.getByTestId('scene-drop'), {
+    targetPosition: { x: target.width / 2, y: target.height * 0.7 },
+  });
+  await expect.poll(() => page.evaluate(() => window.__blockwerk?.selection())).toBeTruthy();
+  const id = (await page.evaluate(() => window.__blockwerk?.selection())) ?? '';
+  await expect
+    .poll(async () => (await componentValues(page, id, 'boxCollider'))?.['size'])
+    .toEqual([2, 4, 2]);
+  expect((await componentValues(page, id, 'boxCollider'))?.['center']).toEqual([0, 2, 0]);
+});
+
+test('"My Prefabs" carries a prefab with its model into another project', async ({
+  editor: page,
+}) => {
+  // A crate model and a prefab using it.
+  await tab(page, 'Projekt').click();
+  await page.getByTestId('project-create-button').click();
+  await page.getByTestId('project-create').hover();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByTestId('project-import-model').click();
+  await (
+    await chooser
+  ).setFiles({ name: 'Kiste.obj', mimeType: 'text/plain', buffer: Buffer.from(BOX_OBJ) });
+  await page.getByTestId('asset-Kiste').dblclick();
+  const target = await page.getByTestId('scene-drop').boundingBox();
+  if (!target) throw new Error('no scene view');
+  await page.getByTestId('asset-Kiste').dragTo(page.getByTestId('scene-drop'), {
+    targetPosition: { x: target.width / 2, y: target.height * 0.7 },
+  });
+  await expect.poll(() => page.evaluate(() => window.__blockwerk?.selection())).toBeTruthy();
+  const crate = (await page.evaluate(() => window.__blockwerk?.selection())) ?? '';
+  await page
+    .getByTestId('hierarchy')
+    .locator(`[data-object-id="${crate}"]`)
+    .dragTo(page.getByTestId('project-content'));
+  await expect(page.getByTestId('asset-Kiste').nth(1)).toBeVisible();
+  await page.locator('[data-testid="asset-Kiste"]', { has: page.locator('.prefab-icon') }).click({
+    button: 'right',
+  });
+  await page.getByTestId('project-add-my-prefab').click();
+  await tab(page, 'Konsole').click();
+  await expect(page.getByTestId('console')).toContainText('Meine Prefabs');
+
+  // A new project gets the prefab and the model it needs.
+  await page.getByTestId('menu-file').click();
+  await page.getByTestId('menu-new-project').click();
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.__blockwerk?.assets().length)).toBe(1);
+  await tab(page, 'Asset-Bibliothek').click();
+  await page.getByTestId('library-category-mine').click();
+  await page.getByTestId('my-prefab-Kiste').click();
+  await page.getByTestId('my-prefab-place').click();
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        window.__blockwerk
+          ?.assets()
+          .map((asset) => asset.type)
+          .sort(),
+      ),
+    )
+    .toEqual(['model', 'prefab', 'scene']);
+  const selected = (await page.evaluate(() => window.__blockwerk?.selection())) ?? '';
+  expect(
+    await page.evaluate(
+      (id) => window.__blockwerk?.scene()?.objects[id]?.prefab?.overrides,
+      selected,
+    ),
+  ).toEqual([]);
+});

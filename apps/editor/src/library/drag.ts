@@ -24,4 +24,19 @@ export function draggedLibraryEntry(): LibraryEntry | null {
 /** Ends a library drag (drop or cancel). */
 export function endLibraryDrag(): void {
   dragged = null;
+  draggedMine = null;
+}
+
+let draggedMine: string | null = null;
+
+/** Starts dragging a prefab of "My Prefabs" (by its asset ID). */
+export function startMyPrefabDrag(event: DragEvent, id: string): void {
+  draggedMine = id;
+  event.dataTransfer.setData(LIBRARY_DRAG_TYPE, id);
+  event.dataTransfer.effectAllowed = 'copy';
+}
+
+/** The prefab of "My Prefabs" being dragged, if any. */
+export function draggedMyPrefab(): string | null {
+  return draggedMine;
 }

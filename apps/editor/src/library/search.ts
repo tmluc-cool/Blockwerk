@@ -4,7 +4,7 @@ import type { LibraryCategory, LibraryEntry } from '@blockwerk/library';
 export interface LibraryFilter {
   readonly query: string;
   /** A category, or the favorites / recently used lists. */
-  readonly category: LibraryCategory | 'all' | 'favorites' | 'recent';
+  readonly category: LibraryCategory | 'all' | 'favorites' | 'recent' | 'mine';
   readonly animatedOnly: boolean;
   /** Highest triangle count, or `null` for any. */
   readonly maxTriangles: number | null;
@@ -89,6 +89,8 @@ export function searchLibrary(
     const ids = filter.category === 'favorites' ? lists.favorites : lists.recent;
     const byId = new Map(entries.map((entry) => [entry.id, entry]));
     pool = ids.map((id) => byId.get(id)).filter((entry): entry is LibraryEntry => !!entry);
+  } else if (filter.category === 'mine') {
+    pool = [];
   } else if (filter.category !== 'all') {
     pool = entries.filter((entry) => entry.category === filter.category);
   }

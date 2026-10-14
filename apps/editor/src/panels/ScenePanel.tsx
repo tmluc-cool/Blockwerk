@@ -15,7 +15,8 @@ import { usePlay } from '../state/play';
 import { instantiatePrefabAsset } from '../document/prefabActions';
 import { editTransforms } from '../document/edits';
 import { libraryRef, useAssetLibrary } from '../library/assetLibrary';
-import { draggedLibraryEntry, endLibraryDrag } from '../library/drag';
+import { draggedLibraryEntry, draggedMyPrefab, endLibraryDrag } from '../library/drag';
+import { importMyPrefab } from '../library/myPrefabs';
 import { draggedAssetId, endAssetDrag } from '../library/projectDrag';
 import { closePrefab, useDocument } from '../state/document';
 import { sealHistory } from '../state/document';
@@ -167,6 +168,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const draggedPlaceable = (): { model: string | null } | null => {
     const entry = draggedLibraryEntry();
     if (entry) return { model: libraryRef(entry) };
+    if (draggedMyPrefab()) return { model: null };
     const assetId = draggedAssetId();
     const asset = assetId ? useDocument.getState().project?.asset(assetId) : undefined;
     if (asset?.type === 'model') return { model: asset.id };
@@ -189,8 +191,9 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const onDrop = (event: DragEvent): void => {
     const entry = draggedLibraryEntry();
     const assetId = draggedAssetId();
+    const mine = draggedMyPrefab();
     const viewport = viewportRef.current;
-    if ((!entry && !assetId) || !viewport) return;
+    if ((!entry && !assetId && !mine) || !viewport) return;
     event.preventDefault();
     const { x, y } = canvasPoint(event);
     const point = viewport.surfacePoint(x, y);
@@ -201,6 +204,12 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     activateSceneView(viewport);
     if (entry) {
       createLibraryObject(entry, position);
+      return;
+    }
+    if (mine) {
+      void importMyPrefab(mine).then((id) => {
+        if (id) instantiatePrefabAsset(id, position);
+      });
       return;
     }
     const asset = assetId ? useDocument.getState().project?.asset(assetId) : undefined;

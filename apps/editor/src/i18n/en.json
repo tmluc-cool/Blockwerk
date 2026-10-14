@@ -378,5 +378,12 @@
   "brush.spacing": "Spacing",
   "brush.randomRotation": "Random Rotation",
   "brush.scale": "Scale Range",
-  "brush.hint": "Brush: {name} – paint with the left mouse button, Esc stops."
+  "brush.hint": "Brush: {name} – paint with the left mouse button, Esc stops.",
+  "myPrefabs.title": "My Prefabs",
+  "myPrefabs.add": "Add to “My Prefabs”",
+  "myPrefabs.saved": "“{name}” is now in “My Prefabs” ({files} files).",
+  "myPrefabs.imported": "Added “{name}” from “My Prefabs” ({files} files).",
+  "myPrefabs.empty": "No prefabs yet. Right-click a prefab in the project window: “Add to ‘My Prefabs’”.",
+  "myPrefabs.remove": "Remove from “My Prefabs”",
+  "myPrefabs.files": "{n} files"
 }

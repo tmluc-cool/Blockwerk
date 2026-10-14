@@ -18,6 +18,7 @@ import type { ContextMenuState } from '../chrome/ContextMenu';
 import { createAssetWithPrompt } from '../chrome/menus';
 import { createPrefabFromObject, createPrefabVariant } from '../document/prefabActions';
 import { importModelFiles, MODEL_FILE_EXTENSIONS } from '../library/importModel';
+import { saveToMyPrefabs } from '../library/myPrefabs';
 import {
   ASSET_DRAG_TYPE,
   endAssetDrag,
@@ -163,6 +164,11 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
                         const id = createPrefabVariant(asset.id);
                         if (id) useEditor.getState().selectAsset(id);
                       },
+                    },
+                    {
+                      label: t('myPrefabs.add'),
+                      testId: 'project-add-my-prefab',
+                      action: () => void saveToMyPrefabs(asset.id),
                     },
                   ]
                 : []),

@@ -378,5 +378,12 @@
   "brush.spacing": "Abstand",
   "brush.randomRotation": "Zufällig drehen",
   "brush.scale": "Grösse von–bis",
-  "brush.hint": "Pinsel: {name} – mit der linken Maustaste malen, Esc beendet."
+  "brush.hint": "Pinsel: {name} – mit der linken Maustaste malen, Esc beendet.",
+  "myPrefabs.title": "Meine Prefabs",
+  "myPrefabs.add": "Zu „Meine Prefabs“ hinzufügen",
+  "myPrefabs.saved": "„{name}“ ist jetzt in „Meine Prefabs“ ({files} Dateien).",
+  "myPrefabs.imported": "„{name}“ aus „Meine Prefabs“ übernommen ({files} Dateien).",
+  "myPrefabs.empty": "Noch keine eigenen Prefabs. Rechtsklick auf ein Prefab im Projekt-Fenster: „Zu ‚Meine Prefabs‘ hinzufügen“.",
+  "myPrefabs.remove": "Aus „Meine Prefabs“ entfernen",
+  "myPrefabs.files": "{n} Dateien"
 }

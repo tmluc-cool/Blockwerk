@@ -1,7 +1,7 @@
 import { LIBRARY_CATEGORIES } from '@blockwerk/library';
 import type { LibraryEntry } from '@blockwerk/library';
 import type { IDockviewPanelProps } from 'dockview-react';
-import { Clock, Download, Library, PackagePlus, Star } from 'lucide-react';
+import { Clock, Download, Library, Package, PackagePlus, Star } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { createLibraryObject } from '../document/actions';
 import type { TranslationKey } from '../i18n';
@@ -11,6 +11,7 @@ import { BrushControls } from '../library/BrushControls';
 import { importLibraryModel } from '../library/importModel';
 import { useLibraryPrefs } from '../library/libraryPrefs';
 import { ModelPreview } from '../library/ModelPreview';
+import { MyPrefabsView } from '../library/MyPrefabsView';
 import { NO_FILTER, searchLibrary } from '../library/search';
 import type { LibraryFilter } from '../library/search';
 import { useDocument } from '../state/document';
@@ -151,6 +152,7 @@ export function AssetLibraryPanel(_props: IDockviewPanelProps) {
           {categoryRow('all', t('assetLibrary.all'), <Library size={14} />, entries.length)}
           {categoryRow('favorites', t('assetLibrary.favorites'), <Star size={14} />)}
           {categoryRow('recent', t('assetLibrary.recent'), <Clock size={14} />)}
+          {categoryRow('mine', t('myPrefabs.title'), <Package size={14} />)}
           {LIBRARY_CATEGORIES.filter((category) => counts.has(category)).map((category) =>
             categoryRow(
               category,
@@ -160,8 +162,12 @@ export function AssetLibraryPanel(_props: IDockviewPanelProps) {
             ),
           )}
         </div>
+        {filter.category === 'mine' && (
+          <MyPrefabsView query={filter.query} disabled={playing || !hasProject} />
+        )}
         <div
           className="library-grid"
+          hidden={filter.category === 'mine'}
           style={{ gridTemplateColumns: `repeat(auto-fill, minmax(${tileSize}px, 1fr))` }}
         >
           {results.length === 0 && <div className="empty-hint">{t('assetLibrary.noResults')}</div>}
@@ -193,7 +199,7 @@ export function AssetLibraryPanel(_props: IDockviewPanelProps) {
             </div>
           ))}
         </div>
-        {selected && (
+        {selected && filter.category !== 'mine' && (
           <aside className="library-details" data-testid="library-details">
             <ModelPreview modelRef={libraryRef(selected)} testId="library-preview" />
             <h3>{selected.name[locale]}</h3>

@@ -1574,3 +1574,15 @@ button.small {
   color: var(--bw-accent-text);
   font-weight: 600;
 }
+
+.library-grid[hidden] {
+  display: none;
+}
+
+.library-grid.my-prefabs {
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+}
+
+.library-grid.my-prefabs .prefab-icon {
+  color: var(--bw-prefab);
+}

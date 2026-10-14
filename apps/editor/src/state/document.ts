@@ -19,9 +19,11 @@ import {
 } from '@blockwerk/project';
 import type {
   AnyAsset,
+  AssetDataByType,
   AssetEntry,
   AssetType,
   BlockScriptData,
+  MetaData,
   ModelImportSettings,
   NewProjectFolders,
   PrefabData,
@@ -567,6 +569,26 @@ export function importModelAsset(
   );
   assetsChanged();
   return entry;
+}
+
+/**
+ * Adds assets that keep their IDs (from "My Prefabs"). Assets the project already has are
+ * skipped. Returns how many were added.
+ */
+export function adoptAssets(
+  files: readonly { path: string; meta: MetaData; json?: unknown; bytes?: Uint8Array }[],
+): number {
+  const { project } = useDocument.getState();
+  if (!project) return 0;
+  let added = 0;
+  for (const file of files) {
+    const content = file.bytes
+      ? { bytes: file.bytes }
+      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model'>] };
+    if (project.adoptAsset(file.path, file.meta, content)) added++;
+  }
+  if (added > 0) assetsChanged();
+  return added;
 }
 
 /** Changes the import settings and license of a model (import inspector). */
