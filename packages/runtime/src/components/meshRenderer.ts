@@ -1,6 +1,7 @@
 import { Color, Mesh, MeshStandardMaterial } from 'three';
 import type { BufferGeometry, Object3D, Texture } from 'three';
 import { ModelCache } from '../models/ModelCache';
+import type { ModelTemplate } from '../models/ModelCache';
 import { createGroundTexture } from '../environment/groundTexture';
 import { createPrimitiveGeometry, PRIMITIVE_SHAPES } from '../primitives';
 import type { PrimitiveShape } from '../primitives';
@@ -15,6 +16,15 @@ const SHAPE_TEXT: Readonly<Record<PrimitiveShape, { de: string; en: string }>> =
   ramp: { de: 'Rampe', en: 'Ramp' },
   stairs: { de: 'Treppe', en: 'Stairs' },
 };
+
+/** A model shown by a Mesh Renderer (read by the Animator). */
+export interface RenderedModel {
+  readonly root: Object3D;
+  readonly template: ModelTemplate;
+}
+
+/** Models currently shown by Mesh Renderers, by object. */
+export const renderedModels = new WeakMap<object, RenderedModel>();
 
 /** Geometries are shared by all renderers of the same shape (and later instanced). */
 const geometryCache = new Map<PrimitiveShape, BufferGeometry>();
@@ -156,6 +166,7 @@ export const meshRenderer = defineComponent({
       modelMeshes = [];
       model?.removeFromParent();
       model = null;
+      renderedModels.delete(object);
     };
     /** The shape is only part of the object while no model replaces it. */
     const useShape = (on: boolean): void => {
@@ -177,6 +188,7 @@ export const meshRenderer = defineComponent({
         model.visible = enabled && object.visible;
         object.object3d.add(model);
         for (const part of modelMeshes) world.batcher.add(part);
+        renderedModels.set(object, { root: model, template });
       });
     };
 

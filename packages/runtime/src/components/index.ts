@@ -1,3 +1,4 @@
+import { animator } from './animator';
 import { blockScript } from './blockScript';
 import { camera } from './camera';
 import {
@@ -26,6 +27,7 @@ import { meshRenderer } from './meshRenderer';
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
   meshRenderer,
+  animator,
   rigidbody,
   boxCollider,
   sphereCollider,

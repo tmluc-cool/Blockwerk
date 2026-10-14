@@ -22,6 +22,13 @@ export type {
 export { applyTransformData, World } from './world/World';
 export { ModelCache } from './models/ModelCache';
 export type { ModelSource, ModelTemplate, ModelUrlResolver } from './models/ModelCache';
+export {
+  ANIMATION_STATES,
+  ANIMATION_STATE_TEXT,
+  LOOPING_STATES,
+  matchClips,
+} from './animation/states';
+export type { AnimationState } from './animation/states';
 export { InstanceBatcher } from './models/InstanceBatcher';
 export type { WorldOptions } from './world/World';
 export { defineComponent, isFieldVisible, resolveValues } from './components/defineComponent';
@@ -31,6 +38,10 @@ export { colliderRegistry } from './components/colliders';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';
 export { motorRegistry } from './components/characterController';
+export { animatorRegistry } from './components/animator';
+export type { AnimatorHandle } from './components/animator';
+export { renderedModels } from './components/meshRenderer';
+export type { RenderedModel } from './components/meshRenderer';
 export { cameraBehaviorRegistry, playerObject } from './components/cameraBehaviors';
 export type { CameraBehaviorHandle, CameraMode } from './components/cameraBehaviors';
 export type { CameraEntry } from './components/camera';
