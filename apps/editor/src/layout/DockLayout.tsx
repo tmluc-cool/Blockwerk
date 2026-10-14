@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { AssetLibraryPanel } from '../panels/AssetLibraryPanel';
 import { BlockEditorPanel } from '../panels/BlockEditorPanel';
 import { ConsolePanel } from '../panels/ConsolePanel';
+import { FigurePanel } from '../panels/FigurePanel';
 import { GamePanel } from '../panels/GamePanel';
 import { HierarchyPanel } from '../panels/HierarchyPanel';
 import { InspectorPanel } from '../panels/InspectorPanel';
@@ -20,6 +21,7 @@ import { applyPreset } from './presets';
 import { loadCurrentLayout, saveCurrentLayout } from './storage';
 
 const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPanelProps>>> = {
+  figure: FigurePanel,
   hierarchy: HierarchyPanel,
   scene: ScenePanel,
   game: GamePanel,

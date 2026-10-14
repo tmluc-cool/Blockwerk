@@ -35,8 +35,8 @@ export const CATEGORIES: readonly CategoryDefinition[] = [
 /** Categories shown first in the palette of each area (SPEC 5.3). */
 export const AREA_CATEGORIES: Readonly<Record<AreaKind, readonly CategoryId[]>> = {
   environment: ['environment', 'sound'],
-  player: ['player', 'motion', 'camera', 'looks'],
-  npc: ['npc', 'motion', 'looks'],
+  player: ['player', 'character', 'motion', 'camera', 'looks'],
+  npc: ['npc', 'character', 'motion', 'looks'],
   items: ['items', 'physics'],
   ui: ['ui', 'scenes'],
 };

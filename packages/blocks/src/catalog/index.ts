@@ -1,5 +1,17 @@
 import type { BlockDefinition } from '../types';
 import {
+  attachItem,
+  detachItem,
+  hasAbility,
+  setAbility,
+  setPartColor,
+  setProfile,
+  setStamina,
+  stamina,
+  switchPart,
+  whenAbility,
+} from './character';
+import {
   createClone,
   spawnPrefab,
   destroy,
@@ -107,6 +119,7 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenZone,
   whenAction,
   whenAnimation,
+  whenAbility,
   whenCreated,
   whenDestroyed,
   // Motion
@@ -132,6 +145,16 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   onGround,
   isRunning,
   moveSpeed,
+  // Character
+  attachItem,
+  detachItem,
+  switchPart,
+  setPartColor,
+  setProfile,
+  setAbility,
+  hasAbility,
+  setStamina,
+  stamina,
   // Camera
   switchCamera,
   switchCameraToObject,

@@ -1,0 +1,160 @@
+{
+  "variables": [
+    {
+      "id": "varlevel0000",
+      "name": "Level",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "ch-3",
+          "next": {
+            "block": {
+              "type": "character.attach",
+              "id": "ch-4",
+              "fields": {
+                "item": "library:kaykit-adventurers/sword-1handed",
+                "point": "rightHand"
+              },
+              "next": {
+                "block": {
+                  "type": "character.detach",
+                  "id": "ch-5",
+                  "fields": {
+                    "point": "leftHand"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "character.switchPart",
+                      "id": "ch-6",
+                      "fields": {
+                        "from": "Hat",
+                        "to": "Helmet"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "character.setPartColor",
+                          "id": "ch-7",
+                          "fields": {
+                            "part": "Body",
+                            "color": "#33AA55"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "character.setProfile",
+                              "id": "ch-8",
+                              "fields": {
+                                "profile": "agile"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "character.setAbility",
+                                  "id": "ch-9",
+                                  "fields": {
+                                    "state": "off",
+                                    "ability": "roll"
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "character.setStamina",
+                                      "id": "ch-11",
+                                      "inputs": {
+                                        "percent": {
+                                          "shadow": {
+                                            "type": "literal.number",
+                                            "id": "ch-10",
+                                            "fields": {
+                                              "NUM": 50
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "variables.set",
+                                          "id": "ch-2",
+                                          "fields": {
+                                            "variable": {
+                                              "id": "varlevel0000"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "value": {
+                                              "block": {
+                                                "type": "character.stamina",
+                                                "id": "ch-1"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 40,
+          "y": 40
+        },
+        {
+          "type": "events.whenAbility",
+          "id": "ch-12",
+          "fields": {
+            "ability": "roll",
+            "phase": "started"
+          },
+          "next": {
+            "block": {
+              "type": "control.if",
+              "id": "ch-16",
+              "inputs": {
+                "condition": {
+                  "block": {
+                    "type": "character.hasAbility",
+                    "id": "ch-13",
+                    "fields": {
+                      "ability": "doubleJump"
+                    }
+                  }
+                },
+                "then": {
+                  "block": {
+                    "type": "character.setStamina",
+                    "id": "ch-15",
+                    "inputs": {
+                      "percent": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "ch-14",
+                          "fields": {
+                            "NUM": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 40,
+          "y": 400
+        }
+      ]
+    }
+  }
+}

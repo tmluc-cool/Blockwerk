@@ -13,6 +13,7 @@
   "dependencies": {
     "@blockly/field-colour": "13.3.0",
     "@blockwerk/blocks": "workspace:*",
+    "@blockwerk/character": "workspace:*",
     "@blockwerk/compiler": "workspace:*",
     "@blockwerk/library": "workspace:*",
     "@blockwerk/project": "workspace:*",

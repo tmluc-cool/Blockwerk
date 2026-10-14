@@ -384,7 +384,13 @@ describe('asset dependencies and adopting assets', () => {
     const project = await createProject(fs, {
       name: 'A',
       sceneName: 'S',
-      folders: { scenes: 'Szenen', blockScripts: 'Skripte', prefabs: 'Prefabs', models: 'Modelle' },
+      folders: {
+        scenes: 'Szenen',
+        blockScripts: 'Skripte',
+        prefabs: 'Prefabs',
+        models: 'Modelle',
+        images: 'Bilder',
+      },
       scene: createDefaultScene({ camera: 'Kamera', sun: 'Sonne', ground: 'Boden' }),
     });
     const model = project.createModel('Assets/Modelle/Haus.glb', new Uint8Array([1, 2, 3]));
@@ -423,7 +429,13 @@ describe('asset dependencies and adopting assets', () => {
     const other = await createProject(new MemoryFileSystem(), {
       name: 'B',
       sceneName: 'S',
-      folders: { scenes: 'Szenen', blockScripts: 'Skripte', prefabs: 'Prefabs', models: 'Modelle' },
+      folders: {
+        scenes: 'Szenen',
+        blockScripts: 'Skripte',
+        prefabs: 'Prefabs',
+        models: 'Modelle',
+        images: 'Bilder',
+      },
       scene: createDefaultScene({ camera: 'Kamera', sun: 'Sonne', ground: 'Boden' }),
     });
     const adopted = other.adoptAsset(model.path, model.meta, { bytes: new Uint8Array([1, 2, 3]) });

@@ -10,6 +10,7 @@ import {
   FolderOpen,
   Package,
   Boxes,
+  Image as ImageIcon,
 } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useState } from 'react';
@@ -61,6 +62,8 @@ function assetIcon(asset: AnyAsset) {
       return <FileCode2 size={30} />;
     case 'model':
       return <Box size={30} />;
+    case 'image':
+      return <ImageIcon size={30} />;
     case 'prefab':
       return asset.data.base ? (
         <Boxes size={30} className="prefab-icon" />
@@ -151,7 +154,7 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
               { kind: 'separator' as const },
               {
                 label: t('inspector.open'),
-                disabled: asset.type === 'model',
+                disabled: asset.type === 'model' || asset.type === 'image',
                 action: () => openAsset(asset),
               },
               ...(asset.type === 'prefab'

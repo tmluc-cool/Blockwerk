@@ -1,9 +1,16 @@
 import { MathUtils, Vector2, Vector3 } from 'three';
 import type { GameObject } from '../world/GameObject';
+import { abilityRegistry } from './abilities';
 import { motorRegistry } from './characterController';
 import type { CharacterMotor } from './characterController';
 import { defineComponent } from './defineComponent';
 import type { FieldDefinitions, FieldValues, TickContext } from './defineComponent';
+
+/** Something that happened with an ability. */
+export interface ControlEvent {
+  readonly ability: 'roll' | 'glide' | 'doubleJump';
+  readonly phase: 'started' | 'ended';
+}
 
 /** How a control component steers. */
 export type ControlMode = 'thirdPerson' | 'firstPerson' | 'topDown' | 'vehicle';
@@ -41,6 +48,18 @@ export interface ControlState {
   ticksSinceJump: number;
   /** Steering is off (block "lock controls"). */
   locked: boolean;
+  /** The character is rolling (ability Roll). */
+  rolling: boolean;
+  /** The character is gliding (ability Glide). */
+  gliding: boolean;
+  /** Stamina left as a fraction 0..1, `null` without the ability Stamina. */
+  stamina: number | null;
+  /** Sets the stamina to a fraction of its maximum (0..1). */
+  setStamina(fraction: number): void;
+  /** Ability events since the last call (the game turns them into "when I roll" events). */
+  takeEvents(): ControlEvent[];
+  /** Forgets values set by blocks; the component's own values apply again (profile change). */
+  clearOverrides(): void;
   /** Makes the character jump as if the jump button was pressed. */
   jump(): void;
   /** Crouches (true) or stands up (false), as long as there is room. */
@@ -263,6 +282,14 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
   let buffered = 0;
   let wasGrounded = true;
   let crouchRequest: boolean | null = null;
+  const events: ControlEvent[] = [];
+  let airJumpsUsed = 0;
+  let rollTime = 0;
+  let rollCooldown = 0;
+  const rollDirection = new Vector2();
+  let staminaLeft: number | null = null;
+  let staminaDelay = 0;
+  let exhausted = false;
   const state = withMetrics(object, settings, {
     mode,
     player: 1,
@@ -273,6 +300,27 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     ticksSinceLanding: 1000,
     ticksSinceJump: 1000,
     locked: false,
+    rolling: false,
+    gliding: false,
+    stamina: null,
+    setStamina(fraction) {
+      const max = abilityRegistry.get(object)?.stamina?.max;
+      if (max === undefined) return;
+      staminaLeft = MathUtils.clamp(fraction, 0, 1) * max;
+      state.stamina = staminaLeft / max;
+      exhausted = false;
+    },
+    takeEvents() {
+      return events.splice(0);
+    },
+    clearOverrides() {
+      for (const key of Object.keys(overrides)) Reflect.deleteProperty(overrides, key);
+      if (values) {
+        base.walkSpeed = values.walkSpeed;
+        base.runSpeed = values.runSpeed;
+        base.jumpHeight = values.jumpHeight;
+      }
+    },
     jump() {
       buffered = values?.jumpBuffer ?? 0.15;
       if (buffered <= 0) buffered = 1 / 60;
@@ -301,9 +349,35 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     coyote = grounded ? v.coyoteTime : Math.max(0, coyote - dt);
     buffered = Math.max(0, buffered - dt);
     if (!locked && input.wasPressed('jump')) state.jump();
+    const abilities = abilityRegistry.get(object);
+    if (grounded) airJumpsUsed = 0;
+
+    // Roll: a quick dodge in the facing direction; low and not steerable meanwhile.
+    rollCooldown = Math.max(0, rollCooldown - dt);
+    const rollConfig = abilities?.roll;
+    if (
+      rollConfig &&
+      !locked &&
+      grounded &&
+      rollTime <= 0 &&
+      rollCooldown <= 0 &&
+      input.wasPressed('roll')
+    ) {
+      rollTime = rollConfig.seconds;
+      const yawNow = object.object3d.rotation.y;
+      rollDirection.set(Math.sin(yawNow), Math.cos(yawNow));
+      state.rolling = true;
+      events.push({ ability: 'roll', phase: 'started' });
+    }
+    if (state.rolling && (rollTime <= 0 || !rollConfig)) {
+      state.rolling = false;
+      rollTime = 0;
+      rollCooldown = rollConfig?.cooldown ?? 0;
+      events.push({ ability: 'roll', phase: 'ended' });
+    }
 
     // Crouch: held button or block request; stand up only with room above.
-    const wantsCrouch = crouchRequest ?? (!locked && input.isHeld('crouch'));
+    const wantsCrouch = state.rolling || (crouchRequest ?? (!locked && input.isHeld('crouch')));
     if (wantsCrouch && !state.crouching) {
       state.crouching = true;
       motor.setHeight(v.crouchHeight);
@@ -321,7 +395,32 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     const right = new Vector2(-forward.y, forward.x);
     const direction = forward.multiplyScalar(move.y).add(right.multiplyScalar(move.x));
     const amount = Math.min(1, move.length());
-    state.running = !state.crouching && amount > 0.1 && input.isHeld('sprint');
+    const staminaConfig = abilities?.stamina;
+    if (staminaConfig) {
+      staminaLeft ??= staminaConfig.max;
+      staminaLeft = Math.min(staminaLeft, staminaConfig.max);
+      if (exhausted && staminaLeft >= staminaConfig.max * 0.25) exhausted = false;
+    } else {
+      staminaLeft = null;
+      exhausted = false;
+    }
+    state.running =
+      !state.crouching && !state.rolling && amount > 0.1 && input.isHeld('sprint') && !exhausted;
+    if (staminaConfig && staminaLeft !== null) {
+      if (state.running) {
+        staminaLeft = Math.max(0, staminaLeft - staminaConfig.drain * dt);
+        staminaDelay = staminaConfig.delay;
+        if (staminaLeft <= 0) exhausted = true;
+      } else {
+        staminaDelay = Math.max(0, staminaDelay - dt);
+        if (staminaDelay <= 0) {
+          staminaLeft = Math.min(staminaConfig.max, staminaLeft + staminaConfig.regen * dt);
+        }
+      }
+      state.stamina = staminaLeft / staminaConfig.max;
+    } else {
+      state.stamina = null;
+    }
     const topSpeed = state.crouching
       ? v.crouchSpeed
       : state.running
@@ -333,9 +432,14 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
         : new Vector2();
     // Smooth speed change (Unity: Lerp with SpeedChangeRate); less grip in the air.
     const rate = v.acceleration * (grounded ? 1 : v.airControl);
-    horizontal.lerp(target, Math.min(1, rate * dt));
-    if (horizontal.length() < 0.01 && target.lengthSq() === 0) horizontal.set(0, 0);
-    if (mode !== 'firstPerson' && target.lengthSq() > 0) {
+    if (state.rolling && rollConfig) {
+      horizontal.copy(rollDirection).multiplyScalar(rollConfig.speed);
+      rollTime -= dt;
+    } else {
+      horizontal.lerp(target, Math.min(1, rate * dt));
+      if (horizontal.length() < 0.01 && target.lengthSq() === 0) horizontal.set(0, 0);
+    }
+    if (!state.rolling && mode !== 'firstPerson' && target.lengthSq() > 0) {
       const wanted = Math.atan2(target.x, target.y);
       yaw = smoothDampAngle(yaw, wanted, turnVelocity, v.rotationSmoothTime, dt);
     }
@@ -351,6 +455,22 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
       coyote = 0;
       state.jumping = true;
       state.ticksSinceJump = 0;
+    } else if (
+      buffered > 0 &&
+      !grounded &&
+      abilities?.doubleJump &&
+      airJumpsUsed < abilities.doubleJump.jumps &&
+      !state.crouching &&
+      !state.rolling
+    ) {
+      // Further jumps in the air (ability Double Jump).
+      const launch = Math.sqrt(2 * gravity * Math.max(0, abilities.doubleJump.height));
+      verticalVelocity = Math.max(0, launch - (gravity * dt) / 2);
+      airJumpsUsed += 1;
+      buffered = 0;
+      state.jumping = true;
+      state.ticksSinceJump = 0;
+      events.push({ ability: 'doubleJump', phase: 'started' });
     } else if (grounded && verticalVelocity <= 0) {
       verticalVelocity = -0.5;
       state.jumping = false;
@@ -358,6 +478,19 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
       if (motor.hitCeiling && verticalVelocity > 0) verticalVelocity = 0;
       verticalVelocity = Math.max(-50, verticalVelocity - gravity * dt);
       if (verticalVelocity <= 0) state.jumping = false;
+    }
+    // Glide: holding jump while falling limits the fall speed.
+    const glideConfig = abilities?.glide;
+    const glidingNow =
+      !!glideConfig &&
+      !grounded &&
+      !locked &&
+      input.isHeld('jump') &&
+      verticalVelocity < -glideConfig.fallSpeed;
+    if (glidingNow && glideConfig) verticalVelocity = -glideConfig.fallSpeed;
+    if (glidingNow !== state.gliding) {
+      state.gliding = glidingNow;
+      events.push({ ability: 'glide', phase: glidingNow ? 'started' : 'ended' });
     }
     motor.velocity.set(horizontal.x, verticalVelocity, horizontal.y);
   };
@@ -520,6 +653,12 @@ export const vehicleControl = defineComponent({
       ticksSinceLanding: 1000,
       ticksSinceJump: 1000,
       locked: false,
+      rolling: false,
+      gliding: false,
+      stamina: null,
+      takeEvents: () => [],
+      setStamina() {},
+      clearOverrides() {},
       jump() {},
       setCrouch() {},
     });

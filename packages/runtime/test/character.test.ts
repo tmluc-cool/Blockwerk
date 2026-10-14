@@ -1,6 +1,15 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { SceneObjectData } from '@blockwerk/project';
-import { controlRegistry, Game, initPhysics, motorRegistry } from '../src';
+import {
+  applyMovementProfile,
+  controlRegistry,
+  Game,
+  initPhysics,
+  jumpArc,
+  motorRegistry,
+  MOVEMENT_PROFILES,
+  PROFILE_NAMES,
+} from '../src';
 import type { ControlState, ScriptEntry } from '../src';
 import { component, objectData, sceneData, scriptAsset } from './helpers';
 
@@ -284,6 +293,150 @@ describe('character controller', () => {
     run(game, 2);
     expect(state.crouching).toBe(false);
     expect(motor?.height).toBeCloseTo(1.8, 2);
+    game.dispose();
+  });
+});
+
+describe('abilities', () => {
+  const abilityHero = (extra: Record<string, Record<string, number>>) =>
+    objectData({
+      name: 'Hero',
+      components: [
+        component('characterController', {}, 'herocctrl001'),
+        component('thirdPersonControl', {}, 'herocontrol1'),
+        ...Object.entries(extra).map(([type, values]) => component(type, values, `${type}0000`)),
+      ],
+    });
+
+  it('double jump: a second press in the air jumps again, a third does not', () => {
+    const game = makeGame({ ground000001: ground, hero00000001: abilityHero({ doubleJump: {} }) });
+    run(game, 0.3);
+    const { object } = heroOf(game);
+    const press = (): void => {
+      key(game, 'Space', true);
+      run(game, 0.03);
+      key(game, 'Space', false);
+    };
+    let top = 0;
+    const track = (): void => {
+      top = Math.max(top, object.position.y);
+    };
+    press();
+    run(game, 0.3, track);
+    const firstApex = top;
+    press();
+    run(game, 0.5, track);
+    expect(top).toBeGreaterThan(firstApex + 0.4);
+    // The extra jump is used up: another press does not lift higher.
+    const secondApex = top;
+    press();
+    run(game, 0.5, track);
+    expect(top).toBeLessThan(secondApex + 0.05);
+    game.dispose();
+  });
+
+  it('roll: moves quickly forward in a low pose, cannot steer, then ends and has a cooldown', () => {
+    const game = makeGame({ ground000001: ground, hero00000001: abilityHero({ roll: {} }) });
+    run(game, 0.3);
+    const { object, state } = heroOf(game);
+    const motor = motorRegistry.get(object);
+    key(game, 'KeyQ', true);
+    run(game, 0.05);
+    key(game, 'KeyQ', false);
+    expect(state.rolling).toBe(true);
+    expect(motor?.height).toBeLessThan(1.5);
+    run(game, 0.3);
+    expect(object.position.z).toBeGreaterThan(1.2);
+    run(game, 0.5);
+    expect(state.rolling).toBe(false);
+    expect(motor?.height).toBeCloseTo(1.8, 2);
+    const stoppedAt = object.position.z;
+    run(game, 0.5);
+    expect(object.position.z).toBeCloseTo(stoppedAt, 1);
+    game.dispose();
+  });
+
+  it('glide: holding jump while falling slows the fall', () => {
+    const fall = (withGlide: boolean): number => {
+      const game = makeGame({
+        ground000001: ground,
+        hero00000001: {
+          ...abilityHero(withGlide ? { glide: { fallSpeed: 1.5 } } : {}),
+          transform: { position: [0, 20, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+        },
+      });
+      key(game, 'Space', true);
+      run(game, 1.5);
+      const { object } = heroOf(game);
+      const y = object.position.y;
+      game.dispose();
+      return y;
+    };
+    // Free fall of 1.5 s covers about 10 m, gliding at 1.5 m/s about 2 m.
+    expect(fall(false)).toBeLessThan(12);
+    expect(fall(true)).toBeGreaterThan(16);
+  });
+
+  it('stamina: sprinting drains it, then the character only walks until it refills', () => {
+    const game = makeGame({
+      ground000001: ground,
+      hero00000001: abilityHero({ stamina: { max: 1.5, drain: 1, regen: 0.5, delay: 0.5 } }),
+    });
+    run(game, 0.3);
+    const { state } = heroOf(game);
+    expect(state.stamina).toBeCloseTo(1, 3);
+    key(game, 'KeyW', true);
+    key(game, 'ShiftLeft', true);
+    run(game, 1);
+    expect(state.running).toBe(true);
+    expect(state.stamina).toBeLessThan(0.5);
+    run(game, 1);
+    expect(state.running).toBe(false);
+    expect(state.speed).toBeLessThan(2.4);
+    game.dispose();
+  });
+});
+
+describe('movement profiles', () => {
+  it('switching the profile changes how the character moves; the jump arc matches the real jump', () => {
+    for (const name of PROFILE_NAMES) {
+      const game = makeGame({ ground000001: ground, hero00000001: hero() });
+      run(game, 0.3);
+      const { object } = heroOf(game);
+      expect(applyMovementProfile(object, name)).toBe(true);
+      const values = MOVEMENT_PROFILES[name];
+      const arc = jumpArc(values);
+      // Jump in place: the real height and time in the air against the prediction.
+      const rest = object.position.y;
+      let apex = rest;
+      let airborne = 0;
+      key(game, 'Space', true);
+      run(game, 0.03);
+      key(game, 'Space', false);
+      run(game, 4, () => {
+        apex = Math.max(apex, object.position.y);
+        if (!controlRegistry.get(object)?.grounded) airborne += 1 / 60;
+      });
+      expect(apex - rest, `${name} height`).toBeGreaterThan(arc.height * 0.9);
+      expect(apex - rest, `${name} height`).toBeLessThan(arc.height * 1.1);
+      expect(airborne, `${name} airtime`).toBeGreaterThan(arc.airtime * 0.9);
+      expect(airborne, `${name} airtime`).toBeLessThan(arc.airtime * 1.1);
+      // The walking speed follows the profile.
+      key(game, 'KeyW', true);
+      run(game, 2);
+      expect(controlRegistry.get(object)?.speed, `${name} walk`).toBeCloseTo(values.walkSpeed, 1);
+      game.dispose();
+    }
+  });
+
+  it('a profile is forgotten values set by blocks', () => {
+    const game = makeGame({ ground000001: ground, hero00000001: hero() });
+    run(game, 0.3);
+    const { object, state } = heroOf(game);
+    state.settings.walkSpeed = 9;
+    expect(state.settings.walkSpeed).toBe(9);
+    applyMovementProfile(object, 'heavy');
+    expect(state.settings.walkSpeed).toBe(MOVEMENT_PROFILES.heavy.walkSpeed);
     game.dispose();
   });
 });

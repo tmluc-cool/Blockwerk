@@ -173,6 +173,12 @@ export const modelImportSettingsSchema = z.object({
   pivot: z.enum(['bottom', 'center', 'original']),
   /** Add a box collider of the model's size when it is placed. */
   generateCollider: z.boolean(),
+  /** Turns the model around the vertical axis in degrees (VRM 0.x faces backwards). */
+  yaw: z.number().optional(),
+  /** Humanoid bones the automatic recognition missed: standard bone name → node name. */
+  boneMap: z.record(z.string(), z.string()).optional(),
+  /** Clip names for standard animation states: state → clip name. */
+  animationMap: z.record(z.string(), z.string()).optional(),
 });
 /** Import settings of a model. */
 export type ModelImportSettings = z.infer<typeof modelImportSettingsSchema>;
@@ -184,8 +190,8 @@ export const DEFAULT_MODEL_IMPORT_SETTINGS: ModelImportSettings = {
   generateCollider: true,
 };
 
-/** Asset types. Models are binary GLB files; all others are JSON. */
-export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model'] as const;
+/** Asset types. Models (GLB) and images (PNG) are binary files; all others are JSON. */
+export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model', 'image'] as const;
 export const assetTypeSchema = z.enum(ASSET_TYPES);
 export type AssetType = z.infer<typeof assetTypeSchema>;
 

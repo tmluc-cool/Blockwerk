@@ -2,6 +2,7 @@ import type { TranslationKey } from '../i18n';
 
 /** IDs of all dockable windows. Each window exists at most once (its ID is its component). */
 export type PanelId =
+  | 'figure'
   | 'hierarchy'
   | 'scene'
   | 'game'
@@ -27,6 +28,7 @@ export const PANELS: readonly PanelDefinition[] = [
   { id: 'hierarchy', titleKey: 'panel.hierarchy', focusKey: '4' },
   { id: 'project', titleKey: 'panel.project', focusKey: '5' },
   { id: 'blockEditor', titleKey: 'panel.blockEditor' },
+  { id: 'figure', titleKey: 'panel.figure' },
   { id: 'assetLibrary', titleKey: 'panel.assetLibrary' },
   { id: 'console', titleKey: 'panel.console' },
 ];

@@ -16,6 +16,7 @@ export const ANIMATION_STATES = [
   'wave',
   'cheer',
   'interact',
+  'roll',
   'block',
   'sit',
 ] as const;
@@ -39,6 +40,7 @@ export const ANIMATION_STATE_TEXT: Readonly<Record<AnimationState, LocalizedText
   wave: { de: 'Winken', en: 'Wave' },
   cheer: { de: 'Jubeln', en: 'Cheer' },
   interact: { de: 'Benutzen', en: 'Interact' },
+  roll: { de: 'Rollen', en: 'Roll' },
   block: { de: 'Abwehren', en: 'Block' },
   sit: { de: 'Sitzen', en: 'Sit' },
 };
@@ -74,6 +76,7 @@ const PATTERNS: Readonly<Record<AnimationState, readonly RegExp[]>> = {
   wave: [/wave|greet|hello/i],
   cheer: [/cheer|victory|celebrat/i],
   interact: [/^interact/i, /interact|use_?item|pick_?up/i],
+  roll: [/^roll/i, /dodge_?forward|^dodge|roll/i],
   block: [/^block(ing)?$/i, /block/i],
   sit: [/sit_?(chair|floor)?_?idle|^sit(ting)?$/i, /sit/i],
 };

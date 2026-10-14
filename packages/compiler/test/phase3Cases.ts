@@ -3,12 +3,21 @@ import {
   animatorRegistry,
   cameraRegistry,
   controlRegistry,
+  figureRegistry,
   Game,
   loadScriptModule,
   ModelCache,
 } from '@blockwerk/runtime';
 import type { GameObject, ScriptAsset } from '@blockwerk/runtime';
-import { AnimationClip, Group, Object3D, VectorKeyframeTrack } from 'three';
+import {
+  AnimationClip,
+  BoxGeometry,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  Object3D,
+  VectorKeyframeTrack,
+} from 'three';
 import { expect } from 'vitest';
 import { compileBlockScript } from '../src';
 import { b, set, workspace } from './dsl';
@@ -449,6 +458,147 @@ export const phase3Cases: RuntimeCase[] = [
       // The path runs from x = -3 to 3 over 5 seconds.
       expect(get(game, 'dolly0000001').position.x).toBeGreaterThan(-3);
       expect(get(game, 'dolly0000001').position.x).toBeLessThan(3);
+      game.dispose();
+    },
+  },
+  {
+    name: 'character blocks dress the figure and switch the movement profile',
+    covers: [
+      'character.attach',
+      'character.detach',
+      'character.switchPart',
+      'character.setPartColor',
+      'character.setProfile',
+    ],
+    run: async () => {
+      const models = new ModelCache(() => null);
+      const scene = new Group();
+      for (const name of ['Body', 'Hat', 'Helmet']) {
+        const part = new Mesh(
+          new BoxGeometry(1, 1, 1).translate(0, 0.5, 0),
+          new MeshStandardMaterial(),
+        );
+        part.name = name;
+        scene.add(part);
+      }
+      models.provide('library:test/hero', { scene, animations: [], skinned: false });
+      const item = new Group();
+      item.add(new Mesh(new BoxGeometry(0.1, 0.5, 0.1)));
+      models.provide('library:test/sword', { scene: item, animations: [], skinned: false });
+      models.provide('library:test/shield', {
+        scene: item.clone(),
+        animations: [],
+        skinned: false,
+      });
+      const game = launch({
+        models,
+        objects: {
+          ground000001: ground,
+          hero00000001: hero(
+            [
+              component(
+                'character',
+                {
+                  model: 'library:test/hero',
+                  hiddenParts: 'Helmet',
+                  attachments: 'library:test/shield@leftHand',
+                },
+                'herofigure',
+              ),
+            ],
+            'hero',
+          ),
+        },
+        scripts: {
+          hero: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('character.attach', {
+                item: 'library:test/sword',
+                point: 'rightHand',
+              }),
+              b('character.detach', { point: 'leftHand' }),
+              b('character.switchPart', { from: 'Hat', to: 'Helmet' }),
+              b('character.setPartColor', { part: 'Body', color: '#ff0000' }),
+              b('character.setProfile', { profile: 'heavy' }),
+            ),
+          ),
+        },
+      });
+      await game.world.modelsLoaded();
+      run(game, 0.2);
+      await game.world.modelsLoaded();
+      const hero1 = get(game, 'hero00000001');
+      const info = figureRegistry.get(hero1);
+      if (!info) throw new Error('no figure');
+      expect(info.root.getObjectByName('Hat')?.visible).toBe(false);
+      expect(info.root.getObjectByName('Helmet')?.visible).toBe(true);
+      const body = info.root.getObjectByName('Body') as Mesh;
+      expect((body.material as MeshStandardMaterial).color.getHex()).toBe(0xff0000);
+      expect([...info.attached.keys()]).toEqual(['rightHand']);
+      // The heavy profile is slower and jumps lower than the arcade default.
+      const control = controlRegistry.get(hero1);
+      expect(control?.settings.walkSpeed).toBeLessThan(3);
+      expect(hero1.findComponent('character')?.values['profile']).toBe('heavy');
+      game.dispose();
+    },
+  },
+  {
+    name: 'ability blocks turn abilities on and off and report stamina and rolls',
+    covers: [
+      'character.setAbility',
+      'character.hasAbility',
+      'character.setStamina',
+      'character.stamina',
+      'events.whenAbility',
+    ],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          hero00000001: hero(
+            [
+              component('roll', {}, 'heroroll'),
+              component('doubleJump', {}, 'herodjump'),
+              component('stamina', { max: 5, drain: 1, regen: 0.5, delay: 0.5 }, 'herostam'),
+            ],
+            'hero',
+          ),
+        },
+        scripts: {
+          hero: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('character.setStamina', {}, { percent: 40 }),
+              set(A, b('character.stamina')),
+              b('character.setAbility', { state: 'off', ability: 'doubleJump' }),
+            ),
+            when(b('events.whenAbility', { ability: 'roll', phase: 'started' }), set(B, 'gerollt')),
+            when(
+              b('events.whenAction', { action: 'interact', phase: 'pressed', player: '1' }),
+              b(
+                'control.if',
+                {},
+                {
+                  condition: b('character.hasAbility', { ability: 'doubleJump' }),
+                  then: [set(A, 99)],
+                },
+              ),
+            ),
+          ),
+        },
+      });
+      run(game, 0.3);
+      expect(game.vars[A]).toBe(40);
+      // The double jump is switched off now, the roll is still there.
+      game.input.keyEvent('e', true, 'KeyE');
+      run(game, 0.2);
+      game.input.keyEvent('e', false, 'KeyE');
+      expect(game.vars[A]).toBe(40);
+      game.input.keyEvent('q', true, 'KeyQ');
+      run(game, 0.1);
+      game.input.keyEvent('q', false, 'KeyQ');
+      expect(game.vars[B]).toBe('gerollt');
       game.dispose();
     },
   },

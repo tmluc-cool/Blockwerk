@@ -100,7 +100,7 @@ test.describe('block editor and language', () => {
     const labels = blocks(page).locator('.blocklyToolboxCategoryLabel');
     await expect(labels.first()).toHaveText('Ereignisse');
     await page.getByTestId('area-player1').click();
-    await expect(labels.first()).toHaveText('Bewegung');
+    await expect(labels.first()).toHaveText('Spieler');
   });
 
   test('switches the whole interface to English and back', async ({ editor: page }) => {

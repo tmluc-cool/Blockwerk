@@ -3,36 +3,30 @@ import { dirname, join } from 'node:path';
 import { expect, tab, test } from './fixtures';
 
 /** Phase whose example the screenshot shows. */
-const PHASE = '03';
+const PHASE = '03b';
 
 /**
- * Screenshot of the example project of the current phase while playing, for the phase report.
- * Written to `test-results/` on every run and to `docs/screenshots/phase-XX.png` when
- * `BLOCKWERK_SCREENSHOT=1` (see `pnpm screenshot`).
+ * Screenshot of the example project of the current phase, for the phase report (phase 3b: the
+ * Character Studio with the example's knight). Written to `test-results/` on every run and to
+ * `docs/screenshots/phase-XX.png` when `BLOCKWERK_SCREENSHOT=1` (see `pnpm screenshot`).
  */
 test('example scene screenshot', async ({ editor: page }) => {
   test.setTimeout(180_000);
   await page.getByTestId('menu-file').click();
   await page.getByTestId('menu-open-example').click();
-  await page.getByTestId('choice-dialog').getByText('Held').click();
-  await expect.poll(() => page.evaluate(() => window.__blockwerk?.project().name)).toBe('Held');
-  await page.getByTestId('play').click();
-  await expect.poll(() => page.evaluate(() => window.__blockwerk?.playStatus())).toBe('playing');
-  await tab(page, 'Spiel').click();
-  // Let the camera ride a little and every model load.
+  await page.getByTestId('choice-dialog').getByText('Figur', { exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.__blockwerk?.project().name)).toBe('Figur');
+  await tab(page, 'Figur').click();
+  await expect(page.getByTestId('studio')).toBeVisible();
+  // The knight stands on the turntable and the retargeted animations are there.
   await expect
-    .poll(() => page.evaluate(() => window.__blockwerk?.playPerformance().frames ?? 0), {
+    .poll(async () => (await page.evaluate(() => window.__blockwerk?.studioState()))?.mode, {
       timeout: 60_000,
     })
-    .toBeGreaterThan(10);
-  // The knight walks ahead for a moment (the Game view has the keyboard).
-  await page.getByTestId('game-canvas').focus();
-  await page.keyboard.down('KeyW');
-  await page.waitForTimeout(4000);
-  await page.keyboard.up('KeyW');
-  await page.getByTestId('stats-toggle').click();
-  await page.getByTestId('pause').click();
-  await page.waitForTimeout(1500);
+    .toBe('skeleton');
+  await page.getByTestId('studio-tab-movement').click();
+  await page.getByTestId('anim-play-run').click();
+  await page.waitForTimeout(2500);
   const targets = [join('test-results', 'screenshots', `phase-${PHASE}.png`)];
   if (process.env['BLOCKWERK_SCREENSHOT'] === '1') {
     targets.push(join('docs', 'screenshots', `phase-${PHASE}.png`));
