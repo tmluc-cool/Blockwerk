@@ -119,6 +119,8 @@ function overlayLine(points: readonly Vector3[], color: number): Line {
  * a meter grid, a comparison figure, the jump arc and the collision capsule. Drag to turn the
  * view, mouse wheel to zoom.
  */
+const timing = { frames: 0, steps: 0, tick: 0, draw: 0, gap: 0, prepare: 0, preview: 0, render: 0 };
+
 export class StageViewport {
   private readonly renderer: WebGLRenderer;
   private readonly camera = new PerspectiveCamera(35, 1, 0.05, 100);
@@ -147,6 +149,7 @@ export class StageViewport {
   private accumulator = 0;
   private disposed = false;
   private drawn = 0;
+  private lastEnd = 0;
   private preview: { canvas: HTMLCanvasElement; settings: CameraPreview } | null = null;
   private readonly cleanup: (() => void)[] = [];
 
@@ -506,6 +509,7 @@ export class StageViewport {
     if (!this.helpers.parent) game.world.scene.add(this.helpers);
     this.accumulator += dt;
     let steps = 0;
+    const tA = performance.now();
     while (this.accumulator >= TICK_SECONDS && steps < 4) {
       game.stepTick();
       this.accumulator -= TICK_SECONDS;
@@ -513,7 +517,17 @@ export class StageViewport {
     }
     if (steps === 4) this.accumulator = 0;
     if (this.spin) this.yaw += dt * 0.5;
+    const tB = performance.now();
     this.draw(game);
+    const tC = performance.now();
+    const t = timing;
+    t.frames++;
+    t.steps += steps;
+    t.tick += tB - tA;
+    t.draw += tC - tB;
+    t.gap += tA - this.lastEnd;
+    this.lastEnd = tC;
+    Reflect.set(window, '__stageTiming', { ...t });
   };
 
   private draw(game: Game): void {
@@ -522,13 +536,17 @@ export class StageViewport {
     if (canvas.width !== Math.floor(canvas.clientWidth * this.renderer.getPixelRatio())) {
       this.resize(canvas.clientWidth, canvas.clientHeight);
     }
+    const p0 = performance.now();
     game.world.prepareRender();
+    timing.prepare += performance.now() - p0;
     const scene = game.world.scene;
     scene.background = new Color(0x2a2d33);
+    const p1 = performance.now();
     // The camera preview is a second full draw; on CPU-drawn machines it refreshes every third frame.
     if (this.preview && (this.drawn++ % 3 === 0 || !isSoftwareRenderer(this.renderer))) {
       this.drawCameraView(game);
     }
+    timing.preview += performance.now() - p1;
     const target = new Vector3(0, this.height * 0.5, 0);
     const distance = (this.height * 2.6 + 0.8) * this.zoom;
     this.camera.position.set(
@@ -539,7 +557,9 @@ export class StageViewport {
     this.camera.lookAt(target);
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+    const p2 = performance.now();
     this.renderer.render(scene, this.camera);
+    timing.render += performance.now() - p2;
   }
 
   /** Draws the figure as the game camera sees it into the small preview canvas. */
