@@ -51,6 +51,45 @@ Branch: `phase/03-spieler` (builds on Phase 2, which is merged).
 - KayKit characters have no "Fall" and "Crouch" animations; "Fall" uses the jump hover animation, "Crouch" falls back to Idle when there is no clip.
 - Retargeting to the standard skeleton (VRM bone names) belongs to the Character Studio (Phase 3b); in Phase 3 characters play their own animations.
 
+### Assumptions
+
+- **Physics:** Rapier (`@dimforge/rapier3d-compat`, Apache-2.0) is loaded once when the editor starts. It runs only in Play Mode, in the fixed 60 Hz tick at the place from SPEC 8.1. Bodies are built from the components each tick: a Rigidbody owns a body, colliders of children without their own Rigidbody join it. Objects with colliders but no Rigidbody are fixed; as soon as scripts move one, it becomes a kinematic body that pushes and carries.
+- **Layers:** the physics layer matrix is stored as the optional list `ignoredCollisions` in `Einstellungen/tags-und-ebenen.json` (missing means everything collides, so existing projects stay byte-identical). The gravity of a scene is stored in the scene (`environment.gravity`). Both are edited in "Edit → Physics Settings …". There are at most 16 layers.
+- **Character Controller:** Rapier's kinematic character controller with the Unity defaults (slope limit 45°, step offset 0.35 m, skin width 0.08 m). The skin width must be 0.08: with a smaller one Rapier's autostep fails on 0.25 m steps. The capsule floats one skin width above the feet; an overlap with fixed colliders (spawned inside something) is resolved by a push-out before every move.
+- **Moving platforms:** a character rides a platform with the platform's own measured movement (Rapier's velocity of a position-driven kinematic body is zero in every second tick), added after the collision test.
+- **Controls:** one movement engine for third person, first person, top down and vehicle controls. Movement is relative to the camera of the player; turning uses a critically damped angle smoothing. The standard values meet the feel checklist without tuning (walk 2.2 m/s, sprint 5.5 m/s, jump 1.2 m, 0.15 s jump buffer and coyote time).
+- **Input actions:** the key bindings are fixed in code for now (player 1: WASD, Space, Shift, C, E, F, mouse; player 2: arrow keys and number pad); the settings window with rebinding comes in Phase 6. Gamepads use the Gamepad API (standard mapping). With one gamepad and a second player in the scene, player 2 gets it. The mouse turns the view while the pointer is captured (click in the Game view, `Esc` releases it); the wheel zooms the third-person camera.
+- **Cameras:** behaviors are separate components next to the Camera component (third person, first person, top down, side view, fixed, camera path, shared). Switching cameras makes the picture glide over the blend time of the new camera. Split screen needs two cameras set to player 1 and player 2; the picking of objects by mouse in the Game view uses the first camera.
+- **Object references in fields:** new field type "object" (Hierarchy drag or list). References to objects inside a prefab are not remapped between instances yet.
+- **Animator:** clip names are matched to the standard states by patterns (KayKit and common naming); import settings can override them. Controls drive the animator; the walk/run blend follows the speed, so feet do not slide. Figures play their own animations (retargeting is part of Phase 3b). "Fall" uses the jump-idle clip; "Crouch" falls back to idle when a model has no clip for it.
+- **Blocks:** "when animation [name] started/finished" reacts to animations started with "play animation" (GLB clips carry no events). "what is ahead" returns the name of the object (empty if nothing). All blocks act on the object itself.
+- **Test Area:** built-in scene, never part of a project: ground with a 1 m tile grid, four staircases (0.15, 0.25, 0.35 and 0.5 m steps), ramps (15°, 30°, 45°, 60°), jump gaps (1 to 4 m), a moving platform, a pyramid of crates, corridors (1.0 and 0.5 m), a dummy and targets. Water basin and ladder come with the water (Phase 4) and the climbing mechanics; the ground labels are left out. The chosen player is put in with all components and block scripts.
+- **Example `03-held`:** the knight from the library with only components (no block scripts). It uses primitives for walls, stairs and ramp and library props for crates and barrels.
+
+### Result
+
+**Implemented**
+
+- **Physics** (`packages/runtime`): Rigidbody (dynamic, kinematic, mass, damping, gravity on/off, freeze rotation), Box, Sphere, Capsule, Cylinder and Mesh (convex) Collider with friction and bounciness, triggers with zone events, layer matrix, scene gravity, impulses, raycasts, body type at runtime.
+- **Player:** Character Controller and the controls Third Person, First Person, Top Down and Vehicle with smooth acceleration, turning, sprint, crouch (only with room above), jump with buffer and coyote time, air control, landing detection; pushing crates and riding platforms.
+- **Input:** actions Move, Look, Jump, Sprint, Crouch, Interact, Attack, Pause per player for keyboard, mouse and gamepad.
+- **Camera:** third-person orbit (mouse and right stick, lag, wheel zoom, wall avoidance, wider view while sprinting), first person, top down, side view, fixed, camera path, shared camera, shake, field-of-view changes, smooth transitions between cameras, split screen (horizontal or vertical).
+- **Animator:** standard states with automatic clip matching, cross-fades, idle/walk/run blend with matched playback speed, jump, fall, land, crouch, one-shot clips and animation events.
+- **Blocks (Appendix A, phase 3):** when action, when zone enters/leaves, when animation started/finished, player (set walk/run/jump values, jump, crouch, stand up, lock/unlock controls, teleport, on the ground?, running?, speed), camera (switch view, switch to camera object, distance, shake, camera path, field of view), play animation, physics (push, set velocity, gravity, body type, what is ahead, distance ahead). Every block has a golden and a runtime test.
+- **Editor:** Physics Settings window (gravity and layer matrix), pointer capture, mouse wheel, gamepad polling, split-screen rendering, object field, "Play in Test Area" (Window menu and Hierarchy context menu).
+- **Example** `examples/03-held` and the **Test Area**.
+
+**Acceptance**
+
+- [x] `examples/03-held`: animated figure from the library, only components (no own blocks): walks, runs, jumps, lands with smooth transitions, the camera moves in front of the wall behind the start. Checked by unit tests on the real example project (speed curves, states idle → walk → run, jump → fall, camera against the wall) and by an end-to-end test with the real knight model in the editor. Items 1, 2, 3 and 5 of the feel checklist are covered by these measurements; the look of the motion should still be judged on a machine with a graphics card.
+- [x] Test Area: stairs up to the step offset (and not the 0.5 m one), ramps up to the slope limit (15°, 30°, 45° climbed, 60° not), jump gaps depending on speed, moving platform (rides along), pushing crates, corridors (1.0 m passes, 0.5 m does not). Unit test `apps/editor/test/testArea.test.ts`; "Play in Test Area" is checked end to end.
+- [x] Player 2 with a gamepad in split screen, each with their own camera: end-to-end test with a simulated gamepad (Gamepad API); the unit tests cover player 2 bindings and the single-gamepad rule.
+- [ ] `pnpm test`, `pnpm lint`, `pnpm build` green locally; CI on GitHub: see pull request.
+
+Not demonstrable here: real controller hardware, 60 FPS (software rendering, see Phase 2).
+
+Tests and screenshot: see the numbers in the pull request. Screenshot: `docs/screenshots/phase-03.png`.
+
 ## Phase 2: Project window, Asset Library, Prefabs
 
 Branch: `phase/02-bibliothek` (builds on Phase 1).
