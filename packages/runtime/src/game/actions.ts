@@ -109,6 +109,8 @@ export interface RawInput {
   isCodeDown(code: string): boolean;
   /** Mouse movement since the last tick in pixels (+x right, +y down). */
   readonly mouseDelta: Vector2;
+  /** Mouse wheel since the last tick in notches (+ = zoom out). */
+  readonly wheelDelta: number;
   readonly mouseDown: boolean;
   gamepad(index: number): GamepadSnapshot | null;
 }
@@ -122,6 +124,7 @@ export class PlayerInput {
   private before = new Set<ButtonAction>();
   private readonly moveAxis = new Vector2();
   private readonly lookAxis = new Vector2();
+  private zoomAxis = 0;
   /** Whether a gamepad was used last (e.g. for hints). */
   usingGamepad = false;
   /** Locked input (block "lock controls"): all actions read as idle. */
@@ -148,9 +151,11 @@ export class PlayerInput {
       axis(b.lookLeft, b.lookRight) * STICK_LOOK_SPEED * dt,
       axis(b.lookDown, b.lookUp) * STICK_LOOK_SPEED * dt,
     );
+    this.zoomAxis = 0;
     if (b.mouse) {
       this.lookAxis.x += raw.mouseDelta.x * MOUSE_SENSITIVITY;
       this.lookAxis.y -= raw.mouseDelta.y * MOUSE_SENSITIVITY;
+      this.zoomAxis += raw.wheelDelta;
     }
     const next = new Set<ButtonAction>();
     for (const action of Object.keys(b.buttons) as ButtonAction[]) {
@@ -174,12 +179,16 @@ export class PlayerInput {
           pressedAny = true;
         }
       }
+      // D-pad up and down zoom (about four notches per second).
+      const dpad = (pad.buttons[13]?.pressed ? 1 : 0) - (pad.buttons[12]?.pressed ? 1 : 0);
+      this.zoomAxis += dpad * 4 * dt;
       if (used || pressedAny) this.usingGamepad = true;
     }
     if (this.moveAxis.lengthSq() > 1) this.moveAxis.normalize();
     if (this.locked) {
       this.moveAxis.set(0, 0);
       this.lookAxis.set(0, 0);
+      this.zoomAxis = 0;
       next.clear();
     }
     this.before = this.held;
@@ -194,6 +203,11 @@ export class PlayerInput {
   /** View turn of this tick in degrees: x right, y up. */
   look(): Vector2 {
     return this.lookAxis.clone();
+  }
+
+  /** Camera zoom of this tick in mouse-wheel notches (+ = further away). */
+  zoom(): number {
+    return this.zoomAxis;
   }
 
   /** Whether a button action is held. */

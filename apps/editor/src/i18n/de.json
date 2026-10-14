@@ -388,5 +388,6 @@
   "myPrefabs.files": "{n} Dateien",
   "reference.choosePrefab": "(Prefab wählen)",
   "console.game.missingPrefab": "„{object}“: Prefab fehlt ({asset}).",
-  "game.fps": "Bilder/s"
+  "game.fps": "Bilder/s",
+  "inspector.missing": "(fehlt)"
 }

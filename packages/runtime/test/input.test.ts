@@ -26,6 +26,7 @@ function raw(
   return {
     isCodeDown: (code) => codes.includes(code),
     mouseDelta: mouse,
+    wheelDelta: 0,
     mouseDown: false,
     gamepad: (index) => pads[index] ?? null,
   };

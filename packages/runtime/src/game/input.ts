@@ -22,6 +22,9 @@ export class InputState implements RawInput {
   private gamepads: readonly (GamepadSnapshot | null)[] = [];
   /** Mouse movement during the last tick in pixels (+x right, +y down). */
   readonly mouseDelta = new Vector2();
+  private pendingWheel = 0;
+  /** Mouse wheel during the last tick in notches (+ = towards the user, zoom out). */
+  wheelDelta = 0;
   private readonly pressedQueue = new Set<string>();
   private readonly releasedQueue = new Set<string>();
   private pressed = new Set<string>();
@@ -54,6 +57,11 @@ export class InputState implements RawInput {
   mouseMove(dx: number, dy: number): void {
     this.pendingMouse.x += dx;
     this.pendingMouse.y += dy;
+  }
+
+  /** Records mouse wheel movement (`WheelEvent.deltaY`; about 100 per notch). */
+  wheel(deltaY: number): void {
+    this.pendingWheel += deltaY / 100;
   }
 
   /** Sets the connected gamepads (read by the host every frame). */
@@ -90,6 +98,8 @@ export class InputState implements RawInput {
     this.releasedQueue.clear();
     this.mouseDelta.copy(this.pendingMouse);
     this.pendingMouse.set(0, 0);
+    this.wheelDelta = this.pendingWheel;
+    this.pendingWheel = 0;
   }
 
   /** Whether a key is held (`any` for any key). */

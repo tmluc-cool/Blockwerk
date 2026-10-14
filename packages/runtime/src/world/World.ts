@@ -141,6 +141,8 @@ export class World {
     readonly views: readonly {
       readonly camera: PerspectiveCamera;
       readonly player: 'all' | '1' | '2';
+      /** Seconds of the transition when this camera takes over. */
+      readonly blendTime: number;
     }[];
     readonly split: 'horizontal' | 'vertical';
   } {
@@ -155,15 +157,17 @@ export class World {
     if (one && two) {
       return {
         views: [
-          { camera: one.camera, player: '1' },
-          { camera: two.camera, player: '2' },
+          { camera: one.camera, player: '1', blendTime: one.blendTime },
+          { camera: two.camera, player: '2', blendTime: two.blendTime },
         ],
         split: one.split,
       };
     }
     const single = found.get('all') ?? one ?? two;
     return {
-      views: single ? [{ camera: single.camera, player: single.player }] : [],
+      views: single
+        ? [{ camera: single.camera, player: single.player, blendTime: single.blendTime }]
+        : [],
       split: 'vertical',
     };
   }

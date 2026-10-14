@@ -14,6 +14,19 @@ export interface CameraEntry {
   split: 'horizontal' | 'vertical';
   /** Field of view from the component; camera behaviors add effects on top. */
   baseFov: number;
+  /** Seconds of the smooth transition when this camera takes over the view. */
+  blendTime: number;
+  /** Extra field of view set by camera behaviors each tick (e.g. while sprinting). */
+  fovBoost: number;
+  /** Shakes the camera (block "camera shake"); strength in degrees, fading out. */
+  shake(strength: number, seconds: number): void;
+  /** Changes the field of view smoothly over `seconds` (block "set field of view"). */
+  animateFov(fov: number, seconds: number): void;
+}
+
+/** Deterministic wobble in [-1, 1] for camera shake. */
+function wobble(time: number, seed: number): number {
+  return (Math.sin(time * 37.3 + seed) + Math.sin(time * 23.9 + seed * 2.1)) / 2;
 }
 
 /** Camera (Unity: Camera). Looks along the object's forward axis (+Z). */
@@ -74,24 +87,76 @@ export const camera = defineComponent({
       visibleIf: { field: 'player', empty: false },
       text: { de: 'Geteilter Bildschirm', en: 'Split Screen' },
     },
+    blendTime: {
+      type: 'number',
+      default: 0.5,
+      min: 0,
+      step: 0.1,
+      unit: 'seconds',
+      text: { de: 'Übergangszeit', en: 'Blend Time' },
+    },
   },
   create({ object }) {
     const view = new PerspectiveCamera(60, 16 / 9, 0.1, 1000);
     // three.js cameras look along -Z; objects face +Z, so turn the camera around.
     view.rotation.y = Math.PI;
     object.object3d.add(view);
+    let shake = { strength: 0, remaining: 0, duration: 1 };
+    let fovAnimation: { from: number; to: number; elapsed: number; duration: number } | null = null;
+    let time = 0;
     const entry: CameraEntry = {
       camera: view,
       enabled: true,
       player: 'all',
       split: 'vertical',
       baseFov: 60,
+      blendTime: 0.5,
+      fovBoost: 0,
+      shake(strength, seconds) {
+        if (seconds <= 0 || strength <= 0) return;
+        shake = { strength, remaining: seconds, duration: seconds };
+      },
+      animateFov(fov, seconds) {
+        const to = Math.min(179, Math.max(1, fov));
+        if (seconds <= 0) {
+          entry.baseFov = to;
+          fovAnimation = null;
+        } else fovAnimation = { from: entry.baseFov, to, elapsed: 0, duration: seconds };
+      },
     };
     cameraRegistry.set(object, entry);
     return {
+      tick(stage, context) {
+        if (stage !== 'camera') return;
+        time += context.dt;
+        if (fovAnimation) {
+          fovAnimation.elapsed += context.dt;
+          const t = Math.min(1, fovAnimation.elapsed / fovAnimation.duration);
+          const eased = t * t * (3 - 2 * t);
+          entry.baseFov = fovAnimation.from + (fovAnimation.to - fovAnimation.from) * eased;
+          if (t >= 1) fovAnimation = null;
+        }
+        const fov = Math.min(179, Math.max(1, entry.baseFov + entry.fovBoost));
+        if (view.fov !== fov) {
+          view.fov = fov;
+          view.updateProjectionMatrix();
+        }
+        // Shake turns the lens a little around the object's view, fading out.
+        let amount = 0;
+        if (shake.remaining > 0) {
+          shake.remaining = Math.max(0, shake.remaining - context.dt);
+          amount = ((shake.strength * shake.remaining) / shake.duration) * (Math.PI / 180);
+        }
+        view.rotation.set(
+          amount * wobble(time, 1),
+          Math.PI + amount * wobble(time, 2),
+          amount * wobble(time, 3) * 0.5,
+        );
+      },
       apply(values) {
-        view.fov = values.fieldOfView;
+        view.fov = values.fieldOfView + entry.fovBoost;
         entry.baseFov = values.fieldOfView;
+        entry.blendTime = values.blendTime;
         entry.player = values.player as CameraEntry['player'];
         entry.split = values.split as CameraEntry['split'];
         view.near = values.near;

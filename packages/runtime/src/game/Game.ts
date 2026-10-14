@@ -33,6 +33,8 @@ import { DEFAULT_PHYSICS, Physics } from '../physics/Physics';
 import type { PhysicsSettings, ZoneEvent } from '../physics/Physics';
 import { loadedRapier } from '../physics/rapier';
 import type { TickContext, TickStage } from '../components/defineComponent';
+import { CameraTransitions } from '../camera/transitions';
+import type { GameViews } from '../camera/transitions';
 
 /** Length of one logic tick in seconds (fixed 60 Hz, SPEC 8.1). */
 export const TICK_SECONDS = 1 / 60;
@@ -208,6 +210,12 @@ export class Game implements GameApi {
   readonly physics: Physics | null;
   /** Input actions of the two players. */
   readonly players = { 1: new PlayerInput(1), 2: new PlayerInput(2) } as const;
+  private readonly transitions = new CameraTransitions();
+
+  /** The cameras to render (one, or two for split screen), with smooth camera transitions. */
+  views(): GameViews {
+    return this.transitions.views(this.world);
+  }
   private readonly tickContext: TickContext;
 
   constructor(scene: SceneData, options: GameOptions) {
@@ -328,6 +336,7 @@ export class Game implements GameApi {
     this.processDestroyQueue();
     this.tickComponents('animate');
     this.tickComponents('camera');
+    this.transitions.update(this.world, TICK_SECONDS);
     this.tick += 1;
     this.world.updateSun();
   }

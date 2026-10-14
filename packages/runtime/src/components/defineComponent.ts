@@ -86,6 +86,12 @@ export interface AssetFieldDefinition extends FieldBase {
   readonly assetType: AssetFieldType;
 }
 
+/** Reference to another object of the scene by its ID (Unity: a GameObject field). */
+export interface ObjectFieldDefinition extends FieldBase {
+  readonly type: 'object';
+  readonly default: null;
+}
+
 /** Any inspector field of a component. */
 export type FieldDefinition =
   | NumberFieldDefinition
@@ -94,7 +100,8 @@ export type FieldDefinition =
   | ColorFieldDefinition
   | VectorFieldDefinition
   | EnumFieldDefinition
-  | AssetFieldDefinition;
+  | AssetFieldDefinition
+  | ObjectFieldDefinition;
 
 /** Field definitions of a component by field name. */
 export type FieldDefinitions = Readonly<Record<string, FieldDefinition>>;
@@ -106,7 +113,7 @@ export type FieldValue<F extends FieldDefinition> = F extends NumberFieldDefinit
     ? boolean
     : F extends VectorFieldDefinition
       ? Vec3
-      : F extends AssetFieldDefinition
+      : F extends AssetFieldDefinition | ObjectFieldDefinition
         ? string | null
         : string;
 
@@ -207,6 +214,7 @@ function isValidValue(field: FieldDefinition, value: JsonValue | undefined): boo
         value.every((item) => typeof item === 'number')
       );
     case 'asset':
+    case 'object':
       return value === null || typeof value === 'string';
   }
 }

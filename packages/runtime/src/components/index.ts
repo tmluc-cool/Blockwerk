@@ -1,5 +1,14 @@
 import { blockScript } from './blockScript';
 import { camera } from './camera';
+import {
+  cameraPath,
+  firstPersonCamera,
+  fixedCamera,
+  sharedCamera,
+  sideCamera,
+  thirdPersonCamera,
+  topDownCamera,
+} from './cameraBehaviors';
 import { characterController } from './characterController';
 import {
   boxCollider,
@@ -29,6 +38,13 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   topDownControl,
   vehicleControl,
   camera,
+  thirdPersonCamera,
+  firstPersonCamera,
+  topDownCamera,
+  sideCamera,
+  fixedCamera,
+  cameraPath,
+  sharedCamera,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];

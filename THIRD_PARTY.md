@@ -9,6 +9,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | Package | Version | License | Kind | Used by |
 |---|---|---|---|---|
 | `@blockly/field-colour` | 13.3.0 | Apache-2.0 | runtime | apps/editor |
+| `@dimforge/rapier3d-compat` | 0.21.0 | Apache-2.0 | runtime | packages/runtime |
 | `@eslint/js` | 10.0.1 | MIT | development | (root) |
 | `@gltf-transform/core` | 4.5.1 | MIT | development | packages/library |
 | `@gltf-transform/extensions` | 4.5.1 | MIT | development | packages/library |
@@ -60,6 +61,7 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `@csstools/css-parser-algorithms` | 4.0.2 | MIT |
 | `@csstools/css-syntax-patches-for-csstree` | 1.1.15 | MIT-0 |
 | `@csstools/css-tokenizer` | 4.0.2 | MIT |
+| `@dimforge/rapier3d-compat` | 0.21.0 | Apache-2.0 |
 | `@exodus/bytes` | 1.16.0 | MIT |
 | `@types/react` | 19.3.0 | MIT |
 | `bidi-js` | 1.1.0 | MIT |
