@@ -1,12 +1,13 @@
 import { BLOCK_CATALOG } from '@blockwerk/blocks';
 import type { SceneObjectData, VariableData } from '@blockwerk/project';
-import { Game, GameObject, loadScriptModule } from '@blockwerk/runtime';
+import { Game, GameObject, initPhysics, loadScriptModule } from '@blockwerk/runtime';
 import type { GameApi, GameLogEntry, ScriptAsset } from '@blockwerk/runtime';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { compileBlockScript } from '../src';
 import { b, get, set, workspace } from './dsl';
 import type { TestBlock } from './dsl';
 import { loadFixture } from './fixtures';
+import { phase3Cases } from './phase3Cases';
 
 /**
  * Runtime tests: compiled blocks run in a real {@link Game}. Every catalog block must be
@@ -751,13 +752,19 @@ const cases: RuntimeCase[] = [
   },
 ];
 
+const allCases = [...cases, ...phase3Cases];
+
+beforeAll(async () => {
+  await initPhysics();
+});
+
 describe('runtime tests', () => {
-  for (const testCase of cases) {
+  for (const testCase of allCases) {
     it(testCase.name, testCase.run);
   }
 
   it('cover every block of the catalog', () => {
-    const covered = new Set(cases.flatMap((testCase) => testCase.covers));
+    const covered = new Set(allCases.flatMap((testCase) => testCase.covers));
     const missing = BLOCK_CATALOG.map((block) => block.id).filter((id) => !covered.has(id));
     expect(missing).toEqual([]);
   });

@@ -139,6 +139,9 @@ describe('buildToolbox', () => {
       'sensing',
       'operators',
       'variables',
+      'player',
+      'camera',
+      'physics',
     ]);
     const motion = toolbox.contents.find((category) => category.toolboxitemid === 'motion');
     expect(motion?.name).toBe('Bewegung');
@@ -169,7 +172,12 @@ describe('buildToolbox', () => {
     expect(orderCategories('player').slice(0, 4)).toEqual(['player', 'motion', 'camera', 'looks']);
     expect(orderCategories(null)).toEqual(CATEGORIES.map((category) => category.id));
     const toolbox = buildToolbox(defaultRegistry, { locale: 'en', area: 'player' });
-    expect(toolbox.contents[0]?.toolboxitemid).toBe('motion');
+    expect(toolbox.contents.slice(0, 4).map((category) => category.toolboxitemid)).toEqual([
+      'player',
+      'motion',
+      'camera',
+      'looks',
+    ]);
   });
 
   it('sorts blocks marked for the area to the top of their category', () => {

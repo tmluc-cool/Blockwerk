@@ -14,6 +14,9 @@ import {
 } from './control';
 import {
   everyFrame,
+  whenAction,
+  whenAnimation,
+  whenZone,
   whenClicked,
   whenCreated,
   whenDestroyed,
@@ -22,7 +25,27 @@ import {
   whenTouching,
 } from './events';
 import { numberLiteral, textLiteral } from './literals';
-import { hide, setActive, setColor, setSize, show } from './looks';
+import { hide, playAnimation, setActive, setColor, setSize, show } from './looks';
+import {
+  setCameraDistance,
+  setFieldOfView,
+  shakeCamera,
+  switchCamera,
+  switchCameraToObject,
+  playCameraPath,
+} from './camera';
+import {
+  crouch,
+  isRunning,
+  jump,
+  lockControls,
+  moveSpeed,
+  onGround,
+  setPlayerValue,
+  standUp,
+  teleport,
+} from './player';
+import { distanceAhead, push, setBodyType, setGravity, setVelocity, whatIsAhead } from './physics';
 import {
   glideToObject,
   glideToXYZ,
@@ -81,6 +104,9 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenKey,
   whenClicked,
   whenTouching,
+  whenZone,
+  whenAction,
+  whenAnimation,
   whenCreated,
   whenDestroyed,
   // Motion
@@ -96,7 +122,32 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   position,
   heading,
   propertyOf,
+  // Player
+  setPlayerValue,
+  jump,
+  crouch,
+  standUp,
+  lockControls,
+  teleport,
+  onGround,
+  isRunning,
+  moveSpeed,
+  // Camera
+  switchCamera,
+  switchCameraToObject,
+  setCameraDistance,
+  shakeCamera,
+  playCameraPath,
+  setFieldOfView,
+  // Physics
+  push,
+  setVelocity,
+  setGravity,
+  setBodyType,
+  whatIsAhead,
+  distanceAhead,
   // Looks
+  playAnimation,
   setColor,
   show,
   hide,

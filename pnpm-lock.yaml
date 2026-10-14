@@ -131,6 +131,12 @@ importers:
       '@blockwerk/runtime':
         specifier: workspace:*
         version: link:../runtime
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      three:
+        specifier: ^0.186.1
+        version: 0.186.1
 
   packages/library:
     dependencies:

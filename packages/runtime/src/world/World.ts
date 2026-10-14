@@ -172,17 +172,22 @@ export class World {
     };
   }
 
-  /** The camera that shows a player (for camera-relative controls). */
-  cameraForPlayer(player: 1 | 2): PerspectiveCamera | null {
-    let shared: PerspectiveCamera | null = null;
+  /** The camera entry that shows a player (for camera-relative controls and camera blocks). */
+  cameraEntryForPlayer(player: 1 | 2): CameraEntry | null {
+    let shared: CameraEntry | null = null;
     for (const object of this.allObjects()) {
       if (!object.activeInHierarchy) continue;
       const entry = cameraRegistry.get(object);
       if (!entry?.enabled) continue;
-      if (entry.player === String(player)) return entry.camera;
-      shared ??= entry.player === 'all' ? entry.camera : null;
+      if (entry.player === String(player)) return entry;
+      shared ??= entry.player === 'all' ? entry : null;
     }
     return shared;
+  }
+
+  /** The camera that shows a player (for camera-relative controls). */
+  cameraForPlayer(player: 1 | 2): PerspectiveCamera | null {
+    return this.cameraEntryForPlayer(player)?.camera ?? null;
   }
 
   /** Called by light components: the first directional light becomes the sun of the sky. */

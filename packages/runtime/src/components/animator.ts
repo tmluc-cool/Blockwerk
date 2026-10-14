@@ -29,8 +29,10 @@ export interface AnimatorHandle {
   readonly current: string | null;
   /** Clip names of the model (empty while it loads). */
   readonly clips: readonly string[];
-  /** Called when a clip started with `once` has finished (animation events). */
+  /** Called when a clip started with `once` has finished. */
   onFinished: ((name: string) => void) | null;
+  /** Animation events since the last call (blocks "when animation … started / finished"). */
+  takeEvents(): { name: string; phase: 'started' | 'finished' }[];
 }
 
 /** Animators by object. */
@@ -138,6 +140,7 @@ export const animator = defineComponent({
     let states = new Map<AnimationState, string>();
     let manual: { clip: string; name: string; once: boolean; fade: number } | null = null;
     let current: string | null = null;
+    let events: { name: string; phase: 'started' | 'finished' }[] = [];
     let airTicks = 0;
     let lastAir = 0;
 
@@ -179,6 +182,7 @@ export const animator = defineComponent({
         if (manual?.once && actions.get(manual.clip) === finished) {
           const name = manual.name;
           manual = null;
+          events.push({ name, phase: 'finished' });
           handle.onFinished?.(name);
         }
       });
@@ -198,6 +202,7 @@ export const animator = defineComponent({
           if ((weights.get(action) ?? 0) === 0) action.play();
         }
         manual = { clip, name, once, fade: options.fade ?? values.crossFade };
+        events.push({ name, phase: 'started' });
         return true;
       },
       stop() {
@@ -211,6 +216,11 @@ export const animator = defineComponent({
         return [...actions.keys()];
       },
       onFinished: null,
+      takeEvents() {
+        const taken = events;
+        events = [];
+        return taken;
+      },
     };
     animatorRegistry.set(object, handle);
 

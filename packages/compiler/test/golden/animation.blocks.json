@@ -1,0 +1,82 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenAction",
+        "id": "an-1",
+        "fields": {
+          "action": "attack",
+          "phase": "pressed",
+          "player": "1"
+        },
+        "next": {
+          "block": {
+            "type": "looks.playAnimation",
+            "id": "an-2",
+            "fields": {
+              "mode": "once"
+            },
+            "inputs": {
+              "name": {
+                "shadow": {
+                  "type": "literal.text",
+                  "id": "an-3",
+                  "fields": {
+                    "TEXT": "attack"
+                  }
+                }
+              },
+              "fade": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "an-4",
+                  "fields": {
+                    "NUM": 0.1
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "events.whenAnimation",
+        "id": "an-5",
+        "fields": {
+          "animation": "attack",
+          "phase": "finished"
+        },
+        "next": {
+          "block": {
+            "type": "looks.playAnimation",
+            "id": "an-6",
+            "fields": {
+              "mode": "loop"
+            },
+            "inputs": {
+              "name": {
+                "shadow": {
+                  "type": "literal.text",
+                  "id": "an-7",
+                  "fields": {
+                    "TEXT": "idle"
+                  }
+                }
+              },
+              "fade": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "an-8",
+                  "fields": {
+                    "NUM": 0.3
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
