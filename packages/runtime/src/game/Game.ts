@@ -23,8 +23,16 @@ import type {
   VariableScope,
 } from './api';
 import { shapesOverlap, toWorldShape } from './collisions';
+import type { MeshBounds } from './collisions';
+import { meshData, meshKey, ownMeshes } from '../physics/meshData';
 import type { WorldShape } from './collisions';
 import { InputState } from './input';
+import { PlayerInput } from './actions';
+import type { ButtonAction } from './actions';
+import { DEFAULT_PHYSICS, Physics } from '../physics/Physics';
+import type { PhysicsSettings, ZoneEvent } from '../physics/Physics';
+import { loadedRapier } from '../physics/rapier';
+import type { TickContext, TickStage } from '../components/defineComponent';
 
 /** Length of one logic tick in seconds (fixed 60 Hz, SPEC 8.1). */
 export const TICK_SECONDS = 1 / 60;
@@ -80,6 +88,8 @@ export interface GameOptions extends WorldOptions {
   readonly random?: () => number;
   /** Creates IDs for clones. */
   readonly createId?: () => string;
+  /** Gravity and layer collision matrix (physics runs if the engine is loaded). */
+  readonly physics?: PhysicsSettings;
   /** Prefabs for "create [prefab] at": root and objects with variants and nesting resolved. */
   readonly prefabs?: (assetId: string) => {
     readonly root: string;
@@ -107,6 +117,27 @@ interface TransformSnapshot {
 }
 
 const ORIGIN = new Vector3();
+
+/** Shapes count as touching up to this distance (physics keeps resting bodies apart). */
+const CONTACT_MARGIN = 0.02;
+
+/** Bounds of an object's own meshes, cached by mesh set (for mesh colliders). */
+const meshBoundsCache = new WeakMap<GameObject, { key: string; bounds: MeshBounds }>();
+
+function meshBoundsOf(object: GameObject): MeshBounds {
+  // The key is cheap; the triangles are only collected when the meshes changed.
+  const key = meshKey(ownMeshes(object.object3d));
+  const cached = meshBoundsCache.get(object);
+  if (cached?.key === key) return cached.bounds;
+  const data = meshData(object.object3d);
+  if (!data) return null;
+  const bounds = {
+    center: data.bounds.getCenter(new Vector3()),
+    size: data.bounds.getSize(new Vector3()),
+  };
+  meshBoundsCache.set(object, { key, bounds });
+  return bounds;
+}
 
 let cloneCounter = 0;
 
@@ -173,11 +204,66 @@ export class Game implements GameApi {
   private pointer: { ndc: Vector2 } | null = null;
   private viewAspect = 16 / 9;
 
+  /** Physics of the game; `null` until the physics engine is loaded ({@link initPhysics}). */
+  readonly physics: Physics | null;
+  /** Input actions of the two players. */
+  readonly players = { 1: new PlayerInput(1), 2: new PlayerInput(2) } as const;
+  private readonly tickContext: TickContext;
+
   constructor(scene: SceneData, options: GameOptions) {
     this.options = options;
     this.random_ = options.random ?? Math.random;
     this.world = new World(structuredClone(scene), options);
+    const rapier = loadedRapier();
+    this.physics = rapier
+      ? new Physics(rapier, this.world, {
+          ...DEFAULT_PHYSICS,
+          ...options.physics,
+          gravity: scene.environment.gravity ?? options.physics?.gravity ?? DEFAULT_PHYSICS.gravity,
+        })
+      : null;
+    const time = (): number => this.time;
+    this.tickContext = {
+      dt: TICK_SECONDS,
+      get time() {
+        return time();
+      },
+      world: this.world,
+      physics: this.physics,
+      input: (player) => this.players[player],
+    };
     for (const object of this.world.allObjects()) this.attachScripts(object, null);
+  }
+
+  /** Runs the components' tick at a stage (SPEC 8.1). */
+  private tickComponents(stage: TickStage): void {
+    for (const object of this.world.allObjects()) {
+      if (object.destroyed || !object.activeInHierarchy) continue;
+      for (const component of object.components) {
+        if (component.enabled && component.behavior.tick) {
+          component.behavior.tick(stage, this.tickContext);
+        }
+      }
+    }
+  }
+
+  /** Which gamepad each player uses: with one gamepad and a second player, player 2 gets it. */
+  private gamepadIndices(): { 1: number | null; 2: number | null } {
+    const pads = this.input.connectedGamepads();
+    if (pads.length === 1 && this.hasSecondPlayer()) return { 1: null, 2: pads[0] ?? null };
+    return { 1: pads[0] ?? null, 2: pads[1] ?? null };
+  }
+
+  private secondPlayer: boolean | null = null;
+
+  /** Whether any component is set to player 2 (controls, cameras). */
+  private hasSecondPlayer(): boolean {
+    if (this.secondPlayer === null) {
+      this.secondPlayer = [...this.world.allObjects()].some((object) =>
+        object.components.some((component) => component.values['player'] === '2'),
+      );
+    }
+    return this.secondPlayer;
   }
 
   // ---------------------------------------------------------------- frame loop
@@ -207,8 +293,14 @@ export class Game implements GameApi {
 
   /** Runs exactly one logic tick (Unity: Step), also while paused. */
   stepTick(): void {
+    // Order of SPEC 8.1: input, components, scripts, character controllers, physics, events,
+    // spawn/destroy, animation, camera.
     this.input.beginTick();
+    const pads = this.gamepadIndices();
+    this.players[1].update(this.input, pads[1], TICK_SECONDS);
+    this.players[2].update(this.input, pads[2], TICK_SECONDS);
     this.snapshotTransforms();
+    this.tickComponents('control');
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
     this.fire(
@@ -219,11 +311,53 @@ export class Game implements GameApi {
     for (const object of this.clickQueue.splice(0)) {
       this.fireFor(object, 'click', () => true, true);
     }
+    this.fire(
+      'action',
+      (params) => this.actionMatches(params),
+      (params) => params['phase'] !== 'held',
+    );
     this.stepThreads(this.threads);
+    this.physics?.sync();
+    this.tickComponents('character');
+    if (this.physics) {
+      this.physics.sync();
+      this.physics.step();
+      for (const event of this.physics.takeZoneEvents()) this.zoneEvent(event);
+    }
     this.touchEvents();
     this.processDestroyQueue();
+    this.tickComponents('animate');
+    this.tickComponents('camera');
     this.tick += 1;
     this.world.updateSun();
+  }
+
+  /** Whether an action event (`when action [jump] [started] for [player]`) fires now. */
+  private actionMatches(params: Readonly<Record<string, string | number | boolean>>): boolean {
+    const action = String(params['action'] ?? 'jump') as ButtonAction;
+    const phase = String(params['phase'] ?? 'pressed');
+    const who = String(params['player'] ?? 'any');
+    const players =
+      who === '1' ? [1 as const] : who === '2' ? [2 as const] : [1 as const, 2 as const];
+    return players.some((player) => {
+      const input = this.players[player];
+      if (phase === 'held') return input.isHeld(action);
+      if (phase === 'released') return input.wasReleased(action);
+      return input.wasPressed(action);
+    });
+  }
+
+  /** "When [object | tag] enters / leaves the zone": runs on the zone object. */
+  private zoneEvent(event: ZoneEvent): void {
+    if (event.zone.destroyed || event.other.destroyed) return;
+    this.fireFor(
+      event.zone,
+      'zone',
+      (params) =>
+        String(params['phase'] ?? 'enter') === (event.entered ? 'enter' : 'exit') &&
+        this.matches(event.zone, event.other, String(params['target'] ?? 'any')),
+      true,
+    );
   }
 
   /**
@@ -359,6 +493,7 @@ export class Game implements GameApi {
     for (const thread of this.threads) thread.done = true;
     this.threads = [];
     this.running.clear();
+    this.physics?.dispose();
     this.world.dispose();
   }
 
@@ -882,7 +1017,14 @@ export class Game implements GameApi {
     object.object3d.updateWorldMatrix(true, false);
     return colliders
       .filter((collider) => collider.enabled)
-      .map((collider) => toWorldShape(collider.shape, object.object3d.matrixWorld));
+      .map((collider) =>
+        toWorldShape(
+          collider.shape,
+          object.object3d.matrixWorld,
+          CONTACT_MARGIN,
+          collider.shape.kind === 'mesh' ? meshBoundsOf(object) : null,
+        ),
+      );
   }
 
   /** Objects whose colliders overlap one of the object's colliders. Hidden objects touch nothing. */

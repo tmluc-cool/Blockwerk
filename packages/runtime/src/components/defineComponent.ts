@@ -2,6 +2,8 @@ import type { JsonValue, Vec3 } from '@blockwerk/project';
 import type { LocalizedText } from '../text';
 import type { GameObject } from '../world/GameObject';
 import type { World } from '../world/World';
+import type { PlayerInput } from '../game/actions';
+import type { Physics } from '../physics/Physics';
 
 /** Units shown next to number fields in the inspector. */
 export type FieldUnit = 'meters' | 'degrees' | 'seconds' | 'percent';
@@ -120,8 +122,30 @@ export interface ComponentContext {
   readonly world: World;
 }
 
+/**
+ * Stages of a logic tick in play mode (SPEC 8.1) at which components run: `control` before the
+ * block scripts (controls read input), `character` after them (character controllers move),
+ * `animate` after physics, `camera` last.
+ */
+export type TickStage = 'control' | 'character' | 'animate' | 'camera';
+
+/** What a component sees in its tick (play mode only). */
+export interface TickContext {
+  /** Seconds per tick (1/60). */
+  readonly dt: number;
+  /** Seconds since the game started. */
+  readonly time: number;
+  readonly world: World;
+  /** Physics of the game, if the engine is loaded. */
+  readonly physics: Physics | null;
+  /** Input actions of player 1 or 2. */
+  input(player: 1 | 2): PlayerInput;
+}
+
 /** The live part of a component on an object. */
 export interface ComponentBehavior<F extends FieldDefinitions = FieldDefinitions> {
+  /** Runs every logic tick in play mode at the given stage. */
+  tick?(stage: TickStage, context: TickContext): void;
   /** Applies new field values (called after creation and whenever values change). */
   apply(values: FieldValues<F>): void;
   /** Called when the component is enabled or disabled. */

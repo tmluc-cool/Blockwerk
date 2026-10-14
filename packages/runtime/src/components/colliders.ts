@@ -1,5 +1,6 @@
 import type { Vec3 } from '@blockwerk/project';
 import { defineComponent } from './defineComponent';
+import type { FieldDefinitions, FieldValues } from './defineComponent';
 import type { LocalizedText } from '../text';
 
 const centerText: LocalizedText = { de: 'Mitte', en: 'Center' };
@@ -14,13 +15,27 @@ export type ColliderShape =
       readonly center: Vec3;
       readonly radius: number;
       readonly height: number;
-    };
+    }
+  | {
+      readonly kind: 'cylinder';
+      readonly center: Vec3;
+      readonly radius: number;
+      readonly height: number;
+    }
+  /** The object's own meshes (Unity: Mesh Collider); `convex` wraps them in a hull. */
+  | { readonly kind: 'mesh'; readonly center: Vec3; readonly convex: boolean };
 
-/** Live state of a collider, read by the collision system. */
+/** Live state of a collider, read by the collision and physics systems. */
 export interface ColliderState {
   shape: ColliderShape;
   isTrigger: boolean;
   enabled: boolean;
+  /** Friction coefficient (Unity: Physic Material). */
+  friction: number;
+  /** Bounciness 0..1 (Unity: Physic Material). */
+  bounciness: number;
+  /** Increases whenever something changed (physics rebuilds the collider). */
+  version: number;
 }
 
 /** Collider states by object, kept by the collider behaviors. */
@@ -36,6 +51,81 @@ function register(owner: object, state: ColliderState): () => void {
   };
 }
 
+/** Fields every collider has: trigger, center and physics material. */
+const COMMON_FIELDS = {
+  isTrigger: { type: 'boolean', default: false, text: triggerText },
+  center: { type: 'vector3', default: [0, 0, 0], unit: 'meters', text: centerText },
+  friction: {
+    type: 'number',
+    default: 0.6,
+    min: 0,
+    max: 2,
+    step: 0.05,
+    group: 'material',
+    text: { de: 'Reibung', en: 'Friction' },
+  },
+  bounciness: {
+    type: 'number',
+    default: 0,
+    min: 0,
+    max: 1,
+    step: 0.05,
+    group: 'material',
+    text: { de: 'Abprallen', en: 'Bounciness' },
+  },
+} as const satisfies FieldDefinitions;
+
+type CommonValues = FieldValues<typeof COMMON_FIELDS>;
+
+/** The behavior shared by all colliders: registers a state and keeps it up to date. */
+function colliderBehavior<V extends CommonValues>(
+  owner: object,
+  shape: (values: V) => ColliderShape,
+  initial: ColliderShape,
+) {
+  const state: ColliderState = {
+    shape: initial,
+    isTrigger: false,
+    enabled: true,
+    friction: 0.6,
+    bounciness: 0,
+    version: 0,
+  };
+  const unregister = register(owner, state);
+  return {
+    apply(values: V) {
+      state.shape = shape(values);
+      state.isTrigger = values.isTrigger;
+      state.friction = values.friction;
+      state.bounciness = values.bounciness;
+      state.version += 1;
+    },
+    setEnabled(enabled: boolean) {
+      state.enabled = enabled;
+      state.version += 1;
+    },
+    destroy: unregister,
+  };
+}
+
+const radiusField = {
+  type: 'number',
+  default: 0.5,
+  min: 0,
+  step: 0.05,
+  unit: 'meters',
+  text: { de: 'Radius', en: 'Radius' },
+} as const;
+
+const heightField = {
+  type: 'number',
+  default: 2,
+  min: 0,
+  step: 0.1,
+  unit: 'meters',
+  text: { de: 'Höhe', en: 'Height' },
+} as const;
+
 /** Box Collider (Unity: BoxCollider). */
 export const boxCollider = defineComponent({
   type: 'boxCollider',
@@ -45,8 +135,7 @@ export const boxCollider = defineComponent({
   docs: { de: 'Quaderförmige Kollisionsform.', en: 'Box-shaped collision volume.' },
   keywords: { de: ['kollision', 'quader'], en: ['collision', 'box'] },
   fields: {
-    isTrigger: { type: 'boolean', default: false, text: triggerText },
-    center: { type: 'vector3', default: [0, 0, 0], unit: 'meters', text: centerText },
+    ...COMMON_FIELDS,
     size: {
       type: 'vector3',
       default: [1, 1, 1],
@@ -55,22 +144,11 @@ export const boxCollider = defineComponent({
     },
   },
   create({ object }) {
-    const state: ColliderState = {
-      shape: { kind: 'box', center: [0, 0, 0], size: [1, 1, 1] },
-      isTrigger: false,
-      enabled: true,
-    };
-    const unregister = register(object, state);
-    return {
-      apply(values) {
-        state.shape = { kind: 'box', center: values.center, size: values.size };
-        state.isTrigger = values.isTrigger;
-      },
-      setEnabled(enabled) {
-        state.enabled = enabled;
-      },
-      destroy: unregister,
-    };
+    return colliderBehavior(
+      object,
+      (values) => ({ kind: 'box', center: values.center, size: values.size }),
+      { kind: 'box', center: [0, 0, 0], size: [1, 1, 1] },
+    );
   },
 });
 
@@ -82,35 +160,13 @@ export const sphereCollider = defineComponent({
   text: { de: 'Kugel-Collider', en: 'Sphere Collider' },
   docs: { de: 'Kugelförmige Kollisionsform.', en: 'Sphere-shaped collision volume.' },
   keywords: { de: ['kollision', 'kugel'], en: ['collision', 'sphere'] },
-  fields: {
-    isTrigger: { type: 'boolean', default: false, text: triggerText },
-    center: { type: 'vector3', default: [0, 0, 0], unit: 'meters', text: centerText },
-    radius: {
-      type: 'number',
-      default: 0.5,
-      min: 0,
-      step: 0.05,
-      unit: 'meters',
-      text: { de: 'Radius', en: 'Radius' },
-    },
-  },
+  fields: { ...COMMON_FIELDS, radius: radiusField },
   create({ object }) {
-    const state: ColliderState = {
-      shape: { kind: 'sphere', center: [0, 0, 0], radius: 0.5 },
-      isTrigger: false,
-      enabled: true,
-    };
-    const unregister = register(object, state);
-    return {
-      apply(values) {
-        state.shape = { kind: 'sphere', center: values.center, radius: values.radius };
-        state.isTrigger = values.isTrigger;
-      },
-      setEnabled(enabled) {
-        state.enabled = enabled;
-      },
-      destroy: unregister,
-    };
+    return colliderBehavior(
+      object,
+      (values) => ({ kind: 'sphere', center: values.center, radius: values.radius }),
+      { kind: 'sphere', center: [0, 0, 0], radius: 0.5 },
+    );
   },
 });
 
@@ -125,47 +181,66 @@ export const capsuleCollider = defineComponent({
     en: 'Capsule-shaped collision volume, e.g. for characters.',
   },
   keywords: { de: ['kollision', 'kapsel', 'figur'], en: ['collision', 'capsule', 'character'] },
+  fields: { ...COMMON_FIELDS, radius: radiusField, height: heightField },
+  create({ object }) {
+    return colliderBehavior(
+      object,
+      (values) => ({
+        kind: 'capsule',
+        center: values.center,
+        radius: values.radius,
+        height: values.height,
+      }),
+      { kind: 'capsule', center: [0, 0, 0], radius: 0.5, height: 2 },
+    );
+  },
+});
+
+/** Cylinder Collider, upright along Y (SPEC 8.4; Unity has no built-in counterpart). */
+export const cylinderCollider = defineComponent({
+  type: 'cylinderCollider',
+  category: 'physics',
+  text: { de: 'Zylinder-Collider', en: 'Cylinder Collider' },
+  docs: {
+    de: 'Zylinderförmige Kollisionsform, z. B. für Säulen und Fässer.',
+    en: 'Cylinder-shaped collision volume, e.g. for pillars and barrels.',
+  },
+  keywords: { de: ['kollision', 'zylinder', 'säule'], en: ['collision', 'cylinder', 'pillar'] },
+  fields: { ...COMMON_FIELDS, radius: radiusField, height: { ...heightField, default: 1 } },
+  create({ object }) {
+    return colliderBehavior(
+      object,
+      (values) => ({
+        kind: 'cylinder',
+        center: values.center,
+        radius: values.radius,
+        height: values.height,
+      }),
+      { kind: 'cylinder', center: [0, 0, 0], radius: 0.5, height: 1 },
+    );
+  },
+});
+
+/** Mesh Collider (Unity: MeshCollider): the exact shape of the object's model or shape. */
+export const meshCollider = defineComponent({
+  type: 'meshCollider',
+  category: 'physics',
+  unity: 'MeshCollider',
+  text: { de: 'Mesh-Collider', en: 'Mesh Collider' },
+  docs: {
+    de: 'Nutzt die Form des Modells als Kollisionsform. „Konvex“ legt eine Hülle darum; nur konvexe Mesh-Collider können sich mit einem Rigidbody bewegen.',
+    en: 'Uses the model as collision shape. "Convex" wraps it in a hull; only convex mesh colliders can move with a Rigidbody.',
+  },
+  keywords: { de: ['kollision', 'netz', 'modell', 'hülle'], en: ['collision', 'mesh', 'hull'] },
   fields: {
-    isTrigger: { type: 'boolean', default: false, text: triggerText },
-    center: { type: 'vector3', default: [0, 0, 0], unit: 'meters', text: centerText },
-    radius: {
-      type: 'number',
-      default: 0.5,
-      min: 0,
-      step: 0.05,
-      unit: 'meters',
-      text: { de: 'Radius', en: 'Radius' },
-    },
-    height: {
-      type: 'number',
-      default: 2,
-      min: 0,
-      step: 0.1,
-      unit: 'meters',
-      text: { de: 'Höhe', en: 'Height' },
-    },
+    ...COMMON_FIELDS,
+    convex: { type: 'boolean', default: false, text: { de: 'Konvex', en: 'Convex' } },
   },
   create({ object }) {
-    const state: ColliderState = {
-      shape: { kind: 'capsule', center: [0, 0, 0], radius: 0.5, height: 2 },
-      isTrigger: false,
-      enabled: true,
-    };
-    const unregister = register(object, state);
-    return {
-      apply(values) {
-        state.shape = {
-          kind: 'capsule',
-          center: values.center,
-          radius: values.radius,
-          height: values.height,
-        };
-        state.isTrigger = values.isTrigger;
-      },
-      setEnabled(enabled) {
-        state.enabled = enabled;
-      },
-      destroy: unregister,
-    };
+    return colliderBehavior(
+      object,
+      (values) => ({ kind: 'mesh', center: values.center, convex: values.convex }),
+      { kind: 'mesh', center: [0, 0, 0], convex: false },
+    );
   },
 });

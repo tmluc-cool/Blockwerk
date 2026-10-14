@@ -110,6 +110,8 @@ export const environmentSchema = z.object({
   /** Strength of the ambient light from the sky. */
   ambientIntensity: z.number(),
   fog: z.object({ enabled: z.boolean(), near: z.number(), far: z.number() }),
+  /** Gravity in m/s² (default Earth gravity straight down). */
+  gravity: vec3Schema.optional(),
 });
 /** Sky, ambient light and fog of a scene. The sun is a light component on an object. */
 export type EnvironmentData = z.infer<typeof environmentSchema>;

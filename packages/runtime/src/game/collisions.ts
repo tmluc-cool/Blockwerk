@@ -13,41 +13,61 @@ export type WorldShape =
   | { readonly kind: 'sphere'; readonly center: Vector3; readonly radius: number }
   | { readonly kind: 'capsule'; readonly a: Vector3; readonly b: Vector3; readonly radius: number };
 
-/** Transforms a local collider shape with an object's world matrix. */
-export function toWorldShape(shape: ColliderShape, matrixWorld: Matrix4): WorldShape {
-  const center = new Vector3(...shape.center).applyMatrix4(matrixWorld);
+/** Local bounds of the object's meshes, for mesh colliders (`null` while there are none). */
+export type MeshBounds = { readonly center: Vector3; readonly size: Vector3 } | null;
+
+/**
+ * Transforms a local collider shape with an object's world matrix. `margin` grows the shape
+ * (contact tolerance: physics keeps resting bodies a hair apart). Cylinders are tested as boxes
+ * and mesh colliders by the bounds of the meshes.
+ */
+export function toWorldShape(
+  shape: ColliderShape,
+  matrixWorld: Matrix4,
+  margin = 0,
+  meshBounds: MeshBounds = null,
+): WorldShape {
   const x = new Vector3();
   const y = new Vector3();
   const z = new Vector3();
   matrixWorld.extractBasis(x, y, z);
   const scale = new Vector3(x.length(), y.length(), z.length());
+  const box = (center: Vector3, size: Vector3): WorldShape => ({
+    kind: 'box',
+    center: center.clone().applyMatrix4(matrixWorld),
+    axes: [x.clone().normalize(), y.clone().normalize(), z.clone().normalize()],
+    half: new Vector3(
+      Math.abs((size.x * scale.x) / 2) + margin,
+      Math.abs((size.y * scale.y) / 2) + margin,
+      Math.abs((size.z * scale.z) / 2) + margin,
+    ),
+  });
+  const localCenter = new Vector3(...shape.center);
   switch (shape.kind) {
     case 'box':
-      return {
-        kind: 'box',
-        center,
-        axes: [x.normalize(), y.normalize(), z.normalize()],
-        half: new Vector3(
-          Math.abs((shape.size[0] * scale.x) / 2),
-          Math.abs((shape.size[1] * scale.y) / 2),
-          Math.abs((shape.size[2] * scale.z) / 2),
-        ),
-      };
+      return box(localCenter, new Vector3(...shape.size));
+    case 'cylinder':
+      return box(localCenter, new Vector3(shape.radius * 2, shape.height, shape.radius * 2));
+    case 'mesh':
+      return meshBounds
+        ? box(localCenter.clone().add(meshBounds.center), meshBounds.size)
+        : { kind: 'sphere', center: localCenter.applyMatrix4(matrixWorld), radius: margin };
     case 'sphere':
       return {
         kind: 'sphere',
-        center,
-        radius: Math.abs(shape.radius) * Math.max(scale.x, scale.y, scale.z),
+        center: localCenter.applyMatrix4(matrixWorld),
+        radius: Math.abs(shape.radius) * Math.max(scale.x, scale.y, scale.z) + margin,
       };
     case 'capsule': {
+      const center = localCenter.applyMatrix4(matrixWorld);
       const radius = Math.abs(shape.radius) * Math.max(scale.x, scale.z);
       const halfSegment = Math.max(0, (Math.abs(shape.height) * scale.y) / 2 - radius);
-      const up = y.normalize();
+      const up = y.clone().normalize();
       return {
         kind: 'capsule',
         a: center.clone().addScaledVector(up, -halfSegment),
         b: center.clone().addScaledVector(up, halfSegment),
-        radius,
+        radius: radius + margin,
       };
     }
   }

@@ -47,3 +47,21 @@ export { ANY_KEY, InputState, normalizeKey } from './game/input';
 export { shapesOverlap, toWorldShape } from './game/collisions';
 export type { WorldShape } from './game/collisions';
 export { errorLine, FUNCTION_HEADER_LINES } from './scripts';
+export { initPhysics, loadedRapier } from './physics/rapier';
+export type { Rapier } from './physics/rapier';
+export { DEFAULT_PHYSICS, Physics, setWorldPose } from './physics/Physics';
+export type { PhysicsHit, PhysicsSettings, ZoneEvent } from './physics/Physics';
+export {
+  ACTIONS,
+  DEFAULT_BINDINGS,
+  GAMEPAD_BUTTONS,
+  MOUSE_SENSITIVITY,
+  PlayerInput,
+} from './game/actions';
+export type {
+  ActionName,
+  ButtonAction,
+  GamepadSnapshot,
+  PlayerBindings,
+  RawInput,
+} from './game/actions';
