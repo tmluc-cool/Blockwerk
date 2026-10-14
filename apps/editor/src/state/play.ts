@@ -1,7 +1,8 @@
 import { compileBlockScript, CompileError } from '@blockwerk/compiler';
 import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SceneData } from '@blockwerk/project';
-import { Game, loadScriptModule } from '@blockwerk/runtime';
+import { Game, initPhysics, loadedRapier, loadScriptModule } from '@blockwerk/runtime';
+import type { GamepadSnapshot } from '@blockwerk/runtime';
 import type { GameLogEntry, ScriptAsset, VariableMonitor, World } from '@blockwerk/runtime';
 import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
@@ -229,6 +230,7 @@ function loop(time: number): void {
   const { status, timeScale } = usePlay.getState();
   game.timeScale = timeScale;
   game.paused = status !== 'playing';
+  game.input.setGamepads(readGamepads());
   const alpha = game.advance(dt);
   game.renderInterpolated(alpha, renderViews);
   frameTimes.push(time);
@@ -246,16 +248,78 @@ function loop(time: number): void {
 }
 
 let unsubscribeAssets: (() => void) | null = null;
+let starting = false;
 
-/** Enters play mode (Ctrl+P). The start-up time is logged once the first frame is drawn. */
-export function play(): void {
-  if (game) return;
+/** Options of {@link play}. */
+export interface PlayOptions {
+  /** Plays this scene instead of the open one (the test area). */
+  readonly scene?: SceneData;
+  /** Block scripts that exist only for the played scene (not in the project). */
+  readonly extraScripts?: ReadonlyMap<string, BlockScriptData>;
+  /** Start paused (the step button). */
+  readonly paused?: boolean;
+}
+
+/** Pads as the Gamepad API reports them (standard mapping), reduced to what the game reads. */
+function readGamepads(): (GamepadSnapshot | null)[] {
+  if (typeof navigator === 'undefined' || typeof navigator.getGamepads !== 'function') return [];
+  return Array.from(navigator.getGamepads(), (pad) =>
+    pad
+      ? {
+          axes: Array.from(pad.axes),
+          buttons: pad.buttons.map((button) => ({
+            pressed: button.pressed,
+            value: button.value,
+          })),
+        }
+      : null,
+  );
+}
+
+/** Physics layers and the layer matrix of the project (SPEC 8.4). */
+function physicsSettings(): {
+  gravity: [number, number, number];
+  layers: string[];
+  ignoredPairs: [string, string][];
+} {
+  const { project } = useDocument.getState();
+  const settings = project?.tagsAndLayers;
+  return {
+    gravity: [0, -9.81, 0],
+    layers: ['Default', ...(settings?.layers ?? [])],
+    ignoredPairs: (settings?.ignoredCollisions ?? []).map(([a, b]) => [a, b]),
+  };
+}
+
+/**
+ * Enters play mode (Ctrl+P). The start-up time is logged once the first frame is drawn. The
+ * physics engine loads once and stays loaded; the very first start waits for it.
+ */
+export function play(options: PlayOptions = {}): void {
+  if (game || starting) return;
+  if (!loadedRapier()) {
+    starting = true;
+    void initPhysics().then(
+      () => {
+        starting = false;
+        play(options);
+      },
+      () => {
+        starting = false;
+      },
+    );
+    return;
+  }
   playStarted = performance.now();
   frameTimes.length = 0;
   frameWork.length = 0;
-  const { scene } = useDocument.getState();
+  const scene = options.scene ?? useDocument.getState().scene;
   if (!scene) return;
   compileAll();
+  for (const [id, data] of options.extraScripts ?? []) {
+    const asset = compileAsset(id, id, data);
+    if (asset) compiled.set(id, { data, asset });
+  }
   game = new Game(scene, {
     scripts: (id) => compiled.get(id)?.asset ?? null,
     log: logGame,
@@ -263,11 +327,18 @@ export function play(): void {
     models: editorModels,
     onModelLoaded: worldUpdated,
     prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
+    physics: physicsSettings(),
   });
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
   game.world.updateSun();
   game.world.environment.shareLightingFrom(currentEditWorld()?.environment ?? null);
-  usePlay.setState({ status: 'playing', changes: {}, monitors: [], tick: 0, startupMs: null });
+  usePlay.setState({
+    status: options.paused ? 'paused' : 'playing',
+    changes: {},
+    monitors: [],
+    tick: 0,
+    startupMs: null,
+  });
   setPlayWorld(game.world);
   unsubscribeAssets = useDocument.subscribe((state, previous) => {
     if (state.assetsVersion !== previous.assetsVersion) hotReload();
@@ -310,8 +381,7 @@ export function pause(): void {
 /** Step button (Ctrl+Alt+P): pauses and runs exactly one logic tick. */
 export function step(): void {
   if (!game) {
-    play();
-    usePlay.setState({ status: 'paused' });
+    play({ paused: true });
     return;
   }
   usePlay.setState({ status: 'paused' });

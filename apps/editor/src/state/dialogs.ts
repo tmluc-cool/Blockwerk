@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 /** A modal dialog request. */
 export type DialogRequest =
+  | { kind: 'physics' }
   | { kind: 'prompt'; title: string; defaultValue: string; resolve: (value: string | null) => void }
   | { kind: 'message'; title: string; message: string }
   | {
@@ -42,4 +43,9 @@ export function choose(
   return new Promise((resolve) => {
     useDialogs.setState({ dialog: { kind: 'choice', title, options, resolve } });
   });
+}
+
+/** Opens the physics settings: scene gravity and the layer collision matrix. */
+export function showPhysicsSettings(): void {
+  useDialogs.setState({ dialog: { kind: 'physics' } });
 }

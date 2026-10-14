@@ -253,6 +253,8 @@ describe('character controller', () => {
     const { object, state } = heroOf(game);
     expect(game.world.getObject('platform0001')?.position.x).toBeCloseTo(4, 1);
     expect(object.position.x).toBeGreaterThan(3.3);
+    // It rides along; it is not carried further than the platform went.
+    expect(object.position.x).toBeLessThan(4.3);
     expect(object.position.y).toBeCloseTo(0.5, 1);
     expect(state.grounded).toBe(true);
     game.dispose();

@@ -389,5 +389,22 @@
   "reference.choosePrefab": "(choose prefab)",
   "console.game.missingPrefab": "“{object}”: prefab is missing ({asset}).",
   "game.fps": "FPS",
-  "inspector.missing": "(missing)"
+  "inspector.missing": "(missing)",
+  "menu.edit.physicsSettings": "Physics Settings …",
+  "physics.title": "Physics Settings",
+  "physics.gravity": "Gravity of this scene",
+  "physics.gravityUnit": "m/s² (Y)",
+  "physics.matrix": "Layer Collision Matrix",
+  "physics.matrixHint": "Checked layers collide with each other. Unchecked pairs pass through each other.",
+  "testArea.sun": "Sun",
+  "testArea.ground": "Ground",
+  "testArea.stairs": "Stairs",
+  "testArea.ramp": "Ramp",
+  "testArea.gap": "Jump Gap",
+  "testArea.platform": "Moving Platform",
+  "testArea.crate": "Crate",
+  "testArea.corridor": "Narrow Corridor",
+  "testArea.dummy": "Dummy",
+  "testArea.target": "Target",
+  "testArea.camera": "Main Camera"
 }

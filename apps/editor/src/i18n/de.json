@@ -389,5 +389,22 @@
   "reference.choosePrefab": "(Prefab wählen)",
   "console.game.missingPrefab": "„{object}“: Prefab fehlt ({asset}).",
   "game.fps": "Bilder/s",
-  "inspector.missing": "(fehlt)"
+  "inspector.missing": "(fehlt)",
+  "menu.edit.physicsSettings": "Physik-Einstellungen …",
+  "physics.title": "Physik-Einstellungen",
+  "physics.gravity": "Schwerkraft dieser Szene",
+  "physics.gravityUnit": "m/s² (Y)",
+  "physics.matrix": "Ebenen-Kollisionsmatrix",
+  "physics.matrixHint": "Angehakte Ebenen stossen aneinander. Nicht angehakte Paare gehen durcheinander hindurch.",
+  "testArea.sun": "Sonne",
+  "testArea.ground": "Boden",
+  "testArea.stairs": "Treppe",
+  "testArea.ramp": "Rampe",
+  "testArea.gap": "Sprunglücke",
+  "testArea.platform": "Bewegliche Plattform",
+  "testArea.crate": "Kiste",
+  "testArea.corridor": "Enger Gang",
+  "testArea.dummy": "Puppe",
+  "testArea.target": "Zielscheibe",
+  "testArea.camera": "Haupt-Kamera"
 }

@@ -1,7 +1,7 @@
 import { createRenderer, measureFrame } from '@blockwerk/runtime';
 import type { RenderStats, World } from '@blockwerk/runtime';
 import { Raycaster, Vector2, Vector3 } from 'three';
-import type { WebGLRenderer } from 'three';
+import type { PerspectiveCamera, WebGLRenderer } from 'three';
 import { currentGame } from '../state/play';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from '../scene/worlds';
 import { isOnScreen } from '../scene/visibility';
@@ -14,6 +14,29 @@ const ASPECTS: Readonly<Record<AspectPreset, number | null>> = {
   '16:9': 16 / 9,
   '4:3': 4 / 3,
 };
+
+/** The rectangle (CSS pixels, origin at the bottom left) of a split-screen view. */
+export function viewRect(
+  index: number,
+  count: number,
+  split: 'horizontal' | 'vertical',
+  width: number,
+  height: number,
+): { x: number; y: number; width: number; height: number } {
+  if (split === 'vertical') {
+    const part = Math.floor(width / count);
+    return {
+      x: index * part,
+      y: 0,
+      width: index === count - 1 ? width - index * part : part,
+      height,
+    };
+  }
+  // Horizontal split: the first view is on top.
+  const part = Math.floor(height / count);
+  const bottom = (count - 1 - index) * part;
+  return { x: 0, y: bottom, width, height: index === 0 ? height - (count - 1) * part : part };
+}
 
 /** Distance in front of the camera where sun shadows are centered, in meters. */
 const SHADOW_FOCUS_DISTANCE = 10;
@@ -74,13 +97,26 @@ export class GameViewport {
     listen('keydown', (event) => this.key(event, true));
     listen('keyup', (event) => this.key(event, false));
     listen('blur', () => currentGame()?.input.releaseAll());
-    listen('pointermove', (event) => this.pointer(event));
+    listen('pointermove', (event) => {
+      this.pointer(event);
+      // With a captured pointer the mouse turns the view (player 1).
+      if (canvas.ownerDocument.pointerLockElement === canvas) {
+        currentGame()?.input.mouseMove(event.movementX, event.movementY);
+      }
+    });
+    listen('wheel', (event) => {
+      const game = currentGame();
+      if (!game) return;
+      event.preventDefault();
+      game.input.wheel(event.deltaY);
+    });
     listen('pointerdown', (event) => {
       canvas.focus({ preventScroll: true });
       const game = currentGame();
       if (!game || event.button !== 0) return;
       this.pointer(event);
       game.input.mouseDown = true;
+      this.capturePointer();
       const id = this.pick(event);
       if (id) game.click(id);
     });
@@ -118,6 +154,22 @@ export class GameViewport {
     });
   }
 
+  /**
+   * Captures the mouse pointer while playing (Esc gives it back), so the mouse can turn the
+   * view without leaving the Game view. Refusals (no user gesture, unsupported) are ignored.
+   */
+  private capturePointer(): void {
+    const canvas = this.canvas;
+    if (canvas.ownerDocument.pointerLockElement === canvas) return;
+    if (!currentGame()?.wantsMouseLook()) return;
+    try {
+      const request = canvas.requestPointerLock() as unknown;
+      if (request instanceof Promise) request.catch(() => undefined);
+    } catch {
+      // Pointer lock is optional.
+    }
+  }
+
   /** Gives the canvas keyboard focus (when play mode starts). */
   focus(): void {
     this.canvas.focus({ preventScroll: true });
@@ -141,7 +193,7 @@ export class GameViewport {
     if (!game || event.ctrlKey || event.metaKey || event.altKey) return;
     event.preventDefault();
     event.stopPropagation();
-    if (!event.repeat || !down) game.input.keyEvent(event.key, down);
+    if (!event.repeat || !down) game.input.keyEvent(event.key, down, event.code);
   }
 
   private pointer(event: PointerEvent): void {
@@ -205,27 +257,53 @@ export class GameViewport {
       // Baked lighting stays with its world (worlds free it when they are disposed).
       this.world = world;
     }
-    const camera = world?.activeCamera() ?? null;
-    if ((camera !== null) !== this.hasCamera) {
-      this.hasCamera = camera !== null;
+    // While playing, the game decides what is shown (one camera, or split screen with two).
+    const game = currentGame();
+    const layout = game
+      ? game.views()
+      : {
+          views: world?.activeCamera()
+            ? [{ camera: world.activeCamera() as PerspectiveCamera }]
+            : [],
+          split: 'vertical' as const,
+        };
+    const first = layout.views[0]?.camera ?? null;
+    if ((first !== null) !== this.hasCamera) {
+      this.hasCamera = first !== null;
       this.callbacks.cameraChanged(this.hasCamera);
     }
     const size = this.renderer.getDrawingBufferSize(new Vector2());
-    if (!world || !camera) {
+    if (!world || !first) {
       this.renderer.setClearColor(0x15171b);
       this.renderer.clear();
       return;
     }
-    camera.aspect = size.x / Math.max(1, size.y);
-    camera.updateProjectionMatrix();
     world.prepareRender();
-    camera.updateMatrixWorld();
-    // Sun shadows cover the area in front of the camera.
-    const focus = camera.getWorldPosition(new Vector3());
-    focus.addScaledVector(camera.getWorldDirection(new Vector3()), SHADOW_FOCUS_DISTANCE);
+    // Sun shadows cover the area in front of the first camera.
+    first.updateMatrixWorld();
+    const focus = first.getWorldPosition(new Vector3());
+    focus.addScaledVector(first.getWorldDirection(new Vector3()), SHADOW_FOCUS_DISTANCE);
     world.environment.setFocus(focus);
-    world.environment.prepare(this.renderer, camera);
-    const stats = measureFrame(this.renderer, () => this.renderer.render(world.scene, camera));
+    world.environment.prepare(this.renderer, first);
+    const css = this.renderer.getSize(new Vector2());
+    const stats = measureFrame(this.renderer, () => {
+      const split = layout.views.length > 1;
+      this.renderer.setScissorTest(split);
+      layout.views.forEach((view, index) => {
+        const rect = split
+          ? viewRect(index, layout.views.length, layout.split, css.x, css.y)
+          : { x: 0, y: 0, width: css.x, height: css.y };
+        const camera = view.camera;
+        camera.aspect = rect.width / Math.max(1, rect.height);
+        camera.updateProjectionMatrix();
+        camera.updateMatrixWorld();
+        this.renderer.setViewport(rect.x, rect.y, rect.width, rect.height);
+        this.renderer.setScissor(rect.x, rect.y, rect.width, rect.height);
+        this.renderer.render(world.scene, camera);
+      });
+      this.renderer.setScissorTest(false);
+      this.renderer.setViewport(0, 0, css.x, css.y);
+    });
     const now = performance.now();
     this.frameTimes.push(now);
     while (this.frameTimes.length > 0 && now - (this.frameTimes[0] ?? now) > 1000) {

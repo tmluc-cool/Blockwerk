@@ -40,6 +40,7 @@ import {
   useDocument,
 } from '../state/document';
 import { useEditor } from '../state/editor';
+import { showPhysicsSettings } from '../state/dialogs';
 import { pause, step, togglePlay, usePlay } from '../state/play';
 import type { Translate } from '../i18n';
 import { useConsole } from '../state/console';
@@ -276,6 +277,11 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
         { label: t('menu.edit.step'), shortcut: 'Ctrl+Alt+P', action: step },
         { kind: 'separator' },
         { label: t('menu.edit.projectSettings'), disabled: true },
+        {
+          label: t('menu.edit.physicsSettings'),
+          testId: 'menu-physics-settings',
+          action: showPhysicsSettings,
+        },
         {
           label: t('menu.edit.language'),
           testId: 'menu-language',

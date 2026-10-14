@@ -2,6 +2,7 @@ import 'dockview-react/dist/styles/dockview.css';
 import './styles.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { initPhysics } from '@blockwerk/runtime';
 import { App } from './App';
 import { installShortcuts } from './shortcuts';
 import { installAutosave } from './state/autosave';
@@ -16,6 +17,8 @@ if (root) {
   installAutosave(window);
   useConsole.getState().log('info', 'console.editorStarted');
   void bootstrap();
+  // Load the physics engine in the background so the first Play starts at once.
+  void initPhysics().catch(() => undefined);
   createRoot(root).render(
     <StrictMode>
       <App />

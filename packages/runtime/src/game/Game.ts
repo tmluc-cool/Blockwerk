@@ -264,6 +264,16 @@ export class Game implements GameApi {
     return { 1: pads[0] ?? null, 2: pads[1] ?? null };
   }
 
+  /** Whether the game turns its view with the mouse (the host then captures the pointer). */
+  wantsMouseLook(): boolean {
+    const types = new Set(['firstPersonControl', 'firstPersonCamera', 'thirdPersonCamera']);
+    for (const object of this.world.allObjects()) {
+      if (object.activeInHierarchy && object.components.some((c) => types.has(c.definition.type)))
+        return true;
+    }
+    return false;
+  }
+
   private secondPlayer: boolean | null = null;
 
   /** Whether any component is set to player 2 (controls, cameras). */

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PhysicsDialog } from './PhysicsDialog';
 import { useDialogs } from '../state/dialogs';
 import type { DialogRequest } from '../state/dialogs';
 import { useT } from '../state/settings';
@@ -81,7 +82,9 @@ export function DialogHost() {
   if (!dialog) return null;
   return (
     <div className="dialog-backdrop">
-      {dialog.kind === 'prompt' ? (
+      {dialog.kind === 'physics' ? (
+        <PhysicsDialog />
+      ) : dialog.kind === 'prompt' ? (
         <PromptDialog dialog={dialog} />
       ) : dialog.kind === 'choice' ? (
         <ChoiceDialog dialog={dialog} />
