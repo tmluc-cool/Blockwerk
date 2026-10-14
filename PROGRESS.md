@@ -20,6 +20,37 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 
 ---
 
+## Phase 3: Spieler, Physik, Animation
+
+Branch: `phase/03-spieler` (baut auf Phase 2 auf, PR #3 ist noch nicht gemergt).
+
+### Plan
+
+**Teilaufgaben**
+
+1. **Physik** (`packages/runtime`, SPEC 8.4) mit Rapier3D (`@dimforge/rapier3d-compat`, Apache-2.0)
+   - Komponente **Rigidbody** (dynamisch, kinematisch; Masse, Dämpfung, Schwerkraft an/aus, Drehung sperren). Collider (Box, Kugel, Kapsel, neu: Zylinder, konvexe Hülle, Mesh) mit Reibung und Abprallen, „Ist Trigger“.
+   - Objekte ohne Rigidbody sind feste Hindernisse (wie Unitys statische Collider); per Skript bewegte Objekte werden mitgeführt.
+   - Physik-Ebenen-Matrix in den Projekteinstellungen, Schwerkraft pro Szene. Physik läuft nur im Play-Modus, im festen 60-Hz-Takt an der Stelle aus SPEC 8.1.
+   - Berührungs-Ereignisse aus Phase 1 bleiben unverändert; neu „Wenn [Objekt | Tag] Zone betritt / verlässt“ für Trigger.
+2. **Spielerfiguren** (SPEC 8.5): Komponente **Charakter-Controller** (Rapiers kinematischer Controller: Rampen bis Grenzwinkel, Abrutschen, Treppen steigen, am Boden haften, an Wänden entlanggleiten, dynamische Objekte schieben). Steuerungs-Komponenten **Third-Person**, **First-Person**, **Draufsicht** und **Fahrzeug** mit Beschleunigen/Bremsen, Drehen in Laufrichtung, Rennen, Ducken, Springen mit Sprung-Puffer und Gnadenfrist, Luftsteuerung, Landeerkennung. Standardwerte so, dass die Unity-Gefühl-Checkliste ohne Anpassung erfüllt ist.
+3. **Eingabe** (SPEC 8.10): Eingabe-Aktionen `Bewegen`, `Umsehen`, `Springen`, `Rennen`, `Ducken`, `Interagieren`, `Angreifen`, `Pause` mit Belegung pro Spieler (Spieler 1: WASD + Maus oder Gamepad 1; Spieler 2: Pfeiltasten + Ziffernblock oder Gamepad 2). Gamepads über die Gamepad-API, Mauszeiger im Spiel gefangen, `Esc` gibt ihn frei.
+4. **Kamera** (SPEC 8.6): Kamera-Verhalten **Third-Person-Orbit** (Maus und rechter Stick, Abstand, Höhe, Glättung, Wand-Kollision, Zoom per Mausrad, Sichtfeld beim Rennen), **First-Person**, **Draufsicht**, **Seitenansicht**, **feste Kamera**, **Kamerafahrt** (Wegpunkte), Kamerawackeln, weiche Übergänge. **Spieler 2:** geteilter Bildschirm (waagrecht/senkrecht) oder gemeinsame Kamera.
+5. **Animation** (SPEC 8.7): Komponente **Animator (vereinfacht)** für Modelle mit Skelett: automatische Zuordnung der Clip-Namen auf Standardzustände (Stehen, Gehen, Rennen, Springen, Fallen, Landen, Ducken, Angreifen, Treffer, Sterben, Winken …), weiche Überblendung, Abspielgeschwindigkeit passend zum Tempo. Zuordnung abweichender Namen im Import-Inspektor.
+6. **Blöcke** aus Anhang A mit „(3)“: Aktionen und Zonen, Spieler, Kamera, Animation, Physik. Jeder Block mit Golden- und Laufzeittest.
+7. **Editor:** neue Komponenten im Inspektor (aus den Definitionen), Physik-Einstellungen (Ebenen-Matrix, Schwerkraft), Spielansicht mit Mausfang, Gamepads und geteiltem Bildschirm, **Testgelände** (SPEC 5.6) mit „Im Testgelände spielen“.
+8. **Beispiel** `examples/03-held` (Ritter aus der Bibliothek nur mit Komponenten, Mauern, Treppen, Rampen, Kisten, bewegliche Plattform) und Abnahme mit Tests und Screenshot.
+
+**Betroffene Pakete:** `runtime` (Physik, Controller, Kamera, Animator, Eingabe), `blocks`, `compiler`, `project` (Physik-Einstellungen, Schwerkraft), `apps/editor`, `examples/`.
+
+**Risiken**
+
+- Rapier als WASM: Start im Play-Modus muss unter 1 Sekunde bleiben (einmal laden und wiederverwenden).
+- Spielgefühl lässt sich nur teilweise automatisch prüfen: Tests messen Beschleunigungsverläufe, Drehgeschwindigkeit, Sprunghöhe, Kamera-Abstand an Wänden und Überblendzeiten; der Rest per Screenshot und Bericht.
+- Gamepads gibt es in der Testumgebung nicht: die Tests geben ein simuliertes Gamepad über die Gamepad-API vor.
+- KayKit-Figuren haben keine Animationen „Fallen“ und „Ducken“; „Fallen“ nutzt die Sprung-Schwebe-Animation, „Ducken“ fällt ohne Clip auf Stehen zurück.
+- Retargeting auf das Standard-Skelett (VRM-Knochennamen) gehört zum Figuren-Studio (Phase 3b); in Phase 3 spielen Figuren ihre eigenen Animationen.
+
 ## Phase 2: Projekt-Fenster, Asset-Bibliothek, Prefabs
 
 Branch: `phase/02-bibliothek` (baut auf Phase 1 auf).
