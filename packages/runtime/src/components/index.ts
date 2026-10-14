@@ -1,5 +1,7 @@
+import { doubleJump, glide, roll, stamina } from './abilities';
 import { animator } from './animator';
 import { blockScript } from './blockScript';
+import { character } from './figure';
 import { camera } from './camera';
 import {
   cameraPath,
@@ -27,6 +29,7 @@ import { meshRenderer } from './meshRenderer';
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
   meshRenderer,
+  character,
   animator,
   rigidbody,
   boxCollider,
@@ -39,6 +42,10 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   firstPersonControl,
   topDownControl,
   vehicleControl,
+  doubleJump,
+  roll,
+  glide,
+  stamina,
   camera,
   thirdPersonCamera,
   firstPersonCamera,

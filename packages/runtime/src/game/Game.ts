@@ -35,6 +35,7 @@ import { loadedRapier } from '../physics/rapier';
 import type { TickContext, TickStage } from '../components/defineComponent';
 import { CameraTransitions } from '../camera/transitions';
 import { animatorRegistry } from '../components/animator';
+import { controlRegistry } from '../components/controls';
 import * as gameplay from './gameplayApi';
 import type { GameViews } from '../camera/transitions';
 
@@ -373,6 +374,16 @@ export class Game implements GameApi {
   /** Fires "when animation … started / finished" for animators of scripted objects. */
   private animationEvents(): void {
     for (const object of [...this.attached.keys()]) {
+      for (const event of controlRegistry.get(object)?.takeEvents() ?? []) {
+        this.fireFor(
+          object,
+          'ability',
+          (params) =>
+            String(params['ability'] ?? 'roll') === event.ability &&
+            String(params['phase'] ?? 'started') === event.phase,
+          true,
+        );
+      }
       for (const event of animatorRegistry.get(object)?.takeEvents() ?? []) {
         this.fireFor(
           object,

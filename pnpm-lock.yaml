@@ -188,6 +188,9 @@ importers:
 
   packages/runtime:
     dependencies:
+      '@blockwerk/character':
+        specifier: workspace:*
+        version: link:../character
       '@blockwerk/project':
         specifier: workspace:*
         version: link:../project

@@ -1,5 +1,5 @@
 import { Color, Mesh, MeshStandardMaterial } from 'three';
-import type { BufferGeometry, Object3D, Texture } from 'three';
+import type { AnimationClip, BufferGeometry, Object3D, Texture } from 'three';
 import { ModelCache } from '../models/ModelCache';
 import type { ModelTemplate } from '../models/ModelCache';
 import { createGroundTexture } from '../environment/groundTexture';
@@ -21,6 +21,11 @@ const SHAPE_TEXT: Readonly<Record<PrimitiveShape, { de: string; en: string }>> =
 export interface RenderedModel {
   readonly root: Object3D;
   readonly template: ModelTemplate;
+  /**
+   * Further clips for this model (animations retargeted from the library). They fill the
+   * standard states the model's own clips do not cover.
+   */
+  readonly extraClips?: readonly AnimationClip[];
 }
 
 /** Models currently shown by Mesh Renderers, by object. */

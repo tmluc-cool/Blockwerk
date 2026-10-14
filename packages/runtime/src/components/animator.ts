@@ -162,14 +162,22 @@ export const animator = defineComponent({
       bound = model;
       const created = new AnimationMixer(model.root);
       mixer = created;
+      const own = model.template.animations;
       states = matchClips(
-        model.template.animations.map((clip) => clip.name),
+        own.map((clip) => clip.name),
         model.template.animationMap,
       );
+      // Retargeted library clips fill the states the model does not have itself.
+      const extra = (model.extraClips ?? []).filter(
+        (clip) => !own.some((candidate) => candidate.name === clip.name),
+      );
+      for (const [state, clip] of matchClips(extra.map((candidate) => candidate.name))) {
+        if (!states.has(state)) states.set(state, clip);
+      }
       const looping = new Set(
         [...states].filter(([state]) => LOOPING_STATES.has(state)).map(([, clip]) => clip),
       );
-      for (const clip of model.template.animations) {
+      for (const clip of [...own, ...extra]) {
         const action = created.clipAction(clip);
         const loops = looping.has(clip.name);
         action.setLoop(loops ? LoopRepeat : LoopOnce, Infinity);
@@ -243,6 +251,10 @@ export const animator = defineComponent({
       if (!control || control.mode === 'vehicle') {
         if (!set(values.defaultState)) set('idle');
         current = values.defaultState;
+        return result;
+      }
+      if (control.rolling && set('roll')) {
+        current = 'roll';
         return result;
       }
       if (!control.grounded) {
