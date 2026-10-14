@@ -1,0 +1,1611 @@
+{
+  "environment": {
+    "ambientIntensity": 0.35,
+    "fog": {
+      "enabled": true,
+      "far": 140,
+      "near": 45
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "heldarea0000": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldarea0001": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldarea0002": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldarea0003": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldarea0004": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldarea0005": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldbar00001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000051",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/barrel-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000052",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000050",
+          "type": "rigidbody",
+          "values": {
+            "mass": 12
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fass",
+      "order": 26,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.5,
+          0.4,
+          16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    },
+    "heldbar00002": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000054",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/barrel-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000055",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000053",
+          "type": "rigidbody",
+          "values": {
+            "mass": 12
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fass",
+      "order": 27,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.5,
+          0.4,
+          17
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    },
+    "heldbar00003": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000057",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/barrel-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000058",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000056",
+          "type": "rigidbody",
+          "values": {
+            "mass": 12
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fass",
+      "order": 28,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.5,
+          0.4,
+          18
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    },
+    "heldcamera01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000063",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 60
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000064",
+          "type": "thirdPersonCamera",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 30,
+      "parent": "heldarea0001",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          3,
+          -6
+        ],
+        "rotation": [
+          15,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldcrates01": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Kisten",
+      "order": 19,
+      "parent": "heldarea0004",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldcrt00001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000033",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/box-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000034",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.255,
+              0
+            ],
+            "size": [
+              0.456,
+              0.509,
+              0.463
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000032",
+          "type": "rigidbody",
+          "values": {
+            "mass": 6
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste",
+      "order": 20,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -1.2,
+          0.45,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "heldcrt00002": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000036",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/box-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000037",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.255,
+              0
+            ],
+            "size": [
+              0.456,
+              0.509,
+              0.463
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000035",
+          "type": "rigidbody",
+          "values": {
+            "mass": 6
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste",
+      "order": 21,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.45,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "heldcrt00003": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000039",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/box-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000040",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.255,
+              0
+            ],
+            "size": [
+              0.456,
+              0.509,
+              0.463
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000038",
+          "type": "rigidbody",
+          "values": {
+            "mass": 6
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste",
+      "order": 22,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          1.2,
+          0.45,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "heldcrt00004": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000042",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/box-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000043",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.255,
+              0
+            ],
+            "size": [
+              0.456,
+              0.509,
+              0.463
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000041",
+          "type": "rigidbody",
+          "values": {
+            "mass": 6
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste",
+      "order": 23,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -0.6,
+          1.37,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "heldcrt00005": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000045",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/box-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000046",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.255,
+              0
+            ],
+            "size": [
+              0.456,
+              0.509,
+              0.463
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000044",
+          "type": "rigidbody",
+          "values": {
+            "mass": 6
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste",
+      "order": 24,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0.6,
+          1.37,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "heldcrt00006": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000048",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/box-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000049",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.255,
+              0
+            ],
+            "size": [
+              0.456,
+              0.509,
+              0.463
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000047",
+          "type": "rigidbody",
+          "values": {
+            "mass": 6
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste",
+      "order": 25,
+      "parent": "heldcrates01",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          2.29,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "heldground01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9a9a86",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hof",
+      "order": 2,
+      "parent": "heldarea0000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          80,
+          1,
+          80
+        ]
+      }
+    },
+    "heldknight01": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000059",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/knight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000060",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000061",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000062",
+          "type": "thirdPersonControl",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Ritter",
+      "order": 29,
+      "parent": "heldarea0001",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldlanding1": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000026",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#a39577",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000027",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Podest",
+      "order": 16,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.75,
+          12.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          1.5,
+          4
+        ]
+      }
+    },
+    "heldlanding2": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000030",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#5ea862",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000031",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Podest 2",
+      "order": 18,
+      "parent": "heldarea0000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4,
+          1.25,
+          11
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          2.5,
+          3.2
+        ]
+      }
+    },
+    "heldramp0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000028",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#6fbf73",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000029",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Rampe 30°",
+      "order": 17,
+      "parent": "heldarea0000",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4,
+          1.25,
+          7.165
+        ],
+        "rotation": [
+          -30,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          0.2,
+          5
+        ]
+      }
+    },
+    "heldstairs01": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Treppe",
+      "order": 9,
+      "parent": "heldarea0000",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldstep0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000014",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000015",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Stufe 1",
+      "order": 10,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.125,
+          5.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          0.25,
+          0.8
+        ]
+      }
+    },
+    "heldstep0002": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000016",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000017",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Stufe 2",
+      "order": 11,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.25,
+          6.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          0.5,
+          0.8
+        ]
+      }
+    },
+    "heldstep0003": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000018",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000019",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Stufe 3",
+      "order": 12,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.375,
+          7.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          0.75,
+          0.8
+        ]
+      }
+    },
+    "heldstep0004": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000020",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000021",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Stufe 4",
+      "order": 13,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.5,
+          8.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          1,
+          0.8
+        ]
+      }
+    },
+    "heldstep0005": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000022",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000023",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Stufe 5",
+      "order": 14,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.625,
+          9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          1.25,
+          0.8
+        ]
+      }
+    },
+    "heldstep0006": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000024",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000025",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Stufe 6",
+      "order": 15,
+      "parent": "heldstairs01",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0.75,
+          9.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          1.5,
+          0.8
+        ]
+      }
+    },
+    "heldsun00001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 1,
+      "parent": "heldarea0000",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          20,
+          0
+        ],
+        "rotation": [
+          48,
+          -35,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "heldwall0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000004",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d8f98",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000005",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer hinten",
+      "order": 4,
+      "parent": "heldwalls001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.5,
+          -3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          14.8,
+          3,
+          0.4
+        ]
+      }
+    },
+    "heldwall0002": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000006",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d8f98",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000007",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer links",
+      "order": 5,
+      "parent": "heldwalls001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7.2,
+          1.5,
+          11.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.4,
+          3,
+          29.4
+        ]
+      }
+    },
+    "heldwall0003": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000008",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d8f98",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000009",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer rechts",
+      "order": 6,
+      "parent": "heldwalls001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7.2,
+          1.5,
+          11.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.4,
+          3,
+          29.4
+        ]
+      }
+    },
+    "heldwall0004": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000010",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d8f98",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000011",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer vorne links",
+      "order": 7,
+      "parent": "heldwalls001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.5,
+          1.5,
+          26
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          5.8,
+          3,
+          0.4
+        ]
+      }
+    },
+    "heldwall0005": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "heldc0000012",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d8f98",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "heldc0000013",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer vorne rechts",
+      "order": 8,
+      "parent": "heldwalls001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.5,
+          1.5,
+          26
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          5.8,
+          3,
+          0.4
+        ]
+      }
+    },
+    "heldwalls001": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Mauern",
+      "order": 3,
+      "parent": "heldarea0000",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

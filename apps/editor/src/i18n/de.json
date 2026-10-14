@@ -406,5 +406,8 @@
   "testArea.corridor": "Enger Gang",
   "testArea.dummy": "Puppe",
   "testArea.target": "Zielscheibe",
-  "testArea.camera": "Haupt-Kamera"
+  "testArea.camera": "Haupt-Kamera",
+  "menu.window.testArea": "Im Testgelände spielen",
+  "testArea.title": "Testgelände",
+  "testArea.noPlayer": "Es gibt kein Spieler-Objekt. Wähle zuerst ein Objekt mit Charakter-Controller oder einer Steuerungs-Komponente (zum Beispiel Third-Person-Steuerung)."
 }

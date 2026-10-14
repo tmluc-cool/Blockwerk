@@ -406,5 +406,8 @@
   "testArea.corridor": "Narrow Corridor",
   "testArea.dummy": "Dummy",
   "testArea.target": "Target",
-  "testArea.camera": "Main Camera"
+  "testArea.camera": "Main Camera",
+  "menu.window.testArea": "Play in Test Area",
+  "testArea.title": "Test Area",
+  "testArea.noPlayer": "There is no player object. Select an object with a Character Controller or a controller component (for example Third Person Controller) first."
 }

@@ -41,6 +41,7 @@ import {
 } from '../state/document';
 import { useEditor } from '../state/editor';
 import { showPhysicsSettings } from '../state/dialogs';
+import { playInTestArea } from '../testArea/playTestArea';
 import { pause, step, togglePlay, usePlay } from '../state/play';
 import type { Translate } from '../i18n';
 import { useConsole } from '../state/console';
@@ -356,6 +357,12 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
           })) as MenuItem[],
         },
         { label: t('menu.window.layouts'), testId: 'menu-layouts', submenu: layoutMenuItems(t) },
+        { kind: 'separator' },
+        {
+          label: t('menu.window.testArea'),
+          testId: 'menu-test-area',
+          action: playInTestArea,
+        },
       ],
     },
     {
