@@ -1,0 +1,13 @@
+{
+  "base": "dorflaterne1",
+  "formatVersion": 1,
+  "objects": {},
+  "overrides": [
+    {
+      "object": "latlight0001",
+      "path": "component:latlightc001:color",
+      "value": "#ff4a3a"
+    }
+  ],
+  "root": "latroot00001"
+}

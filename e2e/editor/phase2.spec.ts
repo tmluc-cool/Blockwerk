@@ -389,3 +389,88 @@ test('"My Prefabs" carries a prefab with its model into another project', async 
     ),
   ).toEqual([]);
 });
+
+test('a village of houses, a well, fences and 200 trees is built from the library and plays', async ({
+  editor: page,
+}) => {
+  test.setTimeout(15 * 60_000);
+  const started = Date.now();
+  const scene = page.getByTestId('scene-drop');
+  const box = await scene.boundingBox();
+  if (!box) throw new Error('no scene view');
+  // Look at the ground from above so drops land on it.
+  await page.locator('.axis-gizmo-handle[data-view="top"]').click();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 400);
+  const at = (u: number, v: number) => ({ x: box.width * u, y: box.height * v });
+
+  const drop = async (query: string, id: string, u: number, v: number): Promise<void> => {
+    await page.getByTestId('library-search').fill(query);
+    await page.getByTestId(`library-tile-${id}`).dragTo(scene, { targetPosition: at(u, v) });
+  };
+  await searchLibrary(page, '');
+  const houses = [
+    ['haus a blau', 'kaykit-medieval-hexagon/building-home-a-blue'],
+    ['haus b rot', 'kaykit-medieval-hexagon/building-home-b-red'],
+    ['taverne blau', 'kaykit-medieval-hexagon/building-tavern-blue'],
+    ['kirche blau', 'kaykit-medieval-hexagon/building-church-blue'],
+    ['haus a gelb', 'kaykit-medieval-hexagon/building-home-a-yellow'],
+    ['schmiede blau', 'kaykit-medieval-hexagon/building-blacksmith-blue'],
+    ['markt blau', 'kaykit-medieval-hexagon/building-market-blue'],
+    ['haus b gelb', 'kaykit-medieval-hexagon/building-home-b-yellow'],
+  ] as const;
+  for (const [index, [query, id]] of houses.entries()) {
+    const angle = (index / houses.length) * Math.PI * 2;
+    await drop(query, id, 0.5 + Math.cos(angle) * 0.22, 0.5 + Math.sin(angle) * 0.3);
+  }
+  await drop('brunnen blau', 'kaykit-medieval-hexagon/building-well-blue', 0.5, 0.5);
+  for (const u of [0.2, 0.3, 0.4, 0.6, 0.7, 0.8]) {
+    await drop('zaun einzeln', 'kaykit-halloween/fence-seperate', u, 0.92);
+  }
+
+  // 200 trees with the brush around the village.
+  await page.getByTestId('library-search').fill('baum einzeln a');
+  await page.getByTestId('library-tile-kaykit-medieval-hexagon/tree-single-a').click();
+  await page.getByTestId('brush-toggle').click();
+  await setNumber(page, 'brush-radius', '6');
+  await setNumber(page, 'brush-spacing', '2');
+  const trees = () =>
+    page.evaluate(
+      () =>
+        Object.values(window.__blockwerk?.scene()?.objects ?? {}).filter((object) =>
+          object.components.some((component) =>
+            String(component.values['model']).includes('tree-single-a'),
+          ),
+        ).length,
+    );
+  for (let row = 0; (await trees()) < 200 && row < 12; row++) {
+    const v = 0.06 + (row % 6) * 0.17;
+    const side = row < 6 ? [0.02, 0.2] : [0.8, 0.98];
+    await page.mouse.move(box.x + box.width * (side[0] ?? 0), box.y + box.height * v);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * (side[1] ?? 0), box.y + box.height * v, { steps: 8 });
+    await page.mouse.up();
+  }
+  await page.keyboard.press('Escape');
+  expect(await trees()).toBeGreaterThanOrEqual(200);
+  const buildMinutes = (Date.now() - started) / 60_000;
+  expect(buildMinutes).toBeLessThan(15);
+
+  // Play: equal models are drawn together, so draw calls stay low.
+  await page.getByTestId('play').click();
+  await expect.poll(() => page.evaluate(() => window.__blockwerk?.playStatus())).toBe('playing');
+  await tab(page, 'Spiel').click();
+  await expect
+    .poll(() => page.evaluate(() => window.__blockwerk?.playPerformance().frames ?? 0), {
+      timeout: 30_000,
+    })
+    .toBeGreaterThan(5);
+  const performance = await page.evaluate(() => window.__blockwerk?.playPerformance());
+  console.log(
+    `village built in ${buildMinutes.toFixed(1)} min; play:`,
+    JSON.stringify(performance),
+  );
+  expect(performance?.drawCalls).toBeGreaterThan(0);
+  expect(performance?.drawCalls).toBeLessThan(80);
+  await page.getByTestId('stop').click();
+});

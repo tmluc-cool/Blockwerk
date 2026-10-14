@@ -1,0 +1,101 @@
+{
+  "base": null,
+  "formatVersion": 1,
+  "objects": {
+    "latlight0001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "latlightc001",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ffcf7a",
+            "intensity": 6,
+            "lightType": "point",
+            "range": 9
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Licht",
+      "order": 0,
+      "parent": "latroot00001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0.5,
+          4.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "latroot00001": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "latrender001",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-city/streetlight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "latcollid001",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              2.4,
+              0
+            ],
+            "size": [
+              1.347,
+              4.8,
+              0.345
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Laterne",
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "overrides": [],
+  "root": "latroot00001"
+}
