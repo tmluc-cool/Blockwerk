@@ -11,6 +11,8 @@ export interface ModelTemplate {
   readonly skinned: boolean;
   /** Clip names chosen for standard animation states in the import settings. */
   readonly animationMap?: Readonly<Record<string, string>>;
+  /** Humanoid bones set in the import settings: standard bone name → node name. */
+  readonly boneMap?: Readonly<Record<string, string>>;
 }
 
 /** Where a model file is and how it is placed (import settings of project models). */
@@ -23,6 +25,10 @@ export interface ModelSource {
   readonly pivot?: 'bottom' | 'center' | 'original';
   /** Clip names for standard animation states (import settings), e.g. `{ wave: 'Hello' }`. */
   readonly animationMap?: Readonly<Record<string, string>>;
+  /** Humanoid bones set in the import settings: standard bone name → node name. */
+  readonly boneMap?: Readonly<Record<string, string>>;
+  /** Turns the model around the vertical axis in degrees (default 0). */
+  readonly yaw?: number;
 }
 
 /**
@@ -97,7 +103,13 @@ export class ModelCache {
     scene.traverse((node) => {
       if ((node as { isSkinnedMesh?: boolean }).isSkinnedMesh) skinned = true;
     });
-    return { scene, animations: gltf.animations, skinned, animationMap: source.animationMap };
+    return {
+      scene,
+      animations: gltf.animations,
+      skinned,
+      animationMap: source.animationMap,
+      boneMap: source.boneMap,
+    };
   }
 
   /** A copy of a loaded model. Static copies share geometry and materials. */
@@ -110,8 +122,10 @@ export class ModelCache {
 function placeModel(model: Group, source: ModelSource): Group {
   const scale = source.scale ?? 1;
   const pivot = source.pivot ?? 'original';
-  if (scale === 1 && pivot === 'original') return model;
+  const yaw = source.yaw ?? 0;
+  if (scale === 1 && pivot === 'original' && yaw === 0) return model;
   model.scale.multiplyScalar(scale);
+  if (yaw !== 0) model.rotateY((yaw * Math.PI) / 180);
   model.updateMatrixWorld(true);
   if (pivot !== 'original') {
     const bounds = new Box3().setFromObject(model);

@@ -455,7 +455,11 @@ export const character = defineComponent({
         if (loaded.skinned) {
           const found = rigFromObject(model);
           const automatic = mapBones(found.bones);
-          const map = { ...automatic.map, ...Object.fromEntries(parseList(values.boneMap)) };
+          const map = {
+            ...automatic.map,
+            ...loaded.boneMap,
+            ...Object.fromEntries(parseList(values.boneMap)),
+          };
           const merged: BoneMapping = {
             ...automatic,
             map,

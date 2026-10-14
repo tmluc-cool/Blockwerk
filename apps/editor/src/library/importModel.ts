@@ -1,3 +1,4 @@
+import { readVrm } from '@blockwerk/character';
 import type { LibraryEntry } from '@blockwerk/library';
 import { DEFAULT_MODEL_IMPORT_SETTINGS } from '@blockwerk/project';
 import type { AssetEntry } from '@blockwerk/project';
@@ -12,7 +13,7 @@ import { useSettings } from '../state/settings';
 import { libraryUrl } from './assetLibrary';
 
 /** File endings that can be imported as models (SPEC 6.3). */
-export const MODEL_FILE_EXTENSIONS = ['.glb', '.gltf', '.fbx', '.obj'] as const;
+export const MODEL_FILE_EXTENSIONS = ['.glb', '.gltf', '.vrm', '.fbx', '.obj'] as const;
 
 /** Whether a file name is an importable model. */
 export function isModelFile(name: string): boolean {
@@ -33,7 +34,8 @@ async function toGlb(scene: Object3D): Promise<Uint8Array> {
  */
 export async function convertToGlb(name: string, data: ArrayBuffer): Promise<Uint8Array> {
   const lower = name.toLowerCase();
-  if (lower.endsWith('.glb')) return new Uint8Array(data);
+  // A VRM avatar is a GLB; its extensions are read for the import settings only.
+  if (lower.endsWith('.glb') || lower.endsWith('.vrm')) return new Uint8Array(data);
   if (lower.endsWith('.gltf')) {
     const gltf = await new GLTFLoader().parseAsync(data, '');
     return toGlb(gltf.scene);
@@ -58,7 +60,22 @@ export async function importModelFiles(
     if (!isModelFile(file.name)) continue;
     try {
       const glb = await convertToGlb(file.name, await file.arrayBuffer());
-      const entry = importModelAsset(folder, baseName(file.name), glb);
+      const vrm = readVrm(glb);
+      // VRM: the humanoid assignment goes into the import settings, the license into the meta.
+      const entry = vrm
+        ? importModelAsset(
+            folder,
+            baseName(file.name),
+            glb,
+            {
+              ...DEFAULT_MODEL_IMPORT_SETTINGS,
+              generateCollider: false,
+              boneMap: vrm.boneMap,
+              ...(vrm.version === 0 ? { yaw: 180 } : {}),
+            },
+            vrm.license || null,
+          )
+        : importModelAsset(folder, baseName(file.name), glb);
       if (entry) {
         imported.push(entry);
         useConsole.getState().log('info', 'console.modelImported', { name: file.name });

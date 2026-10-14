@@ -10,3 +10,5 @@ export { boneIndex, forwardPose, rigFromObject } from './rig';
 export type { Rig, RigBone } from './rig';
 export { retargetClip } from './retarget';
 export type { MappedRig, RetargetOptions } from './retarget';
+export { readVrm } from './vrm';
+export type { VrmInfo } from './vrm';

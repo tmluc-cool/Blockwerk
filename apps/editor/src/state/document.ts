@@ -71,7 +71,14 @@ setProjectModelSource(async (assetId) => {
     modelUrls.set(assetId, cached);
   }
   const settings = modelImportSettings(entry.meta);
-  return { url: cached.url, scale: settings.scale, pivot: settings.pivot };
+  return {
+    url: cached.url,
+    scale: settings.scale,
+    pivot: settings.pivot,
+    yaw: settings.yaw,
+    boneMap: settings.boneMap,
+    animationMap: settings.animationMap,
+  };
 });
 
 interface DocumentState {

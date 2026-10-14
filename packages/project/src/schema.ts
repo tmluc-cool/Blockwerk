@@ -173,6 +173,12 @@ export const modelImportSettingsSchema = z.object({
   pivot: z.enum(['bottom', 'center', 'original']),
   /** Add a box collider of the model's size when it is placed. */
   generateCollider: z.boolean(),
+  /** Turns the model around the vertical axis in degrees (VRM 0.x faces backwards). */
+  yaw: z.number().optional(),
+  /** Humanoid bones the automatic recognition missed: standard bone name → node name. */
+  boneMap: z.record(z.string(), z.string()).optional(),
+  /** Clip names for standard animation states: state → clip name. */
+  animationMap: z.record(z.string(), z.string()).optional(),
 });
 /** Import settings of a model. */
 export type ModelImportSettings = z.infer<typeof modelImportSettingsSchema>;

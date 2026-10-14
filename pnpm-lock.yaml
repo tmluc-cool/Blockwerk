@@ -62,6 +62,9 @@ importers:
       '@blockwerk/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
+      '@blockwerk/character':
+        specifier: workspace:*
+        version: link:../../packages/character
       '@blockwerk/compiler':
         specifier: workspace:*
         version: link:../../packages/compiler

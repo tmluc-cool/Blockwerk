@@ -1,3 +1,4 @@
+import { mapBones, REQUIRED_BONES, rigFromObject } from '@blockwerk/character';
 import { modelImportSettings } from '@blockwerk/project';
 import type { AssetEntry, ModelImportSettings } from '@blockwerk/project';
 import { ModelCache } from '@blockwerk/runtime';
@@ -20,6 +21,10 @@ export function ModelImportInspector({ entry }: { entry: AssetEntry<'model'> }) 
   const t = useT();
   const settings = modelImportSettings(entry.meta);
   const [size, setSize] = useState<[number, number, number] | null>(null);
+  const [skeleton, setSkeleton] = useState<{
+    nodes: string[];
+    automatic: Record<string, string>;
+  }>();
 
   useEffect(() => {
     let cancelled = false;
@@ -27,6 +32,15 @@ export function ModelImportInspector({ entry }: { entry: AssetEntry<'model'> }) 
       if (cancelled || !template) return;
       const bounds = new Box3().setFromObject(ModelCache.instantiate(template));
       if (!bounds.isEmpty()) setSize(bounds.getSize(new Vector3()).toArray());
+      if (template.skinned) {
+        const rig = rigFromObject(ModelCache.instantiate(template));
+        setSkeleton({
+          nodes: rig.bones.map((bone) => bone.name),
+          automatic: { ...mapBones(rig.bones).map },
+        });
+      } else {
+        setSkeleton(undefined);
+      }
     });
     return () => {
       cancelled = true;
@@ -96,6 +110,22 @@ export function ModelImportInspector({ entry }: { entry: AssetEntry<'model'> }) 
         </div>
       </div>
       <div className="field-row">
+        <span className="field-label">{t('import.yaw')}</span>
+        <div className="field-value">
+          <NumberInput
+            value={settings.yaw ?? 0}
+            step={90}
+            testId="import-yaw"
+            onChange={(value) => change({ yaw: value })}
+          />
+        </div>
+      </div>
+      <HumanoidMap
+        skeleton={skeleton}
+        overrides={settings.boneMap ?? {}}
+        onChange={(boneMap) => change({ boneMap })}
+      />
+      <div className="field-row">
         <span className="field-label">{t('import.generateCollider')}</span>
         <div className="field-value">
           <input
@@ -122,6 +152,68 @@ export function ModelImportInspector({ entry }: { entry: AssetEntry<'model'> }) 
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Humanoid bone assignment: the 15 required bones, filled automatically from the bone names;
+ * what the recognition missed can be picked from the model's nodes (Unity: Avatar configuration).
+ */
+function HumanoidMap({
+  skeleton,
+  overrides,
+  onChange,
+}: {
+  skeleton: { nodes: string[]; automatic: Record<string, string> } | undefined;
+  overrides: Readonly<Record<string, string>>;
+  onChange: (boneMap: Record<string, string>) => void;
+}) {
+  const t = useT();
+  if (!skeleton) {
+    return (
+      <div className="field-row" data-testid="humanoid-none">
+        <span className="field-label">{t('import.humanoid')}</span>
+        <div className="field-value">{t('import.humanoid.none')}</div>
+      </div>
+    );
+  }
+  const current = (bone: string): string => overrides[bone] ?? skeleton.automatic[bone] ?? '';
+  const missing = REQUIRED_BONES.filter((bone) => !current(bone.name)).length;
+  return (
+    <div className="humanoid-map" data-testid="humanoid-map">
+      <div className="field-row">
+        <span className="field-label">{t('import.humanoid')}</span>
+        <div className="field-value" data-testid="humanoid-status">
+          {missing === 0
+            ? t('import.humanoid.complete', { count: REQUIRED_BONES.length })
+            : t('import.humanoid.missing', { missing, count: REQUIRED_BONES.length })}
+        </div>
+      </div>
+      {REQUIRED_BONES.map((bone) => (
+        <div className="field-row" key={bone.name}>
+          <span className="field-label">{bone.name}</span>
+          <div className="field-value">
+            <select
+              value={current(bone.name)}
+              data-testid={`humanoid-bone-${bone.name}`}
+              onChange={(event) => {
+                const next = { ...overrides };
+                if (event.target.value) next[bone.name] = event.target.value;
+                else Reflect.deleteProperty(next, bone.name);
+                onChange(next);
+              }}
+            >
+              <option value="">{t('import.humanoid.unassigned')}</option>
+              {skeleton.nodes.map((node) => (
+                <option key={node} value={node}>
+                  {node}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
