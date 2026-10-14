@@ -6,7 +6,7 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 |---|---|---|
 | 0 | Fundament und Unity-Layout | abgeschlossen |
 | 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | abgeschlossen |
-| 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | offen |
+| 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | in Arbeit |
 | 3 | Spieler, Physik, Animation | offen |
 | 3b | Figuren-Studio | offen |
 | 4 | Umgebung und Grafik | offen |
@@ -19,6 +19,96 @@ Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebn
 | 11 | Feinschliff und Endabnahme | offen |
 
 ---
+
+## Phase 2: Projekt-Fenster, Asset-Bibliothek, Prefabs
+
+Branch: `phase/02-bibliothek` (baut auf Phase 1 auf).
+
+### Plan
+
+**Teilaufgaben**
+
+1. **Asset-Bibliothek bauen** (`packages/library`, SPEC 6.1, 6.2, Anhang C)
+   - Quellenbeschreibungen in `packages/library/sources/*.json` (URL, Lizenz, Urheber, Kategorien und Tags nach Dateinamen, Übersetzungen der Namen, Collider-Vorschlag, Animationsnamen).
+   - `pnpm assets:fetch`: lädt die Pakete (Git oder ZIP), prüft die Lizenz (nur CC0), optimiert jedes Modell mit `@gltf-transform` (Duplikate, Schweissen, Meshopt-Kompression), normalisiert Massstab und Drehpunkt (unten mittig), rendert Vorschaubilder (Playwright + three.js) und schreibt `library/index.json` und `library/LICENSES.md`. Bereits verarbeitete Modelle werden übersprungen (Cache).
+   - Startpaket: KayKit-Pakete (CC0, offiziell auf GitHub): Mittelalter-Hexagon, Dungeon, Stadt, Möbel, Restaurant, Halloween, Raumbasis, Prototyp, Abenteurer- und Skelett-Figuren (zusammen rund 900 Modelle). Kenney, Quaternius und Poly Haven bekommen ebenfalls Quellenbeschreibungen.
+2. **Laufzeit:** Modelle laden (GLTF mit Meshopt), Modell-Feld im Modell-Renderer (Bibliotheks- oder Projekt-Modell statt Grundform), **automatische Instanziierung** gleicher Modelle (`InstancedMesh`), Collider-Vorschlag aus den Modellmassen.
+3. **Projektformat** (Erweiterung, siehe Vorschlag unten): Binärdateien, Asset-Typen „Modell“ und „Prefab“, Prefab-Exemplare mit Überschreibungen, Varianten, verschachtelte Prefabs.
+4. **Editor**
+   - Asset-Bibliothek: Raster mit Vorschaubildern, Kategorien, unscharfe Suche (de/en), Filter (animiert, Polygonanzahl), Favoriten, zuletzt benutzt, drehbare 3D-Vorschau, „In Projekt importieren“.
+   - Hineinziehen in die Szene mit Aufsetzen auf die Oberfläche unter dem Mauszeiger; **Pinsel** zum Verteilen vieler Objekte mit zufälliger Drehung und Grösse.
+   - Projekt-Fenster: Modelle importieren (Datei hineinziehen oder Menü; GLB/glTF direkt, FBX/OBJ werden zu GLB), Import-Inspektor (Massstab mit 1,8-m-Vergleichsfigur, Drehpunkt, Collider erzeugen, Lizenz), Vorschaubilder, Grössenregler, Typfilter.
+   - Prefabs wie Unity: Objekt aus der Hierarchie ins Projekt-Fenster ziehen erzeugt ein Prefab; Exemplare blau in der Hierarchie; Prefab-Modus per Doppelklick; überschriebene Werte fett mit Randmarkierung, „Übernehmen“/„Zurücksetzen“ pro Wert und für alles; Varianten; verschachtelte Prefabs; „Meine Prefabs“ (projektübergreifend, mit Abhängigkeiten).
+5. **Beispiel** `examples/02-dorf` (Häuser, Brunnen, Zäune, 200 Bäume) und Abnahme mit Tests, Messung der Bildrate und Screenshot.
+
+**Vorschlag Formaterweiterung** (zur Bestätigung; Umsetzung erst nach der Bibliothek)
+
+```
+Assets/Modelle/haus.glb               importiertes Modell (binär) + haus.glb.meta.json
+                                      meta.importSettings: { scale, pivot, generateCollider }, meta.license
+Assets/Prefabs/laterne.prefab.json    { formatVersion, root, objects: { ID → Objekt wie in Szenen },
+                                        base?: Prefab-ID der Basis (Variante), overrides: [...] }
+Szene, Prefab-Exemplar:               Objekt erhält  prefab: { asset: Prefab-ID, object: ID im Prefab }
+                                      und am Exemplar-Wurzelobjekt  overrides: [ { object, path, value } ]
+Modell-Renderer:                      Feld  model: "library:<ID>" oder Projekt-Asset-ID (statt Grundform)
+```
+
+- Exemplare werden in der Szene vollständig gespeichert (lesbar, die Laufzeit braucht keine Prefab-Logik). Beim Laden und nach jeder Prefab-Änderung werden sie aus dem Prefab neu erzeugt, die Überschreibungen bleiben. Position, Drehung und Name des Exemplar-Wurzelobjekts gelten immer als überschrieben (wie in Unity).
+- Varianten speichern nur ihre Unterschiede zur Basis (gleiche Überschreibungs-Liste). Verschachtelte Prefabs sind Prefab-Exemplare innerhalb eines Prefabs.
+- Bibliotheksmodelle werden nur per stabiler ID verwiesen und nicht ins Projekt kopiert; „In Projekt importieren“ kopiert das GLB nach `Assets/Modelle/`.
+
+**Betroffene Pakete:** `library` (neu befüllt), `runtime`, `project`, `apps/editor`, `apps/desktop` (Bibliothek ausliefern, Binärdateien), `examples/`, `.github/workflows` (Bibliothek in der CI laden und zwischenspeichern).
+
+**Risiken**
+
+- Netzwerk: In dieser Cloud-Umgebung sind kenney.nl, quaternius.com, itch.io und polyhaven.com gesperrt, GitHub ist erreichbar. Das Startpaket kommt deshalb hier aus den KayKit-Paketen auf GitHub; die übrigen Quellen funktionieren auf Rechnern mit normalem Internetzugang und in der CI.
+- Texturkompression: `sharp` (Standardweg von `@gltf-transform`) bringt libvips unter LGPL mit und ist nicht erlaubt. KayKit nutzt eine kleine Farbpalette als Textur, daher bleiben Texturen PNG; Meshopt verkleinert die Geometrie.
+- Bildrate: Die CI rendert ohne Grafikkarte (SwiftShader). 60 FPS werden über Draw Calls (Instanziierung) und die Bildzeit gemessen; Messwerte aus der Software-Darstellung sind nur ein Anhaltspunkt.
+- Grösse: Die Bibliothek (rund 100 MB) liegt nicht im Repository (`library/` ist in `.gitignore`), die CI lädt und speichert sie zwischen.
+
+### Annahmen
+
+- **Projektformat wie vorgeschlagen** (keine Einwände): Modelle als `Assets/Modelle/*.glb` mit Import-Einstellungen (Massstab, Drehpunkt, Collider erzeugen) und Lizenz in der Meta-Datei; Prefabs als `Assets/Prefabs/*.prefab.json`. Prefab-Exemplare stehen vollständig in der Szene (lesbar, die Laufzeit braucht keine Prefab-Logik); jedes Objekt eines Exemplars trägt `prefab: { asset, object }`, das Wurzelobjekt zusätzlich die Liste der Überschreibungen. Name, Position und Drehung der Exemplar-Wurzel gehören immer zum Exemplar (wie in Unity).
+- **Überschreibungen** entstehen automatisch bei jeder Änderung an einem Exemplar (Inspektor, Gizmo, Rückgängig) und sind fett mit blauer Randmarkierung zu sehen; Rechtsklick auf den Wert oder die Liste „Überschreibungen“ in der Prefab-Leiste übernimmt oder setzt zurück. Hinzugefügte Objekte und Komponenten bleiben beim Abgleich erhalten. Gelöschte Prefab-Teile eines Exemplars kommen beim nächsten Abgleich zurück (Unity verlangt dafür „Entpacken“, das es im Kontextmenü gibt).
+- **Varianten** speichern nur ihre Unterschiede zur Basis (plus eigene neue Objekte). Wird aus einem Exemplar ein neues Prefab gezogen, wird das Exemplar dabei entpackt.
+- **Massstab der Bibliothek:** Die KayKit-Pakete haben unterschiedliche Spielzeug-Massstäbe. Jedes Paket bekommt in seiner Quellbeschreibung einen Faktor, damit eine Figur etwa 1,8 m gross ist und Türen, Möbel und Bäume dazu passen (z. B. Mittelalter ×4, Stadt ×5, Figuren ×0,55, Halloween ×0,6). Der Faktor fliesst in den Cache-Schlüssel ein.
+- **Startpaket aus KayKit:** In dieser Cloud-Umgebung sind kenney.nl, quaternius.com, itch.io und polyhaven.com gesperrt. Das Startpaket besteht deshalb aus 10 KayKit-Paketen von GitHub (903 Modelle, alle CC0). Quellbeschreibungen für Kenney, Quaternius und Poly Haven folgen, sobald diese Seiten erreichbar sind.
+- **Texturen bleiben PNG:** Die Standard-Texturkompression von `@gltf-transform` braucht `sharp` (libvips, LGPL) und ist nicht erlaubt. KayKit nutzt eine kleine Farbpaletten-Textur, Meshopt verkleinert die Geometrie.
+- **Bibliothek ausliefern:** `library/` liegt nicht im Repository. Editor im Browser und Vorschau-Server liefern sie unter `library/` aus; die Desktop-App liest sie aus dem Repository-Ordner (Entwicklung) bzw. aus ihren Ressourcen (Installer, Phase 9).
+- **„Meine Prefabs“** liegen pro Benutzer in der Browser-Datenbank (IndexedDB, in der Desktop-App im Benutzerprofil), mit allen Abhängigkeiten (Modelle, Block-Skripte, verschachtelte Prefabs, Basis von Varianten) und gleichen Asset-IDs. Beim Übernehmen in ein Projekt werden vorhandene Assets (gleiche ID) nicht doppelt angelegt.
+- **„erzeuge [Prefab] bei [Objekt]“** ist ein Stapelblock (das neue Objekt startet „Wenn ich erstellt werde“). Der Rückgabewert „→ gibt Objekt zurück“ kommt mit Objekt-Variablen in einer späteren Phase.
+- **Pinsel:** verteilt das gewählte Bibliotheksmodell oder Prefab mit Mindestabstand, zufälliger Drehung und Grösse auf Oberflächen; ein Pinselstrich ist ein Rückgängig-Schritt; `Esc` beendet den Pinsel.
+- **Ein Modell ersetzt die Grundform:** Ist im Modell-Renderer ein Modell gesetzt, werden Form und Material-Felder ausgeblendet; das Modell behält seine eigenen Materialien. Fehlt das Modell, erscheint die Grundform als Platzhalter.
+- **Ausgeblendete Ansichten zeichnen nicht:** Szene oder Spiel hinter einem anderen Reiter werden nicht gerendert (spart im Play-Modus die Hälfte der Arbeit).
+
+### Ergebnis
+
+**Umgesetzt**
+
+- **Asset-Bibliothek** (`packages/library`): Quellbeschreibungen mit fester Version (Git-Commit), Lizenzprüfung, Optimierung mit `@gltf-transform` (Duplikate, Schweissen, Drehpunkt unten mittig, Massstab, Meshopt), Vorschaubilder, `library/index.json` und `library/LICENSES.md`, Cache für unveränderte Modelle. 903 CC0-Modelle aus 10 KayKit-Paketen.
+- **Laufzeit:** Modelle laden (GLB mit Meshopt) mit Import-Einstellungen, Modell-Feld im Modell-Renderer, **automatische Instanziierung** gleicher Modelle (`InstancedMesh`, Sichtbarkeit und Bewegung werden verfolgt, Auswahl per Mausklick bleibt), Prefabs zur Laufzeit erzeugen.
+- **Projektformat:** Binärdateien in allen Dateisystemen (Speicher, Node, Browser, Desktop), Modell- und Prefab-Assets, Überschreibungen, Varianten, verschachtelte Prefabs, Abhängigkeiten, Übernehmen von Assets mit gleicher ID.
+- **Editor:** Fenster „Asset-Bibliothek“ (unscharfe Suche de/en, Kategorien, Filter animiert/Polygone, Favoriten, zuletzt benutzt, Grössenregler, drehbare 3D-Vorschau, Details mit Lizenz und Urheber, „In Szene platzieren“, „In Projekt importieren“, „Meine Prefabs“), Hineinziehen in die Szene mit Vorschau und Aufsetzen auf die Oberfläche, Pinsel. Modell-Feld mit Suche und Ablegen. Projekt-Fenster: Modelle importieren (GLB, glTF, FBX und OBJ werden zu GLB), Import-Inspektor mit Grösse und 1,8-m-Vergleich, Prefab erstellen per Ziehen aus der Hierarchie, Prefabs und Modelle in Szene oder Hierarchie ziehen, Prefab-Varianten. Prefab-Exemplare blau, Prefab-Leiste im Inspektor (Öffnen, Auswählen, Überschreibungen übernehmen/zurücksetzen, Entpacken), Prefab-Modus mit Leiste „Zurück zur Szene“. Statistik der Spielansicht zeigt Bilder pro Sekunde.
+- **Beispiel** `examples/02-dorf`: Dorfplatz mit Brunnen, 10 Häusern, Zaunring mit Tor, Weg, 200 Bäumen, Prefab „Laterne“ (Strassenlaterne mit Licht) und Variante „Rote Laterne“, eine Laterne mit überschriebener Helligkeit, Kamerafahrt um das Dorf (Block-Skript).
+
+**Abnahme**
+
+- [x] Startpaket mit mindestens 300 Modellen, alle CC0, mit Vorschaubild und Lizenzeintrag: 903 Modelle aus 10 Paketen (Unit-Test prüft Index, Lizenz, Vorschaubild und Datei jedes Eintrags; `library/LICENSES.md`).
+- [ ] `examples/02-dorf`: Dorf mit Häusern, Brunnen, Zäunen und 200 Bäumen in unter 15 Minuten nur aus der Bibliothek gebaut, 60 FPS im Play-Modus. Aufbau erfüllt: Der E2E-Test baut über die Oberfläche (Bibliothek, Hineinziehen, Pinsel) ein Dorf mit 8 Häusern, Brunnen, Zäunen und 200 Bäumen in 0,3 Minuten und spielt es ab; `examples/02-dorf` ist das ausgebaute Dorf. **60 FPS sind hier nicht nachweisbar**, weil die Umgebung ohne Grafikkarte rendert (siehe Messung); bitte auf einem Rechner mit Grafikkarte prüfen.
+- [x] Prefab „Laterne“ geändert: alle Exemplare übernehmen es, ein überschriebener Wert bleibt; Variante „Rote Laterne“ erbt Änderungen der Basis (Unit-Tests in `packages/project` und E2E-Test im Editor mit Prefab-Modus, Speichern und Neuladen).
+- [ ] `pnpm test`, `pnpm lint`, `pnpm build` lokal grün; CI auf GitHub: siehe Pull Request (der erste Lauf baut die Bibliothek, danach kommt sie aus dem Cache).
+
+Messung im Beispiel „Dorf“ (Spielansicht, Software-Renderer ohne Grafikkarte): 35 Draw Calls für 289 Objekte, 123 120 Dreiecke, etwa 10–15 ms Arbeit pro Bild, 2 Bilder/s. Zum Vergleich erreicht das einfache Beispiel aus Phase 1 hier nur 4 Bilder/s; die Bildrate ist in dieser Umgebung durch die Software-Darstellung begrenzt.
+
+Tests: 177 Unit-/Golden-/Laufzeittests (Vitest), 41 End-to-End-Tests (39 Browser, 2 Desktop-App). Screenshot: `docs/screenshots/phase-02.png`.
+
+**Offen / Hinweise für später**
+
+- **60 FPS auf echter Grafikkarte bestätigen:** Beispiel „Dorf“ öffnen, Play, im Spiel-Fenster „Statistik“ einschalten (zeigt Bilder/s, Bildzeit, Draw Calls).
+- Kenney, Quaternius und Poly Haven (Texturen, HDRI-Himmel), Tiere, Fahrzeuge und Effekte fehlen im Startpaket, bis die Seiten erreichbar sind (Anhang C).
+- Animierte Figuren der Bibliothek werden erst mit dem Animator (Phase 3) abgespielt; Skelett-Modelle werden noch nicht instanziiert.
+- Materialien als eigene Assets, Texturen und Klänge im Projekt-Fenster folgen in späteren Phasen; Vorschaubilder für Projekt-Modelle im Projekt-Fenster ebenfalls.
+- „Meine Prefabs“ zeigt noch keine Vorschaubilder.
 
 ## Phase 1: Objekte, Komponenten, Block-Skripte, Play-Modus
 

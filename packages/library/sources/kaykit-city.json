@@ -1,0 +1,30 @@
+{
+  "id": "kaykit-city",
+  "name": "KayKit City Builder Bits 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/city-builder-bits",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0",
+    "commit": "63976910ca04d16f0fc531b9c614244be8128713"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_city_builder_bits/Assets/gltf/car_*.gltf"],
+      "category": "vehicles",
+      "tags": ["stadt", "city", "auto", "car"],
+      "scale": 5
+    },
+    {
+      "include": ["addons/kaykit_city_builder_bits/Assets/gltf/*.gltf"],
+      "exclude": ["addons/kaykit_city_builder_bits/Assets/gltf/car_*.gltf"],
+      "category": "buildings",
+      "tags": ["stadt", "city"],
+      "scale": 5
+    }
+  ],
+  "dropWords": ["building"]
+}

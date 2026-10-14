@@ -2,11 +2,12 @@ import * as Blockly from 'blockly/core';
 import type { FrameReferences } from './frameApi';
 
 /** Values allowed in scene reference fields (same as the compiler accepts). */
-const REFERENCE = /^(?:self|any|mouse|origin|object:.+|tag:.*)$/;
+const REFERENCE = /^(?:self|any|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*)$/;
 
 let references: FrameReferences = {
   objects: [],
   tags: [],
+  prefabs: [],
   labels: {
     self: 'self',
     any: 'anything',
@@ -14,6 +15,7 @@ let references: FrameReferences = {
     origin: 'origin',
     tag: 'Tag',
     missing: '?',
+    choosePrefab: '?',
     createVariable: '+',
     noVariables: '',
   },
@@ -35,6 +37,11 @@ function labelOf(value: string): string {
   if (value === 'mouse') return references.labels.mouse;
   if (value === 'origin') return references.labels.origin;
   if (value.startsWith('tag:')) return `${references.labels.tag}: ${value.slice(4)}`;
+  if (value === 'prefab:') return references.labels.choosePrefab;
+  if (value.startsWith('prefab:')) {
+    const id = value.slice(7);
+    return references.prefabs.find((prefab) => prefab.id === id)?.name ?? references.labels.missing;
+  }
   if (value.startsWith('object:')) {
     const id = value.slice(7);
     return references.objects.find((object) => object.id === id)?.name ?? references.labels.missing;
@@ -61,6 +68,13 @@ export class FieldReference extends Blockly.FieldDropdown {
   private options(): Blockly.MenuOption[] {
     const values: string[] = [];
     const source = this.source ?? 'object';
+    if (source === 'prefab') {
+      values.push(...references.prefabs.map((prefab) => `prefab:${prefab.id}`));
+      const current = this.getValue();
+      if (current && !values.includes(current)) values.push(current);
+      if (values.length === 0) values.push('prefab:');
+      return values.map((value) => [labelOf(value), value]);
+    }
     if (source === 'object') values.push('self');
     if (source === 'objectOrMouse') values.push('mouse');
     if (source === 'touchTarget') {

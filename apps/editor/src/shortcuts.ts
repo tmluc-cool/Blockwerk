@@ -6,6 +6,7 @@ import {
   renameSelection,
 } from './document/actions';
 import { focusPanel } from './layout/layoutController';
+import { useBrush } from './library/brush';
 import { PANELS } from './layout/panels';
 import { areaTabIds } from './chrome/AreaTabs';
 import { redo, saveProject, undo } from './state/document';
@@ -48,6 +49,10 @@ export function handleShortcut(event: KeyboardEvent, options: ShortcutOptions = 
   const digit = /^Digit[1-9]$/.test(event.code) ? Number(event.code.slice(5)) : null;
   const key = event.key.toLowerCase();
 
+  if (event.key === 'Escape' && useBrush.getState().source && !isTyping(event.target)) {
+    run(event, () => useBrush.getState().set({ source: null }));
+    return;
+  }
   if (digit !== null && event.altKey && !ctrl) {
     const area = areaTabIds()[digit - 1];
     if (area) run(event, () => editor.setActiveArea(area));

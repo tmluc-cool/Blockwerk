@@ -1,5 +1,5 @@
 import { compileBlockScript, CompileError } from '@blockwerk/compiler';
-import { assetDisplayName } from '@blockwerk/project';
+import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SceneData } from '@blockwerk/project';
 import { Game, loadScriptModule } from '@blockwerk/runtime';
 import type { GameLogEntry, ScriptAsset, VariableMonitor, World } from '@blockwerk/runtime';
@@ -7,9 +7,16 @@ import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
 import { focusPanel } from '../layout/layoutController';
-import { currentEditWorld, defaultObjectName, renderViews, setPlayWorld } from '../scene/worlds';
+import { editorModels } from '../library/models';
+import {
+  currentEditWorld,
+  defaultObjectName,
+  renderViews,
+  setPlayWorld,
+  worldUpdated,
+} from '../scene/worlds';
 import { useConsole } from './console';
-import { editScene, useDocument } from './document';
+import { editScene, prefabSource, useDocument } from './document';
 
 /** A value changed while playing that can be kept after stopping. */
 export interface PlayChange {
@@ -162,6 +169,13 @@ function logGame(entry: GameLogEntry): void {
       },
     );
     if (log.errorPause && usePlay.getState().status === 'playing') pause();
+  } else if (entry.kind === 'missingPrefab') {
+    log.log(
+      'warning',
+      'console.game.missingPrefab',
+      { object: entry.objectName, asset: entry.assetId ?? '–' },
+      { objectId: entry.objectId },
+    );
   } else {
     log.log(
       'warning',
@@ -183,9 +197,33 @@ function updateUi(force = false): void {
   }));
 }
 
+/** Times of the recent play-mode frames and how long each took (for the statistics). */
+const frameTimes: number[] = [];
+const frameWork: number[] = [];
+const MEASURED_FRAMES = 120;
+
+/**
+ * Frame rate and work per frame of play mode over the last frames: `fps` from the frame times,
+ * `frameMs` the average time spent on logic and rendering per frame.
+ */
+export function playPerformance(): { fps: number; frameMs: number; frames: number } {
+  const count = frameTimes.length;
+  const first = frameTimes[0];
+  const last = frameTimes[count - 1];
+  const fps =
+    count > 1 && first !== undefined && last !== undefined && last > first
+      ? ((count - 1) * 1000) / (last - first)
+      : 0;
+  const frameMs = frameWork.length
+    ? frameWork.reduce((sum, value) => sum + value, 0) / frameWork.length
+    : 0;
+  return { fps, frameMs, frames: count };
+}
+
 function loop(time: number): void {
   frameHandle = 0;
   if (!game) return;
+  const workStart = performance.now();
   const dt = lastTime ? (time - lastTime) / 1000 : 1 / 60;
   lastTime = time;
   const { status, timeScale } = usePlay.getState();
@@ -193,6 +231,10 @@ function loop(time: number): void {
   game.paused = status !== 'playing';
   const alpha = game.advance(dt);
   game.renderInterpolated(alpha, renderViews);
+  frameTimes.push(time);
+  frameWork.push(performance.now() - workStart);
+  if (frameTimes.length > MEASURED_FRAMES) frameTimes.shift();
+  if (frameWork.length > MEASURED_FRAMES) frameWork.shift();
   if (playStarted !== null) {
     const startupMs = Math.round(performance.now() - playStarted);
     playStarted = null;
@@ -209,6 +251,8 @@ let unsubscribeAssets: (() => void) | null = null;
 export function play(): void {
   if (game) return;
   playStarted = performance.now();
+  frameTimes.length = 0;
+  frameWork.length = 0;
   const { scene } = useDocument.getState();
   if (!scene) return;
   compileAll();
@@ -216,6 +260,9 @@ export function play(): void {
     scripts: (id) => compiled.get(id)?.asset ?? null,
     log: logGame,
     displayName: defaultObjectName,
+    models: editorModels,
+    onModelLoaded: worldUpdated,
+    prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
   });
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
   game.world.updateSun();

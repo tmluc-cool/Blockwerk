@@ -1,6 +1,7 @@
 import type { BlockDefinition } from '../types';
 import {
   createClone,
+  spawnPrefab,
   destroy,
   forever,
   ifElse,
@@ -110,6 +111,7 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   ifElse,
   waitUntil,
   createClone,
+  spawnPrefab,
   destroy,
   stop,
   // Sensing

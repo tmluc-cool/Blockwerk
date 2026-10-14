@@ -1,0 +1,30 @@
+{
+  "id": "kaykit-restaurant",
+  "name": "KayKit Restaurant Bits 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/restaurant-bits",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Restaurant-Bits-1.0",
+    "commit": "153c8a7535b48237854cb54ff6890679f8c574d1"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_restaurant_bits/Assets/gltf/food_*.gltf"],
+      "category": "items",
+      "tags": ["essen", "food"],
+      "scale": 0.75
+    },
+    {
+      "include": ["addons/kaykit_restaurant_bits/Assets/gltf/*.gltf"],
+      "exclude": ["addons/kaykit_restaurant_bits/Assets/gltf/food_*.gltf"],
+      "category": "interior",
+      "tags": ["restaurant", "küche", "kitchen"],
+      "scale": 0.75
+    }
+  ],
+  "dropWords": ["food", "ingredient"]
+}

@@ -12,7 +12,7 @@ import { errorLine } from '../scripts';
 import type { CompiledScriptModule, ScriptEntry } from '../scripts';
 import { GameObject } from '../world/GameObject';
 import type { VariableValue } from '../world/GameObject';
-import { World } from '../world/World';
+import { applyTransformData, World } from '../world/World';
 import type { WorldOptions } from '../world/World';
 import type {
   Easing,
@@ -56,7 +56,7 @@ export type GameLogEntry =
     }
   | {
       readonly level: 'warning';
-      readonly kind: 'missingScript';
+      readonly kind: 'missingScript' | 'missingPrefab';
       readonly objectId: string;
       readonly objectName: string;
       readonly assetId: string | null;
@@ -80,6 +80,11 @@ export interface GameOptions extends WorldOptions {
   readonly random?: () => number;
   /** Creates IDs for clones. */
   readonly createId?: () => string;
+  /** Prefabs for "create [prefab] at": root and objects with variants and nesting resolved. */
+  readonly prefabs?: (assetId: string) => {
+    readonly root: string;
+    readonly objects: Readonly<Record<string, SceneObjectData>>;
+  } | null;
 }
 
 interface AttachedScript {
@@ -159,6 +164,8 @@ export class Game implements GameApi {
     { name: string; owner: GameObject | null; scope: VariableScope; id: string }
   >();
   private readonly previous = new Map<GameObject, TransformSnapshot>();
+  /** Objects of prefabs spawned by scripts, by template ID (`prefab:<asset>/<id>`). */
+  private readonly templates = new Map<string, SceneObjectData>();
   private readonly logical = new Map<GameObject, TransformSnapshot>();
   private accumulator = 0;
   private timerStart = 0;
@@ -575,11 +582,34 @@ export class Game implements GameApi {
     this.find(self, ref)?.setActive(active);
   }
 
+  spawn(self: GameObject, prefab: string, at: ObjectRef): void {
+    const assetId = prefab.startsWith('prefab:') ? prefab.slice('prefab:'.length) : prefab;
+    const template = assetId ? this.prefabTemplate(assetId) : null;
+    const data = template ? this.templates.get(template) : undefined;
+    if (!template || !data) {
+      this.options.log?.({
+        level: 'warning',
+        kind: 'missingPrefab',
+        objectId: self.cloneOf ?? self.id,
+        objectName: self.name,
+        assetId: assetId || null,
+      });
+      return;
+    }
+    const target = this.find(self, at);
+    const copy = this.instantiate(template, data, null);
+    applyTransformData(copy, data);
+    if (target) copy.setWorldPosition(target.worldPosition());
+    for (const object of copy.descendantsAndSelf()) {
+      this.fireFor(object, 'created', () => true, true);
+    }
+  }
+
   clone(self: GameObject, ref: ObjectRef): void {
     const source = this.find(self, ref);
     if (!source || source.destroyed) return;
     const origin = source.cloneOf ?? source.id;
-    const data = this.world.sceneData.objects[origin];
+    const data = this.dataOf(origin);
     if (!data) return;
     const copy = this.instantiate(origin, data, source.parent);
     copy.object3d.position.copy(source.object3d.position);
@@ -627,7 +657,7 @@ export class Game implements GameApi {
     object: GameObject,
     overrides: Readonly<Record<string, JsonValue>> | null,
   ): void {
-    const data = this.world.sceneData.objects[object.cloneOf ?? object.id];
+    const data = this.dataOf(object.cloneOf ?? object.id);
     const scripts: AttachedScript[] = [];
     for (const component of object.components) {
       if (component.definition.type !== 'blockScript' || !component.enabled) continue;
@@ -668,6 +698,28 @@ export class Game implements GameApi {
     if (scripts.length > 0) this.attached.set(object, scripts);
   }
 
+  /** Data of a scene object or of an object of a spawned prefab (`prefab:<asset>/<id>`). */
+  private dataOf(id: string): SceneObjectData | undefined {
+    return this.world.sceneData.objects[id] ?? this.templates.get(id);
+  }
+
+  /** Registers the objects of a prefab as templates; returns the root's template ID. */
+  private prefabTemplate(assetId: string): string | null {
+    const prefix = `prefab:${assetId}/`;
+    const resolved = this.options.prefabs?.(assetId);
+    if (!resolved) return null;
+    if (!this.templates.has(prefix + resolved.root)) {
+      for (const [id, data] of Object.entries(resolved.objects)) {
+        this.templates.set(prefix + id, {
+          ...data,
+          parent:
+            data.parent !== null && data.parent in resolved.objects ? prefix + data.parent : null,
+        });
+      }
+    }
+    return prefix + resolved.root;
+  }
+
   private instantiate(
     originId: string,
     data: SceneObjectData,
@@ -686,7 +738,7 @@ export class Game implements GameApi {
     this.world.adoptObject(object, parent);
     for (const component of data.components) this.world.addComponent(object, component);
     this.attachScripts(object, null);
-    const children = Object.entries(this.world.sceneData.objects)
+    const children = [...Object.entries(this.world.sceneData.objects), ...this.templates.entries()]
       .filter(([, child]) => child.parent === originId)
       .sort((a, b) => a[1].order - b[1].order);
     for (const [childId, childData] of children) {

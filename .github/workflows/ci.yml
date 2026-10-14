@@ -41,14 +41,25 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # The asset library (CC0 models, previews) is built from pinned sources and cached; it
+      # only changes when the source descriptions or the pipeline change.
+      - name: Cache asset library
+        uses: actions/cache@v4
+        with:
+          path: library
+          key: library-${{ runner.os }}-${{ hashFiles('packages/library/sources/**', 'packages/library/scripts/**', 'pnpm-lock.yaml') }}
+
+      - name: Build asset library
+        run: pnpm assets:fetch
+
       - name: Unit and golden tests
         run: pnpm test
 
       - name: Build
         run: pnpm build
-
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
 
       - name: End-to-end tests (Linux)
         if: runner.os == 'Linux'

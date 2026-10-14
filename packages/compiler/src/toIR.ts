@@ -258,7 +258,7 @@ class IRBuilder {
   }
 }
 
-const REFERENCE_PATTERN = /^(?:self|any|mouse|origin|object:.+|tag:.*)$/;
+const REFERENCE_PATTERN = /^(?:self|any|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*)$/;
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/;
 
 function isField(input: BlockInput): input is FieldInput {

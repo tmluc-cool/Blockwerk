@@ -14,6 +14,8 @@ export interface FrameVariable {
 export interface FrameReferences {
   readonly objects: readonly { readonly id: string; readonly name: string }[];
   readonly tags: readonly string[];
+  /** Prefabs of the project (for "create [prefab] at"). */
+  readonly prefabs: readonly { readonly id: string; readonly name: string }[];
   readonly labels: {
     readonly self: string;
     readonly any: string;
@@ -21,6 +23,7 @@ export interface FrameReferences {
     readonly origin: string;
     readonly tag: string;
     readonly missing: string;
+    readonly choosePrefab: string;
     readonly createVariable: string;
     readonly noVariables: string;
   };

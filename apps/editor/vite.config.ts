@@ -11,7 +11,27 @@ const MEDIA_TYPES: Readonly<Record<string, string>> = {
   '.gif': 'image/gif',
   '.cur': 'image/x-icon',
   '.mp3': 'audio/mpeg',
+  '.glb': 'model/gltf-binary',
+  '.json': 'application/json',
+  '.md': 'text/markdown; charset=utf-8',
 };
+
+/** Serves the files under `dir` at `prefix`; other requests go on to the next handler. */
+function serveFolder(dir: string) {
+  return (
+    request: { url?: string },
+    response: { setHeader(name: string, value: string): void } & NodeJS.WritableStream,
+    next: () => void,
+  ): void => {
+    const file = normalize(join(dir, decodeURIComponent((request.url ?? '').split('?')[0] ?? '')));
+    if (!file.startsWith(dir + sep) || !existsSync(file) || !statSync(file).isFile()) {
+      next();
+      return;
+    }
+    response.setHeader('Content-Type', MEDIA_TYPES[extname(file)] ?? 'application/octet-stream');
+    createReadStream(file).pipe(response);
+  };
+}
 
 /**
  * Serves Blockly's media files (sprites, cursors, sounds) from the local package instead of
@@ -23,20 +43,7 @@ function blocklyMedia(): Plugin {
   return {
     name: 'blockwerk:blockly-media',
     configureServer(server) {
-      server.middlewares.use('/blockly-media', (request, response, next) => {
-        const file = normalize(
-          join(mediaDir, decodeURIComponent((request.url ?? '').split('?')[0] ?? '')),
-        );
-        if (!file.startsWith(mediaDir + sep) || !existsSync(file) || !statSync(file).isFile()) {
-          next();
-          return;
-        }
-        response.setHeader(
-          'Content-Type',
-          MEDIA_TYPES[extname(file)] ?? 'application/octet-stream',
-        );
-        createReadStream(file).pipe(response);
-      });
+      server.middlewares.use('/blockly-media', serveFolder(mediaDir));
     },
     generateBundle() {
       for (const name of readdirSync(mediaDir)) {
@@ -50,10 +57,28 @@ function blocklyMedia(): Plugin {
   };
 }
 
+/**
+ * Serves the asset library built by `pnpm assets:fetch` (repository folder `library/`) at
+ * `library/` in the dev and preview servers. It is not copied into the build: the desktop app
+ * serves it from its own folder.
+ */
+function assetLibrary(): Plugin {
+  const dir = resolve(import.meta.dirname, '..', '..', 'library');
+  return {
+    name: 'blockwerk:asset-library',
+    configureServer(server) {
+      server.middlewares.use('/library', serveFolder(dir));
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use('/library', serveFolder(dir));
+    },
+  };
+}
+
 export default defineConfig({
   // Relative asset paths so the build also works from Electron's custom protocol.
   base: './',
-  plugins: [react(), blocklyMedia()],
+  plugins: [react(), blocklyMedia(), assetLibrary()],
   server: { port: 5173, strictPort: true },
   preview: { port: 4173, strictPort: true },
   build: {

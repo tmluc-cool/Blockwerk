@@ -57,9 +57,14 @@ function references(scene: SceneData | null): FrameReferences {
   ]);
   for (const object of Object.values(scene?.objects ?? {}))
     if (object.tag !== 'Untagged') tags.add(object.tag);
+  const prefabs = (project?.assetsOfType('prefab') ?? []).map((asset) => ({
+    id: asset.id,
+    name: assetDisplayName(asset.path),
+  }));
   return {
     objects,
     tags: [...tags].sort(),
+    prefabs,
     labels: {
       self: t('reference.self'),
       any: t('reference.any'),
@@ -67,6 +72,7 @@ function references(scene: SceneData | null): FrameReferences {
       origin: t('reference.origin'),
       tag: t('reference.tag'),
       missing: t('reference.missing'),
+      choosePrefab: t('reference.choosePrefab'),
       createVariable: t('blockEditor.createVariable'),
       noVariables: t('blockEditor.noVariables'),
     },
@@ -256,7 +262,7 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
   const theme = useSettings((state) => state.theme);
   const project = useDocument((state) => state.project);
   const scene = useDocument((state) => state.scene);
-  useDocument((state) => state.assetsVersion);
+  const assetsVersion = useDocument((state) => state.assetsVersion);
   const openScript = useEditor((state) => state.openScript);
   const selectionActive = useEditor(activeObjectId);
   const revealBlock = useEditor((state) => state.revealBlock);
@@ -373,7 +379,10 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
   useEffect(() => controllerRef.current?.setLocale(locale), [locale]);
   useEffect(() => controllerRef.current?.setTheme(theme), [theme]);
   useEffect(() => controllerRef.current?.setArea(areaKind), [areaKind]);
-  useEffect(() => controllerRef.current?.setReferences(references(scene)), [scene, locale]);
+  useEffect(
+    () => controllerRef.current?.setReferences(references(scene)),
+    [scene, locale, assetsVersion],
+  );
   useEffect(() => {
     if (revealBlock && revealBlock.assetId === entry?.id)
       controllerRef.current?.reveal(revealBlock.blockId);

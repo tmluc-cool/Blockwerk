@@ -4,6 +4,7 @@ import { Raycaster, Vector2, Vector3 } from 'three';
 import type { WebGLRenderer } from 'three';
 import { currentGame } from '../state/play';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from '../scene/worlds';
+import { isOnScreen } from '../scene/visibility';
 
 /** Aspect ratio presets of the Game view toolbar. `null` means free aspect. */
 export type AspectPreset = 'free' | '16:9' | '4:3';
@@ -19,9 +20,19 @@ const SHADOW_FOCUS_DISTANCE = 10;
 
 /** Callbacks from the Game view to its panel. */
 export interface GameViewportCallbacks {
-  stats(stats: RenderStats & { width: number; height: number }): void;
+  stats(stats: GameViewStats): void;
   /** Whether the shown world has a camera (otherwise the panel shows a hint). */
   cameraChanged(hasCamera: boolean): void;
+}
+
+/** Statistics of a drawn game frame: render counts, size and frames per second. */
+export type GameViewStats = RenderStats & { width: number; height: number; fps: number };
+
+let lastGameStats: GameViewStats | null = null;
+
+/** Statistics of the last frame a game view drew (for tests and the statistics overlay). */
+export function lastGameViewStats(): GameViewStats | null {
+  return lastGameStats;
 }
 
 /**
@@ -29,6 +40,8 @@ export interface GameViewportCallbacks {
  * (no grid or gizmos). In play mode it receives keyboard and mouse input for the game.
  */
 export class GameViewport {
+  /** Times of the frames drawn in the last second (for the frame rate). */
+  private readonly frameTimes: number[] = [];
   private readonly renderer: WebGLRenderer;
   private world: World | null = null;
   private aspect: AspectPreset = 'free';
@@ -185,6 +198,8 @@ export class GameViewport {
 
   /** Renders now (also called by the play loop). */
   render(): void {
+    // Hidden tabs (e.g. behind the Scene view) draw nothing; showing them draws again.
+    if (!isOnScreen(this.canvas)) return;
     const world = currentWorld();
     if (world !== this.world) {
       // Baked lighting stays with its world (worlds free it when they are disposed).
@@ -203,7 +218,7 @@ export class GameViewport {
     }
     camera.aspect = size.x / Math.max(1, size.y);
     camera.updateProjectionMatrix();
-    world.updateSun();
+    world.prepareRender();
     camera.updateMatrixWorld();
     // Sun shadows cover the area in front of the camera.
     const focus = camera.getWorldPosition(new Vector3());
@@ -211,6 +226,14 @@ export class GameViewport {
     world.environment.setFocus(focus);
     world.environment.prepare(this.renderer, camera);
     const stats = measureFrame(this.renderer, () => this.renderer.render(world.scene, camera));
-    this.callbacks.stats({ ...stats, width: size.x, height: size.y });
+    const now = performance.now();
+    this.frameTimes.push(now);
+    while (this.frameTimes.length > 0 && now - (this.frameTimes[0] ?? now) > 1000) {
+      this.frameTimes.shift();
+    }
+    const span = now - (this.frameTimes[0] ?? now);
+    const fps = span > 0 ? ((this.frameTimes.length - 1) * 1000) / span : 0;
+    lastGameStats = { ...stats, width: size.x, height: size.y, fps };
+    this.callbacks.stats(lastGameStats);
   }
 }

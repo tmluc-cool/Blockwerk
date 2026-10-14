@@ -113,10 +113,14 @@ export interface DropdownField {
  * - `object`: the object itself ("myself") and all objects
  * - `objectOrMouse`: the mouse pointer and all objects
  * - `touchTarget`: anything, all tags and all objects
+ * - `prefab`: the prefabs of the project
  */
-export type ReferenceSource = 'object' | 'objectOrMouse' | 'touchTarget';
+export type ReferenceSource = 'object' | 'objectOrMouse' | 'touchTarget' | 'prefab';
 
-/** Dropdown of objects or tags of the scene. Values: `self`, `any`, `mouse`, `object:<id>`, `tag:<name>`. */
+/**
+ * Dropdown of objects or tags of the scene, or prefabs of the project. Values: `self`, `any`,
+ * `mouse`, `object:<id>`, `tag:<name>`, `prefab:<asset ID>` (`prefab:` for none yet).
+ */
 export interface ReferenceField {
   readonly type: 'reference';
   readonly source: ReferenceSource;

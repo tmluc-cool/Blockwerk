@@ -1,0 +1,41 @@
+{
+  "id": "kaykit-medieval-hexagon",
+  "name": "KayKit Medieval Hexagon Pack 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/kaykit-medieval-hexagon",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0",
+    "commit": "84fa4e91af6a88989be7c99e0891cede11f2ca38"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/buildings/**/*.gltf"],
+      "category": "buildings",
+      "tags": ["mittelalter", "medieval", "dorf", "village"],
+      "scale": 4
+    },
+    {
+      "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/decoration/nature/*.gltf"],
+      "category": "nature",
+      "tags": ["natur", "nature"],
+      "scale": 4
+    },
+    {
+      "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/decoration/props/*.gltf"],
+      "category": "items",
+      "tags": ["mittelalter", "medieval"],
+      "scale": 4
+    },
+    {
+      "include": ["addons/kaykit_medieval_hexagon_pack/Assets/gltf/tiles/**/*.gltf"],
+      "category": "terrain",
+      "tags": ["sechseck", "hexagon", "tile"],
+      "scale": 4
+    }
+  ],
+  "dropWords": ["building"]
+}

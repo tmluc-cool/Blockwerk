@@ -11,6 +11,19 @@ interface FieldBase {
   readonly text: LocalizedText;
   /** Inspector group, e.g. `material` (shown as its own foldout). */
   readonly group?: string;
+  /** Shown only while another field is empty (`null` or `""`) or, with `empty: false`, set. */
+  readonly visibleIf?: { readonly field: string; readonly empty: boolean };
+}
+
+/** Whether a field is shown for the given values (see `visibleIf`). */
+export function isFieldVisible(
+  field: FieldDefinition,
+  values: Readonly<Record<string, unknown>>,
+): boolean {
+  if (!field.visibleIf) return true;
+  const other = values[field.visibleIf.field];
+  const empty = other === null || other === undefined || other === '';
+  return empty === field.visibleIf.empty;
 }
 
 /** Number field. */
@@ -61,11 +74,14 @@ export interface EnumFieldDefinition extends FieldBase {
   readonly options: readonly EnumOption[];
 }
 
-/** Reference to an asset by its stable ID. */
+/** Asset kinds an asset field can point to. */
+export type AssetFieldType = 'blockScript' | 'model';
+
+/** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {
   readonly type: 'asset';
   readonly default: null;
-  readonly assetType: 'blockScript';
+  readonly assetType: AssetFieldType;
 }
 
 /** Any inspector field of a component. */

@@ -1,6 +1,7 @@
 import { createRenderer } from '@blockwerk/runtime';
 import type { GameObject, World } from '@blockwerk/runtime';
 import type { TransformData } from '@blockwerk/project';
+import { ModelCache } from '@blockwerk/runtime';
 import {
   ArrowHelper,
   Box3,
@@ -13,7 +14,9 @@ import {
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
+  Plane,
   Raycaster,
+  RingGeometry,
   Scene,
   Sphere,
   SphereGeometry,
@@ -23,12 +26,16 @@ import {
 import type { Camera, Intersection, WebGLRenderer, Matrix4 } from 'three';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { transformFromMatrix } from '../document/sceneOps';
+import { editorModels } from '../library/models';
 import type { Tool } from '../state/editor';
 import { EditorGrid } from './EditorGrid';
 import { SceneCamera } from './SceneCamera';
 import type { AxisView } from './SceneCamera';
+import { brushStamp } from '../library/brush';
+import type { GroundPoint } from '../library/brush';
 import { SceneInput } from './SceneInput';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from './worlds';
+import { isOnScreen } from './visibility';
 
 /** Shading modes of the scene view (Unity: Draw Mode). */
 export type ShadingMode = 'shaded' | 'wireframe';
@@ -64,6 +71,18 @@ export interface SceneViewportCallbacks {
   transform(transforms: ReadonlyMap<string, TransformData>): void;
   /** A gizmo drag ended. */
   transformEnd(): void;
+  /** Brush settings while the brush is active, else `null`. */
+  brush(): ViewportBrush | null;
+  /** The brush placed objects at these points (one undo step per stroke `stroke`). */
+  brushPlace(points: readonly Vector3[], stroke: number): void;
+}
+
+/** What the viewport needs to know about the brush. */
+export interface ViewportBrush {
+  readonly radius: number;
+  readonly spacing: number;
+  /** Ground positions (x, z) of objects of the same kind already in the scene. */
+  existing(): GroundPoint[];
 }
 
 const SELECTION_COLOR = new Color(0xffa133);
@@ -99,6 +118,15 @@ export class SceneViewport {
   private readonly selectionBoxes = new Map<string, Box3Helper>();
   private readonly wireframe = new MeshBasicMaterial({ color: 0xd0d4dc, wireframe: true });
   private world: World | null = null;
+  /** Outline of the brush on the surface under the pointer. */
+  private readonly brushRing = new Mesh(
+    new RingGeometry(0.96, 1, 64).rotateX(-Math.PI / 2),
+    new MeshBasicMaterial({ color: 0xf39a2b, depthTest: false, transparent: true }),
+  );
+  private stroke: { id: number; taken: GroundPoint[]; last: Vector3 | null } | null = null;
+  private strokeCount = 0;
+  /** Model shown where a dragged library entry would land. */
+  private dropPreview: { ref: string; object: Object3D | null; point: Vector3 } | null = null;
   private selection: readonly string[] = [];
   private dragStart: { proxy: Matrix4; objects: Map<string, Matrix4> } | null = null;
   private snapping = false;
@@ -151,7 +179,13 @@ export class SceneViewport {
         this.requestRender();
       },
       gizmoHit: (x, y) => this.gizmoHit(x, y),
+      brushActive: () => this.callbacks.brush() !== null,
+      paint: (x, y, phase) => this.paint(x, y, phase),
+      hover: (x, y) => this.hoverBrush(x, y),
     });
+    this.brushRing.visible = false;
+    this.brushRing.renderOrder = 10;
+    this.overlay.add(this.brushRing);
     const view = container.ownerDocument.defaultView;
     view?.addEventListener('keydown', this.onModifier);
     view?.addEventListener('keyup', this.onModifier);
@@ -244,6 +278,150 @@ export class SceneViewport {
     return this.camera.pivot.clone();
   }
 
+  /**
+   * The world point under a canvas position (CSS pixels) for placing objects: the first
+   * surface of an object, else the ground plane, else the pivot. `ignore` objects are skipped.
+   */
+  surfacePoint(x: number, y: number, ignore: readonly string[] = []): Vector3 {
+    this.camera.apply(this.perspective, this.orthographic, this.width / this.height);
+    this.raycaster.setFromCamera(this.pointer(x, y), this.activeCamera());
+    const world = this.world;
+    if (world) {
+      world.scene.updateMatrixWorld();
+      const hit = this.raycaster.intersectObjects(world.scene.children, true).find((item) => {
+        if (!isPickable(item.object)) return false;
+        const object = world.objectFromNode(item.object);
+        return object !== undefined && !ignore.includes(object.id);
+      });
+      if (hit) return hit.point.clone();
+    }
+    const ground = this.raycaster.ray.intersectPlane(
+      new Plane(new Vector3(0, 1, 0), 0),
+      new Vector3(),
+    );
+    return ground ?? this.placementPoint();
+  }
+
+  /**
+   * Where a model placed without a drop position stands: on the first surface below the pivot,
+   * else on the ground plane below it (Unity places at the pivot; standing is nicer for models).
+   */
+  surfaceBelowPivot(ignore: readonly string[] = []): Vector3 {
+    const pivot = this.placementPoint();
+    const world = this.world;
+    if (world) {
+      world.scene.updateMatrixWorld();
+      this.raycaster.set(pivot.clone().add(new Vector3(0, 0.01, 0)), new Vector3(0, -1, 0));
+      const hit = this.raycaster.intersectObjects(world.scene.children, true).find((item) => {
+        if (!isPickable(item.object)) return false;
+        const object = world.objectFromNode(item.object);
+        return object !== undefined && !ignore.includes(object.id);
+      });
+      if (hit) return hit.point.clone();
+    }
+    return pivot.y > 0 ? new Vector3(pivot.x, 0, pivot.z) : pivot;
+  }
+
+  /** Updates the gizmo and brush outline after the brush was switched on or off. */
+  refreshBrush(): void {
+    if (!this.callbacks.brush()) this.brushRing.visible = false;
+    this.updateGizmo();
+    this.requestRender();
+  }
+
+  /** The height of the first surface at (x, z), from above; 0 without any surface. */
+  private surfaceAt(x: number, z: number): Vector3 {
+    const world = this.world;
+    if (world) {
+      this.raycaster.set(new Vector3(x, 1000, z), new Vector3(0, -1, 0));
+      const hit = this.raycaster
+        .intersectObjects(world.scene.children, true)
+        .find((item) => isPickable(item.object) && world.objectFromNode(item.object));
+      if (hit) return hit.point.clone();
+    }
+    return new Vector3(x, 0, z);
+  }
+
+  private hoverBrush(x: number, y: number): void {
+    const brush = this.callbacks.brush();
+    if (!brush) {
+      if (this.brushRing.visible) {
+        this.brushRing.visible = false;
+        this.requestRender();
+      }
+      return;
+    }
+    const point = this.surfacePoint(x, y);
+    this.brushRing.position.copy(point).add(new Vector3(0, 0.02, 0));
+    this.brushRing.scale.setScalar(brush.radius);
+    this.brushRing.visible = true;
+    this.requestRender();
+  }
+
+  /** A brush stroke: stamps objects whenever the pointer moved far enough. */
+  private paint(x: number, y: number, phase: 'start' | 'move' | 'end'): void {
+    const brush = this.callbacks.brush();
+    if (!brush || phase === 'end') {
+      // The whole stroke is one undo step.
+      if (this.stroke) this.callbacks.transformEnd();
+      this.stroke = null;
+      return;
+    }
+    if (phase === 'start' || !this.stroke) {
+      this.strokeCount += 1;
+      this.stroke = { id: this.strokeCount, taken: brush.existing(), last: null };
+    }
+    const stroke = this.stroke;
+    this.world?.scene.updateMatrixWorld();
+    const center = this.surfacePoint(x, y);
+    if (stroke.last && stroke.last.distanceTo(center) < Math.max(brush.spacing, brush.radius / 2)) {
+      return;
+    }
+    stroke.last = center;
+    const points = brushStamp([center.x, center.z], brush.radius, brush.spacing, stroke.taken);
+    if (points.length === 0) return;
+    stroke.taken.push(...points);
+    this.callbacks.brushPlace(
+      points.map(([px, pz]) => this.surfaceAt(px, pz)),
+      stroke.id,
+    );
+  }
+
+  /**
+   * Shows model `ref` standing at `point` while a library entry is dragged over the view;
+   * `null` hides it.
+   */
+  showDropPreview(ref: string | null, point?: Vector3): void {
+    const world = this.world;
+    if (!ref || !world) {
+      this.dropPreview?.object?.removeFromParent();
+      this.dropPreview = null;
+      this.requestRender();
+      return;
+    }
+    if (this.dropPreview?.ref !== ref) {
+      this.dropPreview?.object?.removeFromParent();
+      const preview: { ref: string; object: Object3D | null; point: Vector3 } = {
+        ref,
+        object: null,
+        point: point?.clone() ?? this.placementPoint(),
+      };
+      this.dropPreview = preview;
+      void editorModels.load(ref).then((template) => {
+        if (this.dropPreview !== preview || !template || !this.world) return;
+        preview.object = ModelCache.instantiate(template);
+        preview.object.position.copy(preview.point);
+        this.world.scene.add(preview.object);
+        this.requestRender();
+      });
+    }
+    if (point) {
+      this.dropPreview.point.copy(point);
+      this.dropPreview.object?.position.copy(point);
+    }
+    this.requestRender();
+  }
+
   /** Turns to an axis view (scene gizmo). */
   setAxisView(view: AxisView): void {
     this.camera.setAxisView(view);
@@ -313,6 +491,7 @@ export class SceneViewport {
   private worldChanged(): void {
     const world = currentWorld();
     if (world !== this.world) {
+      this.showDropPreview(null);
       // Baked lighting stays with its world (worlds free it when they are disposed).
       this.world = world;
       for (const icon of this.icons.values()) icon.dispose();
@@ -368,7 +547,7 @@ export class SceneViewport {
     move.setMode(tool === 'scale' ? 'scale' : 'translate');
     const space = this.callbacks.space() === 'local' || tool === 'scale' ? 'local' : 'world';
     for (const gizmo of this.gizmos) gizmo.setSpace(space);
-    if (objects.length === 0) {
+    if (objects.length === 0 || this.callbacks.brush()) {
       move.detach();
       rotate.detach();
       return;
@@ -628,6 +807,8 @@ export class SceneViewport {
 
   /** Renders now (also called by the play loop for every game frame). */
   render(): void {
+    // Hidden tabs (e.g. behind the Game view while playing) draw nothing.
+    if (!isOnScreen(this.canvas)) return;
     const aspect = this.width / this.height;
     this.camera.apply(this.perspective, this.orthographic, aspect);
     const camera = this.activeCamera();
@@ -645,7 +826,7 @@ export class SceneViewport {
     renderer.autoClear = true;
     const world = this.world;
     if (world) {
-      world.updateSun();
+      world.prepareRender();
       world.environment.setFocus(this.camera.pivot);
       world.environment.prepare(renderer, camera);
       const scene = world.scene;
@@ -676,10 +857,14 @@ export class SceneViewport {
   }
 }
 
-/** Visible meshes count for picking (helpers and invisible parts do not). */
+/**
+ * Visible meshes count for picking (helpers and invisible parts do not). Meshes drawn by
+ * automatic instancing are hidden themselves but count as visible.
+ */
 function isPickable(object: Object3D): boolean {
   if (!(object as { isMesh?: boolean }).isMesh) return false;
-  for (let current: Object3D | null = object; current; current = current.parent) {
+  if (!object.visible && object.userData['instanced'] !== true) return false;
+  for (let current: Object3D | null = object.parent; current; current = current.parent) {
     if (!current.visible) return false;
   }
   return true;
