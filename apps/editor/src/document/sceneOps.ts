@@ -1,4 +1,4 @@
-import { createId } from '@blockwerk/project';
+import { createId, instanceRootOf } from '@blockwerk/project';
 import type {
   AreaKindData,
   ComponentData,
@@ -190,14 +190,21 @@ export function duplicateObjects(
       const source = scene.objects[sourceId];
       if (!source) continue;
       const isTop = sourceId === id;
+      // Copies of whole prefab instances stay instances: links and component IDs (which the
+      // overrides refer to) are kept. Copies of parts of an instance become plain objects.
+      const instanceRoot = source.prefab ? instanceRootOf(scene.objects, sourceId) : null;
+      const linked = instanceRoot !== null && mapping.has(instanceRoot);
       const copy: SceneObjectData = {
         ...source,
         parent: isTop ? source.parent : (mapping.get(source.parent ?? '') ?? source.parent),
         // Right after the original: fractional orders are normalized by later moves.
         order: isTop ? source.order + 0.5 : source.order,
         name: isTop && source.name !== null ? copyName(source.name, siblingNames) : source.name,
-        components: source.components.map((component) => ({ ...component, id: createId() })),
+        components: linked
+          ? source.components
+          : source.components.map((component) => ({ ...component, id: createId() })),
       };
+      if (!linked) Reflect.deleteProperty(copy, 'prefab');
       // Built-in area roots are unique; their copies become ordinary custom areas.
       if (copy.area && copy.area !== 'custom') {
         Reflect.deleteProperty(copy, 'area');

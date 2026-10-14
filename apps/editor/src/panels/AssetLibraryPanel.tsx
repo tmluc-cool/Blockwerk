@@ -7,6 +7,7 @@ import { createLibraryObject } from '../document/actions';
 import type { TranslationKey } from '../i18n';
 import { libraryRef, libraryUrl, loadAssetLibrary, useAssetLibrary } from '../library/assetLibrary';
 import { endLibraryDrag, startLibraryDrag } from '../library/drag';
+import { BrushControls } from '../library/BrushControls';
 import { importLibraryModel } from '../library/importModel';
 import { useLibraryPrefs } from '../library/libraryPrefs';
 import { ModelPreview } from '../library/ModelPreview';
@@ -235,6 +236,10 @@ export function AssetLibraryPanel(_props: IDockviewPanelProps) {
               >
                 <Download size={14} /> {t('assetLibrary.import')}
               </button>
+              <BrushControls
+                source={{ kind: 'library', id: selected.id }}
+                disabled={playing || !hasProject}
+              />
               <button
                 type="button"
                 data-testid="library-favorite"

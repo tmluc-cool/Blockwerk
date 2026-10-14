@@ -224,3 +224,52 @@ test('prefab "Laterne": changes reach all instances, an override stays, a varian
   expect(await instanceRoots(page, 'Laterne')).toHaveLength(3);
   expect((await componentValues(page, red ?? '', 'meshRenderer'))?.['color']).toBe('#ff0000');
 });
+
+test('the brush spreads trees with spacing; one stroke is one undo step', async ({
+  editor: page,
+}) => {
+  await searchLibrary(page, 'baum tot klein');
+  await page.getByTestId('library-tile-kaykit-halloween/tree-dead-small').click();
+  await page.getByTestId('brush-toggle').click();
+  await setNumber(page, 'brush-radius', '4');
+  await setNumber(page, 'brush-spacing', '1.5');
+  await expect(page.getByTestId('brush-hint')).toContainText('Baum Tot Klein');
+
+  const box = await page.getByTestId('scene-canvas').boundingBox();
+  if (!box) throw new Error('no scene view');
+  const count = () =>
+    page.evaluate(
+      () =>
+        Object.values(window.__blockwerk?.scene()?.objects ?? {}).filter((object) =>
+          object.components.some(
+            (component) => component.values['model'] === 'library:kaykit-halloween/tree-dead-small',
+          ),
+        ).length,
+    );
+  await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.75);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.75, { steps: 12 });
+  await page.mouse.up();
+  const painted = await count();
+  expect(painted).toBeGreaterThan(5);
+  // Trees stand on the ground and keep their distance.
+  const positions = await page.evaluate(() =>
+    Object.values(window.__blockwerk?.scene()?.objects ?? {})
+      .filter((object) =>
+        object.components.some((component) =>
+          String(component.values['model']).includes('tree-dead-small'),
+        ),
+      )
+      .map((object) => object.transform.position),
+  );
+  for (const a of positions) {
+    expect(a[1]).toBeCloseTo(0, 2);
+    for (const b of positions) {
+      if (a !== b) expect(Math.hypot(a[0] - b[0], a[2] - b[2])).toBeGreaterThanOrEqual(1.49);
+    }
+  }
+  await page.keyboard.press('Control+z');
+  await expect.poll(count).toBe(0);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('brush-hint')).toHaveCount(0);
+});

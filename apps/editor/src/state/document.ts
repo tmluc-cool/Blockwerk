@@ -143,13 +143,14 @@ export function editScene(
   label: TranslationKey,
   recipe: (scene: SceneData) => SceneData,
   mergeKey?: string,
+  untilSealed = false,
 ): void {
   const { scene } = useDocument.getState();
   if (!scene) return;
   const edited = recipe(scene);
   if (edited === scene) return;
   const next = trackOverrides(scene, edited);
-  history.record(scene, label, mergeKey);
+  history.record(scene, label, mergeKey, untilSealed);
   useDocument.setState({ scene: next });
   syncHistoryLabels();
   touch();

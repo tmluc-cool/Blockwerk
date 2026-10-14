@@ -16,6 +16,7 @@ import {
   PerspectiveCamera,
   Plane,
   Raycaster,
+  RingGeometry,
   Scene,
   Sphere,
   SphereGeometry,
@@ -30,6 +31,8 @@ import type { Tool } from '../state/editor';
 import { EditorGrid } from './EditorGrid';
 import { SceneCamera } from './SceneCamera';
 import type { AxisView } from './SceneCamera';
+import { brushStamp } from '../library/brush';
+import type { GroundPoint } from '../library/brush';
 import { SceneInput } from './SceneInput';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from './worlds';
 
@@ -67,6 +70,18 @@ export interface SceneViewportCallbacks {
   transform(transforms: ReadonlyMap<string, TransformData>): void;
   /** A gizmo drag ended. */
   transformEnd(): void;
+  /** Brush settings while the brush is active, else `null`. */
+  brush(): ViewportBrush | null;
+  /** The brush placed objects at these points (one undo step per stroke `stroke`). */
+  brushPlace(points: readonly Vector3[], stroke: number): void;
+}
+
+/** What the viewport needs to know about the brush. */
+export interface ViewportBrush {
+  readonly radius: number;
+  readonly spacing: number;
+  /** Ground positions (x, z) of objects of the same kind already in the scene. */
+  existing(): GroundPoint[];
 }
 
 const SELECTION_COLOR = new Color(0xffa133);
@@ -102,6 +117,13 @@ export class SceneViewport {
   private readonly selectionBoxes = new Map<string, Box3Helper>();
   private readonly wireframe = new MeshBasicMaterial({ color: 0xd0d4dc, wireframe: true });
   private world: World | null = null;
+  /** Outline of the brush on the surface under the pointer. */
+  private readonly brushRing = new Mesh(
+    new RingGeometry(0.96, 1, 64).rotateX(-Math.PI / 2),
+    new MeshBasicMaterial({ color: 0xf39a2b, depthTest: false, transparent: true }),
+  );
+  private stroke: { id: number; taken: GroundPoint[]; last: Vector3 | null } | null = null;
+  private strokeCount = 0;
   /** Model shown where a dragged library entry would land. */
   private dropPreview: { ref: string; object: Object3D | null; point: Vector3 } | null = null;
   private selection: readonly string[] = [];
@@ -156,7 +178,13 @@ export class SceneViewport {
         this.requestRender();
       },
       gizmoHit: (x, y) => this.gizmoHit(x, y),
+      brushActive: () => this.callbacks.brush() !== null,
+      paint: (x, y, phase) => this.paint(x, y, phase),
+      hover: (x, y) => this.hoverBrush(x, y),
     });
+    this.brushRing.visible = false;
+    this.brushRing.renderOrder = 10;
+    this.overlay.add(this.brushRing);
     const view = container.ownerDocument.defaultView;
     view?.addEventListener('keydown', this.onModifier);
     view?.addEventListener('keyup', this.onModifier);
@@ -291,6 +319,71 @@ export class SceneViewport {
       if (hit) return hit.point.clone();
     }
     return pivot.y > 0 ? new Vector3(pivot.x, 0, pivot.z) : pivot;
+  }
+
+  /** Updates the gizmo and brush outline after the brush was switched on or off. */
+  refreshBrush(): void {
+    if (!this.callbacks.brush()) this.brushRing.visible = false;
+    this.updateGizmo();
+    this.requestRender();
+  }
+
+  /** The height of the first surface at (x, z), from above; 0 without any surface. */
+  private surfaceAt(x: number, z: number): Vector3 {
+    const world = this.world;
+    if (world) {
+      this.raycaster.set(new Vector3(x, 1000, z), new Vector3(0, -1, 0));
+      const hit = this.raycaster
+        .intersectObjects(world.scene.children, true)
+        .find((item) => isPickable(item.object) && world.objectFromNode(item.object));
+      if (hit) return hit.point.clone();
+    }
+    return new Vector3(x, 0, z);
+  }
+
+  private hoverBrush(x: number, y: number): void {
+    const brush = this.callbacks.brush();
+    if (!brush) {
+      if (this.brushRing.visible) {
+        this.brushRing.visible = false;
+        this.requestRender();
+      }
+      return;
+    }
+    const point = this.surfacePoint(x, y);
+    this.brushRing.position.copy(point).add(new Vector3(0, 0.02, 0));
+    this.brushRing.scale.setScalar(brush.radius);
+    this.brushRing.visible = true;
+    this.requestRender();
+  }
+
+  /** A brush stroke: stamps objects whenever the pointer moved far enough. */
+  private paint(x: number, y: number, phase: 'start' | 'move' | 'end'): void {
+    const brush = this.callbacks.brush();
+    if (!brush || phase === 'end') {
+      // The whole stroke is one undo step.
+      if (this.stroke) this.callbacks.transformEnd();
+      this.stroke = null;
+      return;
+    }
+    if (phase === 'start' || !this.stroke) {
+      this.strokeCount += 1;
+      this.stroke = { id: this.strokeCount, taken: brush.existing(), last: null };
+    }
+    const stroke = this.stroke;
+    this.world?.scene.updateMatrixWorld();
+    const center = this.surfacePoint(x, y);
+    if (stroke.last && stroke.last.distanceTo(center) < Math.max(brush.spacing, brush.radius / 2)) {
+      return;
+    }
+    stroke.last = center;
+    const points = brushStamp([center.x, center.z], brush.radius, brush.spacing, stroke.taken);
+    if (points.length === 0) return;
+    stroke.taken.push(...points);
+    this.callbacks.brushPlace(
+      points.map(([px, pz]) => this.surfaceAt(px, pz)),
+      stroke.id,
+    );
   }
 
   /**
@@ -453,7 +546,7 @@ export class SceneViewport {
     move.setMode(tool === 'scale' ? 'scale' : 'translate');
     const space = this.callbacks.space() === 'local' || tool === 'scale' ? 'local' : 'world';
     for (const gizmo of this.gizmos) gizmo.setSpace(space);
-    if (objects.length === 0) {
+    if (objects.length === 0 || this.callbacks.brush()) {
       move.detach();
       rotate.detach();
       return;

@@ -369,5 +369,14 @@
   "import.pivot.original": "As in File",
   "import.generateCollider": "Generate Colliders",
   "import.license": "License",
-  "import.licenseHint": "e.g. CC0-1.0 or own work"
+  "import.licenseHint": "e.g. CC0-1.0 or own work",
+  "undo.brush": "Paint with Brush",
+  "brush.title": "Brush",
+  "brush.start": "Paint with Brush",
+  "brush.stop": "Stop Brush",
+  "brush.radius": "Radius",
+  "brush.spacing": "Spacing",
+  "brush.randomRotation": "Random Rotation",
+  "brush.scale": "Scale Range",
+  "brush.hint": "Brush: {name} – paint with the left mouse button, Esc stops."
 }

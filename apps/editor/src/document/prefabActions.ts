@@ -12,7 +12,7 @@ import {
   resolvePrefab,
   revertOverrides,
 } from '@blockwerk/project';
-import type { PrefabOverride, SceneData, SceneObjectData } from '@blockwerk/project';
+import type { PrefabOverride, SceneData, SceneObjectData, TransformData } from '@blockwerk/project';
 import { activeSceneView } from '../scene/sceneViews';
 import { objectName } from '../scene/worlds';
 import {
@@ -107,6 +107,38 @@ export function instantiatePrefabAsset(
   }));
   useEditor.getState().select(created.rootId);
   return created.rootId;
+}
+
+/**
+ * Adds an instance of a prefab to scene data (used by the brush): root at `transform`, named
+ * like the prefab. Returns the scene unchanged if the prefab is missing.
+ */
+export function instantiatePrefabInScene(
+  scene: SceneData,
+  prefabId: string,
+  parent: string | null,
+  transform: TransformData,
+): SceneData {
+  const asset = useDocument.getState().project?.assetOfType(prefabId, 'prefab');
+  const resolved = resolvePrefab(prefabId, prefabSource());
+  if (!asset || !resolved) return scene;
+  const siblings = childIds(scene, parent);
+  const lastOrder = siblings.length > 0 ? (scene.objects[siblings.at(-1) ?? '']?.order ?? 0) : -1;
+  const created = instantiatePrefab(prefabId, resolved, {
+    parent,
+    order: Math.floor(lastOrder) + 1,
+    transform: { position: transform.position, rotation: transform.rotation },
+    createId,
+  });
+  const root = created.objects[created.rootId];
+  if (root) {
+    created.objects[created.rootId] = {
+      ...root,
+      name: assetDisplayName(asset.path),
+      transform: { ...root.transform, scale: transform.scale },
+    };
+  }
+  return { ...scene, objects: { ...scene.objects, ...created.objects } };
 }
 
 /** The instance root of an object and the prefab it comes from. */

@@ -1541,3 +1541,36 @@ button.small {
 .reference-figure {
   background: var(--bw-accent);
 }
+
+/* Brush */
+
+.brush-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brush-controls > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brush-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.brush-row input[type='checkbox'] {
+  justify-self: start;
+}
+
+.brush-hint {
+  padding: 4px 8px;
+  background: var(--bw-accent);
+  color: var(--bw-accent-text);
+  font-weight: 600;
+}

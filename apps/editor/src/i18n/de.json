@@ -369,5 +369,14 @@
   "import.pivot.original": "Wie in der Datei",
   "import.generateCollider": "Collider erzeugen",
   "import.license": "Lizenz",
-  "import.licenseHint": "z. B. CC0-1.0 oder eigenes Werk"
+  "import.licenseHint": "z. B. CC0-1.0 oder eigenes Werk",
+  "undo.brush": "Mit dem Pinsel malen",
+  "brush.title": "Pinsel",
+  "brush.start": "Mit Pinsel verteilen",
+  "brush.stop": "Pinsel beenden",
+  "brush.radius": "Radius",
+  "brush.spacing": "Abstand",
+  "brush.randomRotation": "Zufällig drehen",
+  "brush.scale": "Grösse von–bis",
+  "brush.hint": "Pinsel: {name} – mit der linken Maustaste malen, Esc beendet."
 }

@@ -21,11 +21,16 @@ export class History<T> {
 
   constructor(private readonly now: () => number = () => Date.now()) {}
 
-  /** Remembers the state before a change. Changes with the same `mergeKey` in quick succession merge. */
-  record(before: T, label: string, mergeKey?: string): void {
+  /**
+   * Remembers the state before a change. Changes with the same `mergeKey` in quick succession
+   * merge; with `untilSealed`, they merge however long apart until {@link seal} is called.
+   */
+  record(before: T, label: string, mergeKey?: string, untilSealed = false): void {
     const time = this.now();
     const merge =
-      mergeKey !== undefined && mergeKey === this.lastKey && time - this.lastTime < MERGE_WINDOW_MS;
+      mergeKey !== undefined &&
+      mergeKey === this.lastKey &&
+      (untilSealed || time - this.lastTime < MERGE_WINDOW_MS);
     this.lastKey = mergeKey ?? null;
     this.lastTime = time;
     this.redoSteps.length = 0;

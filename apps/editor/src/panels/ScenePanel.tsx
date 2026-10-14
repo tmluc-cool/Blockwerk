@@ -7,16 +7,53 @@ import { AxisGizmo } from '../scene/AxisGizmo';
 import { activateSceneView, registerSceneView, unregisterSceneView } from '../scene/sceneViews';
 import { SceneViewport } from '../scene/SceneViewport';
 import type { SceneCameraSnapshot, ShadingMode } from '../scene/SceneViewport';
-import { createLibraryObject, createModelObject } from '../document/actions';
+import { createLibraryObject, createModelObject, placeBrushObjects } from '../document/actions';
+import { useBrush } from '../library/brush';
+import type { BrushSource, GroundPoint } from '../library/brush';
+import { currentEditWorld } from '../scene/worlds';
+import { usePlay } from '../state/play';
 import { instantiatePrefabAsset } from '../document/prefabActions';
 import { editTransforms } from '../document/edits';
-import { libraryRef } from '../library/assetLibrary';
+import { libraryRef, useAssetLibrary } from '../library/assetLibrary';
 import { draggedLibraryEntry, endLibraryDrag } from '../library/drag';
 import { draggedAssetId, endAssetDrag } from '../library/projectDrag';
 import { closePrefab, useDocument } from '../state/document';
 import { sealHistory } from '../state/document';
 import { useEditor } from '../state/editor';
-import { useT } from '../state/settings';
+import { useSettings, useT } from '../state/settings';
+
+/** Ground positions of objects the brush would place again (so strokes keep their spacing). */
+function brushedPositions(source: BrushSource): GroundPoint[] {
+  const world = currentEditWorld();
+  const scene = useDocument.getState().scene;
+  if (!world || !scene) return [];
+  const points: GroundPoint[] = [];
+  for (const [id, object] of Object.entries(scene.objects)) {
+    const matches =
+      source.kind === 'prefab'
+        ? object.prefab?.asset === source.id && object.prefab.overrides !== undefined
+        : object.components.some(
+            (component) =>
+              component.type === 'meshRenderer' &&
+              component.values['model'] === `library:${source.id}`,
+          );
+    const position = matches ? world.getObject(id)?.worldPosition() : undefined;
+    if (position) points.push([position.x, position.z]);
+  }
+  return points;
+}
+
+/** Name of what the brush paints, if it is active. */
+function useBrushName(): string | null {
+  const source = useBrush((state) => state.source);
+  const locale = useSettings((state) => state.locale);
+  const project = useDocument((state) => state.project);
+  const entries = useAssetLibrary((state) => state.byId);
+  if (!source) return null;
+  if (source.kind === 'library') return entries.get(source.id)?.name[locale] ?? source.id;
+  const asset = project?.asset(source.id);
+  return asset ? assetDisplayName(asset.path) : source.id;
+}
 
 /** Whether WebGL 2 can be used in this document. */
 function webgl2Available(): boolean {
@@ -38,6 +75,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const [grid, setGrid] = useState(true);
   const [sky, setSky] = useState(true);
   const tool = useEditor((state) => state.tool);
+  const brushName = useBrushName();
   const stageName = useDocument((state) => {
     const id = state.prefabStage?.prefabId;
     const asset = id ? state.project?.asset(id) : undefined;
@@ -62,6 +100,20 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
       flyingChanged: (flying) => useEditor.getState().setFlying(flying),
       transform: editTransforms,
       transformEnd: sealHistory,
+      brush: () => {
+        const brush = useBrush.getState();
+        const source = brush.source;
+        if (!source || usePlay.getState().status !== 'stopped') return null;
+        return {
+          radius: brush.radius,
+          spacing: brush.spacing,
+          existing: () => brushedPositions(source),
+        };
+      },
+      brushPlace: (points, stroke) => {
+        const source = useBrush.getState().source;
+        if (source) placeBrushObjects(source, points, stroke);
+      },
     });
     viewportRef.current = viewport;
     registerSceneView(viewport);
@@ -69,6 +121,11 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     // Synchronously, so a click right after selecting in the hierarchy sees the new gizmo.
     const unsubscribeSelection = useEditor.subscribe((state, previous) => {
       if (state.selection !== previous.selection) viewport.setSelection(state.selection);
+    });
+    const unsubscribeBrush = useBrush.subscribe((state, previous) => {
+      if (state.source !== previous.source || state.radius !== previous.radius) {
+        viewport.refreshBrush();
+      }
     });
     const activate = (): void => activateSceneView(viewport);
     host.addEventListener('pointerdown', activate);
@@ -83,6 +140,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
       }
     });
     return () => {
+      unsubscribeBrush();
       unsubscribeSelection();
       host.removeEventListener('pointerdown', activate);
       observer.disconnect();
@@ -160,6 +218,11 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
 
   return (
     <div className="panel scene" data-testid="scene-view">
+      {brushName && (
+        <div className="brush-hint" data-testid="brush-hint">
+          {t('brush.hint', { name: brushName })}
+        </div>
+      )}
       {stageName && (
         <div className="prefab-stage-bar" data-testid="prefab-stage">
           <Package size={14} />

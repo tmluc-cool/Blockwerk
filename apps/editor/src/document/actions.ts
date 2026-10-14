@@ -7,7 +7,11 @@ import type { PrimitiveShape } from '@blockwerk/runtime';
 import type { TranslationKey } from '../i18n';
 import { libraryRef } from '../library/assetLibrary';
 import { useLibraryPrefs } from '../library/libraryPrefs';
+import { useBrush } from '../library/brush';
+import type { BrushSource } from '../library/brush';
+import { useAssetLibrary } from '../library/assetLibrary';
 import { editorModels } from '../library/models';
+import { instantiatePrefabInScene } from './prefabActions';
 import { activeSceneView } from '../scene/sceneViews';
 import { editScene, useDocument } from '../state/document';
 import { activeObjectId, ALL_AREAS, useEditor } from '../state/editor';
@@ -211,6 +215,64 @@ export async function createModelObject(
   );
   if (id) useEditor.getState().setRenaming(null);
   return id;
+}
+
+/**
+ * Places objects painted with the brush: one per point, standing on the surface, with random
+ * rotation and size from the brush settings. A stroke (`stroke`) is one undo step.
+ */
+export function placeBrushObjects(
+  source: BrushSource,
+  points: readonly { x: number; y: number; z: number }[],
+  stroke: number,
+  random: () => number = Math.random,
+): void {
+  if (!editable() || points.length === 0) return;
+  const brush = useBrush.getState();
+  const round = (value: number): number => Math.round(value * 1000) / 1000 || 0;
+  const pose = (point: { x: number; y: number; z: number }): TransformData => {
+    const size = round(brush.scaleMin + random() * (brush.scaleMax - brush.scaleMin));
+    return {
+      position: [round(point.x), round(point.y), round(point.z)],
+      rotation: [0, brush.randomRotation ? Math.round(random() * 360) : 0, 0],
+      scale: [size, size, size],
+    };
+  };
+  if (source.kind === 'prefab') {
+    const transforms = points.map(pose);
+    editScene(
+      'undo.brush',
+      (scene) => {
+        let result = scene;
+        for (const transform of transforms) {
+          result = instantiatePrefabInScene(result, source.id, newObjectParent(result), transform);
+        }
+        return result;
+      },
+      `brush-${stroke}`,
+      true,
+    );
+    return;
+  }
+  const entry = useAssetLibrary.getState().byId.get(source.id);
+  if (!entry) return;
+  const name = entry.name[useSettings.getState().locale];
+  const components = libraryComponents(entry);
+  const transforms = points.map(pose);
+  editScene(
+    'undo.brush',
+    (scene) => {
+      let result = scene;
+      const parent = newObjectParent(scene);
+      for (const transform of transforms) {
+        result = createObject(result, { name, parent, components, transform }).scene;
+      }
+      return result;
+    },
+    `brush-${stroke}`,
+    true,
+  );
+  useLibraryPrefs.getState().markUsed(entry.id);
 }
 
 /** Object > Camera. */
