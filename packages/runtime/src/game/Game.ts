@@ -712,7 +712,8 @@ export class Game implements GameApi {
       for (const [id, data] of Object.entries(resolved.objects)) {
         this.templates.set(prefix + id, {
           ...data,
-          parent: data.parent !== null && data.parent in resolved.objects ? prefix + data.parent : null,
+          parent:
+            data.parent !== null && data.parent in resolved.objects ? prefix + data.parent : null,
         });
       }
     }
@@ -737,10 +738,7 @@ export class Game implements GameApi {
     this.world.adoptObject(object, parent);
     for (const component of data.components) this.world.addComponent(object, component);
     this.attachScripts(object, null);
-    const children = [
-      ...Object.entries(this.world.sceneData.objects),
-      ...this.templates.entries(),
-    ]
+    const children = [...Object.entries(this.world.sceneData.objects), ...this.templates.entries()]
       .filter(([, child]) => child.parent === originId)
       .sort((a, b) => a[1].order - b[1].order);
     for (const [childId, childData] of children) {
