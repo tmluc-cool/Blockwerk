@@ -15,10 +15,12 @@ describe('built-in sounds', () => {
       const samples = synthesize(name);
       expect(samples.length, name).toBeGreaterThan(SYNTH_RATE * 0.04);
       let peak = 0;
+      let finite = true;
       for (const sample of samples) {
-        expect(Number.isFinite(sample), name).toBe(true);
+        if (!Number.isFinite(sample)) finite = false;
         peak = Math.max(peak, Math.abs(sample));
       }
+      expect(finite, name).toBe(true);
       expect(peak, name).toBeGreaterThan(0.2);
       expect(peak, name).toBeLessThanOrEqual(1);
     }
