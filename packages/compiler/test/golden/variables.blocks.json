@@ -1,0 +1,122 @@
+{
+  "variables": [
+    {
+      "id": "varscore0000",
+      "name": "Punkte",
+      "scope": "game"
+    },
+    {
+      "id": "varspeed0000",
+      "name": "Geschwindigkeit",
+      "scope": "object"
+    },
+    {
+      "id": "vartext00000",
+      "name": "Text",
+      "scope": "object"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "va-1",
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "va-2",
+              "fields": {
+                "variable": {
+                  "id": "varscore0000"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "va-3",
+                    "fields": {
+                      "NUM": 0
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "variables.show",
+                  "id": "va-4",
+                  "fields": {
+                    "variable": {
+                      "id": "varscore0000"
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "variables.change",
+                      "id": "va-5",
+                      "fields": {
+                        "variable": {
+                          "id": "varscore0000"
+                        }
+                      },
+                      "inputs": {
+                        "by": {
+                          "shadow": {
+                            "type": "literal.number",
+                            "id": "va-6",
+                            "fields": {
+                              "NUM": 1
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "variables.change",
+                          "id": "va-8",
+                          "fields": {
+                            "variable": {
+                              "id": "varspeed0000"
+                            }
+                          },
+                          "inputs": {
+                            "by": {
+                              "block": {
+                                "type": "variables.get",
+                                "id": "va-7",
+                                "fields": {
+                                  "variable": {
+                                    "id": "varspeed0000"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "variables.hide",
+                              "id": "va-9",
+                              "fields": {
+                                "variable": {
+                                  "id": "varspeed0000"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 40,
+          "y": 40
+        }
+      ]
+    }
+  }
+}

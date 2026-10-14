@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Fragen und eigene Spiele zeigen / Questions and showcase
+    url: https://github.com/tmluc-cool/Blockwerk/discussions
+    about: Für Fragen und zum Zeigen eigener Spiele bitte GitHub Discussions nutzen. / Please use GitHub Discussions.

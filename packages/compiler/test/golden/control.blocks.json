@@ -1,0 +1,230 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenGameStarts",
+        "id": "co-1",
+        "next": {
+          "block": {
+            "type": "control.wait",
+            "id": "co-2",
+            "inputs": {
+              "seconds": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "co-3",
+                  "fields": {
+                    "NUM": 0.5
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "control.repeat",
+                "id": "co-7",
+                "inputs": {
+                  "times": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "co-8",
+                      "fields": {
+                        "NUM": 3
+                      }
+                    }
+                  },
+                  "body": {
+                    "block": {
+                      "type": "motion.move",
+                      "id": "co-4",
+                      "fields": {
+                        "direction": "forward"
+                      },
+                      "inputs": {
+                        "meters": {
+                          "shadow": {
+                            "type": "literal.number",
+                            "id": "co-5",
+                            "fields": {
+                              "NUM": 1
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "control.clone",
+                          "id": "co-6",
+                          "fields": {
+                            "target": "self"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "control.repeatUntil",
+                    "id": "co-12",
+                    "inputs": {
+                      "condition": {
+                        "block": {
+                          "type": "sensing.keyPressed",
+                          "id": "co-9",
+                          "fields": {
+                            "key": "Space"
+                          }
+                        }
+                      },
+                      "body": {
+                        "block": {
+                          "type": "motion.turn",
+                          "id": "co-10",
+                          "fields": {
+                            "direction": "left"
+                          },
+                          "inputs": {
+                            "degrees": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "co-11",
+                                "fields": {
+                                  "NUM": 5
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "control.waitUntil",
+                        "id": "co-14",
+                        "inputs": {
+                          "condition": {
+                            "block": {
+                              "type": "sensing.mouseDown",
+                              "id": "co-13"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "control.forever",
+                            "id": "co-24",
+                            "inputs": {
+                              "body": {
+                                "block": {
+                                  "type": "control.if",
+                                  "id": "co-17",
+                                  "inputs": {
+                                    "condition": {
+                                      "block": {
+                                        "type": "sensing.touching",
+                                        "id": "co-15",
+                                        "fields": {
+                                          "target": "any"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "block": {
+                                        "type": "control.stop",
+                                        "id": "co-16",
+                                        "fields": {
+                                          "what": "all"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "control.ifElse",
+                                      "id": "co-23",
+                                      "inputs": {
+                                        "condition": {
+                                          "block": {
+                                            "type": "operators.gt",
+                                            "id": "co-19",
+                                            "inputs": {
+                                              "a": {
+                                                "block": {
+                                                  "type": "sensing.timer",
+                                                  "id": "co-18"
+                                                }
+                                              },
+                                              "b": {
+                                                "shadow": {
+                                                  "type": "literal.text",
+                                                  "id": "co-20",
+                                                  "fields": {
+                                                    "TEXT": "10"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "then": {
+                                          "block": {
+                                            "type": "control.destroy",
+                                            "id": "co-21",
+                                            "fields": {
+                                              "target": "object:target000001"
+                                            }
+                                          }
+                                        },
+                                        "else": {
+                                          "block": {
+                                            "type": "control.stop",
+                                            "id": "co-22",
+                                            "fields": {
+                                              "what": "thisScript"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x": 40,
+        "y": 40
+      },
+      {
+        "type": "events.whenClicked",
+        "id": "co-25",
+        "next": {
+          "block": {
+            "type": "control.if",
+            "id": "co-27",
+            "inputs": {
+              "then": {
+                "block": {
+                  "type": "looks.hide",
+                  "id": "co-26"
+                }
+              }
+            }
+          }
+        },
+        "x": 440,
+        "y": 40
+      }
+    ]
+  }
+}

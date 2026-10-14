@@ -1,0 +1,33 @@
+/* Page that hosts Blockly inside the block editor window (own document, see frame.ts). */
+html,
+body,
+#blockly {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: #1f2126;
+}
+
+body[data-theme='light'] {
+  background: #f4f5f7;
+}
+
+.blocklyToolboxCategoryLabel {
+  font-size: 13px;
+}
+
+/* Stacks of running scripts glow in play mode (SPEC 5.9). */
+.bw-running > .blocklyPath {
+  stroke: #ffd34d;
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px rgba(255, 211, 77, 0.8));
+}
+
+body[data-empty='true'] .blocklyToolbox,
+body[data-empty='true'] .blocklyFlyout {
+  pointer-events: none;
+  opacity: 0.4;
+}

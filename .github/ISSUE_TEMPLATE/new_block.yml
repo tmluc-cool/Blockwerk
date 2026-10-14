@@ -1,0 +1,43 @@
+name: Neuer Block / New block
+description: Einen Block für den Blockkatalog vorschlagen. / Propose a block for the block catalog.
+labels: [block]
+body:
+  - type: input
+    id: text-de
+    attributes:
+      label: Blocktext (Deutsch)
+      placeholder: gehe ( ) Meter vorwärts
+    validations:
+      required: true
+  - type: input
+    id: text-en
+    attributes:
+      label: Block text (English)
+      placeholder: move ( ) m forward
+    validations:
+      required: true
+  - type: dropdown
+    id: shape
+    attributes:
+      label: Form / Shape
+      options:
+        - Hut / Hat (Ereignis / event)
+        - Stapel / Stack (Befehl / command)
+        - Rund / Reporter (Wert / value)
+        - Spitz / Boolean (Bedingung / condition)
+        - Klammer / C block
+        - Kappe / Cap
+    validations:
+      required: true
+  - type: input
+    id: category
+    attributes:
+      label: Kategorie / Category
+      placeholder: Bewegung / Motion
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Verhalten / Behavior
+      description: Was macht der Block zur Laufzeit? Gibt es ein Gegenstück in Unity? / What does it do at runtime? Is there a Unity counterpart?
+    validations:
+      required: true

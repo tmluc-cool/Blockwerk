@@ -1,0 +1,668 @@
+{
+  "variables": [
+    {
+      "id": "varscore0000",
+      "name": "Punkte",
+      "scope": "game"
+    },
+    {
+      "id": "varspeed0000",
+      "name": "Geschwindigkeit",
+      "scope": "object"
+    },
+    {
+      "id": "vartext00000",
+      "name": "Text",
+      "scope": "object"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "op-1",
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "op-7",
+              "fields": {
+                "variable": {
+                  "id": "vartext00000"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "block": {
+                    "type": "operators.join",
+                    "id": "op-5",
+                    "inputs": {
+                      "a": {
+                        "shadow": {
+                          "type": "literal.text",
+                          "id": "op-6",
+                          "fields": {
+                            "TEXT": "Punkte: "
+                          }
+                        }
+                      },
+                      "b": {
+                        "block": {
+                          "type": "sensing.random",
+                          "id": "op-2",
+                          "inputs": {
+                            "from": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "op-3",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            },
+                            "to": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "op-4",
+                                "fields": {
+                                  "NUM": 6
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "variables.set",
+                  "id": "op-15",
+                  "fields": {
+                    "variable": {
+                      "id": "varspeed0000"
+                    }
+                  },
+                  "inputs": {
+                    "value": {
+                      "block": {
+                        "type": "operators.subtract",
+                        "id": "op-14",
+                        "inputs": {
+                          "a": {
+                            "block": {
+                              "type": "operators.multiply",
+                              "id": "op-8",
+                              "inputs": {
+                                "a": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "op-9",
+                                    "fields": {
+                                      "NUM": 2
+                                    }
+                                  }
+                                },
+                                "b": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "op-10",
+                                    "fields": {
+                                      "NUM": 3
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "b": {
+                            "block": {
+                              "type": "operators.mod",
+                              "id": "op-11",
+                              "inputs": {
+                                "a": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "op-12",
+                                    "fields": {
+                                      "NUM": -7
+                                    }
+                                  }
+                                },
+                                "b": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "op-13",
+                                    "fields": {
+                                      "NUM": 3
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "variables.set",
+                      "id": "op-19",
+                      "fields": {
+                        "variable": {
+                          "id": "varspeed0000"
+                        }
+                      },
+                      "inputs": {
+                        "value": {
+                          "block": {
+                            "type": "operators.round",
+                            "id": "op-18",
+                            "inputs": {
+                              "value": {
+                                "block": {
+                                  "type": "operators.mathFunction",
+                                  "id": "op-16",
+                                  "fields": {
+                                    "fn": "sqrt"
+                                  },
+                                  "inputs": {
+                                    "value": {
+                                      "shadow": {
+                                        "type": "literal.number",
+                                        "id": "op-17",
+                                        "fields": {
+                                          "NUM": 16
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "variables.set",
+                          "id": "op-25",
+                          "fields": {
+                            "variable": {
+                              "id": "varspeed0000"
+                            }
+                          },
+                          "inputs": {
+                            "value": {
+                              "block": {
+                                "type": "operators.min",
+                                "id": "op-23",
+                                "inputs": {
+                                  "a": {
+                                    "shadow": {
+                                      "type": "literal.number",
+                                      "id": "op-24",
+                                      "fields": {
+                                        "NUM": 4
+                                      }
+                                    }
+                                  },
+                                  "b": {
+                                    "block": {
+                                      "type": "operators.max",
+                                      "id": "op-20",
+                                      "inputs": {
+                                        "a": {
+                                          "shadow": {
+                                            "type": "literal.number",
+                                            "id": "op-21",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        },
+                                        "b": {
+                                          "shadow": {
+                                            "type": "literal.number",
+                                            "id": "op-22",
+                                            "fields": {
+                                              "NUM": 2
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "variables.set",
+                              "id": "op-30",
+                              "fields": {
+                                "variable": {
+                                  "id": "varspeed0000"
+                                }
+                              },
+                              "inputs": {
+                                "value": {
+                                  "block": {
+                                    "type": "operators.clamp",
+                                    "id": "op-26",
+                                    "inputs": {
+                                      "value": {
+                                        "shadow": {
+                                          "type": "literal.number",
+                                          "id": "op-27",
+                                          "fields": {
+                                            "NUM": 15
+                                          }
+                                        }
+                                      },
+                                      "low": {
+                                        "shadow": {
+                                          "type": "literal.number",
+                                          "id": "op-28",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        }
+                                      },
+                                      "high": {
+                                        "shadow": {
+                                          "type": "literal.number",
+                                          "id": "op-29",
+                                          "fields": {
+                                            "NUM": 10
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "variables.set",
+                                  "id": "op-35",
+                                  "fields": {
+                                    "variable": {
+                                      "id": "varspeed0000"
+                                    }
+                                  },
+                                  "inputs": {
+                                    "value": {
+                                      "block": {
+                                        "type": "operators.lerp",
+                                        "id": "op-31",
+                                        "inputs": {
+                                          "a": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "op-32",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            }
+                                          },
+                                          "b": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "op-33",
+                                              "fields": {
+                                                "NUM": 10
+                                              }
+                                            }
+                                          },
+                                          "t": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "op-34",
+                                              "fields": {
+                                                "NUM": 0.25
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "variables.set",
+                                      "id": "op-39",
+                                      "fields": {
+                                        "variable": {
+                                          "id": "vartext00000"
+                                        }
+                                      },
+                                      "inputs": {
+                                        "value": {
+                                          "block": {
+                                            "type": "operators.letterOf",
+                                            "id": "op-36",
+                                            "inputs": {
+                                              "index": {
+                                                "shadow": {
+                                                  "type": "literal.number",
+                                                  "id": "op-37",
+                                                  "fields": {
+                                                    "NUM": 2
+                                                  }
+                                                }
+                                              },
+                                              "text": {
+                                                "shadow": {
+                                                  "type": "literal.text",
+                                                  "id": "op-38",
+                                                  "fields": {
+                                                    "TEXT": "Hallo"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "variables.set",
+                                          "id": "op-44",
+                                          "fields": {
+                                            "variable": {
+                                              "id": "varspeed0000"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "value": {
+                                              "block": {
+                                                "type": "operators.length",
+                                                "id": "op-43",
+                                                "inputs": {
+                                                  "text": {
+                                                    "block": {
+                                                      "type": "operators.join",
+                                                      "id": "op-40",
+                                                      "inputs": {
+                                                        "a": {
+                                                          "shadow": {
+                                                            "type": "literal.text",
+                                                            "id": "op-41",
+                                                            "fields": {
+                                                              "TEXT": "ab"
+                                                            }
+                                                          }
+                                                        },
+                                                        "b": {
+                                                          "shadow": {
+                                                            "type": "literal.text",
+                                                            "id": "op-42",
+                                                            "fields": {
+                                                              "TEXT": "c"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "variables.set",
+                                              "id": "op-57",
+                                              "fields": {
+                                                "variable": {
+                                                  "id": "varscore0000"
+                                                }
+                                              },
+                                              "inputs": {
+                                                "value": {
+                                                  "block": {
+                                                    "type": "operators.and",
+                                                    "id": "op-56",
+                                                    "inputs": {
+                                                      "a": {
+                                                        "block": {
+                                                          "type": "operators.or",
+                                                          "id": "op-51",
+                                                          "inputs": {
+                                                            "a": {
+                                                              "block": {
+                                                                "type": "operators.lt",
+                                                                "id": "op-45",
+                                                                "inputs": {
+                                                                  "a": {
+                                                                    "shadow": {
+                                                                      "type": "literal.text",
+                                                                      "id": "op-46",
+                                                                      "fields": {
+                                                                        "TEXT": "1"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "b": {
+                                                                    "shadow": {
+                                                                      "type": "literal.text",
+                                                                      "id": "op-47",
+                                                                      "fields": {
+                                                                        "TEXT": "2"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "b": {
+                                                              "block": {
+                                                                "type": "operators.eq",
+                                                                "id": "op-48",
+                                                                "inputs": {
+                                                                  "a": {
+                                                                    "shadow": {
+                                                                      "type": "literal.text",
+                                                                      "id": "op-49",
+                                                                      "fields": {
+                                                                        "TEXT": "a"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "b": {
+                                                                    "shadow": {
+                                                                      "type": "literal.text",
+                                                                      "id": "op-50",
+                                                                      "fields": {
+                                                                        "TEXT": "A"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "b": {
+                                                        "block": {
+                                                          "type": "operators.not",
+                                                          "id": "op-55",
+                                                          "inputs": {
+                                                            "value": {
+                                                              "block": {
+                                                                "type": "operators.contains",
+                                                                "id": "op-52",
+                                                                "inputs": {
+                                                                  "text": {
+                                                                    "shadow": {
+                                                                      "type": "literal.text",
+                                                                      "id": "op-53",
+                                                                      "fields": {
+                                                                        "TEXT": "Apfel"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "part": {
+                                                                    "shadow": {
+                                                                      "type": "literal.text",
+                                                                      "id": "op-54",
+                                                                      "fields": {
+                                                                        "TEXT": "pf"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "motion.move",
+                                                  "id": "op-59",
+                                                  "fields": {
+                                                    "direction": "forward"
+                                                  },
+                                                  "inputs": {
+                                                    "meters": {
+                                                      "block": {
+                                                        "type": "variables.get",
+                                                        "id": "op-58",
+                                                        "fields": {
+                                                          "variable": {
+                                                            "id": "vartext00000"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "control.if",
+                                                      "id": "op-65",
+                                                      "inputs": {
+                                                        "condition": {
+                                                          "block": {
+                                                            "type": "variables.get",
+                                                            "id": "op-60",
+                                                            "fields": {
+                                                              "variable": {
+                                                                "id": "varscore0000"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "then": {
+                                                          "block": {
+                                                            "type": "variables.set",
+                                                            "id": "op-64",
+                                                            "fields": {
+                                                              "variable": {
+                                                                "id": "vartext00000"
+                                                              }
+                                                            },
+                                                            "inputs": {
+                                                              "value": {
+                                                                "block": {
+                                                                  "type": "operators.join",
+                                                                  "id": "op-62",
+                                                                  "inputs": {
+                                                                    "a": {
+                                                                      "shadow": {
+                                                                        "type": "literal.number",
+                                                                        "id": "op-63",
+                                                                        "fields": {
+                                                                          "NUM": 3
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "b": {
+                                                                      "block": {
+                                                                        "type": "sensing.mouseX",
+                                                                        "id": "op-61"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "variables.set",
+                                                          "id": "op-69",
+                                                          "fields": {
+                                                            "variable": {
+                                                              "id": "varspeed0000"
+                                                            }
+                                                          },
+                                                          "inputs": {
+                                                            "value": {
+                                                              "block": {
+                                                                "type": "operators.add",
+                                                                "id": "op-68",
+                                                                "inputs": {
+                                                                  "a": {
+                                                                    "block": {
+                                                                      "type": "sensing.mouseY",
+                                                                      "id": "op-66"
+                                                                    }
+                                                                  },
+                                                                  "b": {
+                                                                    "block": {
+                                                                      "type": "sensing.distanceTo",
+                                                                      "id": "op-67",
+                                                                      "fields": {
+                                                                        "target": "mouse"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 40,
+          "y": 40
+        }
+      ]
+    }
+  }
+}

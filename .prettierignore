@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-electron
+coverage
+test-results
+playwright-report
+pnpm-lock.yaml
+SPEC.md
+CLAUDE.md
+PROGRESS.md
+CODE_OF_CONDUCT.md
+*.expected.js
+THIRD_PARTY.md
+examples/*/Assets
+examples/*/Einstellungen
+examples/*/blockwerk.json

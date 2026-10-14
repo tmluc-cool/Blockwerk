@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "b-101",
+          "next": {
+            "block": {
+              "fields": {
+                "target": "self"
+              },
+              "id": "b-103",
+              "type": "control.destroy"
+            }
+          },
+          "type": "events.whenTouching",
+          "x": 40,
+          "y": 40
+        },
+        {
+          "id": "b-102",
+          "next": {
+            "block": {
+              "fields": {
+                "direction": "left"
+              },
+              "id": "b-105",
+              "inputs": {
+                "degrees": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 2
+                    },
+                    "id": "n-104",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "motion.turn"
+            }
+          },
+          "type": "events.everyFrame",
+          "x": 40,
+          "y": 160
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

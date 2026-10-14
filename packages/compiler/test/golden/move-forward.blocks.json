@@ -1,0 +1,62 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenGameStarts",
+        "id": "mf-1",
+        "next": {
+          "block": {
+            "type": "motion.move",
+            "id": "mf-2",
+            "fields": {
+              "direction": "forward"
+            },
+            "inputs": {
+              "meters": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "mf-3",
+                  "fields": {
+                    "NUM": 2.5
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "motion.move",
+                "id": "mf-4",
+                "fields": {
+                  "direction": "backward"
+                },
+                "inputs": {
+                  "meters": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "mf-5",
+                      "fields": {
+                        "NUM": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x": 40,
+        "y": 40
+      },
+      {
+        "type": "motion.move",
+        "id": "mf-6",
+        "fields": {
+          "direction": "forward"
+        },
+        "x": 440,
+        "y": 40
+      }
+    ]
+  }
+}

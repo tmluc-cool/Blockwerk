@@ -1,0 +1,48 @@
+/**
+ * @blockwerk/project: project format (SPEC 9.1), schemas, stable IDs, deterministic JSON,
+ * loading, saving and migrations. Node.js file access is in `@blockwerk/project/node`.
+ */
+export * from './schema';
+export { stringifyDeterministic } from './json';
+export { createId, ID_LENGTH, isId } from './ids';
+export {
+  basename,
+  dirname,
+  FileNotFoundError,
+  joinPath,
+  listFilesRecursive,
+  normalizePath,
+} from './fs/types';
+export type { FileEntry, ProjectFileSystem } from './fs/types';
+export { MemoryFileSystem } from './fs/memory';
+export { FormatTooNewError, migrate, MigrationError, MIGRATIONS } from './migrations';
+export type { FileKind, Migration, MigrationRegistry, MigrationResult } from './migrations';
+export {
+  ASSET_EXTENSIONS,
+  ASSETS_FOLDER,
+  assetDisplayName,
+  assetFolder,
+  assetTypeOfPath,
+  CACHE_FOLDER,
+  createProject,
+  defaultAssetFolder,
+  loadProject,
+  META_SUFFIX,
+  Project,
+  PROJECT_FILE,
+  PROJECT_GITIGNORE,
+  ProjectLoadError,
+  TAGS_AND_LAYERS_FILE,
+} from './project';
+export type {
+  AnyAsset,
+  AssetDataByType,
+  AssetEntry,
+  LoadOptions,
+  NewProjectFolders,
+  NewProjectOptions,
+  ProjectProblem,
+  SaveResult,
+} from './project';
+export { createDefaultScene, DEFAULT_AREAS } from './templates';
+export type { DefaultSceneNames } from './templates';
