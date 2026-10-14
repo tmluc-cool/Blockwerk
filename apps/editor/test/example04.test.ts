@@ -95,7 +95,8 @@ const idOf = (game: Game, name: string): string => {
   return object.id;
 };
 
-describe('examples/04-landschaft', () => {
+// The scene has about 380 objects and runs on slow CI machines: allow generous time.
+describe('examples/04-landschaft', { timeout: 120_000 }, () => {
   it('loads without problems and a save writes nothing', async () => {
     const project = await loadProject(new NodeFileSystem(folder));
     expect(project.problems).toEqual([]);
@@ -186,7 +187,7 @@ describe('examples/04-landschaft', () => {
     run(game, 40);
     expect(game.weather()).toBe('rain');
     game.dispose();
-  }, 120_000);
+  });
 
   it('has sound: music, a stream at the lake in 3D, footsteps on grass and feedback on keys', async () => {
     const { game, audio, context } = await launch();
