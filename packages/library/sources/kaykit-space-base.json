@@ -1,0 +1,23 @@
+{
+  "id": "kaykit-space-base",
+  "name": "KayKit Space Base Bits 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/space-base-bits",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Space-Base-Bits-1.0",
+    "commit": "6dfbcac9927d06283752c4defd4882cfe0d29666"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_space_base_bits/Assets/gltf/*.gltf"],
+      "category": "scifi",
+      "tags": ["weltraum", "space", "sci-fi"],
+      "scale": 3
+    }
+  ],
+  "dropWords": []
+}

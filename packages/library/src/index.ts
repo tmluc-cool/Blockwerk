@@ -1,4 +1,7 @@
 /**
- * @blockwerk/library: Asset library: source descriptions, index, licenses and build scripts (SPEC 6). Implemented in phase 2.
+ * @blockwerk/library: the asset library (SPEC 6): source descriptions, index format, naming and
+ * licenses. The build pipeline (`pnpm assets:fetch`) is in `scripts/`.
  */
-export {};
+export * from './schema';
+export { displayNames, slug, words } from './naming';
+export type { Dictionary } from './naming';

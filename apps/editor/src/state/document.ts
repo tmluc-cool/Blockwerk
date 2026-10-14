@@ -7,13 +7,27 @@ import {
   dirname,
   FORMAT_VERSION,
   joinPath,
+  createId,
+  instanceRootOf,
   loadProject,
+  modelImportSettings,
+  prefabFromEdited,
   ProjectLoadError,
+  resolvePrefab,
+  syncPrefabInstances,
+  updateInstanceOverrides,
 } from '@blockwerk/project';
 import type {
   AnyAsset,
+  AssetDataByType,
+  AssetEntry,
   AssetType,
   BlockScriptData,
+  MetaData,
+  ModelImportSettings,
+  NewProjectFolders,
+  PrefabData,
+  PrefabSource,
   Project,
   ProjectFileSystem,
   SceneData,
@@ -21,6 +35,7 @@ import type {
 import { create } from 'zustand';
 import { History } from '../document/history';
 import type { TranslationKey } from '../i18n';
+import { editorModels, setProjectModelSource } from '../library/models';
 import { detectBackend } from '../storage/backends';
 import type { ProjectBackend, ProjectListing } from '../storage/backends';
 import { useConsole } from './console';
@@ -28,9 +43,36 @@ import { useEditor } from './editor';
 import { t, useSettings } from './settings';
 
 /** Folder names of new projects, in the user's language. */
-function newProjectFolders(): { scenes: string; blockScripts: string } {
-  return { scenes: t('project.folder.scenes'), blockScripts: t('project.folder.blockScripts') };
+function newProjectFolders(): NewProjectFolders {
+  return {
+    scenes: t('project.folder.scenes'),
+    blockScripts: t('project.folder.blockScripts'),
+    prefabs: t('project.folder.prefabs'),
+    models: t('project.folder.models'),
+  };
 }
+
+/** Blob URLs of project models, by asset ID and content hash. */
+const modelUrls = new Map<string, { hash: string; url: string }>();
+
+// Project models are served to the 3D views as blob URLs with their import settings.
+setProjectModelSource(async (assetId) => {
+  const { project } = useDocument.getState();
+  const entry = project?.assetOfType(assetId, 'model');
+  const bytes = project?.modelBytes(assetId);
+  if (!entry || !bytes) return null;
+  let cached = modelUrls.get(assetId);
+  if (cached?.hash !== entry.data.hash) {
+    if (cached) URL.revokeObjectURL(cached.url);
+    cached = {
+      hash: entry.data.hash,
+      url: URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: 'model/gltf-binary' })),
+    };
+    modelUrls.set(assetId, cached);
+  }
+  const settings = modelImportSettings(entry.meta);
+  return { url: cached.url, scale: settings.scale, pivot: settings.pivot };
+});
 
 interface DocumentState {
   status: 'loading' | 'ready' | 'error';
@@ -50,6 +92,11 @@ interface DocumentState {
   redoLabel: string | null;
   /** Folders created in this session that have no assets yet. */
   extraFolders: string[];
+  /**
+   * Prefab mode (Unity: Prefab Mode): the prefab being edited in isolation and the scene to go
+   * back to. While set, `scene` holds the prefab's objects and `sceneId` is `null`.
+   */
+  prefabStage: { prefabId: string; returnSceneId: string | null } | null;
 }
 
 /** The open project and scene (the editor's document). */
@@ -67,6 +114,7 @@ export const useDocument = create<DocumentState>()(() => ({
   undoLabel: null,
   redoLabel: null,
   extraFolders: [],
+  prefabStage: null,
 }));
 
 const history = new History<SceneData>();
@@ -97,15 +145,41 @@ export function editScene(
   label: TranslationKey,
   recipe: (scene: SceneData) => SceneData,
   mergeKey?: string,
+  untilSealed = false,
 ): void {
   const { scene } = useDocument.getState();
   if (!scene) return;
-  const next = recipe(scene);
-  if (next === scene) return;
-  history.record(scene, label, mergeKey);
+  const edited = recipe(scene);
+  if (edited === scene) return;
+  const next = trackOverrides(scene, edited);
+  history.record(scene, label, mergeKey, untilSealed);
   useDocument.setState({ scene: next });
   syncHistoryLabels();
   touch();
+}
+
+/** Looks up prefab data in the open project. */
+export function prefabSource(): PrefabSource {
+  const { project } = useDocument.getState();
+  return (id) => project?.assetOfType(id, 'prefab')?.data;
+}
+
+/**
+ * After an edit, recomputes the overrides of every prefab instance with a changed object
+ * (Unity marks changed values of instances as overrides automatically).
+ */
+function trackOverrides(before: SceneData, after: SceneData): SceneData {
+  const roots = new Set<string>();
+  for (const [id, object] of Object.entries(after.objects)) {
+    if (!object.prefab || before.objects[id] === object) continue;
+    const root = instanceRootOf(after.objects, id);
+    if (root) roots.add(root);
+  }
+  if (roots.size === 0) return after;
+  const source = prefabSource();
+  let objects = after.objects;
+  for (const root of roots) objects = updateInstanceOverrides(objects, root, source);
+  return objects === after.objects ? after : { ...after, objects };
 }
 
 /** Ends merging of quick edits (e.g. when a gizmo drag ends). */
@@ -134,12 +208,137 @@ export function redo(): void {
   if (scene) restore(history.redo(scene));
 }
 
-/** Writes the working scene into the project (before saving or switching scenes). */
+/** Writes the working scene (or the prefab in prefab mode) into the project. */
 function flushScene(): void {
-  const { project, sceneId, scene } = useDocument.getState();
+  const { project, sceneId, scene, prefabStage } = useDocument.getState();
   if (project && sceneId && scene && project.asset(sceneId)?.data !== scene) {
     project.updateAsset(sceneId, 'scene', scene);
   }
+  if (project && prefabStage && scene) {
+    const entry = project.assetOfType(prefabStage.prefabId, 'prefab');
+    if (!entry) return;
+    const data = prefabFromEdited(entry.data, scene.objects, prefabSource());
+    if (JSON.stringify(data) !== JSON.stringify(entry.data)) {
+      project.updateAsset(entry.id, 'prefab', data);
+    }
+  }
+}
+
+/** Environment of the prefab stage: bright ambient light, no fog. */
+const STAGE_ENVIRONMENT: SceneData['environment'] = {
+  ambientIntensity: 1,
+  fog: { enabled: false, near: 10, far: 100 },
+};
+
+/** The objects of a prefab as a scene for prefab mode (variants: with the base applied). */
+function prefabStageScene(prefabId: string): SceneData | null {
+  const resolved = resolvePrefab(prefabId, prefabSource());
+  if (!resolved) return null;
+  return {
+    formatVersion: FORMAT_VERSION,
+    environment: STAGE_ENVIRONMENT,
+    objects: resolved.objects,
+  };
+}
+
+/**
+ * Brings every prefab instance in all scenes and prefabs up to date (after a prefab changed).
+ * The open scene is updated in place; this is not an undo step.
+ */
+export function syncPrefabUsages(): void {
+  const { project, sceneId, scene, prefabStage } = useDocument.getState();
+  if (!project) return;
+  const source = prefabSource();
+  let anyChange = false;
+  for (const entry of project.assetsOfType('prefab')) {
+    if (entry.id === prefabStage?.prefabId) continue;
+    const objects = syncPrefabInstances(entry.data.objects, source, createId);
+    if (
+      Object.entries(objects).some(([id, object]) => entry.data.objects[id] !== object) ||
+      Object.keys(objects).length !== Object.keys(entry.data.objects).length
+    ) {
+      project.updateAsset(entry.id, 'prefab', { ...entry.data, objects });
+      anyChange = true;
+    }
+  }
+  for (const entry of project.assetsOfType('scene')) {
+    const data = entry.id === sceneId && scene ? scene : entry.data;
+    const objects = syncPrefabInstances(data.objects, source, createId);
+    const changed =
+      Object.keys(objects).length !== Object.keys(data.objects).length ||
+      Object.entries(objects).some(([id, object]) => data.objects[id] !== object);
+    if (!changed) continue;
+    anyChange = true;
+    const next = { ...data, objects };
+    if (entry.id === sceneId) {
+      useDocument.setState({ scene: next });
+      const editor = useEditor.getState();
+      editor.setSelection(editor.selection.filter((id) => id in objects));
+    } else {
+      project.updateAsset(entry.id, 'scene', next);
+    }
+  }
+  if (anyChange) touch(true);
+}
+
+/** Opens a prefab in prefab mode (double-click on a prefab, "Open" in the inspector). */
+export function openPrefab(prefabId: string): void {
+  const { project, sceneId, prefabStage } = useDocument.getState();
+  if (!project?.assetOfType(prefabId, 'prefab') || prefabStage?.prefabId === prefabId) return;
+  flushScene();
+  if (prefabStage) syncPrefabUsages();
+  const stage = prefabStageScene(prefabId);
+  if (!stage) return;
+  history.clear();
+  useDocument.setState({
+    prefabStage: { prefabId, returnSceneId: prefabStage?.returnSceneId ?? sceneId },
+    sceneId: null,
+    scene: stage,
+    undoLabel: null,
+    redoLabel: null,
+  });
+  useEditor.getState().resetForScene();
+}
+
+/** Leaves prefab mode: the prefab is stored and every instance follows. */
+export function closePrefab(): void {
+  const { project, prefabStage } = useDocument.getState();
+  if (!project || !prefabStage) return;
+  flushScene();
+  const returnId = prefabStage.returnSceneId;
+  const entry = returnId ? project.assetOfType(returnId, 'scene') : undefined;
+  history.clear();
+  useDocument.setState({
+    prefabStage: null,
+    sceneId: entry?.id ?? null,
+    scene: entry?.data ?? null,
+    undoLabel: null,
+    redoLabel: null,
+  });
+  syncPrefabUsages();
+  useEditor.getState().resetForScene();
+}
+
+/** Replaces the data of a prefab and updates every instance. */
+export function updatePrefab(id: string, data: PrefabData): void {
+  const { project } = useDocument.getState();
+  if (!project?.assetOfType(id, 'prefab')) return;
+  flushScene();
+  project.updateAsset(id, 'prefab', data);
+  syncPrefabUsages();
+}
+
+/** Creates a prefab asset. */
+export function createPrefabAsset(folder: string, name: string, data: PrefabData): AnyAsset | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const entry = project.createAsset(
+    'prefab',
+    project.uniqueAssetPath(folder, name, 'prefab'),
+    data,
+  );
+  assetsChanged();
+  return entry as AnyAsset;
 }
 
 let saving: Promise<void> | null = null;
@@ -194,7 +393,10 @@ function activate(
     undoLabel: null,
     redoLabel: null,
     extraFolders: [],
+    prefabStage: null,
   }));
+  // Prefabs may have changed outside the editor (e.g. in Git): bring instances up to date.
+  syncPrefabUsages();
   useEditor.getState().resetForScene();
   useSettings.getState().setLastProject(ref);
   for (const problem of project.problems) {
@@ -297,12 +499,19 @@ export async function bootstrap(): Promise<void> {
 
 /** Opens another scene of the project (double-click in the project window). */
 export function openScene(id: string): void {
-  const { project, sceneId } = useDocument.getState();
+  const { project, sceneId, prefabStage } = useDocument.getState();
   const entry = project?.assetOfType(id, 'scene');
   if (!project || !entry || id === sceneId) return;
   flushScene();
   history.clear();
-  useDocument.setState({ sceneId: id, scene: entry.data, undoLabel: null, redoLabel: null });
+  useDocument.setState({
+    sceneId: id,
+    scene: entry.data,
+    prefabStage: null,
+    undoLabel: null,
+    redoLabel: null,
+  });
+  if (prefabStage) syncPrefabUsages();
   useEditor.getState().resetForScene();
 }
 
@@ -342,6 +551,74 @@ export function createSceneAsset(folder: string, name: string): AnyAsset | null 
   return entry as AnyAsset;
 }
 
+/** Adds an imported model (GLB) to the project. */
+export function importModelAsset(
+  folder: string,
+  name: string,
+  data: Uint8Array,
+  settings?: ModelImportSettings,
+  license: string | null = null,
+): AssetEntry<'model'> | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const entry = project.createModel(
+    project.uniqueAssetPath(folder, name, 'model'),
+    data,
+    settings,
+    license,
+  );
+  assetsChanged();
+  return entry;
+}
+
+/**
+ * Adds assets that keep their IDs (from "My Prefabs"). Assets the project already has are
+ * skipped. Returns how many were added.
+ */
+export function adoptAssets(
+  files: readonly { path: string; meta: MetaData; json?: unknown; bytes?: Uint8Array }[],
+): number {
+  const { project } = useDocument.getState();
+  if (!project) return 0;
+  let added = 0;
+  for (const file of files) {
+    const content = file.bytes
+      ? { bytes: file.bytes }
+      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model'>] };
+    if (project.adoptAsset(file.path, file.meta, content)) added++;
+  }
+  if (added > 0) assetsChanged();
+  return added;
+}
+
+/** Changes the import settings and license of a model (import inspector). */
+export function updateModelSettings(
+  id: string,
+  settings: ModelImportSettings,
+  license: string | null,
+): void {
+  const { project } = useDocument.getState();
+  const entry = project?.assetOfType(id, 'model');
+  if (!project || !entry) return;
+  project.updateMeta(id, { importSettings: { ...settings }, license });
+  editorModels.invalidate(id);
+  assetsChanged();
+  modelsChanged();
+}
+
+type ModelsListener = () => void;
+const modelsListeners = new Set<ModelsListener>();
+
+/** Calls `listener` when models changed and the 3D views must load them again. */
+export function onModelsChanged(listener: ModelsListener): () => void {
+  modelsListeners.add(listener);
+  return () => modelsListeners.delete(listener);
+}
+
+function modelsChanged(): void {
+  for (const listener of [...modelsListeners]) listener();
+}
+
 /** Default folder for new assets of a type. */
 export function defaultFolder(type: AssetType): string {
   return defaultAssetFolder(type, newProjectFolders());
@@ -378,7 +655,8 @@ export function moveAssetToFolder(id: string, folder: string): void {
 /** Deletes an asset. The open scene cannot be deleted. */
 export function deleteAsset(id: string): boolean {
   const { project, sceneId } = useDocument.getState();
-  if (!project || id === sceneId || !project.asset(id)) return false;
+  const stage = useDocument.getState().prefabStage;
+  if (!project || id === sceneId || id === stage?.prefabId || !project.asset(id)) return false;
   project.deleteAsset(id);
   if (project.settings.startScene === id)
     project.settings = { ...project.settings, startScene: sceneId };

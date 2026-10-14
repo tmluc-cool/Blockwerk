@@ -29,6 +29,14 @@ export class DesktopFileSystem implements ProjectFileSystem {
     return this.files.write(this.root, path, text);
   }
 
+  readBytes(path: string): Promise<Uint8Array> {
+    return translateErrors(path, () => this.files.readBytes(this.root, path));
+  }
+
+  writeBytes(path: string, data: Uint8Array): Promise<void> {
+    return this.files.writeBytes(this.root, path, data);
+  }
+
   exists(path: string): Promise<boolean> {
     return this.files.exists(this.root, path);
   }

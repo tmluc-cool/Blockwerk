@@ -1,13 +1,13 @@
-import type { RenderStats } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { useEffect, useRef, useState } from 'react';
 import { GameViewport } from '../game/GameViewport';
+import type { GameViewStats } from '../game/GameViewport';
 import type { AspectPreset } from '../game/GameViewport';
 import { setGameView } from '../game/gameViews';
 import { usePlay } from '../state/play';
 import { useT } from '../state/settings';
 
-type Stats = RenderStats & { width: number; height: number };
+type Stats = GameViewStats;
 
 /** Game window: the scene through its main camera, input target in play mode, with statistics. */
 export function GamePanel({ api }: IDockviewPanelProps) {
@@ -93,6 +93,8 @@ export function GamePanel({ api }: IDockviewPanelProps) {
         )}
         {showStats && stats && (
           <dl className="stats-overlay" data-testid="stats">
+            <dt>{t('game.fps')}</dt>
+            <dd data-testid="stats-fps">{stats.fps.toFixed(0)}</dd>
             <dt>{t('game.frameTime')}</dt>
             <dd>{t('game.milliseconds', { value: stats.frameTimeMs.toFixed(2) })}</dd>
             <dt>{t('game.drawCalls')}</dt>

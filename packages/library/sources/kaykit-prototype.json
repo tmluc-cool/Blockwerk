@@ -1,0 +1,22 @@
+{
+  "id": "kaykit-prototype",
+  "name": "KayKit Prototype Bits 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/prototype-bits",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Prototype-Bits-1.0",
+    "commit": "bb159596f4f5106b663741d002c8eb45c80c0f41"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_prototype_bits/Assets/gltf/*.gltf"],
+      "category": "primitives",
+      "tags": ["prototyp", "prototype"]
+    }
+  ],
+  "dropWords": []
+}

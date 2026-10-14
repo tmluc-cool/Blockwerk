@@ -1,6 +1,15 @@
 import { blockScript } from './blockScript';
 import { camera } from './camera';
-import { boxCollider, capsuleCollider, sphereCollider } from './colliders';
+import { characterController } from './characterController';
+import {
+  boxCollider,
+  capsuleCollider,
+  cylinderCollider,
+  meshCollider,
+  sphereCollider,
+} from './colliders';
+import { firstPersonControl, thirdPersonControl, topDownControl, vehicleControl } from './controls';
+import { rigidbody } from './rigidbody';
 import type { ComponentDefinition } from './defineComponent';
 import { light } from './light';
 import { meshRenderer } from './meshRenderer';
@@ -8,9 +17,17 @@ import { meshRenderer } from './meshRenderer';
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
   meshRenderer,
+  rigidbody,
   boxCollider,
   sphereCollider,
   capsuleCollider,
+  cylinderCollider,
+  meshCollider,
+  characterController,
+  thirdPersonControl,
+  firstPersonControl,
+  topDownControl,
+  vehicleControl,
   camera,
   light,
   blockScript,

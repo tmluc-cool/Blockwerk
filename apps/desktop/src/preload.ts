@@ -25,6 +25,8 @@ export interface DesktopApi {
   readonly files: {
     read(root: string, path: string): Promise<string>;
     write(root: string, path: string, text: string): Promise<void>;
+    readBytes(root: string, path: string): Promise<Uint8Array>;
+    writeBytes(root: string, path: string, data: Uint8Array): Promise<void>;
     exists(root: string, path: string): Promise<boolean>;
     list(root: string, path: string): Promise<FileEntry[]>;
     remove(root: string, path: string): Promise<void>;
@@ -44,6 +46,10 @@ const api: DesktopApi = {
   files: {
     read: (root, path) => ipcRenderer.invoke('fs:read', root, path) as Promise<string>,
     write: (root, path, text) => ipcRenderer.invoke('fs:write', root, path, text) as Promise<void>,
+    readBytes: (root, path) =>
+      ipcRenderer.invoke('fs:readBytes', root, path) as Promise<Uint8Array>,
+    writeBytes: (root, path, data) =>
+      ipcRenderer.invoke('fs:writeBytes', root, path, data) as Promise<void>,
     exists: (root, path) => ipcRenderer.invoke('fs:exists', root, path) as Promise<boolean>,
     list: (root, path) => ipcRenderer.invoke('fs:list', root, path) as Promise<FileEntry[]>,
     remove: (root, path) => ipcRenderer.invoke('fs:remove', root, path) as Promise<void>,

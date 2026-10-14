@@ -18,6 +18,7 @@
   --bw-accent-text: #1a1206;
   --bw-selection: #2e5d8f;
   --bw-selection-text: #ffffff;
+  --bw-prefab: #6fb2ff;
   --bw-warning: #e7b43c;
   --bw-error: #ec5c58;
   --bw-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
@@ -40,6 +41,7 @@
   --bw-accent-text: #ffffff;
   --bw-selection: #3a78c2;
   --bw-selection-text: #ffffff;
+  --bw-prefab: #1f5fae;
   --bw-warning: #b07d00;
   --bw-error: #c8322e;
   --bw-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
@@ -552,6 +554,126 @@ button:focus-visible {
 
 .folder-content > .empty-hint {
   width: 100%;
+}
+
+/* Asset library */
+
+.asset-library .folder-tree .count {
+  margin-left: auto;
+  padding-right: 6px;
+  font-size: 11px;
+}
+
+.asset-library .tree-indent {
+  display: inline-block;
+  width: 14px;
+}
+
+.library-grid {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+  overflow: auto;
+}
+
+.library-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--bw-text);
+  text-align: center;
+  cursor: grab;
+}
+
+.library-tile img {
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 3px;
+  background: var(--bw-panel-alt);
+}
+
+.library-tile span {
+  overflow: hidden;
+  width: 100%;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.library-tile:hover {
+  background: var(--bw-hover);
+}
+
+.library-tile.selected {
+  background: var(--bw-selection);
+  color: var(--bw-selection-text);
+}
+
+.library-tile .favorite-mark {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: var(--bw-accent);
+  fill: var(--bw-accent);
+}
+
+.library-details {
+  display: flex;
+  flex: 0 0 240px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  overflow: auto;
+  border-left: 1px solid var(--bw-border);
+}
+
+.library-details h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.library-details dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.library-details dt {
+  color: var(--bw-text-dim);
+}
+
+.library-details dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.model-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  cursor: grab;
+}
+
+.button-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.button-column button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Inspector */
@@ -1186,4 +1308,281 @@ button.small {
 
 .console-row.linked:hover {
   background: var(--bw-hover);
+}
+
+/* Model field (Mesh Renderer) */
+
+.model-field {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.model-field-button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: left;
+}
+
+.model-field-button img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.model-field-button span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.model-field.missing .model-field-button {
+  color: var(--bw-error);
+}
+
+.model-picker {
+  position: absolute;
+  z-index: 50;
+  top: 100%;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 280px;
+  max-height: 360px;
+  padding: 6px;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel);
+  box-shadow: var(--bw-shadow);
+}
+
+.model-picker-list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.model-picker-list button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.model-picker-list button:hover {
+  background: var(--bw-hover);
+}
+
+.model-picker-list img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Prefab instances (Unity shows them blue) */
+
+.tree-item.prefab-instance {
+  color: var(--bw-prefab);
+}
+
+.tree-item.prefab-instance.selected {
+  color: var(--bw-selection-text);
+}
+
+.asset-tile .prefab-icon {
+  color: var(--bw-prefab);
+}
+
+/* Prefab bar and overrides */
+
+.prefab-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--bw-border);
+  background: var(--bw-panel-alt);
+}
+
+.prefab-bar .prefab-icon {
+  color: var(--bw-prefab);
+}
+
+.prefab-bar .prefab-name {
+  flex: 1;
+  overflow: hidden;
+  color: var(--bw-prefab);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.prefab-bar .has-overrides {
+  color: var(--bw-prefab);
+  font-weight: 600;
+}
+
+.prefab-overrides {
+  position: absolute;
+  z-index: 40;
+  top: 100%;
+  right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 320px;
+  max-height: 320px;
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel);
+  box-shadow: var(--bw-shadow);
+}
+
+.override-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.override-row span {
+  flex: 1;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.override-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.field-row.overridden {
+  box-shadow: inset 2px 0 0 var(--bw-prefab);
+}
+
+.field-row.overridden .field-label {
+  color: var(--bw-text);
+  font-weight: 700;
+}
+
+.link-button {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bw-text-dim);
+  text-decoration: underline;
+}
+
+/* Prefab mode */
+
+.prefab-stage-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--bw-prefab);
+  color: #0b1a2b;
+  font-weight: 600;
+}
+
+.prefab-stage-bar button {
+  margin-left: auto;
+}
+
+/* Model import inspector */
+
+.model-import {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.model-size {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.reference-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 48px;
+}
+
+.reference-model,
+.reference-figure {
+  display: block;
+  width: 10px;
+  border-radius: 2px 2px 0 0;
+}
+
+.reference-model {
+  background: var(--bw-text-dim);
+}
+
+.reference-figure {
+  background: var(--bw-accent);
+}
+
+/* Brush */
+
+.brush-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brush-controls > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brush-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.brush-row input[type='checkbox'] {
+  justify-self: start;
+}
+
+.brush-hint {
+  padding: 4px 8px;
+  background: var(--bw-accent);
+  color: var(--bw-accent-text);
+  font-weight: 600;
+}
+
+.library-grid[hidden] {
+  display: none;
+}
+
+.library-grid.my-prefabs {
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+}
+
+.library-grid.my-prefabs .prefab-icon {
+  color: var(--bw-prefab);
 }

@@ -20,13 +20,20 @@ export type {
   VariableValue,
 } from './world/GameObject';
 export { applyTransformData, World } from './world/World';
+export { ModelCache } from './models/ModelCache';
+export type { ModelSource, ModelTemplate, ModelUrlResolver } from './models/ModelCache';
+export { InstanceBatcher } from './models/InstanceBatcher';
 export type { WorldOptions } from './world/World';
-export { defineComponent, resolveValues } from './components/defineComponent';
+export { defineComponent, isFieldVisible, resolveValues } from './components/defineComponent';
 export type * from './components/defineComponent';
 export { COMPONENTS, getComponentDefinition } from './components';
 export { colliderRegistry } from './components/colliders';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';
+export { motorRegistry } from './components/characterController';
+export type { CharacterMotor } from './components/characterController';
+export { controlRegistry, smoothDampAngle } from './components/controls';
+export type { ControlMode, ControlSettings, ControlState } from './components/controls';
 export type { Locale, LocalizedText } from './text';
 export { loadScriptModule, ScriptModuleError } from './scripts';
 export type { CompiledScriptModule, ScriptEntry, ScriptEvent, ScriptThread } from './scripts';
@@ -44,3 +51,21 @@ export { ANY_KEY, InputState, normalizeKey } from './game/input';
 export { shapesOverlap, toWorldShape } from './game/collisions';
 export type { WorldShape } from './game/collisions';
 export { errorLine, FUNCTION_HEADER_LINES } from './scripts';
+export { initPhysics, loadedRapier } from './physics/rapier';
+export type { Rapier } from './physics/rapier';
+export { DEFAULT_PHYSICS, Physics, setWorldPose } from './physics/Physics';
+export type { PhysicsHit, PhysicsSettings, ZoneEvent } from './physics/Physics';
+export {
+  ACTIONS,
+  DEFAULT_BINDINGS,
+  GAMEPAD_BUTTONS,
+  MOUSE_SENSITIVITY,
+  PlayerInput,
+} from './game/actions';
+export type {
+  ActionName,
+  ButtonAction,
+  GamepadSnapshot,
+  PlayerBindings,
+  RawInput,
+} from './game/actions';

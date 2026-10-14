@@ -2,9 +2,13 @@ import type { ComponentData, SceneData, SceneObjectData } from '@blockwerk/proje
 import { Euler, MathUtils, Scene, Vector3 } from 'three';
 import type { Object3D, PerspectiveCamera } from 'three';
 import { cameraRegistry } from '../components/camera';
+import type { CameraEntry } from '../components/camera';
 import { resolveValues } from '../components/defineComponent';
 import { getComponentDefinition } from '../components';
 import { Environment } from '../environment/Environment';
+import { InstanceBatcher } from '../models/InstanceBatcher';
+import type { ModelCache } from '../models/ModelCache';
+import type { ModelTemplate } from '../models/ModelCache';
 import { GameObject } from './GameObject';
 import type { ComponentInstance } from './GameObject';
 
@@ -14,6 +18,10 @@ export interface WorldOptions {
   readonly displayName?: (id: string, data: SceneObjectData) => string;
   /** Called for components whose type is unknown (e.g. from a newer version). */
   readonly onUnknownComponent?: (objectId: string, component: ComponentData) => void;
+  /** Loads models referenced by Mesh Renderers. Without it, only built-in shapes are shown. */
+  readonly models?: ModelCache;
+  /** Called when a model finished loading and the world looks different (views re-render). */
+  readonly onModelLoaded?: () => void;
 }
 
 const FORWARD = new Vector3(0, 0, 1);
@@ -48,11 +56,15 @@ export class World {
   private data: SceneData;
   private sunOwner: GameObject | null = null;
   private readonly options: WorldOptions;
+  /** Draws equal model meshes together (automatic instancing). */
+  readonly batcher: InstanceBatcher;
+  private readonly pendingModels = new Set<Promise<unknown>>();
 
   constructor(data: SceneData, options: WorldOptions = {}) {
     this.options = options;
     this.environment = new Environment({ groundSize: 0 });
     this.environment.addTo(this.scene);
+    this.batcher = new InstanceBatcher(this.scene);
     this.data = { ...data, objects: {} };
     this.sync(data);
   }
@@ -121,6 +133,54 @@ export class World {
     return null;
   }
 
+  /**
+   * The cameras of the game view: one shared camera, or one per player for split screen when
+   * active cameras are set to player 1 and player 2.
+   */
+  viewCameras(): {
+    readonly views: readonly {
+      readonly camera: PerspectiveCamera;
+      readonly player: 'all' | '1' | '2';
+    }[];
+    readonly split: 'horizontal' | 'vertical';
+  } {
+    const found = new Map<'all' | '1' | '2', CameraEntry>();
+    for (const object of this.allObjects()) {
+      if (!object.activeInHierarchy) continue;
+      const entry = cameraRegistry.get(object);
+      if (entry?.enabled && !found.has(entry.player)) found.set(entry.player, entry);
+    }
+    const one = found.get('1');
+    const two = found.get('2');
+    if (one && two) {
+      return {
+        views: [
+          { camera: one.camera, player: '1' },
+          { camera: two.camera, player: '2' },
+        ],
+        split: one.split,
+      };
+    }
+    const single = found.get('all') ?? one ?? two;
+    return {
+      views: single ? [{ camera: single.camera, player: single.player }] : [],
+      split: 'vertical',
+    };
+  }
+
+  /** The camera that shows a player (for camera-relative controls). */
+  cameraForPlayer(player: 1 | 2): PerspectiveCamera | null {
+    let shared: PerspectiveCamera | null = null;
+    for (const object of this.allObjects()) {
+      if (!object.activeInHierarchy) continue;
+      const entry = cameraRegistry.get(object);
+      if (!entry?.enabled) continue;
+      if (entry.player === String(player)) return entry.camera;
+      shared ??= entry.player === 'all' ? entry.camera : null;
+    }
+    return shared;
+  }
+
   /** Called by light components: the first directional light becomes the sun of the sky. */
   claimSun(owner: GameObject): boolean {
     if (this.sunOwner && this.sunOwner !== owner) return false;
@@ -147,6 +207,40 @@ export class World {
     const shining = FORWARD.clone().transformDirection(owner.object3d.matrixWorld);
     this.environment.setSunDirection(shining.negate());
     this.environment.sun.visible = owner.activeInHierarchy;
+  }
+
+  /** Brings everything that is derived per frame up to date (sun, instancing). Call before rendering. */
+  prepareRender(): void {
+    this.updateSun();
+    this.batcher.update();
+  }
+
+  /**
+   * Requests a model. `onLoaded` runs right away if the model is already loaded, otherwise once
+   * it has loaded (with `null` if it could not be loaded).
+   */
+  requestModel(ref: string, onLoaded: (template: ModelTemplate | null) => void): void {
+    const cache = this.options.models;
+    if (!cache) {
+      onLoaded(null);
+      return;
+    }
+    const ready = cache.peek(ref);
+    if (ready !== undefined) {
+      onLoaded(ready);
+      return;
+    }
+    const pending = cache.load(ref).then((template) => {
+      this.pendingModels.delete(pending);
+      onLoaded(template);
+      this.options.onModelLoaded?.();
+    });
+    this.pendingModels.add(pending);
+  }
+
+  /** Resolves once all models requested so far have loaded (or failed). */
+  async modelsLoaded(): Promise<void> {
+    while (this.pendingModels.size > 0) await Promise.all([...this.pendingModels]);
   }
 
   /** Adds a component instance to an object from its data. */
@@ -186,6 +280,7 @@ export class World {
   /** Releases all resources. */
   dispose(): void {
     for (const id of [...this.objects.keys()]) this.removeObject(id);
+    this.batcher.dispose();
     this.environment.dispose();
   }
 

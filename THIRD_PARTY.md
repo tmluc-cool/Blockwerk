@@ -10,8 +10,11 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 |---|---|---|---|---|
 | `@blockly/field-colour` | 13.3.0 | Apache-2.0 | runtime | apps/editor |
 | `@eslint/js` | 10.0.1 | MIT | development | (root) |
+| `@gltf-transform/core` | 4.5.1 | MIT | development | packages/library |
+| `@gltf-transform/extensions` | 4.5.1 | MIT | development | packages/library |
+| `@gltf-transform/functions` | 4.5.1 | MIT | development | packages/library |
 | `@playwright/test` | 1.56.1 | Apache-2.0 | development | (root) |
-| `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor |
+| `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor, packages/library |
 | `@types/react` | 19.3.0 | MIT | development | apps/editor |
 | `@types/react-dom` | 19.3.0 | MIT | development | apps/editor |
 | `@types/three` | 0.186.0 | MIT | development | apps/editor, packages/runtime |
@@ -21,17 +24,21 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `electron` | 44.7.0 | MIT | development | apps/desktop |
 | `eslint` | 10.12.0 | MIT | development | (root) |
 | `eslint-plugin-react-hooks` | 7.1.1 | MIT | development | (root) |
+| `fflate` | 0.8.2 | MIT | development | packages/library |
 | `globals` | 17.13.0 | MIT | development | (root) |
 | `lucide-react` | 1.56.0 | ISC | runtime | apps/editor |
+| `meshoptimizer` | 1.3.0 | MIT | development | packages/library |
+| `playwright` | 1.56.1 | Apache-2.0 | development | packages/library |
 | `prettier` | 3.9.10 | MIT | development | (root) |
 | `react` | 19.3.0 | MIT | runtime | apps/editor |
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
-| `three` | 0.186.1 | MIT | runtime | apps/editor, packages/runtime |
+| `three` | 0.186.1 | MIT | development, runtime | apps/editor, packages/library, packages/runtime |
+| `tsx` | 4.23.15 | MIT | development | packages/library |
 | `typescript` | 6.0.3 | Apache-2.0 | development | (root), apps/desktop |
 | `typescript-eslint` | 8.71.2 | MIT | development | (root) |
 | `vite` | 8.3.4 | MIT | development | apps/desktop, apps/editor |
 | `vitest` | 5.0.4 | MIT | development | (root) |
-| `zod` | 4.6.7 | MIT | runtime | packages/project |
+| `zod` | 4.6.7 | MIT | runtime | packages/library, packages/project |
 | `zustand` | 5.0.15 | MIT | runtime | apps/editor |
 
 ## Production dependencies including transitive ones

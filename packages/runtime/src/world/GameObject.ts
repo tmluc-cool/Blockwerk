@@ -110,11 +110,13 @@ export class GameObject {
     return this.shown;
   }
 
-  /** Shows or hides the object's own meshes (children are not affected). */
+  /** Shows or hides the object's own meshes and models (children are not affected). */
   setVisible(visible: boolean): void {
     this.shown = visible;
     for (const child of this.object3d.children) {
-      if ((child as { isMesh?: boolean }).isMesh) child.visible = visible;
+      if ((child as { isMesh?: boolean }).isMesh || child.userData['model'] === true) {
+        child.visible = visible;
+      }
     }
   }
 

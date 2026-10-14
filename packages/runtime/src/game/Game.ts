@@ -12,7 +12,7 @@ import { errorLine } from '../scripts';
 import type { CompiledScriptModule, ScriptEntry } from '../scripts';
 import { GameObject } from '../world/GameObject';
 import type { VariableValue } from '../world/GameObject';
-import { World } from '../world/World';
+import { applyTransformData, World } from '../world/World';
 import type { WorldOptions } from '../world/World';
 import type {
   Easing,
@@ -23,8 +23,16 @@ import type {
   VariableScope,
 } from './api';
 import { shapesOverlap, toWorldShape } from './collisions';
+import type { MeshBounds } from './collisions';
+import { meshData, meshKey, ownMeshes } from '../physics/meshData';
 import type { WorldShape } from './collisions';
 import { InputState } from './input';
+import { PlayerInput } from './actions';
+import type { ButtonAction } from './actions';
+import { DEFAULT_PHYSICS, Physics } from '../physics/Physics';
+import type { PhysicsSettings, ZoneEvent } from '../physics/Physics';
+import { loadedRapier } from '../physics/rapier';
+import type { TickContext, TickStage } from '../components/defineComponent';
 
 /** Length of one logic tick in seconds (fixed 60 Hz, SPEC 8.1). */
 export const TICK_SECONDS = 1 / 60;
@@ -56,7 +64,7 @@ export type GameLogEntry =
     }
   | {
       readonly level: 'warning';
-      readonly kind: 'missingScript';
+      readonly kind: 'missingScript' | 'missingPrefab';
       readonly objectId: string;
       readonly objectName: string;
       readonly assetId: string | null;
@@ -80,6 +88,13 @@ export interface GameOptions extends WorldOptions {
   readonly random?: () => number;
   /** Creates IDs for clones. */
   readonly createId?: () => string;
+  /** Gravity and layer collision matrix (physics runs if the engine is loaded). */
+  readonly physics?: PhysicsSettings;
+  /** Prefabs for "create [prefab] at": root and objects with variants and nesting resolved. */
+  readonly prefabs?: (assetId: string) => {
+    readonly root: string;
+    readonly objects: Readonly<Record<string, SceneObjectData>>;
+  } | null;
 }
 
 interface AttachedScript {
@@ -102,6 +117,27 @@ interface TransformSnapshot {
 }
 
 const ORIGIN = new Vector3();
+
+/** Shapes count as touching up to this distance (physics keeps resting bodies apart). */
+const CONTACT_MARGIN = 0.02;
+
+/** Bounds of an object's own meshes, cached by mesh set (for mesh colliders). */
+const meshBoundsCache = new WeakMap<GameObject, { key: string; bounds: MeshBounds }>();
+
+function meshBoundsOf(object: GameObject): MeshBounds {
+  // The key is cheap; the triangles are only collected when the meshes changed.
+  const key = meshKey(ownMeshes(object.object3d));
+  const cached = meshBoundsCache.get(object);
+  if (cached?.key === key) return cached.bounds;
+  const data = meshData(object.object3d);
+  if (!data) return null;
+  const bounds = {
+    center: data.bounds.getCenter(new Vector3()),
+    size: data.bounds.getSize(new Vector3()),
+  };
+  meshBoundsCache.set(object, { key, bounds });
+  return bounds;
+}
 
 let cloneCounter = 0;
 
@@ -159,6 +195,8 @@ export class Game implements GameApi {
     { name: string; owner: GameObject | null; scope: VariableScope; id: string }
   >();
   private readonly previous = new Map<GameObject, TransformSnapshot>();
+  /** Objects of prefabs spawned by scripts, by template ID (`prefab:<asset>/<id>`). */
+  private readonly templates = new Map<string, SceneObjectData>();
   private readonly logical = new Map<GameObject, TransformSnapshot>();
   private accumulator = 0;
   private timerStart = 0;
@@ -166,11 +204,66 @@ export class Game implements GameApi {
   private pointer: { ndc: Vector2 } | null = null;
   private viewAspect = 16 / 9;
 
+  /** Physics of the game; `null` until the physics engine is loaded ({@link initPhysics}). */
+  readonly physics: Physics | null;
+  /** Input actions of the two players. */
+  readonly players = { 1: new PlayerInput(1), 2: new PlayerInput(2) } as const;
+  private readonly tickContext: TickContext;
+
   constructor(scene: SceneData, options: GameOptions) {
     this.options = options;
     this.random_ = options.random ?? Math.random;
     this.world = new World(structuredClone(scene), options);
+    const rapier = loadedRapier();
+    this.physics = rapier
+      ? new Physics(rapier, this.world, {
+          ...DEFAULT_PHYSICS,
+          ...options.physics,
+          gravity: scene.environment.gravity ?? options.physics?.gravity ?? DEFAULT_PHYSICS.gravity,
+        })
+      : null;
+    const time = (): number => this.time;
+    this.tickContext = {
+      dt: TICK_SECONDS,
+      get time() {
+        return time();
+      },
+      world: this.world,
+      physics: this.physics,
+      input: (player) => this.players[player],
+    };
     for (const object of this.world.allObjects()) this.attachScripts(object, null);
+  }
+
+  /** Runs the components' tick at a stage (SPEC 8.1). */
+  private tickComponents(stage: TickStage): void {
+    for (const object of this.world.allObjects()) {
+      if (object.destroyed || !object.activeInHierarchy) continue;
+      for (const component of object.components) {
+        if (component.enabled && component.behavior.tick) {
+          component.behavior.tick(stage, this.tickContext);
+        }
+      }
+    }
+  }
+
+  /** Which gamepad each player uses: with one gamepad and a second player, player 2 gets it. */
+  private gamepadIndices(): { 1: number | null; 2: number | null } {
+    const pads = this.input.connectedGamepads();
+    if (pads.length === 1 && this.hasSecondPlayer()) return { 1: null, 2: pads[0] ?? null };
+    return { 1: pads[0] ?? null, 2: pads[1] ?? null };
+  }
+
+  private secondPlayer: boolean | null = null;
+
+  /** Whether any component is set to player 2 (controls, cameras). */
+  private hasSecondPlayer(): boolean {
+    if (this.secondPlayer === null) {
+      this.secondPlayer = [...this.world.allObjects()].some((object) =>
+        object.components.some((component) => component.values['player'] === '2'),
+      );
+    }
+    return this.secondPlayer;
   }
 
   // ---------------------------------------------------------------- frame loop
@@ -200,8 +293,14 @@ export class Game implements GameApi {
 
   /** Runs exactly one logic tick (Unity: Step), also while paused. */
   stepTick(): void {
+    // Order of SPEC 8.1: input, components, scripts, character controllers, physics, events,
+    // spawn/destroy, animation, camera.
     this.input.beginTick();
+    const pads = this.gamepadIndices();
+    this.players[1].update(this.input, pads[1], TICK_SECONDS);
+    this.players[2].update(this.input, pads[2], TICK_SECONDS);
     this.snapshotTransforms();
+    this.tickComponents('control');
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
     this.fire(
@@ -212,11 +311,53 @@ export class Game implements GameApi {
     for (const object of this.clickQueue.splice(0)) {
       this.fireFor(object, 'click', () => true, true);
     }
+    this.fire(
+      'action',
+      (params) => this.actionMatches(params),
+      (params) => params['phase'] !== 'held',
+    );
     this.stepThreads(this.threads);
+    this.physics?.sync();
+    this.tickComponents('character');
+    if (this.physics) {
+      this.physics.sync();
+      this.physics.step();
+      for (const event of this.physics.takeZoneEvents()) this.zoneEvent(event);
+    }
     this.touchEvents();
     this.processDestroyQueue();
+    this.tickComponents('animate');
+    this.tickComponents('camera');
     this.tick += 1;
     this.world.updateSun();
+  }
+
+  /** Whether an action event (`when action [jump] [started] for [player]`) fires now. */
+  private actionMatches(params: Readonly<Record<string, string | number | boolean>>): boolean {
+    const action = String(params['action'] ?? 'jump') as ButtonAction;
+    const phase = String(params['phase'] ?? 'pressed');
+    const who = String(params['player'] ?? 'any');
+    const players =
+      who === '1' ? [1 as const] : who === '2' ? [2 as const] : [1 as const, 2 as const];
+    return players.some((player) => {
+      const input = this.players[player];
+      if (phase === 'held') return input.isHeld(action);
+      if (phase === 'released') return input.wasReleased(action);
+      return input.wasPressed(action);
+    });
+  }
+
+  /** "When [object | tag] enters / leaves the zone": runs on the zone object. */
+  private zoneEvent(event: ZoneEvent): void {
+    if (event.zone.destroyed || event.other.destroyed) return;
+    this.fireFor(
+      event.zone,
+      'zone',
+      (params) =>
+        String(params['phase'] ?? 'enter') === (event.entered ? 'enter' : 'exit') &&
+        this.matches(event.zone, event.other, String(params['target'] ?? 'any')),
+      true,
+    );
   }
 
   /**
@@ -352,6 +493,7 @@ export class Game implements GameApi {
     for (const thread of this.threads) thread.done = true;
     this.threads = [];
     this.running.clear();
+    this.physics?.dispose();
     this.world.dispose();
   }
 
@@ -575,11 +717,34 @@ export class Game implements GameApi {
     this.find(self, ref)?.setActive(active);
   }
 
+  spawn(self: GameObject, prefab: string, at: ObjectRef): void {
+    const assetId = prefab.startsWith('prefab:') ? prefab.slice('prefab:'.length) : prefab;
+    const template = assetId ? this.prefabTemplate(assetId) : null;
+    const data = template ? this.templates.get(template) : undefined;
+    if (!template || !data) {
+      this.options.log?.({
+        level: 'warning',
+        kind: 'missingPrefab',
+        objectId: self.cloneOf ?? self.id,
+        objectName: self.name,
+        assetId: assetId || null,
+      });
+      return;
+    }
+    const target = this.find(self, at);
+    const copy = this.instantiate(template, data, null);
+    applyTransformData(copy, data);
+    if (target) copy.setWorldPosition(target.worldPosition());
+    for (const object of copy.descendantsAndSelf()) {
+      this.fireFor(object, 'created', () => true, true);
+    }
+  }
+
   clone(self: GameObject, ref: ObjectRef): void {
     const source = this.find(self, ref);
     if (!source || source.destroyed) return;
     const origin = source.cloneOf ?? source.id;
-    const data = this.world.sceneData.objects[origin];
+    const data = this.dataOf(origin);
     if (!data) return;
     const copy = this.instantiate(origin, data, source.parent);
     copy.object3d.position.copy(source.object3d.position);
@@ -627,7 +792,7 @@ export class Game implements GameApi {
     object: GameObject,
     overrides: Readonly<Record<string, JsonValue>> | null,
   ): void {
-    const data = this.world.sceneData.objects[object.cloneOf ?? object.id];
+    const data = this.dataOf(object.cloneOf ?? object.id);
     const scripts: AttachedScript[] = [];
     for (const component of object.components) {
       if (component.definition.type !== 'blockScript' || !component.enabled) continue;
@@ -668,6 +833,28 @@ export class Game implements GameApi {
     if (scripts.length > 0) this.attached.set(object, scripts);
   }
 
+  /** Data of a scene object or of an object of a spawned prefab (`prefab:<asset>/<id>`). */
+  private dataOf(id: string): SceneObjectData | undefined {
+    return this.world.sceneData.objects[id] ?? this.templates.get(id);
+  }
+
+  /** Registers the objects of a prefab as templates; returns the root's template ID. */
+  private prefabTemplate(assetId: string): string | null {
+    const prefix = `prefab:${assetId}/`;
+    const resolved = this.options.prefabs?.(assetId);
+    if (!resolved) return null;
+    if (!this.templates.has(prefix + resolved.root)) {
+      for (const [id, data] of Object.entries(resolved.objects)) {
+        this.templates.set(prefix + id, {
+          ...data,
+          parent:
+            data.parent !== null && data.parent in resolved.objects ? prefix + data.parent : null,
+        });
+      }
+    }
+    return prefix + resolved.root;
+  }
+
   private instantiate(
     originId: string,
     data: SceneObjectData,
@@ -686,7 +873,7 @@ export class Game implements GameApi {
     this.world.adoptObject(object, parent);
     for (const component of data.components) this.world.addComponent(object, component);
     this.attachScripts(object, null);
-    const children = Object.entries(this.world.sceneData.objects)
+    const children = [...Object.entries(this.world.sceneData.objects), ...this.templates.entries()]
       .filter(([, child]) => child.parent === originId)
       .sort((a, b) => a[1].order - b[1].order);
     for (const [childId, childData] of children) {
@@ -830,7 +1017,14 @@ export class Game implements GameApi {
     object.object3d.updateWorldMatrix(true, false);
     return colliders
       .filter((collider) => collider.enabled)
-      .map((collider) => toWorldShape(collider.shape, object.object3d.matrixWorld));
+      .map((collider) =>
+        toWorldShape(
+          collider.shape,
+          object.object3d.matrixWorld,
+          CONTACT_MARGIN,
+          collider.shape.kind === 'mesh' ? meshBoundsOf(object) : null,
+        ),
+      );
   }
 
   /** Objects whose colliders overlap one of the object's colliders. Hidden objects touch nothing. */

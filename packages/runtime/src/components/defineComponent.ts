@@ -2,6 +2,8 @@ import type { JsonValue, Vec3 } from '@blockwerk/project';
 import type { LocalizedText } from '../text';
 import type { GameObject } from '../world/GameObject';
 import type { World } from '../world/World';
+import type { PlayerInput } from '../game/actions';
+import type { Physics } from '../physics/Physics';
 
 /** Units shown next to number fields in the inspector. */
 export type FieldUnit = 'meters' | 'degrees' | 'seconds' | 'percent';
@@ -11,6 +13,19 @@ interface FieldBase {
   readonly text: LocalizedText;
   /** Inspector group, e.g. `material` (shown as its own foldout). */
   readonly group?: string;
+  /** Shown only while another field is empty (`null` or `""`) or, with `empty: false`, set. */
+  readonly visibleIf?: { readonly field: string; readonly empty: boolean };
+}
+
+/** Whether a field is shown for the given values (see `visibleIf`). */
+export function isFieldVisible(
+  field: FieldDefinition,
+  values: Readonly<Record<string, unknown>>,
+): boolean {
+  if (!field.visibleIf) return true;
+  const other = values[field.visibleIf.field];
+  const empty = other === null || other === undefined || other === '';
+  return empty === field.visibleIf.empty;
 }
 
 /** Number field. */
@@ -61,11 +76,14 @@ export interface EnumFieldDefinition extends FieldBase {
   readonly options: readonly EnumOption[];
 }
 
-/** Reference to an asset by its stable ID. */
+/** Asset kinds an asset field can point to. */
+export type AssetFieldType = 'blockScript' | 'model';
+
+/** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {
   readonly type: 'asset';
   readonly default: null;
-  readonly assetType: 'blockScript';
+  readonly assetType: AssetFieldType;
 }
 
 /** Any inspector field of a component. */
@@ -104,8 +122,30 @@ export interface ComponentContext {
   readonly world: World;
 }
 
+/**
+ * Stages of a logic tick in play mode (SPEC 8.1) at which components run: `control` before the
+ * block scripts (controls read input), `character` after them (character controllers move),
+ * `animate` after physics, `camera` last.
+ */
+export type TickStage = 'control' | 'character' | 'animate' | 'camera';
+
+/** What a component sees in its tick (play mode only). */
+export interface TickContext {
+  /** Seconds per tick (1/60). */
+  readonly dt: number;
+  /** Seconds since the game started. */
+  readonly time: number;
+  readonly world: World;
+  /** Physics of the game, if the engine is loaded. */
+  readonly physics: Physics | null;
+  /** Input actions of player 1 or 2. */
+  input(player: 1 | 2): PlayerInput;
+}
+
 /** The live part of a component on an object. */
 export interface ComponentBehavior<F extends FieldDefinitions = FieldDefinitions> {
+  /** Runs every logic tick in play mode at the given stage. */
+  tick?(stage: TickStage, context: TickContext): void;
   /** Applies new field values (called after creation and whenever values change). */
   apply(values: FieldValues<F>): void;
   /** Called when the component is enabled or disabled. */

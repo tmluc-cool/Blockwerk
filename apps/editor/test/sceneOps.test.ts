@@ -141,6 +141,49 @@ describe('scene operations', () => {
   });
 });
 
+describe('duplicating prefab instances', () => {
+  it('keeps links and component IDs of whole instances, unlinks parts', () => {
+    const base: SceneData = {
+      formatVersion: 1,
+      environment: { ambientIntensity: 0.3, fog: { enabled: false, near: 10, far: 100 } },
+      objects: {
+        root00000001: {
+          name: 'Laterne',
+          parent: null,
+          order: 0,
+          active: true,
+          tag: 'Untagged',
+          layer: 'Default',
+          static: false,
+          transform: { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+          components: [{ id: 'comp00000001', type: 'meshRenderer', enabled: true, values: {} }],
+          prefab: { asset: 'prefab000001', object: 'proot0000001', overrides: [] },
+        },
+        lamp00000001: {
+          name: 'Lampe',
+          parent: 'root00000001',
+          order: 0,
+          active: true,
+          tag: 'Untagged',
+          layer: 'Default',
+          static: false,
+          transform: { position: [0, 2, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+          components: [{ id: 'comp00000002', type: 'light', enabled: true, values: {} }],
+          prefab: { asset: 'prefab000001', object: 'plamp0000001' },
+        },
+      },
+    };
+    const whole = duplicateObjects(base, ['root00000001']);
+    const copy = whole.scene.objects[whole.ids[0] ?? ''];
+    expect(copy?.prefab?.overrides).toEqual([]);
+    expect(copy?.components[0]?.id).toBe('comp00000001');
+    const part = duplicateObjects(base, ['lamp00000001']);
+    const lamp = part.scene.objects[part.ids[0] ?? ''];
+    expect(lamp?.prefab).toBeUndefined();
+    expect(lamp?.components[0]?.id).not.toBe('comp00000002');
+  });
+});
+
 describe('History', () => {
   it('undoes, redoes and merges quick edits with the same key', () => {
     let time = 0;
@@ -171,5 +214,18 @@ describe('History', () => {
     expect(history.undo(value)).toBeNull();
     const redo = history.redo(value);
     expect(redo?.state).toBe(3);
+  });
+
+  it('merges a stroke however slow until it is sealed', () => {
+    let time = 0;
+    const history = new History<number>(() => time);
+    history.record(0, 'brush', 'stroke-1', true);
+    time = 5000;
+    history.record(1, 'brush', 'stroke-1', true);
+    history.seal();
+    history.record(2, 'brush', 'stroke-1', true);
+    expect(history.undo(3)?.state).toBe(2);
+    expect(history.undo(2)?.state).toBe(0);
+    expect(history.undo(0)).toBeNull();
   });
 });

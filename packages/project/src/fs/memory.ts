@@ -3,26 +3,43 @@ import type { FileEntry, ProjectFileSystem } from './types';
 
 /** Project file system in memory, for tests and for projects that are not saved yet. */
 export class MemoryFileSystem implements ProjectFileSystem {
-  private readonly files = new Map<string, string>();
+  private readonly files = new Map<string, string | Uint8Array>();
   private readonly folders = new Set<string>(['']);
 
   constructor(files: Readonly<Record<string, string>> = {}) {
     for (const [path, text] of Object.entries(files)) this.put(normalizePath(path), text);
   }
 
-  /** All files as a plain object, sorted by path (for assertions). */
+  /** All files as a plain object, sorted by path (for assertions). Binary files as `<N bytes>`. */
   snapshot(): Record<string, string> {
-    return Object.fromEntries([...this.files.entries()].sort(([a], [b]) => a.localeCompare(b)));
+    return Object.fromEntries(
+      [...this.files.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([path, data]) => [
+          path,
+          typeof data === 'string' ? data : `<${data.byteLength} bytes>`,
+        ]),
+    );
   }
 
   async readText(path: string): Promise<string> {
-    const text = this.files.get(normalizePath(path));
-    if (text === undefined) throw new FileNotFoundError(path);
-    return text;
+    const data = this.files.get(normalizePath(path));
+    if (data === undefined) throw new FileNotFoundError(path);
+    return typeof data === 'string' ? data : new TextDecoder().decode(data);
   }
 
   async writeText(path: string, text: string): Promise<void> {
     this.put(normalizePath(path), text);
+  }
+
+  async readBytes(path: string): Promise<Uint8Array> {
+    const data = this.files.get(normalizePath(path));
+    if (data === undefined) throw new FileNotFoundError(path);
+    return typeof data === 'string' ? new TextEncoder().encode(data) : data.slice();
+  }
+
+  async writeBytes(path: string, data: Uint8Array): Promise<void> {
+    this.put(normalizePath(path), data.slice());
   }
 
   async exists(path: string): Promise<boolean> {
@@ -63,13 +80,14 @@ export class MemoryFileSystem implements ProjectFileSystem {
   }
 
   async rename(from: string, to: string): Promise<void> {
-    const text = await this.readText(from);
+    const data = this.files.get(normalizePath(from));
+    if (data === undefined) throw new FileNotFoundError(from);
     this.files.delete(normalizePath(from));
-    this.put(normalizePath(to), text);
+    this.put(normalizePath(to), data);
   }
 
-  private put(path: string, text: string): void {
-    this.files.set(path, text);
+  private put(path: string, data: string | Uint8Array): void {
+    this.files.set(path, data);
     for (let folder = dirname(path); folder !== ''; folder = dirname(folder)) {
       this.folders.add(folder);
     }

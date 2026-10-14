@@ -13,9 +13,15 @@ export interface SceneInputCallbacks {
   tool(): Tool;
   /** Fly mode started or ended. */
   flyingChanged(flying: boolean): void;
+  /** Whether the brush is active (left mouse paints instead of selecting). */
+  brushActive(): boolean;
+  /** Brush stroke at a point: `start`, `move` while dragging, `end` when released. */
+  paint(x: number, y: number, phase: 'start' | 'move' | 'end'): void;
+  /** The pointer moved over the view without a button (brush outline). */
+  hover(x: number, y: number): void;
 }
 
-type DragMode = 'none' | 'fly' | 'orbit' | 'pan' | 'zoom' | 'click';
+type DragMode = 'none' | 'fly' | 'orbit' | 'pan' | 'zoom' | 'click' | 'paint';
 
 const CLICK_TOLERANCE = 4;
 const FLY_KEYS = new Set([
@@ -96,6 +102,7 @@ export class SceneInput {
     else if (event.button === 0) {
       if (event.altKey) mode = 'orbit';
       else if (this.callbacks.tool() === 'hand') mode = 'pan';
+      else if (this.callbacks.brushActive()) mode = 'paint';
       else {
         const rect = this.element.getBoundingClientRect();
         if (this.callbacks.gizmoHit(event.clientX - rect.left, event.clientY - rect.top)) return;
@@ -116,10 +123,19 @@ export class SceneInput {
       // Synthetic events may not support capture; dragging still works while over the element.
     }
     if (mode === 'fly') this.startFlying();
+    if (mode === 'paint') {
+      const rect = this.element.getBoundingClientRect();
+      this.callbacks.paint(event.clientX - rect.left, event.clientY - rect.top, 'start');
+    }
   };
 
   private readonly onPointerMove = (event: PointerEvent): void => {
-    if (this.mode === 'none' || event.pointerId !== this.pointerId) return;
+    if (this.mode === 'none') {
+      const rect = this.element.getBoundingClientRect();
+      this.callbacks.hover(event.clientX - rect.left, event.clientY - rect.top);
+      return;
+    }
+    if (event.pointerId !== this.pointerId) return;
     const dx = event.clientX - this.lastX;
     const dy = event.clientY - this.lastY;
     this.lastX = event.clientX;
@@ -140,6 +156,12 @@ export class SceneInput {
         break;
       case 'click':
         return;
+      case 'paint': {
+        const rect = this.element.getBoundingClientRect();
+        this.callbacks.paint(event.clientX - rect.left, event.clientY - rect.top, 'move');
+        this.callbacks.hover(event.clientX - rect.left, event.clientY - rect.top);
+        return;
+      }
     }
     this.callbacks.invalidate();
   };
@@ -150,6 +172,9 @@ export class SceneInput {
       this.mode === 'click' &&
       Math.hypot(event.clientX - this.startX, event.clientY - this.startY) < CLICK_TOLERANCE;
     const rect = this.element.getBoundingClientRect();
+    if (this.mode === 'paint') {
+      this.callbacks.paint(event.clientX - rect.left, event.clientY - rect.top, 'end');
+    }
     this.endDrag();
     if (wasClick) {
       this.callbacks.click(event.clientX - rect.left, event.clientY - rect.top, this.additive);

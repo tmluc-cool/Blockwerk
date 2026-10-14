@@ -32,6 +32,14 @@ const editorDist = normalize(
   process.env['BLOCKWERK_EDITOR_DIST'] ?? join(__dirname, '..', '..', 'editor', 'dist'),
 );
 
+/** The asset library (`pnpm assets:fetch`); packaged apps carry it in their resources. */
+const libraryDir = normalize(
+  process.env['BLOCKWERK_LIBRARY_DIR'] ??
+    (app.isPackaged
+      ? join(process.resourcesPath, 'library')
+      : join(__dirname, '..', '..', '..', 'library')),
+);
+
 // Tests use a fresh profile directory to check that layouts survive restarts.
 const userData = process.env['BLOCKWERK_USER_DATA'];
 if (userData) {
@@ -53,13 +61,16 @@ function isEditorUrl(url: string): boolean {
   return url.startsWith(`${APP_ORIGIN}/`);
 }
 
-/** Serves files of the built editor for `blockwerk://app/...` requests. */
+/** Serves files of the built editor and the asset library for `blockwerk://app/...` requests. */
 function registerEditorProtocol(): void {
   protocol.handle(SCHEME, async (request) => {
     const { host, pathname } = new URL(request.url);
     const relative = decodeURIComponent(pathname).replace(/^\/+/, '') || 'index.html';
-    const file = normalize(join(editorDist, relative));
-    if (host !== 'app' || !file.startsWith(editorDist + sep)) {
+    const root = relative.startsWith('library/') ? libraryDir : editorDist;
+    const file = normalize(
+      join(root, root === libraryDir ? relative.slice('library/'.length) : relative),
+    );
+    if (host !== 'app' || !file.startsWith(root + sep)) {
       return new Response('Not found', { status: 404 });
     }
     const response = await net.fetch(pathToFileURL(file).toString());

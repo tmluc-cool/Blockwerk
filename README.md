@@ -10,11 +10,11 @@ _English: Blockwerk is a free, open-source 3D game engine with a Unity-style edi
 built with Scratch-like command blocks instead of C#. The user interface is available in German
 and English._
 
-![Blockwerk-Editor mit dem Beispiel aus Phase 1](docs/screenshots/phase-01.png)
+![Blockwerk-Editor mit dem Dorf-Beispiel aus Phase 2](docs/screenshots/phase-02.png)
 
-> **Status:** frühe Entwicklung. Phase 0 (Fundament und Unity-Layout) und Phase 1 (Objekte,
-> Komponenten, Block-Skripte, Play-Modus) sind umgesetzt. Zum Ausprobieren: „Datei →
-> Beispielprojekt öffnen“ und Play drücken.
+> **Status:** frühe Entwicklung. Phase 0 (Fundament und Unity-Layout), Phase 1 (Objekte,
+> Komponenten, Block-Skripte, Play-Modus) und Phase 2 (Asset-Bibliothek, Modelle, Prefabs) sind
+> umgesetzt. Zum Ausprobieren: „Datei → Beispielprojekt öffnen“ und Play drücken.
 > Es gibt noch kein Release. Den aktuellen Stand zeigt die [Roadmap](#roadmap).
 
 ## Download
@@ -29,6 +29,7 @@ Voraussetzungen: [Node.js](https://nodejs.org/) LTS (22.12 oder neuer) und [pnpm
 
 ```sh
 pnpm install
+pnpm assets:fetch   # Asset-Bibliothek laden und aufbereiten (einmalig, rund 15 Minuten, 150 MB)
 pnpm dev            # Editor im Browser (http://localhost:5173)
 pnpm dev:desktop    # Editor in Electron
 pnpm test           # Unit- und Golden-Tests
@@ -65,7 +66,7 @@ Die englische Oberfläche verwendet die Unity-Begriffe direkt.
 | ----- | ----------------------------------------------- | ------------ |
 | 0     | Fundament und Unity-Layout                      | ✅ umgesetzt |
 | 1     | Objekte, Komponenten, Block-Skripte, Play-Modus | ✅ umgesetzt |
-| 2     | Projekt-Fenster, Asset-Bibliothek, Prefabs      | geplant      |
+| 2     | Projekt-Fenster, Asset-Bibliothek, Prefabs      | ✅ umgesetzt |
 | 3     | Spieler, Physik, Animation                      | geplant      |
 | 3b    | Figuren-Studio                                  | geplant      |
 | 4     | Umgebung und Grafik                             | geplant      |

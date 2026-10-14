@@ -1,14 +1,60 @@
 import type { IDockviewPanelProps } from 'dockview-react';
-import { Grid3x3, Sparkles } from 'lucide-react';
+import { assetDisplayName } from '@blockwerk/project';
+import { ArrowLeft, Grid3x3, Package, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import type { DragEvent } from 'react';
 import { AxisGizmo } from '../scene/AxisGizmo';
 import { activateSceneView, registerSceneView, unregisterSceneView } from '../scene/sceneViews';
 import { SceneViewport } from '../scene/SceneViewport';
 import type { SceneCameraSnapshot, ShadingMode } from '../scene/SceneViewport';
+import { createLibraryObject, createModelObject, placeBrushObjects } from '../document/actions';
+import { useBrush } from '../library/brush';
+import type { BrushSource, GroundPoint } from '../library/brush';
+import { currentEditWorld } from '../scene/worlds';
+import { usePlay } from '../state/play';
+import { instantiatePrefabAsset } from '../document/prefabActions';
 import { editTransforms } from '../document/edits';
+import { libraryRef, useAssetLibrary } from '../library/assetLibrary';
+import { draggedLibraryEntry, draggedMyPrefab, endLibraryDrag } from '../library/drag';
+import { importMyPrefab } from '../library/myPrefabs';
+import { draggedAssetId, endAssetDrag } from '../library/projectDrag';
+import { closePrefab, useDocument } from '../state/document';
 import { sealHistory } from '../state/document';
 import { useEditor } from '../state/editor';
-import { useT } from '../state/settings';
+import { useSettings, useT } from '../state/settings';
+
+/** Ground positions of objects the brush would place again (so strokes keep their spacing). */
+function brushedPositions(source: BrushSource): GroundPoint[] {
+  const world = currentEditWorld();
+  const scene = useDocument.getState().scene;
+  if (!world || !scene) return [];
+  const points: GroundPoint[] = [];
+  for (const [id, object] of Object.entries(scene.objects)) {
+    const matches =
+      source.kind === 'prefab'
+        ? object.prefab?.asset === source.id && object.prefab.overrides !== undefined
+        : object.components.some(
+            (component) =>
+              component.type === 'meshRenderer' &&
+              component.values['model'] === `library:${source.id}`,
+          );
+    const position = matches ? world.getObject(id)?.worldPosition() : undefined;
+    if (position) points.push([position.x, position.z]);
+  }
+  return points;
+}
+
+/** Name of what the brush paints, if it is active. */
+function useBrushName(): string | null {
+  const source = useBrush((state) => state.source);
+  const locale = useSettings((state) => state.locale);
+  const project = useDocument((state) => state.project);
+  const entries = useAssetLibrary((state) => state.byId);
+  if (!source) return null;
+  if (source.kind === 'library') return entries.get(source.id)?.name[locale] ?? source.id;
+  const asset = project?.asset(source.id);
+  return asset ? assetDisplayName(asset.path) : source.id;
+}
 
 /** Whether WebGL 2 can be used in this document. */
 function webgl2Available(): boolean {
@@ -30,6 +76,12 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const [grid, setGrid] = useState(true);
   const [sky, setSky] = useState(true);
   const tool = useEditor((state) => state.tool);
+  const brushName = useBrushName();
+  const stageName = useDocument((state) => {
+    const id = state.prefabStage?.prefabId;
+    const asset = id ? state.project?.asset(id) : undefined;
+    return asset ? assetDisplayName(asset.path) : null;
+  });
   const pivotMode = useEditor((state) => state.pivotMode);
   const space = useEditor((state) => state.space);
 
@@ -49,6 +101,20 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
       flyingChanged: (flying) => useEditor.getState().setFlying(flying),
       transform: editTransforms,
       transformEnd: sealHistory,
+      brush: () => {
+        const brush = useBrush.getState();
+        const source = brush.source;
+        if (!source || usePlay.getState().status !== 'stopped') return null;
+        return {
+          radius: brush.radius,
+          spacing: brush.spacing,
+          existing: () => brushedPositions(source),
+        };
+      },
+      brushPlace: (points, stroke) => {
+        const source = useBrush.getState().source;
+        if (source) placeBrushObjects(source, points, stroke);
+      },
     });
     viewportRef.current = viewport;
     registerSceneView(viewport);
@@ -56,6 +122,11 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     // Synchronously, so a click right after selecting in the hierarchy sees the new gizmo.
     const unsubscribeSelection = useEditor.subscribe((state, previous) => {
       if (state.selection !== previous.selection) viewport.setSelection(state.selection);
+    });
+    const unsubscribeBrush = useBrush.subscribe((state, previous) => {
+      if (state.source !== previous.source || state.radius !== previous.radius) {
+        viewport.refreshBrush();
+      }
     });
     const activate = (): void => activateSceneView(viewport);
     host.addEventListener('pointerdown', activate);
@@ -70,6 +141,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
       }
     });
     return () => {
+      unsubscribeBrush();
       unsubscribeSelection();
       host.removeEventListener('pointerdown', activate);
       observer.disconnect();
@@ -85,6 +157,66 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     viewportRef.current?.refreshTool();
   }, [tool, pivotMode, space]);
 
+  /** Canvas position of a drag event in CSS pixels. */
+  const canvasPoint = (event: DragEvent): { x: number; y: number } => {
+    const rect = viewportRef.current?.canvas.getBoundingClientRect();
+    return { x: event.clientX - (rect?.left ?? 0), y: event.clientY - (rect?.top ?? 0) };
+  };
+
+  // Dragging a model from the asset library shows it standing on the surface under the mouse.
+  /** Model shown while dragging: a library entry or a project model. Prefabs need no preview. */
+  const draggedPlaceable = (): { model: string | null } | null => {
+    const entry = draggedLibraryEntry();
+    if (entry) return { model: libraryRef(entry) };
+    if (draggedMyPrefab()) return { model: null };
+    const assetId = draggedAssetId();
+    const asset = assetId ? useDocument.getState().project?.asset(assetId) : undefined;
+    if (asset?.type === 'model') return { model: asset.id };
+    if (asset?.type === 'prefab') return { model: null };
+    return null;
+  };
+  const onDragOver = (event: DragEvent): void => {
+    const placeable = draggedPlaceable();
+    const viewport = viewportRef.current;
+    if (!placeable || !viewport) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    const { x, y } = canvasPoint(event);
+    viewport.showDropPreview(placeable.model, viewport.surfacePoint(x, y));
+  };
+  const onDragLeave = (event: DragEvent): void => {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+    viewportRef.current?.showDropPreview(null);
+  };
+  const onDrop = (event: DragEvent): void => {
+    const entry = draggedLibraryEntry();
+    const assetId = draggedAssetId();
+    const mine = draggedMyPrefab();
+    const viewport = viewportRef.current;
+    if ((!entry && !assetId && !mine) || !viewport) return;
+    event.preventDefault();
+    const { x, y } = canvasPoint(event);
+    const point = viewport.surfacePoint(x, y);
+    const position: [number, number, number] = [point.x, point.y, point.z];
+    viewport.showDropPreview(null);
+    endLibraryDrag();
+    endAssetDrag();
+    activateSceneView(viewport);
+    if (entry) {
+      createLibraryObject(entry, position);
+      return;
+    }
+    if (mine) {
+      void importMyPrefab(mine).then((id) => {
+        if (id) instantiatePrefabAsset(id, position);
+      });
+      return;
+    }
+    const asset = assetId ? useDocument.getState().project?.asset(assetId) : undefined;
+    if (asset?.type === 'prefab') instantiatePrefabAsset(asset.id, position);
+    else if (asset?.type === 'model') void createModelObject(asset.id, position);
+  };
+
   if (!supported) {
     return (
       <div className="panel scene">
@@ -95,6 +227,20 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
 
   return (
     <div className="panel scene" data-testid="scene-view">
+      {brushName && (
+        <div className="brush-hint" data-testid="brush-hint">
+          {t('brush.hint', { name: brushName })}
+        </div>
+      )}
+      {stageName && (
+        <div className="prefab-stage-bar" data-testid="prefab-stage">
+          <Package size={14} />
+          <span>{t('prefab.mode', { name: stageName })}</span>
+          <button type="button" className="small" data-testid="prefab-back" onClick={closePrefab}>
+            <ArrowLeft size={13} /> {t('prefab.back')}
+          </button>
+        </div>
+      )}
       <div className="panel-toolbar">
         <label className="toolbar-field">
           <span className="muted">{t('scene.shading')}</span>
@@ -142,7 +288,14 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
           </span>
         )}
       </div>
-      <div className="viewport-host" ref={hostRef}>
+      <div
+        className="viewport-host"
+        ref={hostRef}
+        data-testid="scene-drop"
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
         <AxisGizmo
           snapshot={snapshot}
           onView={(view) => viewportRef.current?.setAxisView(view)}

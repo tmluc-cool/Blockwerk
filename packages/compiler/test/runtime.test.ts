@@ -73,6 +73,12 @@ interface PlayOptions {
   /** Extra copies of the player with their own speed. */
   readonly copies?: readonly number[];
   readonly speed?: number;
+  /** Further script assets by asset ID (e.g. used inside prefabs). */
+  readonly assets?: Readonly<Record<string, unknown>>;
+  /** Prefabs for "create [prefab] at", by asset ID. */
+  readonly prefabs?: Readonly<
+    Record<string, { root: string; objects: Record<string, SceneObjectData> }>
+  >;
 }
 
 interface Playing {
@@ -134,6 +140,9 @@ function play(source: unknown, options: PlayOptions = {}): Playing {
       components: [...data.components, scriptComponent(`sc${objectId.slice(0, 10)}`, assetId)],
     };
   }
+  for (const [assetId, other] of Object.entries(options.assets ?? {})) {
+    assets.set(assetId, compileAsset(assetId, other, VARIABLES));
+  }
   const log: GameLogEntry[] = [];
   let clones = 0;
   const game = new Game(
@@ -147,6 +156,7 @@ function play(source: unknown, options: PlayOptions = {}): Playing {
       log: (entry) => log.push(entry),
       random: () => 0.5,
       createId: () => `clone${String(++clones).padStart(7, '0')}`,
+      prefabs: (id) => options.prefabs?.[id] ?? null,
     },
   );
   const player = game.world.getObject('player000001');
@@ -304,6 +314,49 @@ const cases: RuntimeCase[] = [
       expect(clones).toHaveLength(1);
       expect(clones[0]?.position.x).toBeCloseTo(-3, 6);
       expect(game.world.getObject('player000001')?.position.x).toBe(0);
+    },
+  },
+  {
+    name: 'prefabs are created at an object and run their own scripts',
+    covers: ['control.spawnPrefab'],
+    run: () => {
+      const { game, ticks, log } = play(
+        workspace([
+          b('events.whenGameStarts'),
+          b('control.spawnPrefab', { prefab: 'prefab:laterne00001', at: 'object:target000001' }),
+          b('control.spawnPrefab', { prefab: 'prefab:fehlt0000001', at: 'self' }),
+        ]),
+        {
+          assets: {
+            lampscript01: workspace([
+              b('events.whenCreated'),
+              b('motion.move', { direction: 'up' }, { meters: 2 }),
+            ]),
+          },
+          prefabs: {
+            laterne00001: {
+              root: 'lanternroot1',
+              objects: {
+                lanternroot1: objectData({
+                  name: 'Laterne',
+                  components: [scriptComponent('lampscriptc1', 'lampscript01')],
+                }),
+                lanternlamp1: objectData({
+                  name: 'Lampe',
+                  parent: 'lanternroot1',
+                  transform: { position: [0, 3, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
+                }),
+              },
+            },
+          },
+        },
+      );
+      ticks(2);
+      const lantern = [...game.world.allObjects()].find((item) => item.name === 'Laterne');
+      expect(lantern?.worldPosition().toArray()).toEqual([0, 2, 10]);
+      expect(lantern?.children.map((child) => child.name)).toEqual(['Lampe']);
+      expect(lantern?.children[0]?.worldPosition().y).toBeCloseTo(5, 6);
+      expect(log.some((entry) => entry.kind === 'missingPrefab')).toBe(true);
     },
   },
   {

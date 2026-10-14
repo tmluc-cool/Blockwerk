@@ -1,0 +1,57 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "kf-1",
+          "next": {
+            "block": {
+              "fields": {
+                "direction": "forward"
+              },
+              "id": "kf-2",
+              "inputs": {
+                "meters": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 0.06
+                    },
+                    "id": "kf-3",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "direction": "left"
+                  },
+                  "id": "kf-4",
+                  "inputs": {
+                    "degrees": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 0.1
+                        },
+                        "id": "kf-5",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "type": "motion.turn"
+                }
+              },
+              "type": "motion.move"
+            }
+          },
+          "type": "events.everyFrame",
+          "x": 40,
+          "y": 40
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

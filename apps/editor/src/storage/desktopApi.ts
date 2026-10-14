@@ -19,6 +19,8 @@ export interface DesktopApi {
   readonly files?: {
     read(root: string, path: string): Promise<string>;
     write(root: string, path: string, text: string): Promise<void>;
+    readBytes(root: string, path: string): Promise<Uint8Array>;
+    writeBytes(root: string, path: string, data: Uint8Array): Promise<void>;
     exists(root: string, path: string): Promise<boolean>;
     list(root: string, path: string): Promise<FileEntry[]>;
     remove(root: string, path: string): Promise<void>;

@@ -1,0 +1,23 @@
+{
+  "id": "kaykit-dungeon",
+  "name": "KayKit Dungeon Remastered 1.0",
+  "author": "Kay Lousberg",
+  "homepage": "https://kaylousberg.itch.io/kaykit-dungeon-remastered",
+  "license": "CC0-1.0",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0",
+    "commit": "b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07"
+  },
+  "licenseFile": "LICENSE.txt",
+  "licensePhrase": "Creative Commons Zero, CC0",
+  "groups": [
+    {
+      "include": ["addons/kaykit_dungeon_remastered/Assets/gltf/*.glb"],
+      "category": "dungeon",
+      "tags": ["dungeon", "verlies"],
+      "scale": 0.7
+    }
+  ],
+  "dropWords": []
+}
