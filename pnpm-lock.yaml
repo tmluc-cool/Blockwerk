@@ -117,7 +117,15 @@ importers:
 
   packages/blocks: {}
 
-  packages/character: {}
+  packages/character:
+    dependencies:
+      three:
+        specifier: ^0.186.1
+        version: 0.186.1
+    devDependencies:
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
 
   packages/compiler:
     dependencies:
