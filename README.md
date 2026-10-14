@@ -65,21 +65,21 @@ trying out characters, the Character Studio and an asset library with CC0 models
 
 ## Roadmap
 
-| Phase | Content                                       | Status    |
-| ----- | --------------------------------------------- | --------- |
-| 0     | Foundation and Unity layout                   | ✅ done   |
-| 1     | Objects, components, block scripts, play mode | ✅ done   |
-| 2     | Project window, asset library, prefabs        | ✅ done   |
-| 3     | Player, physics, animation                    | in review |
-| 3b    | Character Studio                              | in review |
-| 4     | Environment and graphics                      | planned   |
-| 5     | NPCs and game logic                           | planned   |
-| 6     | UI, menus, saving                             | planned   |
-| 7     | Large projects                                | planned   |
-| 8     | Debugging                                     | planned   |
-| 9     | Build and export                              | planned   |
-| 10    | AI assistant                                  | planned   |
-| 11    | Polish and final acceptance                   | planned   |
+| Phase | Content                                       | Status      |
+| ----- | --------------------------------------------- | ----------- |
+| 0     | Foundation and Unity layout                   | ✅ done     |
+| 1     | Objects, components, block scripts, play mode | ✅ done     |
+| 2     | Project window, asset library, prefabs        | ✅ done     |
+| 3     | Player, physics, animation                    | ✅ done     |
+| 3b    | Character Studio                              | ✅ done     |
+| 4     | Environment and graphics                      | in progress |
+| 5     | NPCs and game logic                           | planned     |
+| 6     | UI, menus, saving                             | planned     |
+| 7     | Large projects                                | planned     |
+| 8     | Debugging                                     | planned     |
+| 9     | Build and export                              | planned     |
+| 10    | AI assistant                                  | planned     |
+| 11    | Polish and final acceptance                   | planned     |
 
 The full specification is in [SPEC.md](SPEC.md) (German), the progress of each phase in
 [PROGRESS.md](PROGRESS.md).

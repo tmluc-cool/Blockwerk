@@ -7,9 +7,9 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 0 | Foundation and Unity layout | done |
 | 1 | Objects, components, block scripts, Play Mode | done |
 | 2 | Project window, Asset Library, Prefabs | done |
-| 3 | Player, physics, animation | in review (PR #6, CI green) |
-| 3b | Character Studio | in review |
-| 4 | Environment and graphics | open |
+| 3 | Player, physics, animation | done |
+| 3b | Character Studio | done |
+| 4 | Environment and graphics | in progress |
 | 5 | NPCs and game logic | open |
 | 6 | UI, menus, saving | open |
 | 7 | Large projects | open |
@@ -19,6 +19,37 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 4: Environment and graphics
+
+Branch: `phase/04-umgebung` (builds on `main` with Phases 3 and 3b merged).
+
+### Plan
+
+**Subtasks** (SPEC 8.3, 8.9, 8.11, 8.16, 9.1, 10)
+
+1. **Graphics levels and post-processing** (`packages/runtime`): levels Low / Medium / High / Ultra (resolution scale, shadow map size and cascade distance, shadow type, anti-aliasing, post-processing on/off, grass and particle density, draw distance), switchable in play mode without a restart (Game view drop-down, a block, and the project default). **Post-processing** as a component on the camera object (Unity's Volume): tone mapping, bloom, ambient occlusion, anti-aliasing, color grading, vignette, optional depth of field (`postprocessing`, Zlib; `n8ao`, ISC).
+2. **Sky, day-night cycle, weather, fog:** the scene's environment settings grow optional fields (time of day, day length, sun azimuth, fog color/density, weather type and intensity, wind). The sun, sky, ambient light, fog and a star dome follow the time of day; moon light at night. Weather: rain, snow, fog, wind, with ground-wetness and sound hooks. A **Lighting window** (Unity: Window → Rendering → Lighting) edits all of this live in the Scene and Game views.
+3. **Particle system component** with inspector modules like Unity (emission, shape, lifetime, color over time, size over time, gravity) and the templates dust (landing), sparks, explosion, smoke, fire, magic, rain, snow, collect sparkle. The character controller spawns dust when landing.
+4. **Terrain:** component with a height map, up to 4 texture layers painted with brushes (raise, lower, smooth, flatten, paint), stored as a binary asset next to the scene (`*.terrain.bin`, SPEC 9.1); a height-field collider; grass and plants spread by instancing following the painted layer. Scene view brushes and a Terrain inspector.
+5. **Water:** component with reflection and waves, a swim option in the character controller (buoyancy, slower movement, swim animation state when the model has one).
+6. **Audio** (`packages/runtime`): Audio Source component with 3D sound (volume and direction by distance, Web Audio), listener on the camera, music with cross-fade, separate volumes for music, effects and voices, footsteps through animation events and the character's sound set, ambient sounds per area. New asset type `audio` for imported sounds; built-in synthesized sound effects so every example has sound without third-party files.
+7. **Blocks** (Appendix A "(4)" blocks): set time of day, set weather, set graphics level, play sound (at), play music, stop/volume, play/stop particle effect — each with a golden and a runtime test.
+8. **Example** `examples/04-landschaft`: hill landscape with lake, forest, village, day-night cycle and rain; measure draw calls (< 500) and frame time; acceptance tests, screenshot, PR.
+
+**Affected packages:** `runtime` (environment, post-processing, particles, terrain, water, audio, quality), `blocks`, `compiler`, `project` (environment fields, terrain and audio asset types, graphics setting), `apps/editor` (Lighting window, terrain brushes, quality switch, audio import), `examples/`.
+
+**Risks**
+
+- 60 FPS cannot be measured in this environment (software rendering at 2–4 FPS). The acceptance measures what can be measured: draw calls, triangles, instance counts, per-frame CPU time of the engine, and the graphics-level switch; real FPS needs a machine with a graphics card (Game view → Statistics).
+- Post-processing, terrain, grass and water are the heaviest pieces; each has a cheaper path for Low/Medium, and the levels are tuned by counts (shadow map size, instance counts) rather than by timing.
+- No CC0 sound files can be downloaded here (hosts blocked): the built-in sounds are synthesized in code; imported sounds use the same Audio Source.
+- Terrain data is binary and must be deterministic: a fixed little-endian layout, a content hash in the meta file, no git diffs for unchanged terrain.
+
+### Assumptions
+
+- **Environment data:** new fields are optional in the scene's `environment` so old scenes stay byte-identical. The graphics level default is an optional field in `blockwerk.json`; players switch at runtime.
+- **Terrain file:** `.terrain.bin` holds a small header (magic, version, resolution, size, layer count), 16-bit heights and 8-bit layer weights; it is a binary asset type like models (stable ID in a meta file).
 
 ## Phase 3b: Character Studio
 
