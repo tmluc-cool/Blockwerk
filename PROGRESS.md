@@ -8,7 +8,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 1 | Objects, components, block scripts, Play Mode | done |
 | 2 | Project window, Asset Library, Prefabs | done |
 | 3 | Player, physics, animation | in progress |
-| 3b | Character Studio | open |
+| 3b | Character Studio | in progress |
 | 4 | Environment and graphics | open |
 | 5 | NPCs and game logic | open |
 | 6 | UI, menus, saving | open |
@@ -19,6 +19,31 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 3b: Character Studio
+
+Branch: `phase/03b-figuren-studio` (builds on Phase 3; PR #6 is not merged yet).
+
+### Plan
+
+**Subtasks** (SPEC 5.10, 8.7)
+
+1. **Standard skeleton and retargeting** (`packages/character`): the VRM 1.0 humanoid bone names are the internal standard (15 required bones, optional spine/chest/neck, fingers, toes). Automatic bone mapping of a loaded skeleton by name patterns (Mixamo-style, KayKit Rig_Medium, Blender `.L/.R`, VRM) and by hierarchy; mapping stored with the model and editable. Retargeting of animation clips from one humanoid skeleton onto another (rotation retargeting in rest-pose space, hip translation scaled by leg length).
+2. **Model import:** GLB/glTF and VRM (`@pixiv/three-vrm`, MIT; license metadata is read into the license field), FBX and OBJ through the existing converter; models without a skeleton become rigid figures with automatic bobbing, leaning and squash.
+3. **Character component** (single definition, also shown in the Inspector): model, bone map, body height, colors per part, attachments, movement profile, abilities, collision capsule, sound set, portrait. Every character is a Prefab; "Player 2: like Player 1 with other colors" is a Prefab Variant.
+4. **Character Studio window** (first tab in the Player 1, Player 2 and NPC areas): turntable preview with studio light, meter grid, comparison figure, collision capsule with handles, jump arc; animation list with preview, speed, fade, loop, slow motion and an event timeline; movement sliders and the five movement profiles; ability cards (double jump, sprint with stamina, roll, crouch, swim, climb, glide, wall jump, dive, pick up/carry, interact); camera preview with draggable distance, height and shoulder offset; portrait rendering saved as an image asset; "Play in Test Area".
+5. **Builder:** parts from modular CC0 characters with a shared skeleton, color palettes and a random button, body sliders through bone scaling; attachment points (right/left hand, back, head, hip, custom) with library items that follow the animation.
+6. **Abilities as components** with their blocks (double jump, roll, stamina, climb, glide …) and golden/runtime tests; blocks from SPEC Appendix A "Character" (attach item, switch part, set color, switch movement profile, enable ability, has ability, stamina, "when I roll/glide/climb/swim").
+7. **Example and acceptance:** `examples/03b-figur` and tests (below), screenshot, PR.
+
+**Affected packages:** `character` (new), `runtime` (character component, retargeting, abilities, rigid-figure motion), `blocks`, `compiler`, `project` (character settings, portrait asset), `library` (modular character pack source), `apps/editor` (Studio window, import).
+
+**Risks**
+
+- Retargeting quality depends on rest poses; automatic tests compare bone directions and foot sliding against the source clip with tolerances, the visual result needs a look on a machine with a graphics card.
+- The modular CC0 characters (Quaternius) are on a host that is blocked in this cloud environment; the builder is developed against the KayKit characters here and gets the Quaternius source description for machines with normal internet access. A CC0 VRM test model has to be found on a reachable host (GitHub).
+- VRM license metadata and spring bones: spring bones are not simulated in this phase (assumption).
+- The Studio is a large UI: it is built as panels over the character component so that each panel stays small and testable.
 
 ## Phase 3: Player, physics, animation
 
