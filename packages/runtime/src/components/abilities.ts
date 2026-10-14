@@ -44,7 +44,7 @@ function defineAbility<const F extends FieldDefinitions>(options: {
       const publish = (): void => {
         const current = { ...(abilityRegistry.get(object) ?? {}) } as Record<string, unknown>;
         if (enabled && config) current[options.type] = config;
-        else delete current[options.type];
+        else Reflect.deleteProperty(current, options.type);
         abilityRegistry.set(object, current as AbilityConfig);
       };
       return {

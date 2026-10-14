@@ -3,7 +3,7 @@ import type { BoneMapping, MappedRig } from '@blockwerk/character';
 import { Box3, Color, MathUtils, Vector3 } from 'three';
 import type { AnimationClip, Material, Mesh, Object3D } from 'three';
 import { ANIMATION_STATES, matchClips } from '../animation/states';
-import { MOVEMENT_PROFILES, PROFILE_NAMES, PROFILE_TEXT } from '../character/movement';
+import { PROFILE_NAMES, PROFILE_TEXT } from '../character/movement';
 import { ModelCache } from '../models/ModelCache';
 import type { ModelTemplate } from '../models/ModelCache';
 import { controlRegistry } from './controls';

@@ -305,7 +305,7 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
       return events.splice(0);
     },
     clearOverrides() {
-      for (const key of Object.keys(overrides) as (keyof ControlSettings)[]) delete overrides[key];
+      for (const key of Object.keys(overrides)) Reflect.deleteProperty(overrides, key);
       if (values) {
         base.walkSpeed = values.walkSpeed;
         base.runSpeed = values.runSpeed;
