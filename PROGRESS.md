@@ -94,11 +94,13 @@ Modell-Renderer:                      Feld  model: "library:<ID>" oder Projekt-A
 **Abnahme**
 
 - [x] Startpaket mit mindestens 300 Modellen, alle CC0, mit Vorschaubild und Lizenzeintrag: 903 Modelle aus 10 Paketen (Unit-Test prüft Index, Lizenz, Vorschaubild und Datei jedes Eintrags; `library/LICENSES.md`).
-- [ ] `examples/02-dorf`: Dorf mit Häusern, Brunnen, Zäunen und 200 Bäumen in unter 15 Minuten nur aus der Bibliothek gebaut, 60 FPS im Play-Modus. Das Beispiel steht; der E2E-Test für den Aufbau über die Oberfläche läuft noch, 60 FPS sind in dieser Umgebung nicht messbar (siehe Messung).
+- [ ] `examples/02-dorf`: Dorf mit Häusern, Brunnen, Zäunen und 200 Bäumen in unter 15 Minuten nur aus der Bibliothek gebaut, 60 FPS im Play-Modus. Aufbau erfüllt: Der E2E-Test baut über die Oberfläche (Bibliothek, Hineinziehen, Pinsel) ein Dorf mit 8 Häusern, Brunnen, Zäunen und 200 Bäumen in 0,3 Minuten und spielt es ab; `examples/02-dorf` ist das ausgebaute Dorf. **60 FPS sind hier nicht nachweisbar**, weil die Umgebung ohne Grafikkarte rendert (siehe Messung); bitte auf einem Rechner mit Grafikkarte prüfen.
 - [x] Prefab „Laterne“ geändert: alle Exemplare übernehmen es, ein überschriebener Wert bleibt; Variante „Rote Laterne“ erbt Änderungen der Basis (Unit-Tests in `packages/project` und E2E-Test im Editor mit Prefab-Modus, Speichern und Neuladen).
-- [ ] `pnpm test`, `pnpm lint`, `pnpm build` grün; CI auf GitHub grün.
+- [ ] `pnpm test`, `pnpm lint`, `pnpm build` lokal grün; CI auf GitHub: siehe Pull Request (der erste Lauf baut die Bibliothek, danach kommt sie aus dem Cache).
 
 Messung im Beispiel „Dorf“ (Spielansicht, Software-Renderer ohne Grafikkarte): 35 Draw Calls für 289 Objekte, 123 120 Dreiecke, etwa 10–15 ms Arbeit pro Bild, 2 Bilder/s. Zum Vergleich erreicht das einfache Beispiel aus Phase 1 hier nur 4 Bilder/s; die Bildrate ist in dieser Umgebung durch die Software-Darstellung begrenzt.
+
+Tests: 177 Unit-/Golden-/Laufzeittests (Vitest), 41 End-to-End-Tests (39 Browser, 2 Desktop-App). Screenshot: `docs/screenshots/phase-02.png`.
 
 **Offen / Hinweise für später**
 
