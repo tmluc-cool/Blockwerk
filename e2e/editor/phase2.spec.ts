@@ -472,5 +472,7 @@ test('a village of houses, a well, fences and 200 trees is built from the librar
   );
   expect(performance?.drawCalls).toBeGreaterThan(0);
   expect(performance?.drawCalls).toBeLessThan(80);
-  await page.getByTestId('stop').click();
+  // Play again stops (like Unity).
+  await page.getByTestId('play').click();
+  await expect.poll(() => page.evaluate(() => window.__blockwerk?.playStatus())).toBe('stopped');
 });
