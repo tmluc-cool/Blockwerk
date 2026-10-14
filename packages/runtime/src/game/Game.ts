@@ -768,6 +768,46 @@ export class Game implements GameApi {
     this.physics?.setVelocity(self, new Vector3());
   }
 
+  attach(self: GameObject, item: string, point: string): void {
+    gameplay.attachItem(self, item, point);
+  }
+
+  detach(self: GameObject, point: string): void {
+    gameplay.detachItem(self, point);
+  }
+
+  setPartVisible(self: GameObject, part: string, visible: boolean): void {
+    gameplay.setPartVisible(self, part, visible);
+  }
+
+  switchPart(self: GameObject, from: string, to: string): void {
+    gameplay.switchPart(self, from, to);
+  }
+
+  setPartColor(self: GameObject, part: string, color: string): void {
+    gameplay.setPartColor(self, part, color);
+  }
+
+  setProfile(self: GameObject, name: string): void {
+    gameplay.setProfile(self, name);
+  }
+
+  enableAbility(self: GameObject, name: string, on: boolean): void {
+    gameplay.enableAbility(self, name, on);
+  }
+
+  hasAbility(self: GameObject, name: string): boolean {
+    return gameplay.hasAbility(self, name);
+  }
+
+  setStamina(self: GameObject, percent: number): void {
+    gameplay.setStamina(self, percent);
+  }
+
+  staminaPercent(self: GameObject): number {
+    return gameplay.staminaPercent(self);
+  }
+
   switchCamera(view: string): void {
     gameplay.switchCamera(this, view);
   }

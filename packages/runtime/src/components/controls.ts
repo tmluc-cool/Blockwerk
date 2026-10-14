@@ -54,6 +54,8 @@ export interface ControlState {
   gliding: boolean;
   /** Stamina left as a fraction 0..1, `null` without the ability Stamina. */
   stamina: number | null;
+  /** Sets the stamina to a fraction of its maximum (0..1). */
+  setStamina(fraction: number): void;
   /** Ability events since the last call (the game turns them into "when I roll" events). */
   takeEvents(): ControlEvent[];
   /** Forgets values set by blocks; the component's own values apply again (profile change). */
@@ -301,6 +303,13 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     rolling: false,
     gliding: false,
     stamina: null,
+    setStamina(fraction) {
+      const max = abilityRegistry.get(object)?.stamina?.max;
+      if (max === undefined) return;
+      staminaLeft = MathUtils.clamp(fraction, 0, 1) * max;
+      state.stamina = staminaLeft / max;
+      exhausted = false;
+    },
     takeEvents() {
       return events.splice(0);
     },
@@ -648,6 +657,7 @@ export const vehicleControl = defineComponent({
       gliding: false,
       stamina: null,
       takeEvents: () => [],
+      setStamina() {},
       clearOverrides() {},
       jump() {},
       setCrouch() {},

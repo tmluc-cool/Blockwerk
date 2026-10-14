@@ -3,7 +3,11 @@ import { animatorRegistry } from '../components/animator';
 import { cameraRegistry } from '../components/camera';
 import type { CameraEntry } from '../components/camera';
 import { cameraBehaviorRegistry } from '../components/cameraBehaviors';
+import { abilityRegistry, ABILITY_NAMES } from '../components/abilities';
+import { parseAttachments, parseList } from '../components/figure';
+import { applyMovementProfile, isProfileName } from '../character/movement';
 import { controlRegistry } from '../components/controls';
+import { resolveValues } from '../components/defineComponent';
 import type { ControlSettings, ControlState } from '../components/controls';
 import type { Physics } from '../physics/Physics';
 import type { GameObject } from '../world/GameObject';
@@ -240,4 +244,103 @@ export function distanceAhead(context: GameplayContext, self: GameObject, meters
     self,
   );
   return hit ? hit.distance : meters;
+}
+
+// ------------------------------------------------------------------ character (SPEC 5.10)
+
+/** Changes the values of the object's Figur component and applies them. */
+function updateFigure(
+  self: GameObject,
+  change: (values: Readonly<Record<string, unknown>>) => Record<string, unknown>,
+): void {
+  const component = self.findComponent('character');
+  if (!component) return;
+  component.values = { ...component.values, ...change(component.values) } as never;
+  component.behavior.apply(resolveValues(component.definition, component.values));
+}
+
+/** Hangs an item (`library:…` model) on an attachment point, replacing what hung there. */
+export function attachItem(self: GameObject, item: string, point: string): void {
+  updateFigure(self, (values) => {
+    const kept = parseAttachments(String(values['attachments'] ?? '')).filter(
+      ([, at]) => at !== point,
+    );
+    return { attachments: [...kept, [item, point]].map(([a, b]) => `${a}@${b}`).join(';') };
+  });
+}
+
+/** Takes what hangs on an attachment point off. */
+export function detachItem(self: GameObject, point: string): void {
+  updateFigure(self, (values) => ({
+    attachments: parseAttachments(String(values['attachments'] ?? ''))
+      .filter(([, at]) => at !== point)
+      .map(([a, b]) => `${a}@${b}`)
+      .join(';'),
+  }));
+}
+
+/** Shows or hides a part of the figure's model by its name. */
+export function setPartVisible(self: GameObject, part: string, visible: boolean): void {
+  updateFigure(self, (values) => {
+    const hidden = String(values['hiddenParts'] ?? '')
+      .split(';')
+      .map((name) => name.trim())
+      .filter(Boolean)
+      .filter((name) => name !== part);
+    if (!visible) hidden.push(part);
+    return { hiddenParts: hidden.join(';') };
+  });
+}
+
+/** Swaps one part for another (a hat for a helmet): hides the first, shows the second. */
+export function switchPart(self: GameObject, from: string, to: string): void {
+  updateFigure(self, (values) => {
+    const hidden = String(values['hiddenParts'] ?? '')
+      .split(';')
+      .map((name) => name.trim())
+      .filter((name) => name && name !== to);
+    if (from && !hidden.includes(from)) hidden.push(from);
+    return { hiddenParts: hidden.join(';') };
+  });
+}
+
+/** Tints a part of the figure (an empty color removes the tint). */
+export function setPartColor(self: GameObject, part: string, color: string): void {
+  updateFigure(self, (values) => {
+    const tints = parseList(String(values['tints'] ?? '')).filter(([name]) => name !== part);
+    if (color) tints.push([part, color]);
+    return { tints: tints.map(([a, b]) => `${a}=${b}`).join(';') };
+  });
+}
+
+/** Switches the movement profile (all movement values change at once). */
+export function setProfile(self: GameObject, name: string): void {
+  if (!isProfileName(name)) return;
+  applyMovementProfile(self, name);
+  updateFigure(self, () => ({ profile: name }));
+}
+
+/** Turns an ability on or off. */
+export function enableAbility(self: GameObject, name: string, on: boolean): void {
+  const component = self.findComponent(name);
+  if (!component || !(ABILITY_NAMES as readonly string[]).includes(name)) return;
+  component.enabled = on;
+  component.behavior.setEnabled?.(on);
+}
+
+/** Whether the object has an ability that is turned on. */
+export function hasAbility(self: GameObject, name: string): boolean {
+  const abilities = abilityRegistry.get(self) as Record<string, unknown> | undefined;
+  return abilities?.[name] !== undefined;
+}
+
+/** Sets the stamina in percent. */
+export function setStamina(self: GameObject, percent: number): void {
+  controlOf(self)?.setStamina(percent / 100);
+}
+
+/** Stamina in percent (100 without the ability). */
+export function staminaPercent(self: GameObject): number {
+  const stamina = controlOf(self)?.stamina;
+  return stamina === null || stamina === undefined ? 100 : Math.round(stamina * 1000) / 10;
 }
