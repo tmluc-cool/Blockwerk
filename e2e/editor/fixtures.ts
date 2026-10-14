@@ -48,6 +48,14 @@ export const test = base.extend<{ editor: Page }>({
 
 export { expect };
 
+/** Time factor for runners that draw in software (Windows CI); 1 everywhere else. */
+export const slowFactor = process.platform === 'win32' && process.env['CI'] ? 3 : 1;
+
+/** Scales a timeout in milliseconds for slow runners. */
+export function scaled(milliseconds: number): number {
+  return milliseconds * slowFactor;
+}
+
 /** Reads the scene camera state. */
 export async function sceneCamera(page: Page): Promise<CameraSnapshot | null> {
   return page.evaluate(() => (window.__blockwerk?.sceneCamera() ?? null) as CameraSnapshot | null);

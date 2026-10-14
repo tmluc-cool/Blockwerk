@@ -5,6 +5,7 @@ import {
   expect,
   objectId,
   openExample,
+  scaled,
   settle,
   tab,
   test,
@@ -161,7 +162,7 @@ test.describe('phase 1: objects, components, block scripts, play mode', () => {
     try {
       await expect
         .poll(() => page.evaluate(() => window.__blockwerk?.liveVariable(null, 'Punkte')), {
-          timeout: 30_000,
+          timeout: scaled(30_000),
         })
         .toBe(3);
     } catch (error) {
@@ -256,7 +257,7 @@ test.describe('phase 1: objects, components, block scripts, play mode', () => {
         async () =>
           (await page.evaluate(() => window.__blockwerk?.liveObjects('Spieler') ?? []))[0]
             ?.position[2] ?? 0,
-        { timeout: 15_000 },
+        { timeout: scaled(15_000) },
       )
       .toBeGreaterThan(12);
     await page.keyboard.up('w');
@@ -274,7 +275,9 @@ test.describe('phase 1: objects, components, block scripts, play mode', () => {
     const files = await page.evaluate(() => window.__blockwerk?.files());
     await page.reload();
     await expect
-      .poll(() => page.evaluate(() => window.__blockwerk?.project().name), { timeout: 20_000 })
+      .poll(() => page.evaluate(() => window.__blockwerk?.project().name), {
+        timeout: scaled(20_000),
+      })
       .toBe('Hindernisparcours');
     expect(await page.evaluate(() => window.__blockwerk?.files())).toEqual(files);
     expect(await page.evaluate(() => window.__blockwerk?.project().dirty)).toBe(false);

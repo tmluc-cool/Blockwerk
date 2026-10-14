@@ -119,8 +119,6 @@ function overlayLine(points: readonly Vector3[], color: number): Line {
  * a meter grid, a comparison figure, the jump arc and the collision capsule. Drag to turn the
  * view, mouse wheel to zoom.
  */
-const timing = { frames: 0, steps: 0, tick: 0, draw: 0, gap: 0, prepare: 0, preview: 0, render: 0 };
-
 export class StageViewport {
   private readonly renderer: WebGLRenderer;
   private readonly camera = new PerspectiveCamera(35, 1, 0.05, 100);
@@ -149,7 +147,9 @@ export class StageViewport {
   private accumulator = 0;
   private disposed = false;
   private drawn = 0;
-  private lastEnd = 0;
+  private readonly software: boolean;
+  /** False while a figure is being built; CPU-drawn machines do not draw half-built figures. */
+  private ready = false;
   private preview: { canvas: HTMLCanvasElement; settings: CameraPreview } | null = null;
   private readonly cleanup: (() => void)[] = [];
 
@@ -162,6 +162,9 @@ export class StageViewport {
     canvas.dataset['testid'] = 'studio-canvas';
     container.appendChild(canvas);
     this.renderer = createRenderer({ canvas });
+    // Machines that draw with the CPU skip the shadow pass and refresh the camera preview rarely.
+    this.software = isSoftwareRenderer(this.renderer);
+    if (this.software) this.renderer.shadowMap.enabled = false;
     const listen = <K extends keyof HTMLElementEventMap>(
       type: K,
       listener: (event: HTMLElementEventMap[K]) => void,
@@ -258,6 +261,7 @@ export class StageViewport {
     this.game?.dispose();
     this.game = null;
     this.callbacks.figure(null, null);
+    this.ready = false;
     if (!object) return;
     await initPhysics();
     if (this.disposed || generation !== this.generation) return;
@@ -279,8 +283,6 @@ export class StageViewport {
     };
     const game = new Game(scene, { scripts: () => null, models: editorModels });
     this.game = game;
-    // Machines that draw with the CPU get a smaller shadow map: the figure is small and close.
-    if (isSoftwareRenderer(this.renderer)) game.world.environment.setShadowMapSize(1024);
     this.rebuildHelpers();
     await game.world.modelsLoaded();
     game.stepTick();
@@ -288,6 +290,7 @@ export class StageViewport {
     await game.world.modelsLoaded();
     game.stepTick();
     if (this.disposed || generation !== this.generation) return;
+    this.ready = true;
     const figure = game.world.getObject('figure0000001');
     this.applyAnimation();
     this.callbacks.figure(
@@ -509,7 +512,6 @@ export class StageViewport {
     if (!this.helpers.parent) game.world.scene.add(this.helpers);
     this.accumulator += dt;
     let steps = 0;
-    const tA = performance.now();
     while (this.accumulator >= TICK_SECONDS && steps < 4) {
       game.stepTick();
       this.accumulator -= TICK_SECONDS;
@@ -517,17 +519,7 @@ export class StageViewport {
     }
     if (steps === 4) this.accumulator = 0;
     if (this.spin) this.yaw += dt * 0.5;
-    const tB = performance.now();
-    this.draw(game);
-    const tC = performance.now();
-    const t = timing;
-    t.frames++;
-    t.steps += steps;
-    t.tick += tB - tA;
-    t.draw += tC - tB;
-    t.gap += tA - this.lastEnd;
-    this.lastEnd = tC;
-    Reflect.set(window, '__stageTiming', { ...t });
+    if (this.ready || !this.software) this.draw(game);
   };
 
   private draw(game: Game): void {
@@ -536,17 +528,13 @@ export class StageViewport {
     if (canvas.width !== Math.floor(canvas.clientWidth * this.renderer.getPixelRatio())) {
       this.resize(canvas.clientWidth, canvas.clientHeight);
     }
-    const p0 = performance.now();
     game.world.prepareRender();
-    timing.prepare += performance.now() - p0;
     const scene = game.world.scene;
     scene.background = new Color(0x2a2d33);
-    const p1 = performance.now();
-    // The camera preview is a second full draw; on CPU-drawn machines it refreshes every third frame.
-    if (this.preview && (this.drawn++ % 3 === 0 || !isSoftwareRenderer(this.renderer))) {
+    // The camera preview is a second full draw; on CPU-drawn machines it refreshes every sixth frame.
+    if (this.preview && (!this.software || this.drawn++ % 6 === 0)) {
       this.drawCameraView(game);
     }
-    timing.preview += performance.now() - p1;
     const target = new Vector3(0, this.height * 0.5, 0);
     const distance = (this.height * 2.6 + 0.8) * this.zoom;
     this.camera.position.set(
@@ -557,9 +545,7 @@ export class StageViewport {
     this.camera.lookAt(target);
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(0, 0, canvas.clientWidth, canvas.clientHeight);
-    const p2 = performance.now();
     this.renderer.render(scene, this.camera);
-    timing.render += performance.now() - p2;
   }
 
   /** Draws the figure as the game camera sees it into the small preview canvas. */
