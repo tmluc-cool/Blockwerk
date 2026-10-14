@@ -135,6 +135,7 @@ describe('buildToolbox', () => {
       'events',
       'motion',
       'looks',
+      'sound',
       'control',
       'sensing',
       'operators',

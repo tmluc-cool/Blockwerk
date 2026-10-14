@@ -366,7 +366,7 @@ describe('loading problems', () => {
     await fs.writeText('Assets/kaputt.scene.json', '{ nope');
     await fs.writeText('Assets/falsch.blocks.json', '{"formatVersion":1}');
     await fs.writeText('Assets/weg.scene.json.meta.json', '{}');
-    await fs.writeText('Assets/Klang.wav', 'binary');
+    await fs.writeText('Assets/Klang.flac', 'binary');
     const loaded = await loadProject(fs);
     expect(loaded.problems.map((problem) => [problem.code, problem.path])).toEqual([
       ['invalidFile', 'Assets/falsch.blocks.json'],

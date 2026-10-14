@@ -16,6 +16,8 @@ export interface FrameReferences {
   readonly tags: readonly string[];
   /** Prefabs of the project (for "create [prefab] at"). */
   readonly prefabs: readonly { readonly id: string; readonly name: string }[];
+  /** Built-in sounds and sound files (`value` is `builtin:<name>` or `audio:<asset ID>`). */
+  readonly sounds: readonly { readonly value: string; readonly name: string }[];
   readonly labels: {
     readonly self: string;
     readonly any: string;

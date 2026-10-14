@@ -8,7 +8,7 @@ import {
   loadScriptModule,
   ModelCache,
 } from '@blockwerk/runtime';
-import type { GameObject, ScriptAsset } from '@blockwerk/runtime';
+import type { AudioEngine, GameObject, ScriptAsset } from '@blockwerk/runtime';
 import {
   AnimationClip,
   BoxGeometry,
@@ -104,6 +104,7 @@ export interface Scene {
   readonly objects: Record<string, SceneObjectData>;
   readonly scripts: Record<string, unknown>;
   readonly models?: ModelCache;
+  readonly audio?: AudioEngine;
 }
 
 export function launch(scene: Scene): Game {
@@ -116,7 +117,12 @@ export function launch(scene: Scene): Game {
       environment: { ambientIntensity: 0.3, fog: { enabled: false, near: 10, far: 100 } },
       objects: scene.objects,
     },
-    { scripts: (id) => assets.get(id) ?? null, models: scene.models, random: () => 0.5 },
+    {
+      scripts: (id) => assets.get(id) ?? null,
+      models: scene.models,
+      audio: scene.audio,
+      random: () => 0.5,
+    },
   );
 }
 

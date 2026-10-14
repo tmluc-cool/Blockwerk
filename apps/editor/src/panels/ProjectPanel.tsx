@@ -12,6 +12,7 @@ import {
   Boxes,
   Image as ImageIcon,
   Mountain,
+  Volume2,
 } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useState } from 'react';
@@ -32,11 +33,13 @@ import { prompt } from '../state/dialogs';
 import {
   createFolder,
   deleteAsset,
+  importSoundFiles,
   moveAssetToFolder,
   openPrefab,
   openScene,
   projectFolders,
   renameAsset,
+  SOUND_FILE_EXTENSIONS,
   useDocument,
 } from '../state/document';
 import { useEditor } from '../state/editor';
@@ -67,6 +70,8 @@ function assetIcon(asset: AnyAsset) {
       return <ImageIcon size={30} />;
     case 'terrain':
       return <Mountain size={30} />;
+    case 'audio':
+      return <Volume2 size={30} />;
     case 'prefab':
       return asset.data.base ? (
         <Boxes size={30} className="prefab-icon" />
@@ -84,6 +89,18 @@ function chooseModelFiles(folder: string): void {
   input.accept = MODEL_FILE_EXTENSIONS.join(',');
   input.addEventListener('change', () => {
     void importModelFiles([...(input.files ?? [])], folder);
+  });
+  input.click();
+}
+
+/** Lets the user pick sound files and imports them into a folder. */
+function chooseSoundFiles(folder: string): void {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.accept = SOUND_FILE_EXTENSIONS.join(',');
+  input.addEventListener('change', () => {
+    void importSoundFiles([...(input.files ?? [])], folder);
   });
   input.click();
 }
@@ -131,6 +148,12 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
       testId: 'project-import-model',
       disabled: playing,
       action: () => chooseModelFiles(target),
+    },
+    {
+      label: t('project.importSound'),
+      testId: 'project-import-sound',
+      disabled: playing,
+      action: () => chooseSoundFiles(target),
     },
     {
       label: t('project.folder'),

@@ -11,6 +11,7 @@ import { Environment } from '../environment/Environment';
 import { InstanceBatcher } from '../models/InstanceBatcher';
 import type { ModelCache } from '../models/ModelCache';
 import type { ModelTemplate } from '../models/ModelCache';
+import type { AudioEngine } from '../audio/AudioEngine';
 import { Effects } from '../effects/Effects';
 import { GameObject } from './GameObject';
 import type { ComponentInstance } from './GameObject';
@@ -67,6 +68,8 @@ export class World {
   private readonly options: WorldOptions;
   /** Draws equal model meshes together (automatic instancing). */
   readonly batcher: InstanceBatcher;
+  /** The game's sound system (play mode only; `null` in the editor's own world). */
+  audio: AudioEngine | null = null;
   /** One-shot particle effects (dust, sparks, …). */
   readonly effects: Effects;
   /** Bodies of water that things can swim in (kept by the water components). */

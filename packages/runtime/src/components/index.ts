@@ -1,5 +1,6 @@
 import { doubleJump, glide, roll, stamina } from './abilities';
 import { animator } from './animator';
+import { audioListener, audioSource } from './audio';
 import { blockScript } from './blockScript';
 import { character } from './figure';
 import { camera } from './camera';
@@ -62,6 +63,8 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   particleSystem,
   terrain,
   water,
+  audioSource,
+  audioListener,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];

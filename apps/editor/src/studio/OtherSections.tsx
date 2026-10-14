@@ -1,6 +1,8 @@
-import { parseList } from '@blockwerk/runtime';
+import { assetDisplayName } from '@blockwerk/project';
+import { BUILTIN_SOUNDS, isBuiltinSound, parseList } from '@blockwerk/runtime';
 import { useState } from 'react';
-import { importImageAsset, defaultFolder } from '../state/document';
+import { previewSound } from '../audio/editorAudio';
+import { importImageAsset, defaultFolder, useDocument } from '../state/document';
 import { useConsole } from '../state/console';
 import { useT } from '../state/settings';
 import { ensureComponent, setValue, setValues, valuesOf } from './studio';
@@ -105,11 +107,21 @@ export function CollisionSection({ id, object }: SectionProps) {
 }
 
 /** Events with a sound in the sound set. */
-const SOUND_SLOTS = ['footstep', 'jump', 'land', 'hurt', 'win'] as const;
+const SOUND_SLOTS = ['footstep', 'jump', 'land', 'hurt', 'win', 'splash'] as const;
 
-/** Section "Sounds": which sound plays on which event (played once the audio system exists). */
+/** Whether a sound reference names a built-in sound or a sound of the project. */
+function isKnown(value: string, audio: readonly { id: string }[]): boolean {
+  return (
+    value === 'none' ||
+    isBuiltinSound(value.replace('builtin:', '')) ||
+    audio.some((asset) => value === `audio:${asset.id}`)
+  );
+}
+
+/** Section "Sounds": which sound plays on which event of the figure. */
 export function SoundsSection({ id, object }: SectionProps) {
   const t = useT();
+  const project = useDocument((state) => state.project);
   const sounds = new Map(parseList(String(valuesOf(object, 'character')['sounds'] ?? '')));
   const write = (slot: string, value: string): void => {
     const next = new Map(sounds);
@@ -126,22 +138,39 @@ export function SoundsSection({ id, object }: SectionProps) {
     <div className="studio-section" data-testid="studio-section-sounds">
       <StudioGroup title={t('studio.sounds.set')}>
         <p className="muted">{t('studio.sounds.hint')}</p>
-        {SOUND_SLOTS.map((slot) => (
-          <label className="field-row" key={slot}>
-            <span className="field-label">{t(`studio.sound.${slot}` as never)}</span>
-            <input
-              type="text"
-              key={sounds.get(slot) ?? ''}
-              defaultValue={sounds.get(slot) ?? ''}
-              placeholder={t('studio.sounds.placeholder')}
-              data-testid={`sound-${slot}`}
-              onBlur={(event) => {
-                const value = event.currentTarget.value.trim();
-                if (value !== (sounds.get(slot) ?? '')) write(slot, value);
-              }}
-            />
-          </label>
-        ))}
+        {SOUND_SLOTS.map((slot) => {
+          const chosen = sounds.get(slot) ?? '';
+          const audio = project?.assetsOfType('audio') ?? [];
+          return (
+            <label className="field-row" key={slot}>
+              <span className="field-label">{t(`studio.sound.${slot}` as never)}</span>
+              <select
+                value={chosen}
+                data-testid={`sound-${slot}`}
+                onChange={(event) => write(slot, event.target.value)}
+              >
+                <option value="">{t('studio.sounds.default')}</option>
+                <option value="none">{t('sound.none')}</option>
+                {chosen && !isKnown(chosen, audio) && <option value={chosen}>{chosen}</option>}
+                {BUILTIN_SOUNDS.map((name) => (
+                  <option key={name} value={`builtin:${name}`}>
+                    {t(`sound.builtin.${name}` as never)}
+                  </option>
+                ))}
+                {audio.map((asset) => (
+                  <option key={asset.id} value={`audio:${asset.id}`}>
+                    {assetDisplayName(asset.path)}
+                  </option>
+                ))}
+              </select>
+              {chosen && chosen !== 'none' && (
+                <button type="button" className="small" onClick={() => previewSound(chosen)}>
+                  {t('sound.preview')}
+                </button>
+              )}
+            </label>
+          );
+        })}
       </StudioGroup>
     </div>
   );

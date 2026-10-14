@@ -47,6 +47,7 @@ import { keepAllChanges, keepChange, playingWorld, usePlay } from '../state/play
 import type { TranslationKey } from '../i18n';
 import { useSettings, useT } from '../state/settings';
 import { TerrainTools } from '../terrain/TerrainTools';
+import { SoundPreviewButton } from './inspector/fields';
 import { FieldEditor, MIXED, shared, VectorInput } from './inspector/fields';
 import { ModelImportInspector } from './inspector/ModelImportInspector';
 import { PrefabBar } from './inspector/PrefabBar';
@@ -523,7 +524,8 @@ function AssetInspector({ id }: { id: string }) {
           </span>
         </Row>
       )}
-      {entry.type !== 'model' && (
+      {entry.type === 'audio' && <SoundPreviewButton value={`audio:${entry.id}`} />}
+      {(entry.type === 'scene' || entry.type === 'prefab' || entry.type === 'blockScript') && (
         <div className="add-component">
           <button
             type="button"

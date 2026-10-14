@@ -8,6 +8,7 @@ import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
 import { focusPanel } from '../layout/layoutController';
+import { useMute } from '../audio/editorAudio';
 import { editorModels } from '../library/models';
 import {
   currentEditWorld,
@@ -332,6 +333,9 @@ export function play(options: PlayOptions = {}): void {
     prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
     physics: physicsSettings(),
   });
+  game.audio.setMuted(useMute.getState().muted);
+  // The Play click allows sound in the browser.
+  game.audio.resume();
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
   game.world.updateSun();
   game.world.environment.shareLightingFrom(currentEditWorld()?.environment ?? null);

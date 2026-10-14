@@ -51,6 +51,7 @@ function newProjectFolders(): NewProjectFolders {
     models: t('project.folder.models'),
     images: t('project.folder.images'),
     terrains: t('project.folder.terrains'),
+    sounds: t('project.folder.sounds'),
   };
 }
 
@@ -580,6 +581,29 @@ export function importModelAsset(
   return entry;
 }
 
+/** Sound file endings the editor imports. */
+export const SOUND_FILE_EXTENSIONS = ['.wav', '.ogg', '.mp3'] as const;
+
+/** Adds sound files (WAV, OGG, MP3) to the project folder; returns the new assets. */
+export async function importSoundFiles(
+  files: readonly File[],
+  folder: string,
+): Promise<AssetEntry<'audio'>[]> {
+  const { project } = useDocument.getState();
+  if (!project) return [];
+  const added: AssetEntry<'audio'>[] = [];
+  for (const file of files) {
+    const lower = file.name.toLowerCase();
+    const extension = SOUND_FILE_EXTENSIONS.find((candidate) => lower.endsWith(candidate));
+    if (!extension) continue;
+    const name = file.name.slice(0, -extension.length);
+    const path = project.uniqueAssetPath(folder, name, 'audio').replace(/\.wav$/, extension);
+    added.push(project.createAudio(path, new Uint8Array(await file.arrayBuffer())));
+  }
+  if (added.length > 0) assetsChanged();
+  return added;
+}
+
 /** Adds an image (PNG), e.g. a character portrait, to the project. */
 export function importImageAsset(
   folder: string,
@@ -606,7 +630,12 @@ export function adoptAssets(
   for (const file of files) {
     const content = file.bytes
       ? { bytes: file.bytes }
-      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model' | 'image' | 'terrain'>] };
+      : {
+          data: file.json as AssetDataByType[Exclude<
+            AssetType,
+            'model' | 'image' | 'terrain' | 'audio'
+          >],
+        };
     if (project.adoptAsset(file.path, file.meta, content)) added++;
   }
   if (added > 0) assetsChanged();

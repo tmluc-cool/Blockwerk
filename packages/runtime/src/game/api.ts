@@ -117,6 +117,11 @@ export interface GameApi {
   setSunBrightness(percent: number): void;
   setLightEnabled(self: GameObject, ref: ObjectRef, on: boolean): void;
   setLightColor(self: GameObject, ref: ObjectRef, color: string): void;
+  playSound(self: GameObject, sound: string, where: string): void;
+  playMusic(sound: string): void;
+  crossfadeMusic(sound: string, seconds: number): void;
+  stopAllSounds(): void;
+  setVolume(bus: string, percent: number): void;
   spawnEffect(self: GameObject, effect: string, at: ObjectRef): void;
   startParticles(self: GameObject, ref: ObjectRef): void;
   stopParticles(self: GameObject, ref: ObjectRef): void;

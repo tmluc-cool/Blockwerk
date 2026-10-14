@@ -151,3 +151,29 @@ export { seededRandom, TERRAIN_LAYERS, TERRAIN_TOOLS, TerrainData } from './terr
 export type { TerrainBrush, TerrainRegion, TerrainTool } from './terrain/TerrainData';
 export { WaterSurface } from './water/WaterSurface';
 export type { WaterReflection, WaterSettings } from './water/WaterSurface';
+export {
+  BUILTIN_EFFECTS,
+  BUILTIN_LOOPS,
+  BUILTIN_SOUNDS,
+  isBuiltinSound,
+  isLoopingSound,
+  SYNTH_RATE,
+  synthesize,
+} from './audio/synth';
+export type { BuiltinSound } from './audio/synth';
+export { AUDIO_BUSES, AudioEngine, isAudioBus, setAudioSource } from './audio/AudioEngine';
+export type {
+  AudioBus,
+  AudioEngineOptions,
+  AudioSource,
+  PlayOptions,
+  SoundHandle,
+} from './audio/AudioEngine';
+export { audioSourceRegistry } from './components/audio';
+export type { AudioSourceState } from './components/audio';
+export {
+  RecordedGain,
+  RecordedPanner,
+  RecordedSource,
+  RecordingAudioContext,
+} from './audio/RecordingAudioContext';

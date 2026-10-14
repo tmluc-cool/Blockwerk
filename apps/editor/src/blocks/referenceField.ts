@@ -2,12 +2,14 @@ import * as Blockly from 'blockly/core';
 import type { FrameReferences } from './frameApi';
 
 /** Values allowed in scene reference fields (same as the compiler accepts). */
-const REFERENCE = /^(?:self|any|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*)$/;
+const REFERENCE =
+  /^(?:self|any|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
 
 let references: FrameReferences = {
   objects: [],
   tags: [],
   prefabs: [],
+  sounds: [],
   labels: {
     self: 'self',
     any: 'anything',
@@ -42,6 +44,11 @@ function labelOf(value: string): string {
     const id = value.slice(7);
     return references.prefabs.find((prefab) => prefab.id === id)?.name ?? references.labels.missing;
   }
+  if (value.startsWith('builtin:') || value.startsWith('audio:')) {
+    return (
+      references.sounds.find((sound) => sound.value === value)?.name ?? references.labels.missing
+    );
+  }
   if (value.startsWith('object:')) {
     const id = value.slice(7);
     return references.objects.find((object) => object.id === id)?.name ?? references.labels.missing;
@@ -73,6 +80,12 @@ export class FieldReference extends Blockly.FieldDropdown {
       const current = this.getValue();
       if (current && !values.includes(current)) values.push(current);
       if (values.length === 0) values.push('prefab:');
+      return values.map((value) => [labelOf(value), value]);
+    }
+    if (source === 'sound') {
+      values.push(...references.sounds.map((sound) => sound.value));
+      const current = this.getValue();
+      if (current && !values.includes(current)) values.push(current);
       return values.map((value) => [labelOf(value), value]);
     }
     if (source === 'object') values.push('self');

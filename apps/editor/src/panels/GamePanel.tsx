@@ -6,7 +6,9 @@ import { GameViewport } from '../game/GameViewport';
 import type { GameViewStats } from '../game/GameViewport';
 import type { AspectPreset } from '../game/GameViewport';
 import { setGameView } from '../game/gameViews';
-import { usePlay } from '../state/play';
+import { Volume2, VolumeX } from 'lucide-react';
+import { useMute } from '../audio/editorAudio';
+import { currentGame, usePlay } from '../state/play';
 import { useT } from '../state/settings';
 
 type Stats = GameViewStats;
@@ -24,6 +26,7 @@ export function GamePanel({ api }: IDockviewPanelProps) {
   const [hasCamera, setHasCamera] = useState(true);
   const monitors = usePlay((state) => state.monitors);
   const status = usePlay((state) => state.status);
+  const muted = useMute((state) => state.muted);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -85,6 +88,19 @@ export function GamePanel({ api }: IDockviewPanelProps) {
           </select>
         </label>
         <span className="toolbar-spacer" />
+        <button
+          type="button"
+          className={muted ? 'toggled' : ''}
+          aria-pressed={muted}
+          data-testid="mute-toggle"
+          onClick={() => {
+            const next = !muted;
+            useMute.getState().set(next);
+            currentGame()?.audio.setMuted(next);
+          }}
+        >
+          {muted ? <VolumeX size={14} /> : <Volume2 size={14} />} {t('game.mute')}
+        </button>
         <button
           type="button"
           className={showStats ? 'toggled' : ''}

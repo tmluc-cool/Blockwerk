@@ -19,6 +19,8 @@ export { FormatTooNewError, migrate, MigrationError, MIGRATIONS } from './migrat
 export type { FileKind, Migration, MigrationRegistry, MigrationResult } from './migrations';
 export {
   ASSET_EXTENSIONS,
+  assetExtensions,
+  EXTRA_ASSET_EXTENSIONS,
   ASSETS_FOLDER,
   assetDisplayName,
   assetFolder,
@@ -43,6 +45,7 @@ export type {
   AssetEntry,
   LoadOptions,
   ModelData,
+  AudioAssetData,
   ImageData,
   TerrainAssetData,
   NewProjectFolders,

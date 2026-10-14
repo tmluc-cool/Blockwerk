@@ -211,8 +211,16 @@ export const DEFAULT_MODEL_IMPORT_SETTINGS: ModelImportSettings = {
   generateCollider: true,
 };
 
-/** Asset types. Models (GLB), images (PNG) and terrains are binary files; all others are JSON. */
-export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model', 'image', 'terrain'] as const;
+/** Asset types. Models (GLB), images (PNG), terrains and sounds are binary files; all others are JSON. */
+export const ASSET_TYPES = [
+  'scene',
+  'blockScript',
+  'prefab',
+  'model',
+  'image',
+  'terrain',
+  'audio',
+] as const;
 export const assetTypeSchema = z.enum(ASSET_TYPES);
 export type AssetType = z.infer<typeof assetTypeSchema>;
 

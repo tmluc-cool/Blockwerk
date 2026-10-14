@@ -12,6 +12,7 @@ import {
   whenAbility,
 } from './character';
 import { spawnEffect, startParticles, stopParticles } from './effects';
+import { crossfadeMusic, playMusic, playSound, setVolume, stopAllSounds } from './sound';
 import {
   setFogDensity,
   setGraphicsLevel,
@@ -186,6 +187,12 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   setLight,
   setLightColor,
   setGraphicsLevel,
+  // Sound
+  playSound,
+  playMusic,
+  crossfadeMusic,
+  stopAllSounds,
+  setVolume,
   // Effects
   spawnEffect,
   startParticles,

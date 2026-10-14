@@ -40,6 +40,9 @@ import * as gameplay from './gameplayApi';
 import { isWeatherType } from '../environment/Weather';
 import { emitterRegistry } from '../components/particleSystem';
 import { isParticlePreset } from '../effects/presets';
+import { AudioEngine, isAudioBus } from '../audio/AudioEngine';
+import { CharacterSounds } from '../audio/CharacterSounds';
+import { audioListenerCamera } from '../audio/listener';
 import { currentQuality, isQualityName, setQuality } from '../rendering/quality';
 import type { GameViews } from '../camera/transitions';
 
@@ -99,6 +102,8 @@ export interface GameOptions extends WorldOptions {
   readonly createId?: () => string;
   /** Gravity and layer collision matrix (physics runs if the engine is loaded). */
   readonly physics?: PhysicsSettings;
+  /** The sound system; defaults to Web Audio in browsers and silence elsewhere. */
+  readonly audio?: AudioEngine;
   /** Prefabs for "create [prefab] at": root and objects with variants and nesting resolved. */
   readonly prefabs?: (assetId: string) => {
     readonly root: string;
@@ -225,10 +230,17 @@ export class Game implements GameApi {
   }
   private readonly tickContext: TickContext;
 
+  /** The game's sound system (3D sounds, music, volumes). */
+  readonly audio: AudioEngine;
+  private readonly characterSounds: CharacterSounds;
+
   constructor(scene: SceneData, options: GameOptions) {
     this.options = options;
     this.random_ = options.random ?? Math.random;
     this.world = new World(structuredClone(scene), options);
+    this.audio = options.audio ?? new AudioEngine();
+    this.world.audio = this.audio;
+    this.characterSounds = new CharacterSounds(this.world, this.audio, this.random_);
     const rapier = loadedRapier();
     this.physics = rapier
       ? new Physics(rapier, this.world, {
@@ -359,6 +371,16 @@ export class Game implements GameApi {
     this.world.environment.advance(TICK_SECONDS);
     this.world.effects.update(TICK_SECONDS);
     this.world.updateSun();
+    this.updateAudio();
+  }
+
+  /** Audio positions (SPEC 8.1): the listener, weather sounds, character sounds. */
+  private updateAudio(): void {
+    const listener = audioListenerCamera(this.world);
+    if (listener) this.audio.setListener(listener.position, listener.forward, listener.up);
+    const weather = this.world.environment.weather.state;
+    this.audio.updateWeather(weather.type, weather.intensity, weather.windSpeed);
+    this.characterSounds.update(TICK_SECONDS);
   }
 
   /** Whether an action event (`when action [jump] [started] for [player]`) fires now. */
@@ -399,6 +421,7 @@ export class Game implements GameApi {
       }
       for (const event of animatorRegistry.get(object)?.takeEvents() ?? []) {
         this.count(`animation:${event.name}:${event.phase}`);
+        if (event.phase === 'started') this.characterSounds.onAnimationEvent(object, event.name);
         this.fireFor(
           object,
           'animation',
@@ -557,6 +580,7 @@ export class Game implements GameApi {
     this.threads = [];
     this.running.clear();
     this.physics?.dispose();
+    this.audio.dispose();
     this.world.dispose();
   }
 
@@ -867,6 +891,30 @@ export class Game implements GameApi {
 
   setSunBrightness(percent: number): void {
     this.world.environment.setSunBrightness(percent / 100);
+  }
+
+  playSound(self: GameObject, sound: string, where: string): void {
+    if (!sound) return;
+    this.audio.play(sound, {
+      bus: 'effects',
+      position: where === 'everywhere' ? null : self.worldPosition(),
+    });
+  }
+
+  playMusic(sound: string): void {
+    if (sound) this.audio.playMusic(sound, 1);
+  }
+
+  crossfadeMusic(sound: string, seconds: number): void {
+    if (sound) this.audio.crossfadeMusic(sound, Math.max(0, seconds));
+  }
+
+  stopAllSounds(): void {
+    this.audio.stopAll();
+  }
+
+  setVolume(bus: string, percent: number): void {
+    if (isAudioBus(bus)) this.audio.setVolume(bus, percent / 100);
   }
 
   spawnEffect(self: GameObject, effect: string, at: ObjectRef): void {
