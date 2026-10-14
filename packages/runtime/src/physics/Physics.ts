@@ -673,6 +673,8 @@ export class Physics {
       case 'capsule':
       case 'cylinder':
         return Math.PI * shape.radius ** 2 * shape.height * s;
+      case 'heightfield':
+        return shape.size * shape.size * Math.max(0.01, shape.maxHeight - shape.minHeight) * s;
       case 'mesh': {
         const bounds = meshData(member.object3d)?.bounds;
         const size = bounds ? bounds.getSize(new Vector3()) : new Vector3(1, 1, 1);
@@ -728,6 +730,22 @@ export class Physics {
           Math.max(0.001, shape.radius * Math.max(sx, sz)),
         );
         break;
+      case 'heightfield': {
+        // Rapier wants the heights column by column (index = x * resolution + z).
+        const n = shape.resolution;
+        const heights = new Float32Array(n * n);
+        for (let gz = 0; gz < n; gz++) {
+          for (let gx = 0; gx < n; gx++) {
+            heights[gx * n + gz] = (shape.heights[gz * n + gx] ?? 0) * sy;
+          }
+        }
+        description = rapier.ColliderDesc.heightfield(n - 1, n - 1, heights, {
+          x: shape.size * sx,
+          y: 1,
+          z: shape.size * sz,
+        });
+        break;
+      }
       case 'mesh': {
         const data = meshData(member.object3d);
         if (!data) return null;

@@ -13,6 +13,8 @@ interface FieldBase {
   readonly text: LocalizedText;
   /** Inspector group, e.g. `material` (shown as its own foldout). */
   readonly group?: string;
+  /** Not shown in the inspector (internal bookkeeping such as revision counters). */
+  readonly hidden?: boolean;
   /** Shown only while another field is empty (`null` or `""`) or, with `empty: false`, set. */
   readonly visibleIf?: { readonly field: string; readonly empty: boolean };
 }
@@ -77,7 +79,7 @@ export interface EnumFieldDefinition extends FieldBase {
 }
 
 /** Asset kinds an asset field can point to. */
-export type AssetFieldType = 'blockScript' | 'model';
+export type AssetFieldType = 'blockScript' | 'model' | 'terrain';
 
 /** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {

@@ -51,10 +51,18 @@ export const ASSET_EXTENSIONS: Readonly<Record<AssetType, string>> = {
   prefab: '.prefab.json',
   model: '.glb',
   image: '.png',
+  terrain: '.terrain.bin',
 };
 
 /** An image asset (PNG) in memory: the file itself is kept by the project (see {@link Project.assetBytes}). */
 export interface ImageData {
+  /** Content hash of the file. */
+  readonly hash: string;
+  readonly byteLength: number;
+}
+
+/** A terrain asset (height map and paint) in memory: the file is kept by the project. */
+export interface TerrainAssetData {
   /** Content hash of the file. */
   readonly hash: string;
   readonly byteLength: number;
@@ -74,10 +82,11 @@ export interface AssetDataByType {
   prefab: PrefabData;
   model: ModelData;
   image: ImageData;
+  terrain: TerrainAssetData;
 }
 
 /** Asset types stored as binary files next to their meta file. */
-const BINARY_TYPES = ['model', 'image'] as const;
+const BINARY_TYPES = ['model', 'image', 'terrain'] as const;
 type BinaryAssetType = (typeof BINARY_TYPES)[number];
 
 /** Whether an asset type is a binary file. */
@@ -374,6 +383,37 @@ export class Project {
     return entry;
   }
 
+  /** Adds a terrain (height map and paint layers). The path must be free and end with `.terrain.bin`. */
+  createTerrain(
+    path: string,
+    data: Uint8Array,
+    license: string | null = null,
+  ): AssetEntry<'terrain'> {
+    const normalized = this.checkAssetPath('terrain', path);
+    const meta: MetaData = { ...newMeta('terrain'), license };
+    const entry: AssetEntry<'terrain'> = {
+      id: meta.id,
+      type: 'terrain',
+      path: normalized,
+      meta,
+      data: { hash: hashBytes(data), byteLength: data.byteLength },
+    };
+    this.bytes.set(entry.id, data);
+    this.entries.set(entry.id, entry);
+    return entry;
+  }
+
+  /** Replaces the file of a binary asset (e.g. a terrain after sculpting); the ID stays. */
+  updateAssetBytes(id: string, bytes: Uint8Array): void {
+    const entry = this.entries.get(id);
+    if (!entry || !isBinaryAssetType(entry.type)) throw new Error(`Unknown binary asset ${id}.`);
+    this.bytes.set(id, bytes);
+    this.entries.set(id, {
+      ...entry,
+      data: { hash: hashBytes(bytes), byteLength: bytes.byteLength },
+    } as AnyAsset);
+  }
+
   /**
    * Adds an asset that keeps its identity (meta data with ID), e.g. from "My Prefabs". The path is
    * made unique if taken. Returns `null` if an asset with this ID already exists.
@@ -392,7 +432,7 @@ export class Project {
     let entry: AnyAsset;
     if ('bytes' in content) {
       if (!isBinaryAssetType(type))
-        throw new Error(`Only models and images are binary: ${normalized}`);
+        throw new Error(`Only models, images and terrains are binary: ${normalized}`);
       entry = {
         id: meta.id,
         type,
@@ -714,6 +754,7 @@ export function defaultAssetFolder(type: AssetType, folders: NewProjectFolders):
     prefab: folders.prefabs,
     model: folders.models,
     image: folders.images,
+    terrain: folders.terrains ?? 'Terrains',
   };
   return joinPath(ASSETS_FOLDER, names[type]);
 }
@@ -725,6 +766,8 @@ export interface NewProjectFolders {
   readonly prefabs: string;
   readonly models: string;
   readonly images: string;
+  /** Folder of terrains (default `Terrains`). */
+  readonly terrains?: string;
 }
 
 /** Options for {@link createProject}. */

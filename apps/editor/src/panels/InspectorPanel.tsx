@@ -46,6 +46,7 @@ import { useEditor } from '../state/editor';
 import { keepAllChanges, keepChange, playingWorld, usePlay } from '../state/play';
 import type { TranslationKey } from '../i18n';
 import { useSettings, useT } from '../state/settings';
+import { TerrainTools } from '../terrain/TerrainTools';
 import { FieldEditor, MIXED, shared, VectorInput } from './inspector/fields';
 import { ModelImportInspector } from './inspector/ModelImportInspector';
 import { PrefabBar } from './inspector/PrefabBar';
@@ -261,7 +262,8 @@ function ComponentSection({
   }
   // Fields that depend on others (e.g. Shape only without a model) show if any object needs them.
   const fieldEntries = (Object.entries(definition.fields) as [string, FieldDefinition][]).filter(
-    ([, field]) => slot.components.some((component) => isFieldVisible(field, component.values)),
+    ([, field]) =>
+      !field.hidden && slot.components.some((component) => isFieldVisible(field, component.values)),
   );
   const ungrouped = fieldEntries.filter(([, field]) => !field.group);
   const groups = [
@@ -272,6 +274,10 @@ function ComponentSection({
   const scripts =
     project
       ?.assetsOfType('blockScript')
+      .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
+  const terrains =
+    project
+      ?.assetsOfType('terrain')
       .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
   const componentId = slot.components[0]?.id ?? '';
   const renderField = ([name, field]: [string, FieldDefinition]) => (
@@ -295,7 +301,15 @@ function ComponentSection({
           slot.components.map((component) => component.values[name] ?? fieldDefault(field)),
         )}
         testId={`${testBase}-${name}`}
-        assets={field.type === 'asset' && field.assetType === 'blockScript' ? scripts : undefined}
+        assets={
+          field.type === 'asset'
+            ? field.assetType === 'blockScript'
+              ? scripts
+              : field.assetType === 'terrain'
+                ? terrains
+                : undefined
+            : undefined
+        }
         disabled={playing && field.type === 'asset'}
         onOpenAsset={(id) => openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)}
         onChange={(value) => {
@@ -369,6 +383,16 @@ function ComponentSection({
               </div>
             );
           })}
+          {slot.type === 'terrain' && ids.length === 1 && ids[0] && (
+            <TerrainTools
+              objectId={ids[0]}
+              asset={
+                typeof slot.components[0]?.values['terrain'] === 'string'
+                  ? slot.components[0].values['terrain']
+                  : null
+              }
+            />
+          )}
           {slot.type === 'blockScript' && (
             <ScriptVariables slot={slot} ids={ids} activeId={activeId} playing={playing} />
           )}

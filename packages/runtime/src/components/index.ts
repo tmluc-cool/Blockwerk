@@ -27,6 +27,7 @@ import { light } from './light';
 import { meshRenderer } from './meshRenderer';
 import { particleSystem } from './particleSystem';
 import { postProcessing } from './postProcessing';
+import { terrain } from './terrain';
 
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
@@ -58,6 +59,7 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   sharedCamera,
   postProcessing,
   particleSystem,
+  terrain,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];

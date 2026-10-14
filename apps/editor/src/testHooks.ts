@@ -1,8 +1,9 @@
 import { assetDisplayName } from '@blockwerk/project';
-import { animatorRegistry, controlRegistry } from '@blockwerk/runtime';
+import { animatorRegistry, controlRegistry, terrainRegistry } from '@blockwerk/runtime';
 import { compileBlockScript } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
 import { lastGameViewStats } from './game/GameViewport';
+import { currentWorld } from './scene/worlds';
 import { currentStage } from './studio/StudioStage';
 import { useLayout } from './layout/layoutController';
 import { activeSceneView } from './scene/sceneViews';
@@ -83,6 +84,12 @@ export interface BlockwerkDebugHooks {
   } | null;
   /** Live inspector variable or game variable value by variable name (play mode). */
   liveVariable(objectName: string | null, variableName: string): unknown;
+  /** Height in meters of a terrain object at a local position, and its grass clump count. */
+  terrainProbe(
+    objectId: string,
+    x: number,
+    z: number,
+  ): { height: number; layer0: number; layer1: number } | null;
 }
 
 declare global {
@@ -202,6 +209,16 @@ export function installTestHooks(): void {
         speed: control.speed,
         grounded: control.grounded,
         running: control.running,
+      };
+    },
+    terrainProbe: (objectId, x, z) => {
+      const object = currentWorld()?.getObject(objectId);
+      const state = object ? terrainRegistry.get(object) : undefined;
+      if (!state) return null;
+      return {
+        height: state.data.heightAt(x, z),
+        layer0: state.data.weightAt(0, x, z),
+        layer1: state.data.weightAt(1, x, z),
       };
     },
     liveVariable: (objectName, variableName) => {

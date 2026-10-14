@@ -44,6 +44,7 @@ export type {
   LoadOptions,
   ModelData,
   ImageData,
+  TerrainAssetData,
   NewProjectFolders,
   NewProjectOptions,
   ProjectProblem,

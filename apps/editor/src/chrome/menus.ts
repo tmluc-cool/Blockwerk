@@ -17,6 +17,7 @@ import {
   createEmpty,
   createLight,
   createPrimitiveObject,
+  createTerrainObject,
   deleteSelection,
   duplicateSelection,
   LIGHT_TYPES,
@@ -118,11 +119,19 @@ export function createObjectMenuItems(
       label: t('menu.gameObject.object3d'),
       disabled,
       testId: 'menu-3d-object',
-      submenu: PRIMITIVE_SHAPES.map<MenuItem>((shape) => ({
-        label: t(SHAPE_NAMES[shape]),
-        testId: `create-${shape}`,
-        action: () => createPrimitiveObject(shape, parent),
-      })),
+      submenu: [
+        ...PRIMITIVE_SHAPES.map<MenuItem>((shape) => ({
+          label: t(SHAPE_NAMES[shape]),
+          testId: `create-${shape}`,
+          action: () => createPrimitiveObject(shape, parent),
+        })),
+        { kind: 'separator' },
+        {
+          label: t('menu.gameObject.terrain'),
+          testId: 'create-terrain',
+          action: () => createTerrainObject(parent),
+        },
+      ],
     },
     {
       label: t('menu.gameObject.light'),

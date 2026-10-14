@@ -50,6 +50,7 @@ function newProjectFolders(): NewProjectFolders {
     prefabs: t('project.folder.prefabs'),
     models: t('project.folder.models'),
     images: t('project.folder.images'),
+    terrains: t('project.folder.terrains'),
   };
 }
 
@@ -605,7 +606,7 @@ export function adoptAssets(
   for (const file of files) {
     const content = file.bytes
       ? { bytes: file.bytes }
-      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model' | 'image'>] };
+      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model' | 'image' | 'terrain'>] };
     if (project.adoptAsset(file.path, file.meta, content)) added++;
   }
   if (added > 0) assetsChanged();

@@ -52,6 +52,11 @@ export { defineComponent, isFieldVisible, resolveValues } from './components/def
 export type * from './components/defineComponent';
 export { COMPONENTS, getComponentDefinition } from './components';
 export { emitterRegistry } from './components/particleSystem';
+export { terrainRegistry } from './components/terrain';
+export type { TerrainState } from './components/terrain';
+export { loadTerrain, setTerrainSource } from './terrain/source';
+export { TerrainGrass } from './terrain/TerrainGrass';
+export { TerrainMesh } from './terrain/TerrainMesh';
 export { Effects } from './effects/Effects';
 export { ParticleEmitter } from './effects/ParticleEmitter';
 export {
@@ -142,3 +147,5 @@ export {
   Weather,
 } from './environment/Weather';
 export type { WeatherLook, WeatherState, WeatherType } from './environment/Weather';
+export { seededRandom, TERRAIN_LAYERS, TERRAIN_TOOLS, TerrainData } from './terrain/TerrainData';
+export type { TerrainBrush, TerrainRegion, TerrainTool } from './terrain/TerrainData';

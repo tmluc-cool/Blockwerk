@@ -11,6 +11,7 @@ import {
   Package,
   Boxes,
   Image as ImageIcon,
+  Mountain,
 } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useState } from 'react';
@@ -64,6 +65,8 @@ function assetIcon(asset: AnyAsset) {
       return <Box size={30} />;
     case 'image':
       return <ImageIcon size={30} />;
+    case 'terrain':
+      return <Mountain size={30} />;
     case 'prefab':
       return asset.data.base ? (
         <Boxes size={30} className="prefab-icon" />
@@ -154,7 +157,8 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
               { kind: 'separator' as const },
               {
                 label: t('inspector.open'),
-                disabled: asset.type === 'model' || asset.type === 'image',
+                disabled:
+                  asset.type === 'model' || asset.type === 'image' || asset.type === 'terrain',
                 action: () => openAsset(asset),
               },
               ...(asset.type === 'prefab'

@@ -75,6 +75,10 @@ export interface SceneViewportCallbacks {
   brush(): ViewportBrush | null;
   /** The brush placed objects at these points (one undo step per stroke `stroke`). */
   brushPlace(points: readonly Vector3[], stroke: number): void;
+  /** Radius of the terrain brush while it is on, else `null`. */
+  terrainBrush(): number | null;
+  /** A terrain brush stroke at a surface point. */
+  terrainStroke(point: Vector3 | null, phase: 'start' | 'move' | 'end'): void;
 }
 
 /** What the viewport needs to know about the brush. */
@@ -179,7 +183,7 @@ export class SceneViewport {
         this.requestRender();
       },
       gizmoHit: (x, y) => this.gizmoHit(x, y),
-      brushActive: () => this.callbacks.brush() !== null,
+      brushActive: () => this.callbacks.brush() !== null || this.callbacks.terrainBrush() !== null,
       paint: (x, y, phase) => this.paint(x, y, phase),
       hover: (x, y) => this.hoverBrush(x, y),
     });
@@ -324,7 +328,9 @@ export class SceneViewport {
 
   /** Updates the gizmo and brush outline after the brush was switched on or off. */
   refreshBrush(): void {
-    if (!this.callbacks.brush()) this.brushRing.visible = false;
+    if (!this.callbacks.brush() && this.callbacks.terrainBrush() === null) {
+      this.brushRing.visible = false;
+    }
     this.updateGizmo();
     this.requestRender();
   }
@@ -344,6 +350,15 @@ export class SceneViewport {
 
   private hoverBrush(x: number, y: number): void {
     const brush = this.callbacks.brush();
+    const terrainRadius = this.callbacks.terrainBrush();
+    if (!brush && terrainRadius !== null) {
+      const point = this.surfacePoint(x, y);
+      this.brushRing.position.copy(point).add(new Vector3(0, 0.02, 0));
+      this.brushRing.scale.setScalar(terrainRadius);
+      this.brushRing.visible = true;
+      this.requestRender();
+      return;
+    }
     if (!brush) {
       if (this.brushRing.visible) {
         this.brushRing.visible = false;
@@ -360,6 +375,12 @@ export class SceneViewport {
 
   /** A brush stroke: stamps objects whenever the pointer moved far enough. */
   private paint(x: number, y: number, phase: 'start' | 'move' | 'end'): void {
+    if (this.callbacks.terrainBrush() !== null) {
+      this.world?.scene.updateMatrixWorld();
+      this.callbacks.terrainStroke(phase === 'end' ? null : this.surfacePoint(x, y), phase);
+      if (phase !== 'end') this.hoverBrush(x, y);
+      return;
+    }
     const brush = this.callbacks.brush();
     if (!brush || phase === 'end') {
       // The whole stroke is one undo step.

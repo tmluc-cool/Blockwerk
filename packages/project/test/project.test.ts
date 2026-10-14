@@ -298,6 +298,26 @@ describe('model assets', () => {
     expect(() => project.createImage('Assets/Bilder/Held.jpg', glb(3))).toThrow(/\.png/);
   });
 
+  it('saves terrains as .terrain.bin files, replaces their bytes and loads them back', async () => {
+    const fs = new MemoryFileSystem();
+    const project = await newProject(fs);
+    const terrain = project.createTerrain('Assets/Gelaende/Berg.terrain.bin', glb(5));
+    await project.save(fs);
+    expect(fs.snapshot()['Assets/Gelaende/Berg.terrain.bin']).toBe('<64 bytes>');
+    expect(await fs.exists('Assets/Gelaende/Berg.terrain.bin.meta.json')).toBe(true);
+    project.updateAssetBytes(terrain.id, glb(6));
+    const changed = await project.save(fs);
+    expect(changed.written).toContain('Assets/Gelaende/Berg.terrain.bin');
+    const loaded = await loadProject(fs);
+    expect(loaded.assetOfType(terrain.id, 'terrain')?.path).toBe(
+      'Assets/Gelaende/Berg.terrain.bin',
+    );
+    expect(loaded.assetBytes(terrain.id)).toEqual(glb(6));
+    expect(loaded.dirty).toBe(false);
+    expect(await loaded.save(fs)).toEqual({ written: [], removed: [] });
+    expect(() => project.createTerrain('Assets/Gelaende/Berg.bin', glb(5))).toThrow(/terrain\.bin/);
+  });
+
   it('refuses model paths without .glb', async () => {
     const project = await newProject(new MemoryFileSystem());
     expect(() => project.createModel('Assets/Modelle/Haus.fbx', glb(1))).toThrow(/\.glb/);
