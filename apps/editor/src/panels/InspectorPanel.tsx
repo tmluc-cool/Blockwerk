@@ -32,6 +32,7 @@ import {
   BUILT_IN_TAGS,
   DEFAULT_LAYER,
   editScene,
+  openPrefab,
   openScene,
   useDocument,
 } from '../state/document';
@@ -39,6 +40,15 @@ import { useEditor } from '../state/editor';
 import { keepAllChanges, keepChange, playingWorld, usePlay } from '../state/play';
 import { useSettings, useT } from '../state/settings';
 import { FieldEditor, MIXED, shared, VectorInput } from './inspector/fields';
+import { ModelImportInspector } from './inspector/ModelImportInspector';
+import { PrefabBar } from './inspector/PrefabBar';
+import {
+  applyInstanceOverrides,
+  createPrefabVariant,
+  overridesOf,
+  prefabInstanceOf,
+  revertInstanceOverrides,
+} from '../document/prefabActions';
 import type { Shared } from './inspector/fields';
 
 /** Values copied with "Copy Component". */
@@ -97,9 +107,28 @@ function KeepButton({ objectId, paths }: { objectId: string; paths: readonly str
   );
 }
 
-function Row({ label, children, keep }: { label: string; children: ReactNode; keep?: ReactNode }) {
+/** Override state of a value of a prefab instance: marked bold with a bar, like Unity. */
+interface OverrideMark {
+  readonly overridden: boolean;
+  readonly onMenu: (event: MouseEvent) => void;
+}
+
+function Row({
+  label,
+  children,
+  keep,
+  override,
+}: {
+  label: string;
+  children: ReactNode;
+  keep?: ReactNode;
+  override?: OverrideMark;
+}) {
   return (
-    <div className="field-row">
+    <div
+      className={`field-row${override?.overridden ? ' overridden' : ''}`}
+      onContextMenu={override?.overridden ? override.onMenu : undefined}
+    >
       <span className="field-label" title={label}>
         {label}
       </span>
@@ -188,6 +217,8 @@ interface ComponentSectionProps {
   readonly ids: readonly string[];
   readonly activeId: string;
   readonly playing: boolean;
+  /** Override marks of a prefab instance (single selection only). */
+  readonly overrideMark?: (path: string) => OverrideMark | undefined;
   readonly onMenu: (
     event: MouseEvent,
     slot: Slot,
@@ -195,7 +226,14 @@ interface ComponentSectionProps {
   ) => void;
 }
 
-function ComponentSection({ slot, ids, activeId, playing, onMenu }: ComponentSectionProps) {
+function ComponentSection({
+  slot,
+  ids,
+  activeId,
+  playing,
+  onMenu,
+  overrideMark,
+}: ComponentSectionProps) {
   const t = useT();
   const locale = useSettings((state) => state.locale);
   const project = useDocument((state) => state.project);
@@ -228,10 +266,12 @@ function ComponentSection({ slot, ids, activeId, playing, onMenu }: ComponentSec
     project
       ?.assetsOfType('blockScript')
       .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
+  const componentId = slot.components[0]?.id ?? '';
   const renderField = ([name, field]: [string, FieldDefinition]) => (
     <Row
       key={name}
       label={field.text[locale]}
+      override={overrideMark?.(`component:${componentId}:${name}`)}
       keep={
         playing ? (
           <KeepButton
@@ -417,9 +457,7 @@ function AssetInspector({ id }: { id: string }) {
     <div className="asset-inspector" data-testid="asset-inspector">
       <div className="inspector-header">
         <strong>{assetDisplayName(entry.path)}</strong>
-        <span className="muted">
-          {t(entry.type === 'scene' ? 'asset.type.scene' : 'asset.type.blockScript')}
-        </span>
+        <span className="muted">{t(`asset.type.${entry.type}`)}</span>
       </div>
       <Row label={t('inspector.assetPath')}>
         <code>{entry.path}</code>
@@ -432,16 +470,46 @@ function AssetInspector({ id }: { id: string }) {
           <span>{entry.data.variables.map((variable) => variable.name).join(', ') || '–'}</span>
         </Row>
       )}
-      <div className="add-component">
-        <button
-          type="button"
-          onClick={() =>
-            entry.type === 'scene' ? openScene(entry.id) : openScriptEditor(entry.id)
-          }
-        >
-          {t('inspector.open')}
-        </button>
-      </div>
+      {entry.type === 'model' && <ModelImportInspector entry={entry} />}
+      {entry.type === 'prefab' && entry.data.base && (
+        <Row label={t('prefab.label')}>
+          <span>
+            {t('prefab.variantOf', {
+              name: (() => {
+                const base = project?.asset(entry.data.base);
+                return base ? assetDisplayName(base.path) : t('prefab.missing');
+              })(),
+            })}
+          </span>
+        </Row>
+      )}
+      {entry.type !== 'model' && (
+        <div className="add-component">
+          <button
+            type="button"
+            data-testid="asset-open"
+            onClick={() => {
+              if (entry.type === 'scene') openScene(entry.id);
+              else if (entry.type === 'prefab') openPrefab(entry.id);
+              else openScriptEditor(entry.id);
+            }}
+          >
+            {t('inspector.open')}
+          </button>
+          {entry.type === 'prefab' && (
+            <button
+              type="button"
+              data-testid="asset-create-variant"
+              onClick={() => {
+                const id = createPrefabVariant(entry.id);
+                if (id) useEditor.getState().selectAsset(id);
+              }}
+            >
+              {t('prefab.createVariant')}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -575,6 +643,38 @@ export function InspectorPanel(_props: IDockviewPanelProps) {
     });
   };
 
+  // Prefab instance: overridden values of the (single) selected object.
+  const instance = ids.length === 1 && !playing ? prefabInstanceOf(scene, active.id) : null;
+  const ownOverrides = instance ? overridesOf(scene, active.id) : [];
+  const overrideMark = (path: string): OverrideMark | undefined => {
+    const matching = ownOverrides.filter((override) => override.path === path);
+    if (!instance || matching.length === 0) return undefined;
+    return {
+      overridden: true,
+      onMenu: (event: MouseEvent) => {
+        event.preventDefault();
+        setMenu({
+          x: event.clientX,
+          y: event.clientY,
+          items: [
+            {
+              label: t('prefab.apply'),
+              testId: 'override-apply',
+              action: () =>
+                applyInstanceOverrides(instance.rootId, (item) => matching.includes(item)),
+            },
+            {
+              label: t('prefab.revert'),
+              testId: 'override-revert',
+              action: () =>
+                revertInstanceOverrides(instance.rootId, (item) => matching.includes(item)),
+            },
+          ],
+        });
+      },
+    };
+  };
+
   const pickTagOrLayer = (kind: 'tags' | 'layers', value: string): void => {
     if (value !== '\u0000add') {
       editHeader(ids, kind === 'tags' ? 'tag' : 'layer', value);
@@ -675,6 +775,7 @@ export function InspectorPanel(_props: IDockviewPanelProps) {
         </select>
       </div>
       {isArea && <div className="muted inspector-count">{t('inspector.areaRoot')}</div>}
+      {instance && <PrefabBar instance={instance} scene={scene} />}
       <section className="component" data-testid="transform">
         <header>
           <ChevronDown size={14} />
@@ -685,6 +786,7 @@ export function InspectorPanel(_props: IDockviewPanelProps) {
             key={part}
             label={t(`inspector.${part}`)}
             keep={keep([`transform.${part}`, 'transform'])}
+            override={overrideMark(`transform.${part}`)}
           >
             <VectorInput
               values={[0, 1, 2].map(
@@ -705,6 +807,7 @@ export function InspectorPanel(_props: IDockviewPanelProps) {
           activeId={activeKeepId}
           playing={playing}
           onMenu={openComponentMenu}
+          overrideMark={overrideMark}
         />
       ))}
       <AddComponentButton disabled={playing} />

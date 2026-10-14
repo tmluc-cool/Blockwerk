@@ -1,9 +1,13 @@
 import type { LibraryEntry } from '@blockwerk/library';
+import { assetDisplayName, modelImportSettings } from '@blockwerk/project';
 import type { ComponentData, SceneData, TransformData } from '@blockwerk/project';
+import { ModelCache } from '@blockwerk/runtime';
+import { Box3, Vector3 } from 'three';
 import type { PrimitiveShape } from '@blockwerk/runtime';
 import type { TranslationKey } from '../i18n';
 import { libraryRef } from '../library/assetLibrary';
 import { useLibraryPrefs } from '../library/libraryPrefs';
+import { editorModels } from '../library/models';
 import { activeSceneView } from '../scene/sceneViews';
 import { editScene, useDocument } from '../state/document';
 import { activeObjectId, ALL_AREAS, useEditor } from '../state/editor';
@@ -164,6 +168,48 @@ export function createLibraryObject(
     useEditor.getState().setRenaming(null);
     useLibraryPrefs.getState().markUsed(entry.id);
   }
+  return id;
+}
+
+/**
+ * Places a model of the project (drag from the project window). With "Generate Collider" in its
+ * import settings it gets a box collider of the model's size.
+ */
+export async function createModelObject(
+  assetId: string,
+  position?: readonly [number, number, number],
+): Promise<string | null> {
+  const { project } = useDocument.getState();
+  const asset = project?.assetOfType(assetId, 'model');
+  if (!asset || !editable()) return null;
+  const components: Omit<ComponentData, 'id'>[] = [
+    { type: 'meshRenderer', enabled: true, values: { model: assetId } },
+  ];
+  if (modelImportSettings(asset.meta).generateCollider) {
+    const template = await editorModels.load(assetId);
+    const bounds = template ? new Box3().setFromObject(ModelCache.instantiate(template)) : null;
+    if (bounds && !bounds.isEmpty()) {
+      const round = (value: number): number => Math.round(value * 1000) / 1000 || 0;
+      const center = bounds.getCenter(new Vector3()).toArray().map(round);
+      const size = bounds.getSize(new Vector3()).toArray().map(round);
+      components.push({ type: 'boxCollider', enabled: true, values: { center, size } });
+    }
+  }
+  const transform = placement();
+  const surface = position ? null : activeSceneView()?.surfaceBelowPivot();
+  const point = position ?? (surface ? [surface.x, surface.y, surface.z] : null);
+  const round = (value: number): number => Math.round(value * 1000) / 1000 || 0;
+  const id = create(
+    assetDisplayName(asset.path),
+    components,
+    point
+      ? {
+          ...transform,
+          position: [round(point[0] ?? 0), round(point[1] ?? 0), round(point[2] ?? 0)],
+        }
+      : transform,
+  );
+  if (id) useEditor.getState().setRenaming(null);
   return id;
 }
 

@@ -1,19 +1,36 @@
 import { ASSETS_FOLDER, assetDisplayName, basename, dirname } from '@blockwerk/project';
 import type { AnyAsset } from '@blockwerk/project';
 import type { IDockviewPanelProps } from 'dockview-react';
-import { ChevronDown, Clapperboard, FileCode2, Folder, FolderOpen } from 'lucide-react';
+import {
+  Box,
+  ChevronDown,
+  Clapperboard,
+  FileCode2,
+  Folder,
+  FolderOpen,
+  Package,
+  Boxes,
+} from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useState } from 'react';
 import { ContextMenu } from '../chrome/ContextMenu';
 import type { ContextMenuState } from '../chrome/ContextMenu';
 import { createAssetWithPrompt } from '../chrome/menus';
-import { ASSET_DRAG_TYPE } from '../library/projectDrag';
+import { createPrefabFromObject, createPrefabVariant } from '../document/prefabActions';
+import { importModelFiles, MODEL_FILE_EXTENSIONS } from '../library/importModel';
+import {
+  ASSET_DRAG_TYPE,
+  endAssetDrag,
+  OBJECTS_DRAG_TYPE,
+  startAssetDrag,
+} from '../library/projectDrag';
 import { openScriptEditor } from '../navigation';
 import { prompt } from '../state/dialogs';
 import {
   createFolder,
   deleteAsset,
   moveAssetToFolder,
+  openPrefab,
   openScene,
   projectFolders,
   renameAsset,
@@ -27,10 +44,41 @@ function depth(folder: string): number {
   return folder.split('/').length - 1;
 }
 
-/** Opens an asset like Unity does on double-click. */
+/** Opens an asset like Unity does on double-click. Models have nothing to open. */
 function openAsset(asset: AnyAsset): void {
   if (asset.type === 'scene') openScene(asset.id);
-  else openScriptEditor(asset.id);
+  else if (asset.type === 'prefab') openPrefab(asset.id);
+  else if (asset.type === 'blockScript') openScriptEditor(asset.id);
+}
+
+/** Icon of an asset tile. */
+function assetIcon(asset: AnyAsset) {
+  switch (asset.type) {
+    case 'scene':
+      return <Clapperboard size={30} />;
+    case 'blockScript':
+      return <FileCode2 size={30} />;
+    case 'model':
+      return <Box size={30} />;
+    case 'prefab':
+      return asset.data.base ? (
+        <Boxes size={30} className="prefab-icon" />
+      ) : (
+        <Package size={30} className="prefab-icon" />
+      );
+  }
+}
+
+/** Lets the user pick model files and imports them into a folder. */
+function chooseModelFiles(folder: string): void {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.accept = MODEL_FILE_EXTENSIONS.join(',');
+  input.addEventListener('change', () => {
+    void importModelFiles([...(input.files ?? [])], folder);
+  });
+  input.click();
 }
 
 /** Project window (SPEC 5.8): folder tree of `Assets/` on the left, contents on the right. */
@@ -72,6 +120,12 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
       action: () => createAssetWithPrompt(t, 'scene', target),
     },
     {
+      label: t('project.importModel'),
+      testId: 'project-import-model',
+      disabled: playing,
+      action: () => chooseModelFiles(target),
+    },
+    {
       label: t('project.folder'),
       disabled: playing,
       action: () => {
@@ -94,7 +148,24 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
         ...(asset
           ? [
               { kind: 'separator' as const },
-              { label: t('inspector.open'), action: () => openAsset(asset) },
+              {
+                label: t('inspector.open'),
+                disabled: asset.type === 'model',
+                action: () => openAsset(asset),
+              },
+              ...(asset.type === 'prefab'
+                ? [
+                    {
+                      label: t('prefab.createVariant'),
+                      testId: 'project-create-variant',
+                      disabled: playing,
+                      action: () => {
+                        const id = createPrefabVariant(asset.id);
+                        if (id) useEditor.getState().selectAsset(id);
+                      },
+                    },
+                  ]
+                : []),
               {
                 label: t('menu.gameObject.rename'),
                 shortcut: 'F2',
@@ -168,7 +239,26 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
         </div>
         <div
           className="folder-content"
+          data-testid="project-content"
           onContextMenu={(event) => openMenu(event, null)}
+          onDragOver={(event) => {
+            const types = event.dataTransfer.types;
+            if (!playing && (types.includes(OBJECTS_DRAG_TYPE) || types.includes('Files'))) {
+              event.preventDefault();
+            }
+          }}
+          onDrop={(event) => {
+            if (playing) return;
+            event.preventDefault();
+            // Objects from the hierarchy become prefabs; model files are imported (like Unity).
+            const ids = JSON.parse(
+              event.dataTransfer.getData(OBJECTS_DRAG_TYPE) || '[]',
+            ) as string[];
+            for (const id of ids) createPrefabFromObject(id, current);
+            if (event.dataTransfer.files.length > 0) {
+              void importModelFiles([...event.dataTransfer.files], current);
+            }
+          }}
           onClick={(event) => {
             if (event.target === event.currentTarget) useEditor.getState().selectAsset(null);
           }}
@@ -197,12 +287,10 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
                 if (event.key === 'F2' && !playing) setRenaming(asset.id);
                 if (event.key === 'Enter') openAsset(asset);
               }}
-              onDragStart={(event) => {
-                event.dataTransfer.setData(ASSET_DRAG_TYPE, asset.id);
-                event.dataTransfer.effectAllowed = 'move';
-              }}
+              onDragStart={(event) => startAssetDrag(event, asset.id)}
+              onDragEnd={endAssetDrag}
             >
-              {asset.type === 'scene' ? <Clapperboard size={30} /> : <FileCode2 size={30} />}
+              {assetIcon(asset)}
               {renaming === asset.id ? (
                 <input
                   autoFocus

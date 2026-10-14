@@ -7,6 +7,7 @@ import {
   Copy,
   FolderClosed,
   Lightbulb,
+  Package,
 } from 'lucide-react';
 import { assetDisplayName } from '@blockwerk/project';
 import type { IDockviewPanelProps } from 'dockview-react';
@@ -28,9 +29,11 @@ import {
   searchTree,
 } from '../document/hierarchy';
 import type { HierarchyNode } from '../document/hierarchy';
+import { instantiatePrefabAsset, unpackInstance } from '../document/prefabActions';
 import type { DropTarget } from '../document/sceneOps';
+import { ASSET_DRAG_TYPE, endAssetDrag, OBJECTS_DRAG_TYPE } from '../library/projectDrag';
 import { activeSceneView } from '../scene/sceneViews';
-import { useDocument } from '../state/document';
+import { openPrefab, useDocument } from '../state/document';
 import { ALL_AREAS, useEditor } from '../state/editor';
 import { playingWorld, usePlay } from '../state/play';
 import { useT } from '../state/settings';
@@ -43,7 +46,7 @@ const ICONS: Readonly<Record<HierarchyNode['kind'], ReactElement>> = {
   empty: <Circle size={12} />,
 };
 
-const DRAG_TYPE = 'application/x-blockwerk-objects';
+const DRAG_TYPE = OBJECTS_DRAG_TYPE;
 
 type DropPosition = 'before' | 'inside' | 'after';
 
@@ -62,7 +65,8 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
   const [dropHint, setDropHint] = useState<{ id: string; position: DropPosition } | null>(null);
   const scene = useDocument((state) => state.scene);
   const sceneName = useDocument((state) => {
-    const entry = state.sceneId ? state.project?.asset(state.sceneId) : undefined;
+    const id = state.prefabStage?.prefabId ?? state.sceneId;
+    const entry = id ? state.project?.asset(id) : undefined;
     return entry ? assetDisplayName(entry.path) : null;
   });
   const status = usePlay((state) => state.status);
@@ -130,6 +134,26 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
           testId: 'context-delete',
           action: deleteSelection,
         },
+        ...(node?.prefab === 'root'
+          ? [
+              { kind: 'separator' as const },
+              {
+                label: t('prefab.open'),
+                testId: 'context-open-prefab',
+                disabled,
+                action: () => {
+                  const asset = scene?.objects[node.id]?.prefab?.asset;
+                  if (asset) openPrefab(asset);
+                },
+              },
+              {
+                label: t('prefab.unpack'),
+                testId: 'context-unpack-prefab',
+                disabled,
+                action: () => unpackInstance(node.id),
+              },
+            ]
+          : []),
       ],
     });
   };
@@ -138,6 +162,13 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
     event.preventDefault();
     event.stopPropagation();
     setDropHint(null);
+    // A prefab from the project window becomes an instance (inside the row it was dropped on).
+    const assetId = event.dataTransfer.getData(ASSET_DRAG_TYPE);
+    endAssetDrag();
+    if (assetId) {
+      instantiatePrefabAsset(assetId, undefined, node ? node.id : (areaRoot?.id ?? null));
+      return;
+    }
     const ids = JSON.parse(event.dataTransfer.getData(DRAG_TYPE) || '[]') as string[];
     if (ids.length === 0) return;
     let target: DropTarget;
@@ -196,7 +227,9 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
         onKeyDown={onKeyDown}
         onContextMenu={(event) => openMenu(event, null)}
         onDragOver={(event) => {
-          if (!playing && event.dataTransfer.types.includes(DRAG_TYPE)) event.preventDefault();
+          const types = event.dataTransfer.types;
+          if (!playing && (types.includes(DRAG_TYPE) || types.includes(ASSET_DRAG_TYPE)))
+            event.preventDefault();
         }}
         onDrop={(event) => onDrop(event, null)}
         onClick={(event) => {
@@ -218,7 +251,7 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
               role="treeitem"
               aria-selected={selected}
               aria-expanded={node.children.length > 0 ? !collapsed.has(node.id) : undefined}
-              className={`tree-row tree-item${selected ? ' selected' : ''}${node.active ? '' : ' inactive'}${node.area ? ' area-root' : ''}${hint}`}
+              className={`tree-row tree-item${selected ? ' selected' : ''}${node.active ? '' : ' inactive'}${node.area ? ' area-root' : ''}${node.prefab ? ' prefab-instance' : ''}${hint}`}
               style={{ paddingLeft: 6 + depth * 14 }}
               data-object-id={node.id}
               draggable={!playing && renamingId !== node.id}
@@ -237,6 +270,13 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
                 event.dataTransfer.effectAllowed = 'move';
               }}
               onDragOver={(event) => {
+                if (event.dataTransfer.types.includes(ASSET_DRAG_TYPE)) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  if (dropHint?.id !== node.id || dropHint.position !== 'inside')
+                    setDropHint({ id: node.id, position: 'inside' });
+                  return;
+                }
                 if (!event.dataTransfer.types.includes(DRAG_TYPE)) return;
                 event.preventDefault();
                 event.stopPropagation();
@@ -264,7 +304,13 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
                 {node.children.length > 0 &&
                   (collapsed.has(node.id) ? <ChevronRight size={13} /> : <ChevronDown size={13} />)}
               </span>
-              {node.clone ? <Copy size={14} /> : ICONS[node.kind]}
+              {node.clone ? (
+                <Copy size={14} />
+              ) : node.prefab === 'root' ? (
+                <Package size={14} />
+              ) : (
+                ICONS[node.kind]
+              )}
               {renamingId === node.id ? (
                 <input
                   className="rename-field"

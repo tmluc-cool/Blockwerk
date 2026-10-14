@@ -1,15 +1,19 @@
 import type { IDockviewPanelProps } from 'dockview-react';
-import { Grid3x3, Sparkles } from 'lucide-react';
+import { assetDisplayName } from '@blockwerk/project';
+import { ArrowLeft, Grid3x3, Package, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { DragEvent } from 'react';
 import { AxisGizmo } from '../scene/AxisGizmo';
 import { activateSceneView, registerSceneView, unregisterSceneView } from '../scene/sceneViews';
 import { SceneViewport } from '../scene/SceneViewport';
 import type { SceneCameraSnapshot, ShadingMode } from '../scene/SceneViewport';
-import { createLibraryObject } from '../document/actions';
+import { createLibraryObject, createModelObject } from '../document/actions';
+import { instantiatePrefabAsset } from '../document/prefabActions';
 import { editTransforms } from '../document/edits';
 import { libraryRef } from '../library/assetLibrary';
 import { draggedLibraryEntry, endLibraryDrag } from '../library/drag';
+import { draggedAssetId, endAssetDrag } from '../library/projectDrag';
+import { closePrefab, useDocument } from '../state/document';
 import { sealHistory } from '../state/document';
 import { useEditor } from '../state/editor';
 import { useT } from '../state/settings';
@@ -34,6 +38,11 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   const [grid, setGrid] = useState(true);
   const [sky, setSky] = useState(true);
   const tool = useEditor((state) => state.tool);
+  const stageName = useDocument((state) => {
+    const id = state.prefabStage?.prefabId;
+    const asset = id ? state.project?.asset(id) : undefined;
+    return asset ? assetDisplayName(asset.path) : null;
+  });
   const pivotMode = useEditor((state) => state.pivotMode);
   const space = useEditor((state) => state.space);
 
@@ -96,14 +105,24 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   };
 
   // Dragging a model from the asset library shows it standing on the surface under the mouse.
-  const onDragOver = (event: DragEvent): void => {
+  /** Model shown while dragging: a library entry or a project model. Prefabs need no preview. */
+  const draggedPlaceable = (): { model: string | null } | null => {
     const entry = draggedLibraryEntry();
+    if (entry) return { model: libraryRef(entry) };
+    const assetId = draggedAssetId();
+    const asset = assetId ? useDocument.getState().project?.asset(assetId) : undefined;
+    if (asset?.type === 'model') return { model: asset.id };
+    if (asset?.type === 'prefab') return { model: null };
+    return null;
+  };
+  const onDragOver = (event: DragEvent): void => {
+    const placeable = draggedPlaceable();
     const viewport = viewportRef.current;
-    if (!entry || !viewport) return;
+    if (!placeable || !viewport) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = 'copy';
     const { x, y } = canvasPoint(event);
-    viewport.showDropPreview(libraryRef(entry), viewport.surfacePoint(x, y));
+    viewport.showDropPreview(placeable.model, viewport.surfacePoint(x, y));
   };
   const onDragLeave = (event: DragEvent): void => {
     if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
@@ -111,15 +130,24 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
   };
   const onDrop = (event: DragEvent): void => {
     const entry = draggedLibraryEntry();
+    const assetId = draggedAssetId();
     const viewport = viewportRef.current;
-    if (!entry || !viewport) return;
+    if ((!entry && !assetId) || !viewport) return;
     event.preventDefault();
     const { x, y } = canvasPoint(event);
     const point = viewport.surfacePoint(x, y);
+    const position: [number, number, number] = [point.x, point.y, point.z];
     viewport.showDropPreview(null);
     endLibraryDrag();
+    endAssetDrag();
     activateSceneView(viewport);
-    createLibraryObject(entry, [point.x, point.y, point.z]);
+    if (entry) {
+      createLibraryObject(entry, position);
+      return;
+    }
+    const asset = assetId ? useDocument.getState().project?.asset(assetId) : undefined;
+    if (asset?.type === 'prefab') instantiatePrefabAsset(asset.id, position);
+    else if (asset?.type === 'model') void createModelObject(asset.id, position);
   };
 
   if (!supported) {
@@ -132,6 +160,15 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
 
   return (
     <div className="panel scene" data-testid="scene-view">
+      {stageName && (
+        <div className="prefab-stage-bar" data-testid="prefab-stage">
+          <Package size={14} />
+          <span>{t('prefab.mode', { name: stageName })}</span>
+          <button type="button" className="small" data-testid="prefab-back" onClick={closePrefab}>
+            <ArrowLeft size={13} /> {t('prefab.back')}
+          </button>
+        </div>
+      )}
       <div className="panel-toolbar">
         <label className="toolbar-field">
           <span className="muted">{t('scene.shading')}</span>

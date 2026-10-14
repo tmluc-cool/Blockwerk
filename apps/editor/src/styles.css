@@ -18,6 +18,7 @@
   --bw-accent-text: #1a1206;
   --bw-selection: #2e5d8f;
   --bw-selection-text: #ffffff;
+  --bw-prefab: #6fb2ff;
   --bw-warning: #e7b43c;
   --bw-error: #ec5c58;
   --bw-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
@@ -40,6 +41,7 @@
   --bw-accent-text: #ffffff;
   --bw-selection: #3a78c2;
   --bw-selection-text: #ffffff;
+  --bw-prefab: #1f5fae;
   --bw-warning: #b07d00;
   --bw-error: #c8322e;
   --bw-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
@@ -1383,4 +1385,159 @@ button.small {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+
+/* Prefab instances (Unity shows them blue) */
+
+.tree-item.prefab-instance {
+  color: var(--bw-prefab);
+}
+
+.tree-item.prefab-instance.selected {
+  color: var(--bw-selection-text);
+}
+
+.asset-tile .prefab-icon {
+  color: var(--bw-prefab);
+}
+
+/* Prefab bar and overrides */
+
+.prefab-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--bw-border);
+  background: var(--bw-panel-alt);
+}
+
+.prefab-bar .prefab-icon {
+  color: var(--bw-prefab);
+}
+
+.prefab-bar .prefab-name {
+  flex: 1;
+  overflow: hidden;
+  color: var(--bw-prefab);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.prefab-bar .has-overrides {
+  color: var(--bw-prefab);
+  font-weight: 600;
+}
+
+.prefab-overrides {
+  position: absolute;
+  z-index: 40;
+  top: 100%;
+  right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 320px;
+  max-height: 320px;
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel);
+  box-shadow: var(--bw-shadow);
+}
+
+.override-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.override-row span {
+  flex: 1;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.override-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.field-row.overridden {
+  box-shadow: inset 2px 0 0 var(--bw-prefab);
+}
+
+.field-row.overridden .field-label {
+  color: var(--bw-text);
+  font-weight: 700;
+}
+
+.link-button {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bw-text-dim);
+  text-decoration: underline;
+}
+
+/* Prefab mode */
+
+.prefab-stage-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--bw-prefab);
+  color: #0b1a2b;
+  font-weight: 600;
+}
+
+.prefab-stage-bar button {
+  margin-left: auto;
+}
+
+/* Model import inspector */
+
+.model-import {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.model-size {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.reference-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 48px;
+}
+
+.reference-model,
+.reference-figure {
+  display: block;
+  width: 10px;
+  border-radius: 2px 2px 0 0;
+}
+
+.reference-model {
+  background: var(--bw-text-dim);
+}
+
+.reference-figure {
+  background: var(--bw-accent);
 }

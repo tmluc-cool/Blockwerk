@@ -1,4 +1,4 @@
-import type { AreaKindData, SceneData } from '@blockwerk/project';
+import type { AreaKindData, SceneData, SceneObjectData } from '@blockwerk/project';
 import type { World } from '@blockwerk/runtime';
 import { objectName } from '../scene/worlds';
 import { childIds } from './sceneOps';
@@ -14,6 +14,13 @@ export interface HierarchyNode {
   readonly children: readonly HierarchyNode[];
   /** Clones created while playing. */
   readonly clone: boolean;
+  /** Part of a prefab instance (shown blue): its root, or another object of it. */
+  readonly prefab?: 'root' | 'member';
+}
+
+function prefabKind(object: SceneObjectData | undefined): HierarchyNode['prefab'] {
+  if (!object?.prefab) return undefined;
+  return object.prefab.overrides ? 'root' : 'member';
 }
 
 function kindOf(types: readonly string[], area: AreaKindData | undefined): HierarchyNode['kind'] {
@@ -42,6 +49,7 @@ export function hierarchyFromScene(scene: SceneData): HierarchyNode[] {
         .map(build)
         .filter((node): node is HierarchyNode => node !== null),
       clone: false,
+      ...(object.prefab ? { prefab: prefabKind(object) } : {}),
     };
   };
   return childIds(scene, null)
@@ -64,6 +72,9 @@ export function hierarchyFromWorld(world: World, scene: SceneData | null): Hiera
       ),
       children: object.children.filter((child) => !child.destroyed).map(build),
       clone: object.cloneOf !== null,
+      ...(scene?.objects[object.cloneOf ?? object.id]?.prefab
+        ? { prefab: prefabKind(scene.objects[object.cloneOf ?? object.id]) }
+        : {}),
     };
   };
   return world.roots.filter((root) => !root.destroyed).map(build);

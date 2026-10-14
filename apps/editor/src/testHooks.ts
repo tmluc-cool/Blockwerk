@@ -1,3 +1,4 @@
+import { assetDisplayName } from '@blockwerk/project';
 import { compileBlockScript } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
 import { useLayout } from './layout/layoutController';
@@ -32,6 +33,8 @@ export interface BlockwerkDebugHooks {
   tool(): string;
   /** Status of the project (loading/ready) and its name. */
   project(): { status: string; name: string | null; dirty: boolean };
+  /** Assets of the open project with their display names. */
+  assets(): { id: string; type: string; name: string; path: string }[];
   /** The open scene data. */
   scene(): SceneData | null;
   /** Finds object IDs by name in the open scene. */
@@ -77,6 +80,13 @@ export function installTestHooks(): void {
     selectionIds: () => useEditor.getState().selection,
     locale: () => useSettings.getState().locale,
     tool: () => useEditor.getState().tool,
+    assets: () =>
+      (useDocument.getState().project?.assets ?? []).map((asset) => ({
+        id: asset.id,
+        type: asset.type,
+        name: assetDisplayName(asset.path),
+        path: asset.path,
+      })),
     project: () => {
       const state = useDocument.getState();
       return {
