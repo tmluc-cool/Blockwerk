@@ -66,6 +66,12 @@ export interface BlockwerkDebugHooks {
   screenPoint(id: string): { x: number; y: number } | null;
   /** Views the running game renders (one, or two with split screen) and how they are split. */
   gameViews(): { count: number; split: string; players: string[] };
+  /** Presses or releases a key (like the Game view does) in the running game. */
+  pressKey(code: string, down: boolean): void;
+  /** Steps a paused game by ticks; returns the height of the named object after each tick. */
+  stepGame(ticks: number, objectName: string): number[];
+  /** Ability and animation events of the running game, e.g. `roll:started`, and how often they happened. */
+  eventCounts(): Record<string, number>;
   /** The Character Studio's preview: mode, size, parts, equipment, clips, jump numbers. */
   studioState(): ReturnType<NonNullable<ReturnType<typeof currentStage>>['inspect']>;
   /** Animation state, speed and ground contact of a live object (play mode). */
@@ -169,6 +175,22 @@ export function installTestHooks(): void {
       };
     },
     studioState: () => currentStage()?.inspect() ?? null,
+    pressKey: (code, down) => {
+      const key =
+        code === 'Space' ? ' ' : code.startsWith('Key') ? code.slice(3).toLowerCase() : code;
+      currentGame()?.input.keyEvent(key, down, code);
+    },
+    stepGame: (ticks, objectName) => {
+      const game = currentGame();
+      const heights: number[] = [];
+      for (let i = 0; i < ticks && game; i++) {
+        game.stepTick();
+        const object = [...game.world.allObjects()].find((item) => item.name === objectName);
+        heights.push(object?.worldPosition().y ?? 0);
+      }
+      return heights;
+    },
+    eventCounts: () => ({ ...(currentGame()?.eventCounts ?? {}) }),
     characterState: (name) => {
       const object = [...(currentGame()?.world.allObjects() ?? [])].find(
         (item) => item.name === name,

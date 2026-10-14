@@ -1,0 +1,18 @@
+{
+  "base": "vcic0vqjj0pl",
+  "formatVersion": 1,
+  "objects": {},
+  "overrides": [
+    {
+      "object": "hr1jxdg7bgx2",
+      "path": "component:figc00000001:tints",
+      "value": "Knight_Body=#a53a3a;Knight_ArmLeft=#a53a3a;Knight_ArmRight=#a53a3a"
+    },
+    {
+      "object": "hr1jxdg7bgx2",
+      "path": "component:figc00000004:player",
+      "value": "2"
+    }
+  ],
+  "root": "hr1jxdg7bgx2"
+}

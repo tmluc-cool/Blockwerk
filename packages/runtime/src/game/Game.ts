@@ -370,11 +370,18 @@ export class Game implements GameApi {
     });
   }
 
-  /** "When [object | tag] enters / leaves the zone": runs on the zone object. */
-  /** Fires "when animation … started / finished" for animators of scripted objects. */
+  /** How often each ability (`roll:started`) and animation (`animation:step:started`) event happened (tests, statistics). */
+  readonly eventCounts: Record<string, number> = {};
+
+  private count(key: string): void {
+    this.eventCounts[key] = (this.eventCounts[key] ?? 0) + 1;
+  }
+
+  /** Hands ability and animation events to scripts; events of objects without scripts are dropped. */
   private animationEvents(): void {
-    for (const object of [...this.attached.keys()]) {
+    for (const object of [...this.world.allObjects()]) {
       for (const event of controlRegistry.get(object)?.takeEvents() ?? []) {
+        this.count(`${event.ability}:${event.phase}`);
         this.fireFor(
           object,
           'ability',
@@ -385,6 +392,7 @@ export class Game implements GameApi {
         );
       }
       for (const event of animatorRegistry.get(object)?.takeEvents() ?? []) {
+        this.count(`animation:${event.name}:${event.phase}`);
         this.fireFor(
           object,
           'animation',

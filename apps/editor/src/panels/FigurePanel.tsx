@@ -32,6 +32,9 @@ import {
 import type { StudioSection } from '../studio/studio';
 import type { SectionProps } from '../studio/types';
 import { parseAttachments } from '@blockwerk/runtime';
+import { createPlayerTwo, saveFigureToMine } from '../studio/figurePrefabs';
+import { useConsole } from '../state/console';
+import { objectName } from '../scene/worlds';
 
 const SECTIONS = {
   model: ModelSection,
@@ -199,6 +202,38 @@ export function FigurePanel({ api }: IDockviewPanelProps) {
           onClick={() => setSpin(!spin)}
         >
           {t('studio.spin')}
+        </button>
+        <button
+          type="button"
+          disabled={!id || !isFigure}
+          data-testid="studio-player2"
+          onClick={() => {
+            if (!id || !object) return;
+            if (createPlayerTwo(id, info?.parts ?? [])) {
+              useConsole
+                .getState()
+                .log('info', 'studio.player2Done', { name: objectName(object, id) });
+            }
+          }}
+        >
+          {t('studio.player2')}
+        </button>
+        <button
+          type="button"
+          disabled={!id || !isFigure}
+          data-testid="studio-save-mine"
+          onClick={() => {
+            if (!id || !object) return;
+            void saveFigureToMine(id).then((saved) => {
+              if (saved) {
+                useConsole
+                  .getState()
+                  .log('info', 'studio.savedMine', { name: objectName(object, id) });
+              }
+            });
+          }}
+        >
+          {t('studio.saveMine')}
         </button>
         <span className="toolbar-spacer" />
         <button

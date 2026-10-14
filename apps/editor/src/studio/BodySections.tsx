@@ -33,7 +33,7 @@ export const PALETTES: readonly Readonly<Record<'skin' | 'hair' | 'clothes' | 'a
   ];
 
 /** The slot of a part for a palette (skin for body parts, hair, clothes or accent). */
-function paletteSlot(group: string): 'skin' | 'hair' | 'clothes' | 'accent' {
+export function paletteSlot(group: string): 'skin' | 'hair' | 'clothes' | 'accent' {
   if (group === 'head' || group === 'other') return 'skin';
   if (group === 'hair') return 'hair';
   if (group === 'shoes' || group === 'gloves' || group === 'back' || group === 'hat') {

@@ -71,7 +71,7 @@ trying out characters, the Character Studio and an asset library with CC0 models
 | 1     | Objects, components, block scripts, play mode | ✅ done   |
 | 2     | Project window, asset library, prefabs        | ✅ done   |
 | 3     | Player, physics, animation                    | in review |
-| 3b    | Character Studio                              | planned   |
+| 3b    | Character Studio                              | in review |
 | 4     | Environment and graphics                      | planned   |
 | 5     | NPCs and game logic                           | planned   |
 | 6     | UI, menus, saving                             | planned   |

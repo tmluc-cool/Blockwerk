@@ -1,9 +1,11 @@
 import { REQUIRED_BONES, rigFromObject } from '@blockwerk/character';
 import type { LibraryEntry } from '@blockwerk/library';
+import { assetDisplayName } from '@blockwerk/project';
 import { DEFAULT_ANIMATION_SOURCE, parseList } from '@blockwerk/runtime';
 import { useEffect, useMemo, useState } from 'react';
 import { libraryRef, libraryUrl, loadAssetLibrary, useAssetLibrary } from '../library/assetLibrary';
 import { importModelFiles, MODEL_FILE_EXTENSIONS } from '../library/importModel';
+import { useDocument } from '../state/document';
 import { useSettings, useT } from '../state/settings';
 import { setValue, setValues, valuesOf } from './studio';
 import type { SectionProps } from './types';
@@ -128,6 +130,8 @@ export function ModelSection(props: SectionProps) {
   const locale = useSettings((state) => state.locale);
   const entries = useCharacterEntries();
   const [query, setQuery] = useState('');
+  const project = useDocument((state) => state.project);
+  useDocument((state) => state.assetsVersion);
   const values = valuesOf(object, 'character');
   const model = values['model'] as string | null;
   const shown = entries
@@ -212,9 +216,14 @@ export function ModelSection(props: SectionProps) {
               setValues(id, 'character', { animationSource: event.target.value })
             }
           >
-            {[...entries.map((entry) => libraryRef(entry))].map((ref) => (
-              <option key={ref} value={ref}>
-                {ref.replace('library:', '')}
+            {entries.map((entry) => (
+              <option key={entry.id} value={libraryRef(entry)}>
+                {entry.name[locale]}
+              </option>
+            ))}
+            {(project?.assetsOfType('model') ?? []).map((asset) => (
+              <option key={asset.id} value={asset.id}>
+                {assetDisplayName(asset.path)}
               </option>
             ))}
           </select>

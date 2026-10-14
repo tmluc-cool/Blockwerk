@@ -298,6 +298,8 @@ export class StageViewport {
     scale: number[];
     parts: string[];
     attached: string[];
+    /** World position of each attached item by attachment point (does it follow the animation?). */
+    attachedAt: Record<string, number[]>;
     clips: string[];
     animation: string | null;
     mapped: boolean;
@@ -325,6 +327,12 @@ export class StageViewport {
       scale: info.root.scale.toArray(),
       parts: [...info.parts],
       attached: [...info.attached.keys()],
+      attachedAt: Object.fromEntries(
+        [...info.attached].map(([point, item]) => [
+          point,
+          item.getWorldPosition(new Vector3()).toArray(),
+        ]),
+      ),
       clips: animatorRegistry.get(figure)?.clips.slice() ?? [],
       animation: animatorRegistry.get(figure)?.current ?? null,
       mapped: info.mapping?.complete ?? false,

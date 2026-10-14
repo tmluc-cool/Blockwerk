@@ -5,6 +5,21 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 3b: Character Studio
+
+- Character Studio window: turntable with jump arc, collision capsule and comparison figure; model
+  choice and upload; builder (parts, body sliders), colors with palettes and a random button;
+  equipment on attachment points; movement profiles and sliders; ability cards; animation list with
+  event timeline; camera preview; portraits saved as images; Player 2 as a prefab variant with other
+  colors; "Play in Test Area".
+- Standard skeleton (VRM bone names), automatic bone assignment and runtime retargeting: every
+  library animation works on any humanoid model; models without a skeleton become rigid figures that
+  bob, lean and squash.
+- VRM, GLB, glTF, FBX and OBJ import with humanoid bone assignment and license in the import settings.
+- Abilities Double Jump, Roll, Glide and Stamina as components, with blocks for character, equipment
+  and abilities.
+- Example project `examples/03b-figur`.
+
 ### Phase 3: player, physics, animation
 
 - Physics with Rapier: Rigidbody, Box/Sphere/Capsule/Cylinder/Mesh Collider, triggers and zone events,

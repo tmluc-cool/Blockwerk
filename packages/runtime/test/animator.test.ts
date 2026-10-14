@@ -138,15 +138,13 @@ describe('animator', () => {
     const animator = animatorRegistry.get(game.world.getObject('hero00000001') as GameObject);
     if (!animator) throw new Error('animator');
     run(game, 0.5);
-    animator.takeEvents();
     animator.play('walk', { fade: 0.05 });
-    const heard: string[] = [];
-    run(game, 3, () => {
-      for (const event of animator.takeEvents()) if (event.name === 'step') heard.push(event.phase);
-    });
+    const before = game.eventCounts['animation:step:started'] ?? 0;
+    run(game, 3);
+    const heard = (game.eventCounts['animation:step:started'] ?? 0) - before;
     // The walk clip is 1.2 s long: the marker at 0.5 s passes about every 1.2 s.
-    expect(heard.length).toBeGreaterThanOrEqual(2);
-    expect(heard.length).toBeLessThanOrEqual(3);
+    expect(heard).toBeGreaterThanOrEqual(2);
+    expect(heard).toBeLessThanOrEqual(3);
     game.dispose();
   });
 });

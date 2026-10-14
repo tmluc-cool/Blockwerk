@@ -4,6 +4,7 @@ import type { ProfileName } from '@blockwerk/runtime';
 import { create } from 'zustand';
 import {
   addComponent,
+  hierarchyOrder,
   setComponentEnabled,
   setComponentValue,
   updateObjects,
@@ -66,10 +67,12 @@ function isFigure(object: SceneObjectData): boolean {
 
 /** The figures of a scene for the studio's drop-down. */
 export function figureCandidates(scene: SceneData): { id: string; name: string }[] {
-  return Object.entries(scene.objects)
-    .filter(([, object]) => isFigure(object))
-    .sort(([, a], [, b]) => a.order - b.order)
-    .map(([id, object]) => ({ id, name: objectName(object, id) }));
+  return hierarchyOrder(scene)
+    .filter((id) => {
+      const object = scene.objects[id];
+      return object !== undefined && isFigure(object);
+    })
+    .map((id) => ({ id, name: objectName(scene.objects[id] as SceneObjectData, id) }));
 }
 
 /** The figure the studio edits: the chosen one if it still exists, else the first one. */

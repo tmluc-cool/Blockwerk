@@ -1,0 +1,95 @@
+{
+  "base": null,
+  "formatVersion": 1,
+  "objects": {
+    "hr1jxdg7bgx2": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "figc00000001",
+          "type": "character",
+          "values": {
+            "attachments": "library:kaykit-adventurers/sword-1handed@rightHand",
+            "bodyHeight": 1.8,
+            "model": "library:kaykit-adventurers/knight",
+            "profile": "arcade",
+            "shownGear": "Knight_Helmet",
+            "tints": "Knight_Body=#3a6ea5;Knight_ArmLeft=#3a6ea5;Knight_ArmRight=#3a6ea5"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "figc00000002",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "figc00000003",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "figc00000004",
+          "type": "thirdPersonControl",
+          "values": {
+            "acceleration": 25,
+            "airControl": 0.9,
+            "gravity": 18,
+            "jumpHeight": 1.8,
+            "rotationSmoothTime": 0.06,
+            "runSpeed": 6.5,
+            "walkSpeed": 3
+          }
+        },
+        {
+          "enabled": true,
+          "id": "figc00000005",
+          "type": "doubleJump",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "figc00000006",
+          "type": "roll",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Ritter",
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "overrides": [],
+  "root": "hr1jxdg7bgx2"
+}

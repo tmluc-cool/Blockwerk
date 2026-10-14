@@ -554,5 +554,10 @@
   "studio.ability.carry": "Pick up and carry",
   "studio.ability.interact": "Interact",
   "studio.meters": "{value} m",
-  "studio.seconds": "{value} s"
+  "studio.seconds": "{value} s",
+  "studio.player2Camera": "Camera Player 2",
+  "studio.player2": "Like Player 1, other colors",
+  "studio.saveMine": "Save to My Characters",
+  "studio.player2Done": "Player 2 created from “{name}”.",
+  "studio.savedMine": "Saved “{name}” to My Characters."
 }
