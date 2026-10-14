@@ -121,12 +121,17 @@ test.describe('phase 3b', () => {
     const avatar = await figureReady(page, 'skeleton');
     expect(avatar.mapped).toBe(true);
     expect(avatar.clips).toEqual(expect.arrayContaining(['Walking_A', 'Running_A', 'Jump_Start']));
-    for (const state of ['walk', 'run', 'jump']) {
+    for (const state of ['walk', 'run']) {
       await page.getByTestId(`anim-play-${state}`).click();
       await expect
         .poll(async () => (await studioState(page))?.animation, { timeout: scaled(30_000) })
         .toBe(state);
     }
+    // The jump is a one-shot clip: it ends and the figure idles again, so check that it was played.
+    await page.getByTestId('anim-play-jump').click();
+    await expect
+      .poll(async () => (await studioState(page))?.played, { timeout: scaled(30_000) })
+      .toContain('jump');
     // The body is scaled to the chosen body height (1.8 m).
     expect(avatar.height).toBeGreaterThan(1.6);
     expect(avatar.height).toBeLessThan(2);

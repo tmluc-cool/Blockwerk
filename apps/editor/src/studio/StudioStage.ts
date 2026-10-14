@@ -140,6 +140,7 @@ export class StageViewport {
   };
   private overlaysKey = '';
   private animation: string | null = 'idle';
+  private played: string[] = [];
   private speed = 1;
   private loop = true;
   private frame = 0;
@@ -262,6 +263,7 @@ export class StageViewport {
     this.game = null;
     this.callbacks.figure(null, null);
     this.ready = false;
+    this.played = [];
     if (!object) return;
     await initPhysics();
     if (this.disposed || generation !== this.generation) return;
@@ -312,6 +314,8 @@ export class StageViewport {
     attachedAt: Record<string, number[]>;
     clips: string[];
     animation: string | null;
+    /** Animations the animator accepted since the stage was built (one-shot clips end quickly). */
+    played: string[];
     mapped: boolean;
     missing: string[];
     arc: { height: number; walk: number; run: number } | null;
@@ -345,6 +349,7 @@ export class StageViewport {
       ),
       clips: animatorRegistry.get(figure)?.clips.slice() ?? [],
       animation: animatorRegistry.get(figure)?.current ?? null,
+      played: [...this.played],
       mapped: info.mapping?.complete ?? false,
       missing: info.mapping ? [...info.mapping.missing] : [],
       arc: arc ? { height: arc.height, walk: arc.walkDistance, run: arc.runDistance } : null,
@@ -412,8 +417,11 @@ export class StageViewport {
     const animator = figure ? animatorRegistry.get(figure) : undefined;
     if (!animator) return;
     animator.speed = this.speed;
-    if (this.animation) animator.play(this.animation, { once: !this.loop, fade: 0.15 });
-    else animator.stop();
+    if (this.animation) {
+      if (animator.play(this.animation, { once: !this.loop, fade: 0.15 })) {
+        this.played.push(this.animation);
+      }
+    } else animator.stop();
   }
 
   private rebuildHelpers(): void {
