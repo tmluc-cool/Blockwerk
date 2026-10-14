@@ -1,0 +1,26 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenKey",
+        "id": "pf-1",
+        "fields": { "key": "Space", "mode": "pressed" },
+        "next": {
+          "block": {
+            "type": "control.spawnPrefab",
+            "id": "pf-2",
+            "fields": { "prefab": "prefab:laterne00001", "at": "self" },
+            "next": {
+              "block": {
+                "type": "control.spawnPrefab",
+                "id": "pf-3",
+                "fields": { "prefab": "prefab:laterne00001", "at": "object:spawnpoint01" }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

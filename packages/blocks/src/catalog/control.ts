@@ -124,6 +124,27 @@ export const createClone = defineBlock({
   since: 1,
 });
 
+export const spawnPrefab = defineBlock({
+  id: 'control.spawnPrefab',
+  category: 'control',
+  shape: 'stack',
+  inputs: {
+    prefab: { type: 'reference', source: 'prefab', default: 'prefab:' },
+    at: { type: 'reference', source: 'object', default: 'self' },
+  },
+  text: { de: 'erzeuge {prefab} bei {at}', en: 'create {prefab} at {at}' },
+  keywords: {
+    de: ['prefab', 'spawnen', 'erschaffen', 'instanz'],
+    en: ['prefab', 'spawn', 'instantiate'],
+  },
+  compile: ({ prefab, at }) => `game.spawn(self, ${prefab}, ${at});`,
+  docs: {
+    de: 'Erzeugt ein Exemplar eines Prefabs an der Stelle eines Objekts (Unity: Instantiate mit Prefab). Im neuen Objekt startet „Wenn ich erstellt werde“.',
+    en: 'Creates an instance of a prefab at an object\'s position (Unity: Instantiate with a prefab). "When I am created" runs in the new object.',
+  },
+  since: 1,
+});
+
 export const destroy = defineBlock({
   id: 'control.destroy',
   category: 'control',
