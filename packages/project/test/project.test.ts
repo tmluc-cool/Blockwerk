@@ -120,6 +120,25 @@ describe('project files', () => {
     expect(fs.snapshot()).toEqual(before);
   });
 
+  it('keeps the physics layer matrix and leaves old settings files untouched', async () => {
+    const fs = new MemoryFileSystem();
+    const project = await newProject(fs);
+    // Without a matrix nothing about it is written (existing projects stay identical).
+    const settingsFile = 'Einstellungen/tags-und-ebenen.json';
+    const plain = JSON.parse((await fs.readText(settingsFile)) ?? '{}') as Record<string, unknown>;
+    expect(plain['ignoredCollisions']).toBeUndefined();
+    project.tagsAndLayers = {
+      ...project.tagsAndLayers,
+      layers: ['Boden', 'Geister'],
+      ignoredCollisions: [['Boden', 'Geister']],
+    };
+    await project.save(fs);
+    const loaded = await loadProject(fs);
+    expect(loaded.problems).toEqual([]);
+    expect(loaded.tagsAndLayers.ignoredCollisions).toEqual([['Boden', 'Geister']]);
+    expect(await loaded.save(fs)).toEqual({ written: [], removed: [] });
+  });
+
   it('writes only the files that changed', async () => {
     const fs = new MemoryFileSystem();
     const project = await newProject(fs);

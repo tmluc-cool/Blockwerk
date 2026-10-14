@@ -215,6 +215,12 @@ export const tagsAndLayersSchema = z.object({
   tags: z.array(z.string().min(1)),
   /** User layers. `Default` always exists and is not listed. */
   layers: z.array(z.string().min(1)),
+  /**
+   * Physics layer matrix (Unity: Layer Collision Matrix): pairs of layers that do not collide.
+   * Missing means every layer collides with every layer. Optional so existing projects stay
+   * byte-identical when saved.
+   */
+  ignoredCollisions: z.array(z.tuple([z.string().min(1), z.string().min(1)])).optional(),
 });
 /** Contents of `Einstellungen/tags-und-ebenen.json`. */
 export type TagsAndLayersData = z.infer<typeof tagsAndLayersSchema>;

@@ -82,3 +82,34 @@ export const setActive = defineBlock({
   },
   since: 1,
 });
+
+export const playAnimation = defineBlock({
+  id: 'looks.playAnimation',
+  category: 'looks',
+  shape: 'stack',
+  inputs: {
+    name: { type: 'string', default: 'wave' },
+    mode: {
+      type: 'dropdown',
+      default: 'once',
+      options: [
+        { value: 'once', text: { de: 'einmal', en: 'once' } },
+        { value: 'loop', text: { de: 'in Schleife', en: 'looping' } },
+      ],
+    },
+    fade: { type: 'number', default: 0.2 },
+  },
+  text: {
+    de: 'spiele Animation {name} {mode} mit Überblendung {fade} s',
+    en: 'play animation {name} {mode} with fade {fade} s',
+  },
+  keywords: { de: ['winken', 'tanzen', 'angriff'], en: ['wave', 'dance', 'attack', 'clip'] },
+  areas: ['player', 'npc'],
+  compile: ({ name, mode, fade }) =>
+    `game.playAnimation(self, game.str(${name}), ${mode}, ${fade});`,
+  docs: {
+    de: 'Spielt eine Animation des Modells ab. Der Name ist ein Standardzustand (wave, cheer, attack, hit, death, interact …) oder ein Clip-Name. Danach übernimmt die Steuerung wieder.',
+    en: 'Plays an animation of the model. The name is a standard state (wave, cheer, attack, hit, death, interact …) or a clip name. Afterwards the controller takes over again.',
+  },
+  since: 3,
+});

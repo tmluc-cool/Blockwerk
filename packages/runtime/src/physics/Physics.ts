@@ -90,6 +90,8 @@ interface BodyEntry {
   /** World pose last written to or read from the object. */
   readonly lastPosition: Vector3;
   readonly lastQuaternion: Quaternion;
+  /** How far the object was moved by scripts in this tick (platforms carry characters). */
+  readonly motion: Vector3;
 }
 
 const POSITION_EPSILON = 1e-6;
@@ -193,6 +195,7 @@ export class Physics {
     });
     for (const entry of this.entries.values()) {
       if (entry.kind === 'dynamic') this.writeBack(entry);
+      entry.motion.set(0, 0, 0);
     }
   }
 
@@ -373,11 +376,23 @@ export class Physics {
     // Ride a moving platform: take over its movement of this tick.
     const ride = new Vector3();
     const ground = character.ground;
-    if (ground && this.world.bodies.contains(ground.handle) && ground.isKinematic()) {
-      const velocity = ground.linvel();
-      ride.set(velocity.x, Math.max(0, velocity.y), velocity.z).multiplyScalar(this.world.timestep);
+    if (ground && this.world.bodies.contains(ground.handle)) {
+      // The platform's own measured movement: Rapier's velocity of a position-controlled
+      // kinematic body is zero in every second tick.
+      for (const platform of this.entries.values()) {
+        if (
+          platform.body !== ground ||
+          (platform.kind !== 'moving' && platform.kind !== 'kinematic')
+        ) {
+          continue;
+        }
+        ride.set(platform.motion.x, Math.max(0, platform.motion.y), platform.motion.z);
+        break;
+      }
     }
-    const wanted = desired.clone().add(ride);
+    // The platform's movement is added after the collision test: its collider still stands where
+    // it was before this tick, which would block the character.
+    const wanted = desired;
     this.depenetrate(entry.body, collider, settings.skinWidth);
     controller.computeColliderMovement(
       collider,
@@ -387,7 +402,20 @@ export class Physics {
     const computed = controller.computedMovement();
     const movement = new Vector3(computed.x, computed.y, computed.z);
     const grounded = controller.computedGrounded();
-    character.ground = null;
+    if (ride.x !== 0 || ride.z !== 0) {
+      // On a moving platform the controller sometimes adds a sideways step of the platform's
+      // own size. A character never moves farther than asked: limit it to the wanted distance.
+      const wantedLength = Math.hypot(wanted.x, wanted.z);
+      const length = Math.hypot(movement.x, movement.z);
+      if (length > wantedLength + 1e-4) {
+        const scale = wantedLength / length;
+        movement.x *= scale;
+        movement.z *= scale;
+      }
+    }
+    // The body that carries the character: found through the contacts of this move; it stays
+    // while the character is still grounded (contacts are not reported in every tick).
+    if (!grounded) character.ground = null;
     for (let index = 0; index < controller.numComputedCollisions(); index++) {
       const collision = controller.computedCollision(index);
       const body = collision?.collider?.parent();
@@ -395,7 +423,9 @@ export class Physics {
     }
     const hitCeiling = wanted.y > 0 && movement.y < wanted.y * 0.5;
     const translation = entry.body.translation();
-    const position = new Vector3(translation.x, translation.y, translation.z).add(movement);
+    const position = new Vector3(translation.x, translation.y, translation.z)
+      .add(movement)
+      .add(ride);
     const rotation = entry.owner.object3d.getWorldQuaternion(new Quaternion());
     setWorldPose(object, position, rotation);
     entry.body.setTranslation({ x: position.x, y: position.y, z: position.z }, true);
@@ -579,6 +609,7 @@ export class Physics {
       colliders: [],
       lastPosition: position.clone(),
       lastQuaternion: quaternion.clone(),
+      motion: new Vector3(),
     };
     const ownerInverse = owner.object3d.matrixWorld.clone().invert();
     // Distribute the Rigidbody's mass over its colliders by volume (Unity: mass per body).
@@ -762,11 +793,13 @@ export class Physics {
         // Something moves this fixed collider: it becomes kinematic (pushes and carries).
         entry.body.setBodyType(this.rapier.RigidBodyType.KinematicPositionBased, true);
         entry.kind = 'moving';
+        entry.motion.copy(position).sub(entry.lastPosition);
         entry.body.setNextKinematicTranslation(translation);
         entry.body.setNextKinematicRotation(rotation);
         break;
       case 'moving':
       case 'kinematic':
+        if (moved) entry.motion.copy(position).sub(entry.lastPosition);
         entry.body.setNextKinematicTranslation(translation);
         entry.body.setNextKinematicRotation(rotation);
         break;

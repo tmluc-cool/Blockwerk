@@ -9,6 +9,8 @@ export interface ModelTemplate {
   readonly scene: Group;
   readonly animations: readonly AnimationClip[];
   readonly skinned: boolean;
+  /** Clip names chosen for standard animation states in the import settings. */
+  readonly animationMap?: Readonly<Record<string, string>>;
 }
 
 /** Where a model file is and how it is placed (import settings of project models). */
@@ -19,6 +21,8 @@ export interface ModelSource {
   readonly scale?: number;
   /** Where the origin goes: bottom center, center of the bounds, or as in the file (default). */
   readonly pivot?: 'bottom' | 'center' | 'original';
+  /** Clip names for standard animation states (import settings), e.g. `{ wave: 'Hello' }`. */
+  readonly animationMap?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -69,6 +73,12 @@ export class ModelCache {
     return this.loaded.get(ref);
   }
 
+  /** Registers an already loaded model under a reference (previews, tests). */
+  provide(ref: string, template: ModelTemplate): void {
+    this.templates.set(ref, Promise.resolve(template));
+    this.loaded.set(ref, template);
+  }
+
   /** Forgets a model (after a project model was re-imported). */
   invalidate(ref: string): void {
     this.templates.delete(ref);
@@ -87,7 +97,7 @@ export class ModelCache {
     scene.traverse((node) => {
       if ((node as { isSkinnedMesh?: boolean }).isSkinnedMesh) skinned = true;
     });
-    return { scene, animations: gltf.animations, skinned };
+    return { scene, animations: gltf.animations, skinned, animationMap: source.animationMap };
   }
 
   /** A copy of a loaded model. Static copies share geometry and materials. */

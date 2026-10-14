@@ -1,52 +1,54 @@
 # Blockwerk
 
-**Bedienen wie Unity, programmieren wie Scratch, spielen wie ein echtes Spiel.**
+**Use it like Unity, program it like Scratch, play it like a real game.**
 
-Blockwerk (Arbeitstitel) ist eine kostenlose, quelloffene 3D-Game-Engine. Der Editor ist wie Unity
-aufgebaut: Hierarchie, Szene, Spiel, Inspektor, Projekt und Konsole, Objekte mit Komponenten,
-Prefabs und Play-Modus. Die Logik baust du aber mit Scratch-artigen Befehlsblöcken statt mit C#.
+Blockwerk (working title) is a free, open-source 3D game engine. The editor is laid out like
+Unity's: Hierarchy, Scene, Game, Inspector, Project and Console, objects with components, prefabs
+and a play mode. The game logic, however, is built with Scratch-like command blocks instead of C#.
 
-_English: Blockwerk is a free, open-source 3D game engine with a Unity-style editor. Game logic is
-built with Scratch-like command blocks instead of C#. The user interface is available in German
-and English._
+The editor and the engine are available in **English and German**; everything else in this
+repository (documentation, issues, pull requests) is in English.
 
-![Blockwerk-Editor mit dem Dorf-Beispiel aus Phase 2](docs/screenshots/phase-02.png)
+![Blockwerk editor with the village example from phase 2](docs/screenshots/phase-02.png)
 
-> **Status:** frühe Entwicklung. Phase 0 (Fundament und Unity-Layout), Phase 1 (Objekte,
-> Komponenten, Block-Skripte, Play-Modus) und Phase 2 (Asset-Bibliothek, Modelle, Prefabs) sind
-> umgesetzt. Zum Ausprobieren: „Datei → Beispielprojekt öffnen“ und Play drücken.
-> Es gibt noch kein Release. Den aktuellen Stand zeigt die [Roadmap](#roadmap).
+> **Status:** early development. Phase 0 (foundation and Unity layout), phase 1 (objects,
+> components, block scripts, play mode) and phase 2 (asset library, models, prefabs) are done.
+> To try it out: "File → Open Example Project" and press Play. There is no release yet. See the
+> [roadmap](#roadmap) for the current state.
 
 ## Download
 
-Sobald es ein Release gibt, liegen der Windows-Installer und eine portable `.exe` unter
-[Releases](https://github.com/tmluc-cool/Blockwerk/releases). Bis dahin startest du Blockwerk aus
-dem Quellcode (siehe unten).
+Once there is a release, the Windows installer and a portable `.exe` will be on the
+[Releases](https://github.com/tmluc-cool/Blockwerk/releases) page. Until then, run Blockwerk from
+source (see below).
 
-## Schnellstart für Entwickler
+## Quick start for developers
 
-Voraussetzungen: [Node.js](https://nodejs.org/) LTS (22.12 oder neuer) und [pnpm](https://pnpm.io/) 10.
+Requirements: [Node.js](https://nodejs.org/) LTS (22.12 or newer) and [pnpm](https://pnpm.io/) 10.
 
 ```sh
 pnpm install
-pnpm assets:fetch   # Asset-Bibliothek laden und aufbereiten (einmalig, rund 15 Minuten, 150 MB)
-pnpm dev            # Editor im Browser (http://localhost:5173)
-pnpm dev:desktop    # Editor in Electron
-pnpm test           # Unit- und Golden-Tests
-pnpm test:e2e       # Playwright (baut vorher; unter Linux ohne Bildschirm: xvfb-run -a pnpm test:e2e)
-pnpm lint           # ESLint, Prettier, Lizenzprüfung
-pnpm build          # Typprüfung und Build von Editor und Desktop-App
+pnpm assets:fetch   # download and process the asset library (once, about 15 minutes, 150 MB)
+pnpm dev            # editor in the browser (http://localhost:5173)
+pnpm dev:desktop    # editor in Electron
+pnpm test           # unit and golden tests
+pnpm test:e2e       # Playwright (builds first; on Linux without a display: xvfb-run -a pnpm test:e2e)
+pnpm lint           # ESLint, Prettier, license check
+pnpm build          # type check and build of the editor and the desktop app
 ```
 
-Details zu Aufbau, Regeln und Beiträgen stehen in [CONTRIBUTING.md](CONTRIBUTING.md).
+Details on the layout, the rules and how to contribute are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Unity-Begriffe in Blockwerk
+## Unity terms in Blockwerk
 
-| Unity                                                         | Blockwerk (Deutsch)                                   |
+The English interface uses the familiar Unity terms directly. The German interface uses these
+translations:
+
+| Unity (English interface)                                     | German interface                                      |
 | ------------------------------------------------------------- | ----------------------------------------------------- |
 | GameObject                                                    | Objekt                                                |
 | Component                                                     | Komponente                                            |
-| MonoBehaviour / C#-Skript                                     | Block-Skript                                          |
+| MonoBehaviour / C# script                                     | Block-Skript                                          |
 | Prefab, Prefab Variant                                        | Prefab, Prefab-Variante                               |
 | Scene                                                         | Szene                                                 |
 | Hierarchy, Scene View, Game View, Inspector, Project, Console | Hierarchie, Szene, Spiel, Inspektor, Projekt, Konsole |
@@ -56,39 +58,40 @@ Details zu Aufbau, Regeln und Beiträgen stehen in [CONTRIBUTING.md](CONTRIBUTIN
 | Rigidbody, Collider, Character Controller                     | Rigidbody, Collider, Charakter-Controller             |
 | NavMesh, NavMesh Agent                                        | Navigationsnetz, Nav-Agent                            |
 | Input Actions                                                 | Eingabe-Aktionen                                      |
-| _(neu)_                                                       | Bereichs-Reiter, Testgelände, Figuren-Studio          |
+| _(new)_                                                       | Area tabs, Test area, Character Studio                |
 
-Die englische Oberfläche verwendet die Unity-Begriffe direkt.
+New in Blockwerk compared to Unity: area tabs (Environment, Player 1, Player 2, NPCs, Items, UI), a test area for
+trying out characters, the Character Studio and an asset library with CC0 models.
 
 ## Roadmap
 
-| Phase | Inhalt                                          | Status       |
-| ----- | ----------------------------------------------- | ------------ |
-| 0     | Fundament und Unity-Layout                      | ✅ umgesetzt |
-| 1     | Objekte, Komponenten, Block-Skripte, Play-Modus | ✅ umgesetzt |
-| 2     | Projekt-Fenster, Asset-Bibliothek, Prefabs      | ✅ umgesetzt |
-| 3     | Spieler, Physik, Animation                      | geplant      |
-| 3b    | Figuren-Studio                                  | geplant      |
-| 4     | Umgebung und Grafik                             | geplant      |
-| 5     | NPCs und Spiellogik                             | geplant      |
-| 6     | UI, Menüs, Speichern                            | geplant      |
-| 7     | Grosse Projekte                                 | geplant      |
-| 8     | Debugging                                       | geplant      |
-| 9     | Build und Export                                | geplant      |
-| 10    | KI-Assistent                                    | geplant      |
-| 11    | Feinschliff und Endabnahme                      | geplant      |
+| Phase | Content                                       | Status    |
+| ----- | --------------------------------------------- | --------- |
+| 0     | Foundation and Unity layout                   | ✅ done   |
+| 1     | Objects, components, block scripts, play mode | ✅ done   |
+| 2     | Project window, asset library, prefabs        | ✅ done   |
+| 3     | Player, physics, animation                    | in review |
+| 3b    | Character Studio                              | planned   |
+| 4     | Environment and graphics                      | planned   |
+| 5     | NPCs and game logic                           | planned   |
+| 6     | UI, menus, saving                             | planned   |
+| 7     | Large projects                                | planned   |
+| 8     | Debugging                                     | planned   |
+| 9     | Build and export                              | planned   |
+| 10    | AI assistant                                  | planned   |
+| 11    | Polish and final acceptance                   | planned   |
 
-Die vollständige Spezifikation steht in [SPEC.md](SPEC.md), der Fortschritt jeder Phase in
+The full specification is in [SPEC.md](SPEC.md) (German), the progress of each phase in
 [PROGRESS.md](PROGRESS.md).
 
-## Grundsätze
+## Principles
 
-- Alles kostenlos, lokal und offline. Keine Konto-Pflicht, keine Build-Limits, keine Telemetrie.
-- Projekte sind lesbare Dateien und Git-freundlich.
-- Die mitgelieferte Asset-Bibliothek enthält nur CC0-Modelle.
+- Everything is free, local and offline. No account, no build limits, no telemetry.
+- Projects are readable files and friendly to Git.
+- The bundled asset library contains CC0 models only.
 
-## Lizenz
+## License
 
-Der Code steht unter der [MIT-Lizenz](LICENSE). Abhängigkeiten und ihre Lizenzen:
-[THIRD_PARTY.md](THIRD_PARTY.md). Blockwerk ist ein eigenständiges Projekt und steht in keiner
-Verbindung zu Unity Technologies oder dem Scratch-Team des MIT.
+The code is licensed under the [MIT License](LICENSE). Dependencies and their licenses are listed
+in [THIRD_PARTY.md](THIRD_PARTY.md). Blockwerk is an independent project and is not affiliated
+with Unity Technologies or the Scratch Team at MIT.

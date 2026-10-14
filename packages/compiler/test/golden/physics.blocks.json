@@ -1,0 +1,228 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenZone",
+        "id": "ph-1",
+        "fields": {
+          "target": "tag:Spieler",
+          "phase": "enter"
+        },
+        "next": {
+          "block": {
+            "type": "physics.push",
+            "id": "ph-2",
+            "fields": {
+              "direction": "up"
+            },
+            "inputs": {
+              "force": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "ph-3",
+                  "fields": {
+                    "NUM": 12
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "physics.setVelocity",
+                "id": "ph-4",
+                "inputs": {
+                  "x": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "ph-5",
+                      "fields": {
+                        "NUM": 1
+                      }
+                    }
+                  },
+                  "y": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "ph-6",
+                      "fields": {
+                        "NUM": 2
+                      }
+                    }
+                  },
+                  "z": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "ph-7",
+                      "fields": {
+                        "NUM": 3
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "physics.setGravity",
+                    "id": "ph-8",
+                    "inputs": {
+                      "value": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "ph-9",
+                          "fields": {
+                            "NUM": 1.62
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "physics.setBodyType",
+                        "id": "ph-10",
+                        "fields": {
+                          "type": "kinematic"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "control.if",
+                            "id": "ph-17",
+                            "inputs": {
+                              "condition": {
+                                "block": {
+                                  "type": "operators.gt",
+                                  "id": "ph-13",
+                                  "inputs": {
+                                    "a": {
+                                      "block": {
+                                        "type": "physics.distanceAhead",
+                                        "id": "ph-11",
+                                        "inputs": {
+                                          "meters": {
+                                            "shadow": {
+                                              "type": "literal.number",
+                                              "id": "ph-12",
+                                              "fields": {
+                                                "NUM": 5
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "b": {
+                                      "shadow": {
+                                        "type": "literal.number",
+                                        "id": "ph-14",
+                                        "fields": {
+                                          "NUM": 1
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "then": {
+                                "block": {
+                                  "type": "motion.move",
+                                  "id": "ph-15",
+                                  "fields": {
+                                    "direction": "forward"
+                                  },
+                                  "inputs": {
+                                    "meters": {
+                                      "shadow": {
+                                        "type": "literal.number",
+                                        "id": "ph-16",
+                                        "fields": {
+                                          "NUM": 1
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "events.whenZone",
+        "id": "ph-18",
+        "fields": {
+          "target": "any",
+          "phase": "exit"
+        },
+        "next": {
+          "block": {
+            "type": "control.if",
+            "id": "ph-25",
+            "inputs": {
+              "condition": {
+                "block": {
+                  "type": "operators.eq",
+                  "id": "ph-21",
+                  "inputs": {
+                    "a": {
+                      "block": {
+                        "type": "physics.whatIsAhead",
+                        "id": "ph-19",
+                        "inputs": {
+                          "meters": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "ph-20",
+                              "fields": {
+                                "NUM": 3
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "b": {
+                      "shadow": {
+                        "type": "literal.text",
+                        "id": "ph-22",
+                        "fields": {
+                          "TEXT": "Wand"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "block": {
+                  "type": "physics.push",
+                  "id": "ph-23",
+                  "fields": {
+                    "direction": "backward"
+                  },
+                  "inputs": {
+                    "force": {
+                      "shadow": {
+                        "type": "literal.number",
+                        "id": "ph-24",
+                        "fields": {
+                          "NUM": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

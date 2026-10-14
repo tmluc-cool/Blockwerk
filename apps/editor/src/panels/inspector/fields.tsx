@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import type { TranslationKey } from '../../i18n';
 import { useT } from '../../state/settings';
 import { ModelField } from './ModelField';
+import { ObjectField } from './ObjectField';
 
 /** Marker for values that differ between selected objects (shown as "—"). */
 export const MIXED: unique symbol = Symbol('mixed');
@@ -262,6 +263,8 @@ export function FieldEditor({
           ))}
         </select>
       );
+    case 'object':
+      return <ObjectField value={value} onChange={onChange} disabled={disabled} testId={testId} />;
     case 'asset': {
       if (field.assetType === 'model') {
         return <ModelField value={value} onChange={onChange} disabled={disabled} testId={testId} />;

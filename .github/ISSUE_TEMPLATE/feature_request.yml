@@ -1,21 +1,21 @@
-name: Idee vorschlagen / Suggest an idea
-description: Eine neue Funktion oder Verbesserung. / A new feature or improvement.
-labels: [idee]
+name: Suggest an idea
+description: A new feature or improvement.
+labels: [enhancement]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Welches Problem löst die Idee? / Which problem does it solve?
+      label: Which problem does it solve?
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Vorschlag / Proposal
-      description: Wie macht Unity das? Wie soll es in Blockwerk aussehen? / How does Unity do it? How should it look in Blockwerk?
+      label: Proposal
+      description: How does Unity do it? How should it look in Blockwerk?
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternativen / Alternatives
+      label: Alternatives

@@ -708,3 +708,44 @@ export function addTagOrLayer(kind: 'tags' | 'layers', name: string): boolean {
   assetsChanged();
   return true;
 }
+
+/** All physics layers of the project (`Default` first). */
+export function physicsLayers(): string[] {
+  const { project } = useDocument.getState();
+  return [DEFAULT_LAYER, ...(project?.tagsAndLayers.layers ?? [])];
+}
+
+/** Whether objects of two layers collide (the physics layer matrix). */
+export function layersCollide(a: string, b: string): boolean {
+  const { project } = useDocument.getState();
+  return !(project?.tagsAndLayers.ignoredCollisions ?? []).some(
+    ([x, y]) => (x === a && y === b) || (x === b && y === a),
+  );
+}
+
+/** Turns collisions between two layers on or off. */
+export function setLayersCollide(a: string, b: string, collide: boolean): void {
+  const { project } = useDocument.getState();
+  if (!project) return;
+  const others = (project.tagsAndLayers.ignoredCollisions ?? []).filter(
+    ([x, y]) => !((x === a && y === b) || (x === b && y === a)),
+  );
+  const ignored: [string, string][] = collide ? others : [...others, [a, b]];
+  const { ignoredCollisions: _before, ...rest } = project.tagsAndLayers;
+  project.tagsAndLayers = ignored.length > 0 ? { ...rest, ignoredCollisions: ignored } : rest;
+  assetsChanged();
+}
+
+/** Gravity of the open scene in m/s² (negative is down). */
+export function sceneGravity(): number {
+  return useDocument.getState().scene?.environment.gravity?.[1] ?? -9.81;
+}
+
+/** Sets the gravity of the open scene (Y component, in m/s²). */
+export function setSceneGravity(y: number): void {
+  editScene(
+    'undo.change',
+    (scene) => ({ ...scene, environment: { ...scene.environment, gravity: [0, y, 0] } }),
+    'scene-gravity',
+  );
+}

@@ -14,6 +14,7 @@ import type { IDockviewPanelProps } from 'dockview-react';
 import type { DragEvent, KeyboardEvent, MouseEvent, ReactElement } from 'react';
 import { useState } from 'react';
 import { ContextMenu } from '../chrome/ContextMenu';
+import { playInTestArea } from '../testArea/playTestArea';
 import type { ContextMenuState } from '../chrome/ContextMenu';
 import { createObjectMenuItems } from '../chrome/menus';
 import {
@@ -133,6 +134,13 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
           disabled: disabled || !node || builtInArea,
           testId: 'context-delete',
           action: deleteSelection,
+        },
+        { kind: 'separator' as const },
+        {
+          label: t('menu.window.testArea'),
+          testId: 'context-test-area',
+          disabled: disabled || !node,
+          action: playInTestArea,
         },
         ...(node?.prefab === 'root'
           ? [

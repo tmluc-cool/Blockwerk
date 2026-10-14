@@ -1,0 +1,112 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenAction",
+        "id": "ca-1",
+        "fields": {
+          "action": "interact",
+          "phase": "released",
+          "player": "2"
+        },
+        "next": {
+          "block": {
+            "type": "camera.switchTo",
+            "id": "ca-2",
+            "fields": {
+              "view": "topDown"
+            },
+            "next": {
+              "block": {
+                "type": "camera.switchToObject",
+                "id": "ca-3",
+                "fields": {
+                  "target": "object:cam0000001"
+                },
+                "next": {
+                  "block": {
+                    "type": "camera.setDistance",
+                    "id": "ca-4",
+                    "inputs": {
+                      "distance": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "ca-5",
+                          "fields": {
+                            "NUM": 9
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "camera.shake",
+                        "id": "ca-6",
+                        "inputs": {
+                          "strength": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "ca-7",
+                              "fields": {
+                                "NUM": 3
+                              }
+                            }
+                          },
+                          "seconds": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "ca-8",
+                              "fields": {
+                                "NUM": 0.5
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "camera.playPath",
+                            "id": "ca-9",
+                            "fields": {
+                              "target": "object:path0000001"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "camera.setFieldOfView",
+                                "id": "ca-10",
+                                "inputs": {
+                                  "fov": {
+                                    "shadow": {
+                                      "type": "literal.number",
+                                      "id": "ca-11",
+                                      "fields": {
+                                        "NUM": 90
+                                      }
+                                    }
+                                  },
+                                  "seconds": {
+                                    "shadow": {
+                                      "type": "literal.number",
+                                      "id": "ca-12",
+                                      "fields": {
+                                        "NUM": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

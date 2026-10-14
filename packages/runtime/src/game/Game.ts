@@ -33,6 +33,10 @@ import { DEFAULT_PHYSICS, Physics } from '../physics/Physics';
 import type { PhysicsSettings, ZoneEvent } from '../physics/Physics';
 import { loadedRapier } from '../physics/rapier';
 import type { TickContext, TickStage } from '../components/defineComponent';
+import { CameraTransitions } from '../camera/transitions';
+import { animatorRegistry } from '../components/animator';
+import * as gameplay from './gameplayApi';
+import type { GameViews } from '../camera/transitions';
 
 /** Length of one logic tick in seconds (fixed 60 Hz, SPEC 8.1). */
 export const TICK_SECONDS = 1 / 60;
@@ -208,6 +212,12 @@ export class Game implements GameApi {
   readonly physics: Physics | null;
   /** Input actions of the two players. */
   readonly players = { 1: new PlayerInput(1), 2: new PlayerInput(2) } as const;
+  private readonly transitions = new CameraTransitions();
+
+  /** The cameras to render (one, or two for split screen), with smooth camera transitions. */
+  views(): GameViews {
+    return this.transitions.views(this.world);
+  }
   private readonly tickContext: TickContext;
 
   constructor(scene: SceneData, options: GameOptions) {
@@ -252,6 +262,16 @@ export class Game implements GameApi {
     const pads = this.input.connectedGamepads();
     if (pads.length === 1 && this.hasSecondPlayer()) return { 1: null, 2: pads[0] ?? null };
     return { 1: pads[0] ?? null, 2: pads[1] ?? null };
+  }
+
+  /** Whether the game turns its view with the mouse (the host then captures the pointer). */
+  wantsMouseLook(): boolean {
+    const types = new Set(['firstPersonControl', 'firstPersonCamera', 'thirdPersonCamera']);
+    for (const object of this.world.allObjects()) {
+      if (object.activeInHierarchy && object.components.some((c) => types.has(c.definition.type)))
+        return true;
+    }
+    return false;
   }
 
   private secondPlayer: boolean | null = null;
@@ -327,7 +347,9 @@ export class Game implements GameApi {
     this.touchEvents();
     this.processDestroyQueue();
     this.tickComponents('animate');
+    this.animationEvents();
     this.tickComponents('camera');
+    this.transitions.update(this.world, TICK_SECONDS);
     this.tick += 1;
     this.world.updateSun();
   }
@@ -348,6 +370,22 @@ export class Game implements GameApi {
   }
 
   /** "When [object | tag] enters / leaves the zone": runs on the zone object. */
+  /** Fires "when animation … started / finished" for animators of scripted objects. */
+  private animationEvents(): void {
+    for (const object of [...this.attached.keys()]) {
+      for (const event of animatorRegistry.get(object)?.takeEvents() ?? []) {
+        this.fireFor(
+          object,
+          'animation',
+          (params) =>
+            String(params['phase'] ?? 'finished') === event.phase &&
+            String(params['animation'] ?? '').toLowerCase() === event.name.toLowerCase(),
+          true,
+        );
+      }
+    }
+  }
+
   private zoneEvent(event: ZoneEvent): void {
     if (event.zone.destroyed || event.other.destroyed) return;
     this.fireFor(
@@ -678,6 +716,101 @@ export class Game implements GameApi {
   goTo(self: GameObject, ref: ObjectRef): void {
     const target = this.worldPositionOf(self, ref);
     if (target) self.setWorldPosition(target);
+  }
+
+  // ---------------------------------------------------------------- GameApi: gameplay
+
+  setControlValue(
+    self: GameObject,
+    setting: 'walkSpeed' | 'runSpeed' | 'jumpHeight',
+    value: number,
+  ): void {
+    gameplay.setControlValue(self, setting, value);
+  }
+
+  jump(self: GameObject): void {
+    gameplay.jump(self);
+  }
+
+  crouch(self: GameObject, on: boolean): void {
+    gameplay.crouch(self, on);
+  }
+
+  lockControls(self: GameObject, locked: boolean): void {
+    gameplay.lockControls(self, locked);
+  }
+
+  onGround(self: GameObject): boolean {
+    return gameplay.onGround(self);
+  }
+
+  isRunning(self: GameObject): boolean {
+    return gameplay.isRunning(self);
+  }
+
+  moveSpeed(self: GameObject): number {
+    return gameplay.moveSpeed(self);
+  }
+
+  teleport(self: GameObject, ref: ObjectRef): void {
+    this.goTo(self, ref);
+    this.physics?.setVelocity(self, new Vector3());
+  }
+
+  switchCamera(view: string): void {
+    gameplay.switchCamera(this, view);
+  }
+
+  switchCameraTo(self: GameObject, ref: ObjectRef): void {
+    gameplay.switchCameraTo(this, self, ref);
+  }
+
+  setCameraDistance(self: GameObject, distance: number): void {
+    gameplay.setCameraDistance(this, self, distance);
+  }
+
+  shakeCamera(self: GameObject, strength: number, seconds: number): void {
+    gameplay.shakeCamera(this, self, strength, seconds);
+  }
+
+  setFieldOfView(self: GameObject, fov: number, seconds: number): void {
+    gameplay.setFieldOfView(this, self, fov, seconds);
+  }
+
+  playCameraPath(self: GameObject, ref: ObjectRef): void {
+    gameplay.playCameraPath(this, self, ref);
+  }
+
+  playAnimation(self: GameObject, name: string, mode: 'once' | 'loop', fade: number): void {
+    gameplay.playAnimation(self, name, mode, fade);
+  }
+
+  push(
+    self: GameObject,
+    force: number,
+    direction: 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down',
+  ): void {
+    gameplay.push(this, self, force, direction);
+  }
+
+  setVelocity(self: GameObject, x: number, y: number, z: number): void {
+    gameplay.setVelocity(this, self, x, y, z);
+  }
+
+  setGravity(value: number): void {
+    gameplay.setGravity(this, value);
+  }
+
+  setBodyType(self: GameObject, type: 'static' | 'dynamic' | 'kinematic'): void {
+    gameplay.setBodyType(this, self, type);
+  }
+
+  whatIsAhead(self: GameObject, meters: number): string {
+    return gameplay.whatIsAhead(this, self, meters);
+  }
+
+  distanceAhead(self: GameObject, meters: number): number {
+    return gameplay.distanceAhead(this, self, meters);
   }
 
   lookAt(self: GameObject, ref: ObjectRef): void {

@@ -78,6 +78,45 @@ export interface GameApi {
   /** Destroys an object at the end of the tick. Returns `true` if it is the caller itself. */
   destroy(self: GameObject, ref: ObjectRef): boolean;
 
+  // Player (SPEC 8.5): act on the object's control component.
+  setControlValue(
+    self: GameObject,
+    setting: 'walkSpeed' | 'runSpeed' | 'jumpHeight',
+    value: number,
+  ): void;
+  jump(self: GameObject): void;
+  crouch(self: GameObject, on: boolean): void;
+  lockControls(self: GameObject, locked: boolean): void;
+  onGround(self: GameObject): boolean;
+  isRunning(self: GameObject): boolean;
+  moveSpeed(self: GameObject): number;
+  /** Puts the object at another object and stops its movement. */
+  teleport(self: GameObject, ref: ObjectRef): void;
+
+  // Camera (SPEC 8.6)
+  switchCamera(view: string): void;
+  switchCameraTo(self: GameObject, ref: ObjectRef): void;
+  setCameraDistance(self: GameObject, distance: number): void;
+  shakeCamera(self: GameObject, strength: number, seconds: number): void;
+  setFieldOfView(self: GameObject, fov: number, seconds: number): void;
+  playCameraPath(self: GameObject, ref: ObjectRef): void;
+
+  // Animation (SPEC 8.7)
+  playAnimation(self: GameObject, name: string, mode: 'once' | 'loop', fade: number): void;
+
+  // Physics (SPEC 8.4)
+  push(
+    self: GameObject,
+    force: number,
+    direction: 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down',
+  ): void;
+  setVelocity(self: GameObject, x: number, y: number, z: number): void;
+  setGravity(value: number): void;
+  setBodyType(self: GameObject, type: 'static' | 'dynamic' | 'kinematic'): void;
+  /** Name of the object straight ahead within some meters, or empty text. */
+  whatIsAhead(self: GameObject, meters: number): string;
+  distanceAhead(self: GameObject, meters: number): number;
+
   resetTimer(): void;
   /** Stops all scripts of the game. */
   stopAll(): void;

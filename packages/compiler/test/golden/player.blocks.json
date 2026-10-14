@@ -1,0 +1,167 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenAction",
+        "id": "pl-1",
+        "fields": {
+          "action": "jump",
+          "phase": "pressed",
+          "player": "any"
+        },
+        "next": {
+          "block": {
+            "type": "player.setValue",
+            "id": "pl-2",
+            "fields": {
+              "setting": "runSpeed"
+            },
+            "inputs": {
+              "value": {
+                "shadow": {
+                  "type": "literal.number",
+                  "id": "pl-3",
+                  "fields": {
+                    "NUM": 8
+                  }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "player.setValue",
+                "id": "pl-4",
+                "fields": {
+                  "setting": "jumpHeight"
+                },
+                "inputs": {
+                  "value": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "pl-5",
+                      "fields": {
+                        "NUM": 2
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "player.jump",
+                    "id": "pl-6",
+                    "next": {
+                      "block": {
+                        "type": "player.crouch",
+                        "id": "pl-7",
+                        "next": {
+                          "block": {
+                            "type": "player.standUp",
+                            "id": "pl-8",
+                            "next": {
+                              "block": {
+                                "type": "player.lockControls",
+                                "id": "pl-9",
+                                "fields": {
+                                  "state": "lock"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "player.lockControls",
+                                    "id": "pl-10",
+                                    "fields": {
+                                      "state": "unlock"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "player.teleport",
+                                        "id": "pl-11",
+                                        "fields": {
+                                          "target": "object:checkpoint01"
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "motion.goToXYZ",
+                                            "id": "pl-13",
+                                            "inputs": {
+                                              "x": {
+                                                "block": {
+                                                  "type": "player.speed",
+                                                  "id": "pl-12"
+                                                }
+                                              },
+                                              "y": {
+                                                "shadow": {
+                                                  "type": "literal.number",
+                                                  "id": "pl-14",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                }
+                                              },
+                                              "z": {
+                                                "shadow": {
+                                                  "type": "literal.number",
+                                                  "id": "pl-15",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "control.if",
+                                                "id": "pl-20",
+                                                "inputs": {
+                                                  "condition": {
+                                                    "block": {
+                                                      "type": "operators.and",
+                                                      "id": "pl-18",
+                                                      "inputs": {
+                                                        "a": {
+                                                          "block": {
+                                                            "type": "player.onGround",
+                                                            "id": "pl-16"
+                                                          }
+                                                        },
+                                                        "b": {
+                                                          "block": {
+                                                            "type": "player.isRunning",
+                                                            "id": "pl-17"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "then": {
+                                                    "block": {
+                                                      "type": "player.jump",
+                                                      "id": "pl-19"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

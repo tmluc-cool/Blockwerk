@@ -5,6 +5,19 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 3: player, physics, animation
+
+- Physics with Rapier: Rigidbody, Box/Sphere/Capsule/Cylinder/Mesh Collider, triggers and zone events,
+  layer matrix and scene gravity (Edit → Physics Settings), impulses, raycasts.
+- Character Controller (slopes, steps, ground snap, pushing, moving platforms) and the controls
+  Third Person, First Person, Top Down and Vehicle with jump buffer, coyote time, crouch and sprint.
+- Input actions per player for keyboard, mouse and gamepad; player 2 and split screen.
+- Camera behaviors: third-person orbit with wall avoidance, first person, top down, side view, fixed,
+  camera path and shared camera; shake, field-of-view changes and smooth camera transitions.
+- Animator with automatic clip matching to standard states and smooth locomotion blending.
+- Blocks for actions, zones, player, camera, animation and physics.
+- Test Area ("Play in Test Area") and example project `examples/03-held`.
+
 ### Phase 2: project window, asset library, prefabs
 
 - Asset library built by `pnpm assets:fetch` from pinned CC0 sources: license check, optimized

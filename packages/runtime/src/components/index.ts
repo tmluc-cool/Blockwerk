@@ -1,5 +1,15 @@
+import { animator } from './animator';
 import { blockScript } from './blockScript';
 import { camera } from './camera';
+import {
+  cameraPath,
+  firstPersonCamera,
+  fixedCamera,
+  sharedCamera,
+  sideCamera,
+  thirdPersonCamera,
+  topDownCamera,
+} from './cameraBehaviors';
 import { characterController } from './characterController';
 import {
   boxCollider,
@@ -17,6 +27,7 @@ import { meshRenderer } from './meshRenderer';
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
   meshRenderer,
+  animator,
   rigidbody,
   boxCollider,
   sphereCollider,
@@ -29,6 +40,13 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   topDownControl,
   vehicleControl,
   camera,
+  thirdPersonCamera,
+  firstPersonCamera,
+  topDownCamera,
+  sideCamera,
+  fixedCamera,
+  cameraPath,
+  sharedCamera,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];
