@@ -349,3 +349,21 @@ export function staminaPercent(self: GameObject): number {
   const stamina = controlOf(self)?.stamina;
   return stamina === null || stamina === undefined ? 100 : Math.round(stamina * 1000) / 10;
 }
+
+// ------------------------------------------------------------------ lights
+
+/** Turns the light component of an object on or off. */
+export function setLightEnabled(target: GameObject | null, on: boolean): void {
+  const light = target?.findComponent('light');
+  if (!light) return;
+  light.enabled = on;
+  light.behavior.setEnabled?.(on);
+}
+
+/** Changes the color of the light component of an object (`#rrggbb`). */
+export function setLightColor(target: GameObject | null, color: string): void {
+  const light = target?.findComponent('light');
+  if (!light) return;
+  light.values = { ...light.values, color } as never;
+  light.behavior.apply(resolveValues(light.definition, light.values));
+}

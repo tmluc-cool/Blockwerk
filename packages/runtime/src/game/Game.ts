@@ -37,6 +37,8 @@ import { CameraTransitions } from '../camera/transitions';
 import { animatorRegistry } from '../components/animator';
 import { controlRegistry } from '../components/controls';
 import * as gameplay from './gameplayApi';
+import { isWeatherType } from '../environment/Weather';
+import { currentQuality, isQualityName, setQuality } from '../rendering/quality';
 import type { GameViews } from '../camera/transitions';
 
 /** Length of one logic tick in seconds (fixed 60 Hz, SPEC 8.1). */
@@ -352,6 +354,7 @@ export class Game implements GameApi {
     this.tickComponents('camera');
     this.transitions.update(this.world, TICK_SECONDS);
     this.tick += 1;
+    this.world.environment.advance(TICK_SECONDS);
     this.world.updateSun();
   }
 
@@ -814,6 +817,69 @@ export class Game implements GameApi {
 
   staminaPercent(self: GameObject): number {
     return gameplay.staminaPercent(self);
+  }
+
+  setTimeOfDay(hours: number): void {
+    this.world.environment.setTimeOfDay(hours);
+  }
+
+  timeOfDay(): number {
+    return this.world.environment.timeOfDay ?? 12;
+  }
+
+  /** Lets the time run `factor` times faster than real time (1 = a real day, 0 = stands still). */
+  setTimeSpeed(factor: number): void {
+    const hours = this.world.environment.timeOfDay ?? 12;
+    this.world.environment.setClock({
+      timeOfDay: hours,
+      dayLength: factor > 0 ? 86400 / factor : 0,
+      sunAzimuth: 0,
+    });
+  }
+
+  /** Changes the weather; it fades over `seconds` (the strength stays as set before). */
+  setWeather(type: string, seconds: number): void {
+    if (!isWeatherType(type)) return;
+    const current = this.world.environment.weather.state;
+    const intensity = type === 'clear' ? 0 : current.intensity > 0 ? current.intensity : 0.85;
+    this.world.environment.setWeather({ ...current, type, intensity }, seconds <= 0, seconds);
+  }
+
+  weather(): string {
+    return this.world.environment.weather.state.type;
+  }
+
+  setWind(speed: number, direction: number): void {
+    const current = this.world.environment.weather.state;
+    this.world.environment.setWeather(
+      { ...current, windSpeed: Math.max(0, speed), windDirection: direction },
+      false,
+      0.5,
+    );
+  }
+
+  setFogDensity(percent: number): void {
+    this.world.environment.setFogDensity(percent / 100);
+  }
+
+  setSunBrightness(percent: number): void {
+    this.world.environment.setSunBrightness(percent / 100);
+  }
+
+  setLightEnabled(self: GameObject, ref: ObjectRef, on: boolean): void {
+    gameplay.setLightEnabled(this.find(self, ref), on);
+  }
+
+  setLightColor(self: GameObject, ref: ObjectRef, color: string): void {
+    gameplay.setLightColor(this.find(self, ref), color);
+  }
+
+  setGraphicsLevel(level: string): void {
+    if (isQualityName(level)) setQuality(level);
+  }
+
+  graphicsLevel(): string {
+    return currentQuality();
   }
 
   switchCamera(view: string): void {

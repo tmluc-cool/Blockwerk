@@ -69,6 +69,8 @@ export class World {
     this.batcher = new InstanceBatcher(this.scene);
     this.data = { ...data, objects: {} };
     this.sync(data);
+    // Sky, fog and weather of the scene apply from the start, not only when they change.
+    this.applyEnvironment();
   }
 
   /** The scene data the world currently shows. */
@@ -207,7 +209,7 @@ export class World {
   claimSun(owner: GameObject): boolean {
     if (this.sunOwner && this.sunOwner !== owner) return false;
     this.sunOwner = owner;
-    this.environment.sun.visible = true;
+    this.environment.setSunVisible(true);
     return true;
   }
 
@@ -215,20 +217,22 @@ export class World {
   releaseSun(owner: GameObject): void {
     if (this.sunOwner !== owner) return;
     this.sunOwner = null;
-    this.environment.sun.visible = false;
+    this.environment.setSunVisible(false);
   }
 
   /** Follows the sun object's rotation. Call before rendering. */
   updateSun(): void {
     const owner = this.sunOwner;
     if (!owner) {
-      this.environment.sun.visible = false;
+      this.environment.setSunVisible(false);
       return;
     }
+    this.environment.setSunVisible(owner.activeInHierarchy);
+    // With a day cycle the clock places the sun; the object only gives its color and strength.
+    if (this.environment.clockDriven) return;
     owner.object3d.updateWorldMatrix(true, false);
     const shining = FORWARD.clone().transformDirection(owner.object3d.matrixWorld);
     this.environment.setSunDirection(shining.negate());
-    this.environment.sun.visible = owner.activeInHierarchy;
   }
 
   /** Brings everything that is derived per frame up to date (sun, instancing). Call before rendering. */
@@ -393,5 +397,19 @@ export class World {
     const environment = this.data.environment;
     this.environment.setAmbientIntensity(environment.ambientIntensity);
     this.environment.setFog(environment.fog.enabled, environment.fog.near, environment.fog.far);
+    this.environment.setClock(
+      environment.sky
+        ? {
+            timeOfDay: environment.sky.timeOfDay,
+            dayLength: environment.sky.dayLength,
+            sunAzimuth: environment.sky.sunAzimuth,
+          }
+        : null,
+    );
+    const weather = environment.weather;
+    this.environment.setWeather(
+      weather ? { ...weather } : { type: 'clear', intensity: 0, windSpeed: 0, windDirection: 0 },
+      true,
+    );
   }
 }

@@ -12,6 +12,18 @@ import {
   whenAbility,
 } from './character';
 import {
+  setFogDensity,
+  setGraphicsLevel,
+  setLight,
+  setLightColor,
+  setSunBrightness,
+  setTimeOfDay,
+  setTimeSpeed,
+  setWeather,
+  setWind,
+  timeOfDay,
+} from './environment';
+import {
   createClone,
   spawnPrefab,
   destroy,
@@ -162,6 +174,17 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   shakeCamera,
   playCameraPath,
   setFieldOfView,
+  // Environment
+  setTimeOfDay,
+  setTimeSpeed,
+  timeOfDay,
+  setWeather,
+  setWind,
+  setFogDensity,
+  setSunBrightness,
+  setLight,
+  setLightColor,
+  setGraphicsLevel,
   // Physics
   push,
   setVelocity,

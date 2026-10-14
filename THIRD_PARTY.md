@@ -29,7 +29,9 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `globals` | 17.13.0 | MIT | development | (root) |
 | `lucide-react` | 1.56.0 | ISC | runtime | apps/editor |
 | `meshoptimizer` | 1.3.0 | MIT | development | packages/library |
+| `n8ao` | 2.0.1 | ISC | runtime | packages/runtime |
 | `playwright` | 1.56.1 | Apache-2.0 | development | packages/library |
+| `postprocessing` | 6.39.5 | Zlib | runtime | packages/runtime |
 | `prettier` | 3.9.10 | MIT | development | (root) |
 | `react` | 19.3.0 | MIT | runtime | apps/editor |
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
@@ -80,7 +82,9 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `lru-cache` | 11.5.3 | BlueOak-1.0.0 |
 | `lucide-react` | 1.56.0 | ISC |
 | `mdn-data` | 2.27.1 | CC0-1.0 |
+| `n8ao` | 2.0.1 | ISC |
 | `parse5` | 8.0.1 | MIT |
+| `postprocessing` | 6.39.5 | Zlib |
 | `punycode` | 2.3.1 | MIT |
 | `react` | 19.3.0 | MIT |
 | `react-dom` | 19.3.0 | MIT |

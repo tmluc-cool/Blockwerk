@@ -121,3 +121,13 @@ export type {
   PlayerBindings,
   RawInput,
 } from './game/actions';
+
+export type { SkyClock } from './environment/Environment';
+export {
+  CLEAR_WEATHER,
+  isWeatherType,
+  WEATHER_TYPES,
+  weatherLook,
+  Weather,
+} from './environment/Weather';
+export type { WeatherLook, WeatherState, WeatherType } from './environment/Weather';

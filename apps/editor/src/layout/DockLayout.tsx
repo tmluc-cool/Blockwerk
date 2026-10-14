@@ -9,6 +9,7 @@ import { FigurePanel } from '../panels/FigurePanel';
 import { GamePanel } from '../panels/GamePanel';
 import { HierarchyPanel } from '../panels/HierarchyPanel';
 import { InspectorPanel } from '../panels/InspectorPanel';
+import { LightingPanel } from '../panels/LightingPanel';
 import { ProjectPanel } from '../panels/ProjectPanel';
 import { ScenePanel } from '../panels/ScenePanel';
 import { installShortcuts } from '../shortcuts';
@@ -27,6 +28,7 @@ const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPane
   game: GamePanel,
   blockEditor: BlockEditorPanel,
   inspector: InspectorPanel,
+  lighting: LightingPanel,
   project: ProjectPanel,
   assetLibrary: AssetLibraryPanel,
   console: ConsolePanel,

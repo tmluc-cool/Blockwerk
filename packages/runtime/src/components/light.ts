@@ -1,4 +1,4 @@
-import { Color, DirectionalLight, PointLight, SpotLight } from 'three';
+import { DirectionalLight, PointLight, SpotLight } from 'three';
 import type { Light as ThreeLight } from 'three';
 import { defineComponent } from './defineComponent';
 
@@ -82,8 +82,7 @@ export const light = defineComponent({
         if (values.lightType === 'directional' && world.claimSun(object)) {
           isSun = true;
           const sun = world.environment.sun;
-          sun.color = new Color(values.color);
-          sun.intensity = enabled ? values.intensity : 0;
+          world.environment.setSunLight(values.color, enabled ? values.intensity : 0);
           sun.castShadow = values.castShadows;
           return;
         }
@@ -118,7 +117,7 @@ export const light = defineComponent({
       setEnabled(value: boolean) {
         enabled = value;
         if (own) own.visible = value;
-        if (isSun) world.environment.sun.visible = value;
+        if (isSun) world.environment.setSunVisible(value);
       },
       destroy: release,
     };

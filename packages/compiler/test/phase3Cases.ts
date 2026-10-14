@@ -30,8 +30,8 @@ export interface RuntimeCase {
   readonly run: () => void | Promise<void>;
 }
 
-const A = 'varaaaaaaaaa';
-const B = 'varbbbbbbbbb';
+export const A = 'varaaaaaaaaa';
+export const B = 'varbbbbbbbbb';
 const VARIABLES: VariableData[] = [
   { id: A, name: 'A', type: 'number', scope: 'game', default: 0, inspector: false },
   { id: B, name: 'B', type: 'string', scope: 'game', default: '', inspector: false },
@@ -39,7 +39,12 @@ const VARIABLES: VariableData[] = [
 
 type Vec = [number, number, number];
 
-function object(name: string, position: Vec, components: SceneObjectData['components'], more = {}) {
+export function object(
+  name: string,
+  position: Vec,
+  components: SceneObjectData['components'],
+  more = {},
+) {
   return {
     name,
     parent: null,
@@ -54,11 +59,15 @@ function object(name: string, position: Vec, components: SceneObjectData['compon
   } satisfies SceneObjectData;
 }
 
-function component(type: string, values: Record<string, unknown> = {}, id = type.slice(0, 10)) {
+export function component(
+  type: string,
+  values: Record<string, unknown> = {},
+  id = type.slice(0, 10),
+) {
   return { id: id.padEnd(12, '0').slice(0, 12), type, enabled: true, values } as never;
 }
 
-const ground = object('Ground', [0, -0.5, 0], [component('boxCollider', {}, 'groundcol')], {
+export const ground = object('Ground', [0, -0.5, 0], [component('boxCollider', {}, 'groundcol')], {
   transform: { position: [0, -0.5, 0], rotation: [0, 0, 0], scale: [60, 1, 60] },
 });
 
@@ -91,13 +100,13 @@ function scripted(
   );
 }
 
-interface Scene {
+export interface Scene {
   readonly objects: Record<string, SceneObjectData>;
   readonly scripts: Record<string, unknown>;
   readonly models?: ModelCache;
 }
 
-function launch(scene: Scene): Game {
+export function launch(scene: Scene): Game {
   const assets = new Map(
     Object.entries(scene.scripts).map(([id, source]) => [id, script(id, source)]),
   );
@@ -111,17 +120,17 @@ function launch(scene: Scene): Game {
   );
 }
 
-function run(game: Game, seconds: number): void {
+export function run(game: Game, seconds: number): void {
   for (let i = 0; i < Math.round(seconds * 60); i++) game.stepTick();
 }
 
-function get(game: Game, id: string): GameObject {
+export function get(game: Game, id: string): GameObject {
   const found = game.world.getObject(id);
   if (!found) throw new Error(`missing ${id}`);
   return found;
 }
 
-const hero = (components: SceneObjectData['components'] = [], asset = 'hero') =>
+export const hero = (components: SceneObjectData['components'] = [], asset = 'hero') =>
   scripted(
     'Hero',
     [0, 0, 0],
@@ -133,7 +142,7 @@ const hero = (components: SceneObjectData['components'] = [], asset = 'hero') =>
     asset,
   );
 
-const when = (hat: TestBlock, ...blocks: TestBlock[]): TestBlock[] => [hat, ...blocks];
+export const when = (hat: TestBlock, ...blocks: TestBlock[]): TestBlock[] => [hat, ...blocks];
 
 export const phase3Cases: RuntimeCase[] = [
   {

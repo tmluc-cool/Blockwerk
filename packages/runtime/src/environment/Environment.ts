@@ -1,6 +1,9 @@
 import {
+  BufferAttribute,
+  BufferGeometry,
   Color,
   DirectionalLight,
+  HemisphereLight,
   Fog,
   Group,
   MathUtils,
@@ -8,12 +11,17 @@ import {
   MeshStandardMaterial,
   PlaneGeometry,
   PMREMGenerator,
+  Points,
+  PointsMaterial,
   Scene,
   Vector3,
 } from 'three';
 import type { Camera, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { createGroundTexture } from './groundTexture';
+import { qualitySettings } from '../rendering/quality';
+import { Weather, weatherLook } from './Weather';
+import type { WeatherState } from './Weather';
 
 /** Options for {@link Environment}. All values have defaults that look good out of the box. */
 export interface EnvironmentOptions {
@@ -40,8 +48,33 @@ const DEFAULTS: Required<EnvironmentOptions> = {
   fog: { near: 60, far: 650 },
 };
 
-/** Color of the distance fog, matched to the sky near the horizon. */
+/** Color of the distance fog by day, matched to the sky near the horizon. */
 const FOG_COLOR = new Color(0.66, 0.74, 0.83);
+const FOG_DUSK = new Color(0.93, 0.6, 0.42);
+const FOG_NIGHT = new Color(0.025, 0.035, 0.075);
+const FOG_GLOOM = new Color(0.5, 0.53, 0.57);
+const SUN_WARM = new Color(0xff9150);
+
+/** The sun's highest point over the horizon at noon, in degrees. */
+const NOON_ELEVATION = 72;
+
+/** Sun movement (radians) after which the ambient light is baked again while a clock runs. */
+const CLOCK_REBAKE_ANGLE = 0.06;
+
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  const t = MathUtils.clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+/** The day cycle of a scene: hour of the day, length of a day in seconds, compass offset. */
+export interface SkyClock {
+  /** Hour of the day, 0 to 24 (12 = noon). */
+  readonly timeOfDay: number;
+  /** Seconds a whole day takes; 0 stops the clock. */
+  readonly dayLength: number;
+  /** Turns the sun's path around the vertical axis, in degrees. */
+  readonly sunAzimuth: number;
+}
 
 /** Strength of the ambient light baked from the sky, relative to the sun. */
 const ENVIRONMENT_INTENSITY = 0.32;
@@ -68,6 +101,12 @@ export class Environment {
   readonly root = new Group();
   readonly sky: Sky;
   readonly sun: DirectionalLight;
+  /** The moon: a weak bluish light that replaces the sun at night. */
+  readonly moon: DirectionalLight;
+  /** Dim sky fill that keeps dusk and night readable. */
+  private readonly nightFill: HemisphereLight;
+  readonly stars: Points<BufferGeometry, PointsMaterial>;
+  readonly weather = new Weather();
   readonly ground: Mesh<PlaneGeometry, MeshStandardMaterial> | null;
 
   private readonly options: Required<EnvironmentOptions>;
@@ -86,6 +125,16 @@ export class Environment {
   private lightingSource: Environment | null = null;
   private ambientIntensity = ENVIRONMENT_INTENSITY;
   private scene: Scene | null = null;
+  private clock: { hours: number; dayLength: number; azimuth: number } | null = null;
+  private readonly sunBase = { color: new Color(0xfff1de), intensity: 4.6, visible: true };
+  private fogBase: { enabled: boolean; near: number; far: number } = {
+    enabled: true,
+    near: 60,
+    far: 650,
+  };
+  private daylight = 1;
+  private sunScale = 1;
+  private lastPrepare = 0;
 
   constructor(options: EnvironmentOptions = {}) {
     this.options = { ...DEFAULTS, ...options };
@@ -121,6 +170,45 @@ export class Environment {
     shadow.camera.far = SUN_DISTANCE * 2.5;
     this.root.add(this.sun, this.sun.target);
 
+    this.moon = new DirectionalLight(0x8fa8ff, 0);
+    this.moon.name = 'Moon';
+    this.moon.castShadow = false;
+    this.nightFill = new HemisphereLight(0x6f84c4, 0x1d2233, 0);
+    this.nightFill.name = 'NightFill';
+    this.root.add(this.moon, this.moon.target, this.nightFill);
+
+    const starPositions = new Float32Array(1400 * 3);
+    let seed = 11;
+    const rand = (): number => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 0x100000000;
+    };
+    for (let i = 0; i < 1400; i++) {
+      // Uniform points on the upper sphere, far away.
+      const z = rand() * 0.98 + 0.02;
+      const angle = rand() * Math.PI * 2;
+      const r = Math.sqrt(1 - z * z);
+      starPositions.set([Math.cos(angle) * r * 1800, z * 1800, Math.sin(angle) * r * 1800], i * 3);
+    }
+    const starGeometry = new BufferGeometry();
+    starGeometry.setAttribute('position', new BufferAttribute(starPositions, 3));
+    this.stars = new Points(
+      starGeometry,
+      new PointsMaterial({
+        color: 0xffffff,
+        size: 1.6,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        fog: false,
+      }),
+    );
+    this.stars.frustumCulled = false;
+    this.stars.visible = false;
+    this.stars.name = 'Stars';
+    this.root.add(this.stars, this.weather.root);
+
     if (this.options.groundSize > 0) {
       const size = this.options.groundSize;
       const texture = createGroundTexture();
@@ -135,6 +223,9 @@ export class Environment {
       this.ground = null;
     }
 
+    this.fogBase = this.options.fog
+      ? { enabled: true, ...this.options.fog }
+      : { ...this.fogBase, enabled: false };
     this.setSun(this.options.sunElevation, this.options.sunAzimuth);
   }
 
@@ -142,10 +233,12 @@ export class Environment {
   addTo(scene: Scene): void {
     this.scene = scene;
     scene.add(this.root);
-    const fog = this.options.fog;
-    scene.fog = fog ? new Fog(FOG_COLOR, fog.near, fog.far) : null;
+    scene.fog = this.fogBase.enabled
+      ? new Fog(FOG_COLOR, this.fogBase.near, this.fogBase.far)
+      : null;
     const first = this.baked.values().next();
     if (!first.done) scene.environment = first.value.target.texture;
+    this.applyLighting();
   }
 
   /** Places the sun. Elevation and azimuth are in degrees. */
@@ -210,18 +303,25 @@ export class Environment {
   prepare(renderer: WebGLRenderer, camera: Camera): void {
     if (!this.baked.has(renderer)) {
       const shared = this.lightingSource?.baked.get(renderer);
-      if (shared && shared.sunDirection.angleTo(this.sunDirection) <= SUN_REBAKE_ANGLE) {
+      if (shared && shared.sunDirection.angleTo(this.sunDirection) <= this.rebakeAngle()) {
         this.baked.set(renderer, { ...shared, borrowed: true });
       }
     }
     const baked = this.baked.get(renderer);
-    if (!baked || baked.sunDirection.angleTo(this.sunDirection) > SUN_REBAKE_ANGLE) {
+    if (!baked || baked.sunDirection.angleTo(this.sunDirection) > this.rebakeAngle()) {
       this.bakeLighting(renderer);
     } else if (this.scene) {
       this.scene.environment = baked.target.texture;
       this.scene.environmentIntensity = this.ambientIntensity;
     }
     this.update(camera);
+    // The weather moves with the real time between two frames.
+    const now = performance.now();
+    const dt = this.lastPrepare > 0 ? Math.min(0.1, (now - this.lastPrepare) / 1000) : 0;
+    this.lastPrepare = now;
+    this.weather.setDensity(qualitySettings().particleDensity);
+    this.weather.update(dt, camera);
+    this.applyLighting();
   }
 
   /** Frees the lighting baked for a renderer that is no longer used. */
@@ -264,30 +364,94 @@ export class Environment {
     this.updateSunPosition();
   }
 
-  /** Turns distance fog on or off and sets its range in meters. */
+  /** Turns distance fog on or off and sets its range in meters (before weather and time of day). */
   setFog(enabled: boolean, near: number, far: number): void {
-    if (!this.scene) return;
-    if (!enabled) {
-      this.scene.fog = null;
-      return;
-    }
-    if (this.scene.fog instanceof Fog) {
-      this.scene.fog.near = near;
-      this.scene.fog.far = far;
-    } else {
-      this.scene.fog = new Fog(FOG_COLOR, near, far);
-    }
+    this.fogBase = { enabled, near, far };
+    this.applyLighting();
   }
 
   /** Sets the strength of the ambient light baked from the sky. */
   setAmbientIntensity(intensity: number): void {
     this.ambientIntensity = intensity;
-    if (this.scene) this.scene.environmentIntensity = intensity;
+    this.applyLighting();
+  }
+
+  /** Sets the color and strength of the sun at noon (the light component of the sun). */
+  setSunLight(color: Color | string | number, intensity: number): void {
+    this.sunBase.color = new Color(color);
+    this.sunBase.intensity = intensity;
+    this.applyLighting();
+  }
+
+  /** Scales the sun's strength (1 = as set by its light, 0 = off). */
+  setSunBrightness(scale: number): void {
+    this.sunScale = Math.max(0, scale);
+    this.applyLighting();
+  }
+
+  /** Fog thickness from 0 (none) to 1 (very thick): the range gets shorter the thicker it is. */
+  setFogDensity(density: number): void {
+    const d = MathUtils.clamp(density, 0, 1);
+    this.setFog(d > 0, 8, 25 + (1 - d) * (1 - d) * 1975);
+  }
+
+  /** Shows or hides the sun (its light component is switched off or removed). */
+  setSunVisible(visible: boolean): void {
+    this.sunBase.visible = visible;
+    this.applyLighting();
+  }
+
+  /**
+   * Starts the day cycle (time of day, day length, compass offset) and lets it drive the sun,
+   * the moon, the stars, the ambient light and the fog. `null` goes back to a sun that is
+   * placed by hand (the rotation of the sun object).
+   */
+  setClock(clock: SkyClock | null): void {
+    this.clock = clock
+      ? {
+          hours: ((clock.timeOfDay % 24) + 24) % 24,
+          dayLength: clock.dayLength,
+          azimuth: clock.sunAzimuth,
+        }
+      : null;
+    this.applyClock();
+  }
+
+  /** Whether the day cycle places the sun. */
+  get clockDriven(): boolean {
+    return this.clock !== null;
+  }
+
+  /** Hour of the day (0..24), or `null` without a day cycle. */
+  get timeOfDay(): number | null {
+    return this.clock ? this.clock.hours : null;
+  }
+
+  /** Sets the hour of the day (starts the day cycle with a frozen clock if there is none). */
+  setTimeOfDay(hours: number): void {
+    const wrapped = ((hours % 24) + 24) % 24;
+    if (this.clock) this.clock.hours = wrapped;
+    else this.clock = { hours: wrapped, dayLength: 0, azimuth: 0 };
+    this.applyClock();
+  }
+
+  /** Moves the clock on by seconds of game time (does nothing when the day length is 0). */
+  advance(dt: number): void {
+    if (!this.clock || this.clock.dayLength <= 0) return;
+    this.clock.hours = (this.clock.hours + (dt * 24) / this.clock.dayLength) % 24;
+    this.applyClock();
+  }
+
+  /** Changes the weather (it fades in over a few seconds unless `instant`). */
+  setWeather(state: WeatherState, instant = false, seconds = 3): void {
+    this.weather.set(state, instant, seconds);
+    this.applyLighting();
   }
 
   /** Keeps the sky centered on the camera. Call before rendering. */
   update(camera: Camera): void {
     this.sky.position.copy(camera.position);
+    this.stars.position.copy(camera.position);
   }
 
   /** Releases GPU resources owned by the environment. */
@@ -297,6 +461,9 @@ export class Environment {
     this.lightingSource = null;
     this.sky.geometry.dispose();
     this.sky.material.dispose();
+    this.stars.geometry.dispose();
+    this.stars.material.dispose();
+    this.weather.dispose();
     this.sun.shadow.map?.dispose();
     if (this.ground) {
       this.ground.geometry.dispose();
@@ -308,6 +475,73 @@ export class Environment {
       this.scene.environment = null;
       this.scene.fog = null;
       this.scene = null;
+    }
+  }
+
+  private rebakeAngle(): number {
+    return this.clock && this.clock.dayLength > 0 ? CLOCK_REBAKE_ANGLE : SUN_REBAKE_ANGLE;
+  }
+
+  /** Puts the sun where the clock says and updates everything that depends on it. */
+  private applyClock(): void {
+    const clock = this.clock;
+    if (clock) {
+      const elevation = NOON_ELEVATION * Math.sin(((clock.hours - 6) * Math.PI) / 12);
+      this.setSun(elevation, 90 + (clock.hours - 6) * 15 + clock.azimuth);
+    }
+    this.applyLighting();
+  }
+
+  /**
+   * Sun, moon, stars, ambient light and fog from the time of day and the weather. Cheap enough
+   * to run every frame.
+   */
+  private applyLighting(): void {
+    const look = weatherLook(this.weather.current());
+    const sinElevation = this.sunDirection.y;
+    // Without a clock the sun stays as it is placed.
+    const day = this.clock ? smoothstep(-0.2, 0.2, sinElevation) : 1;
+    const warm = this.clock ? 1 - smoothstep(0, 0.4, sinElevation) : 0;
+    this.daylight = day;
+    this.sun.color.copy(this.sunBase.color).lerp(SUN_WARM, warm * 0.65 * day);
+    this.sun.intensity = this.sunBase.intensity * this.sunScale * day * look.sun;
+    this.sun.visible = this.sunBase.visible && (day > 0.001 || !this.clock);
+    // The moon shines from the opposite side of the sky.
+    const night = 1 - day;
+    this.moon.visible = this.clock !== null && night > 0.01;
+    this.moon.intensity = 1.6 * night * (1 - 0.5 * look.gloom);
+    // Dim sky light so dusk and night stay readable; the baked sky alone is nearly black.
+    this.nightFill.intensity = 1.1 * night * (1 - 0.3 * look.gloom);
+    this.nightFill.visible = this.clock !== null && night > 0.01;
+    this.moon.position
+      .copy(this.sun.target.position)
+      .addScaledVector(this.sunDirection, -SUN_DISTANCE);
+    this.moon.target.position.copy(this.sun.target.position);
+    this.moon.target.updateMatrixWorld();
+    this.moon.updateMatrixWorld();
+    const starMaterial = this.stars.material;
+    starMaterial.opacity = night * (1 - look.gloom);
+    this.stars.visible = this.clock !== null && starMaterial.opacity > 0.01;
+    // Sky: the clouds follow the weather.
+    setUniform(this.sky.material.uniforms, 'cloudCoverage', look.clouds);
+    const ambient = this.ambientIntensity * (0.32 + 0.68 * day) * (1 - 0.25 * look.gloom);
+    if (this.scene) {
+      this.scene.environmentIntensity = ambient;
+      const fog = this.fogBase;
+      if (!fog.enabled && look.visibility >= 1) {
+        this.scene.fog = null;
+      } else {
+        const near = (fog.enabled ? fog.near : 400) * look.visibility;
+        const far = (fog.enabled ? fog.far : 2000) * look.visibility;
+        if (!(this.scene.fog instanceof Fog)) this.scene.fog = new Fog(FOG_COLOR, near, far);
+        this.scene.fog.near = near;
+        this.scene.fog.far = far;
+        this.scene.fog.color
+          .copy(FOG_NIGHT)
+          .lerp(FOG_COLOR, day)
+          .lerp(FOG_DUSK, warm * 0.55 * day)
+          .lerp(FOG_GLOOM, look.gloom * (0.25 + 0.75 * day));
+      }
     }
   }
 

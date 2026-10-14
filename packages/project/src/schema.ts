@@ -112,6 +112,27 @@ export const environmentSchema = z.object({
   fog: z.object({ enabled: z.boolean(), near: z.number(), far: z.number() }),
   /** Gravity in m/s² (default Earth gravity straight down). */
   gravity: vec3Schema.optional(),
+  /**
+   * Day cycle: hour of the day, seconds a day takes (0 = the clock stands still) and a compass
+   * offset of the sun's path. Without it the sun object's rotation places the sun. Optional so
+   * existing scenes stay byte-identical.
+   */
+  sky: z
+    .object({
+      timeOfDay: z.number().min(0).max(24),
+      dayLength: z.number().min(0),
+      sunAzimuth: z.number(),
+    })
+    .optional(),
+  /** Weather at the start of the scene. */
+  weather: z
+    .object({
+      type: z.enum(['clear', 'rain', 'snow', 'fog']),
+      intensity: z.number().min(0).max(1),
+      windSpeed: z.number().min(0),
+      windDirection: z.number(),
+    })
+    .optional(),
 });
 /** Sky, ambient light and fog of a scene. The sun is a light component on an object. */
 export type EnvironmentData = z.infer<typeof environmentSchema>;

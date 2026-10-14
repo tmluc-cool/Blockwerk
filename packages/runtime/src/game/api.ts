@@ -106,6 +106,20 @@ export interface GameApi {
   staminaPercent(self: GameObject): number;
 
   // Camera (SPEC 8.6)
+  // Environment and graphics (SPEC 8.9, 8.3)
+  setTimeOfDay(hours: number): void;
+  timeOfDay(): number;
+  setTimeSpeed(factor: number): void;
+  setWeather(type: string, seconds: number): void;
+  weather(): string;
+  setWind(speed: number, direction: number): void;
+  setFogDensity(percent: number): void;
+  setSunBrightness(percent: number): void;
+  setLightEnabled(self: GameObject, ref: ObjectRef, on: boolean): void;
+  setLightColor(self: GameObject, ref: ObjectRef, color: string): void;
+  setGraphicsLevel(level: string): void;
+  graphicsLevel(): string;
+
   switchCamera(view: string): void;
   switchCameraTo(self: GameObject, ref: ObjectRef): void;
   setCameraDistance(self: GameObject, distance: number): void;

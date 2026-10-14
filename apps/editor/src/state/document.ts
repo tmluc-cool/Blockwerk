@@ -770,3 +770,24 @@ export function setSceneGravity(y: number): void {
     'scene-gravity',
   );
 }
+
+/** Changes the environment of the open scene (sky, fog, weather, ambient light) with undo. */
+export function setEnvironment(
+  patch: Partial<SceneData['environment']>,
+  mergeKey = 'environment',
+): void {
+  editScene(
+    'undo.lighting',
+    (scene) => ({ ...scene, environment: { ...scene.environment, ...patch } }),
+    mergeKey,
+  );
+}
+
+/** Sets the graphics level new games of the project start with (`null` = none chosen). */
+export function setProjectGraphicsLevel(level: 'low' | 'medium' | 'high' | 'ultra' | null): void {
+  const { project } = useDocument.getState();
+  if (!project) return;
+  const { graphicsLevel: _before, ...rest } = project.settings;
+  project.settings = level ? { ...rest, graphicsLevel: level } : rest;
+  assetsChanged();
+}

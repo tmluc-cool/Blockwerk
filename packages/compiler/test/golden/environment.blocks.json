@@ -1,0 +1,184 @@
+{
+  "variables": [
+    {
+      "id": "vartime00000",
+      "name": "Zeit",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "en-3",
+          "next": {
+            "block": {
+              "type": "environment.setTimeOfDay",
+              "id": "en-5",
+              "inputs": {
+                "hours": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "en-4",
+                    "fields": {
+                      "NUM": 21.5
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "environment.setTimeSpeed",
+                  "id": "en-7",
+                  "inputs": {
+                    "factor": {
+                      "shadow": {
+                        "type": "literal.number",
+                        "id": "en-6",
+                        "fields": {
+                          "NUM": 720
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "environment.setWeather",
+                      "id": "en-9",
+                      "fields": {
+                        "weather": "rain"
+                      },
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "type": "literal.number",
+                            "id": "en-8",
+                            "fields": {
+                              "NUM": 5
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "environment.setWind",
+                          "id": "en-12",
+                          "inputs": {
+                            "speed": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "en-10",
+                                "fields": {
+                                  "NUM": 6
+                                }
+                              }
+                            },
+                            "direction": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "en-11",
+                                "fields": {
+                                  "NUM": 90
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "environment.setFogDensity",
+                              "id": "en-14",
+                              "inputs": {
+                                "percent": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "en-13",
+                                    "fields": {
+                                      "NUM": 30
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "environment.setSunBrightness",
+                                  "id": "en-16",
+                                  "inputs": {
+                                    "percent": {
+                                      "shadow": {
+                                        "type": "literal.number",
+                                        "id": "en-15",
+                                        "fields": {
+                                          "NUM": 60
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "environment.setLight",
+                                      "id": "en-17",
+                                      "fields": {
+                                        "target": "self",
+                                        "state": "off"
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "environment.setLightColor",
+                                          "id": "en-18",
+                                          "fields": {
+                                            "target": "self",
+                                            "color": "#FFB35C"
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "environment.setGraphicsLevel",
+                                              "id": "en-19",
+                                              "fields": {
+                                                "level": "medium"
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "variables.set",
+                                                  "id": "en-2",
+                                                  "fields": {
+                                                    "variable": {
+                                                      "id": "vartime00000"
+                                                    }
+                                                  },
+                                                  "inputs": {
+                                                    "value": {
+                                                      "block": {
+                                                        "type": "environment.timeOfDay",
+                                                        "id": "en-1"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 40,
+          "y": 40
+        }
+      ]
+    }
+  }
+}
