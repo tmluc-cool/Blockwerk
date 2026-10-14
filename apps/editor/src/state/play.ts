@@ -1,5 +1,5 @@
 import { compileBlockScript, CompileError } from '@blockwerk/compiler';
-import { assetDisplayName } from '@blockwerk/project';
+import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SceneData } from '@blockwerk/project';
 import { Game, loadScriptModule } from '@blockwerk/runtime';
 import type { GameLogEntry, ScriptAsset, VariableMonitor, World } from '@blockwerk/runtime';
@@ -16,7 +16,7 @@ import {
   worldUpdated,
 } from '../scene/worlds';
 import { useConsole } from './console';
-import { editScene, useDocument } from './document';
+import { editScene, prefabSource, useDocument } from './document';
 
 /** A value changed while playing that can be kept after stopping. */
 export interface PlayChange {
@@ -169,6 +169,13 @@ function logGame(entry: GameLogEntry): void {
       },
     );
     if (log.errorPause && usePlay.getState().status === 'playing') pause();
+  } else if (entry.kind === 'missingPrefab') {
+    log.log(
+      'warning',
+      'console.game.missingPrefab',
+      { object: entry.objectName, asset: entry.assetId ?? '–' },
+      { objectId: entry.objectId },
+    );
   } else {
     log.log(
       'warning',
@@ -225,6 +232,7 @@ export function play(): void {
     displayName: defaultObjectName,
     models: editorModels,
     onModelLoaded: worldUpdated,
+    prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
   });
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
   game.world.updateSun();

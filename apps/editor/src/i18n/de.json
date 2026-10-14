@@ -385,5 +385,7 @@
   "myPrefabs.imported": "„{name}“ aus „Meine Prefabs“ übernommen ({files} Dateien).",
   "myPrefabs.empty": "Noch keine eigenen Prefabs. Rechtsklick auf ein Prefab im Projekt-Fenster: „Zu ‚Meine Prefabs‘ hinzufügen“.",
   "myPrefabs.remove": "Aus „Meine Prefabs“ entfernen",
-  "myPrefabs.files": "{n} Dateien"
+  "myPrefabs.files": "{n} Dateien",
+  "reference.choosePrefab": "(Prefab wählen)",
+  "console.game.missingPrefab": "„{object}“: Prefab fehlt ({asset})."
 }
