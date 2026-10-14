@@ -1,4 +1,4 @@
-import type { Group } from 'three';
+import { Box3, Group, Vector3 } from 'three';
 import type { AnimationClip, Object3D } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
@@ -11,8 +11,23 @@ export interface ModelTemplate {
   readonly skinned: boolean;
 }
 
-/** Where models come from: a model reference (`library:<id>` or a project asset ID) to a URL. */
-export type ModelUrlResolver = (ref: string) => string | null;
+/** Where a model file is and how it is placed (import settings of project models). */
+export interface ModelSource {
+  /** URL of the GLB file (http, blob or data). */
+  readonly url: string;
+  /** Uniform scale to meters (default 1). */
+  readonly scale?: number;
+  /** Where the origin goes: bottom center, center of the bounds, or as in the file (default). */
+  readonly pivot?: 'bottom' | 'center' | 'original';
+}
+
+/**
+ * Where models come from: a model reference (`library:<id>` or a project asset ID) to a URL or
+ * a {@link ModelSource}, or `null` if there is no such model.
+ */
+export type ModelUrlResolver = (
+  ref: string,
+) => string | ModelSource | null | Promise<string | ModelSource | null>;
 
 /**
  * Loads GLB models once and hands out copies. Copies of static models share geometry and
@@ -31,29 +46,16 @@ export class ModelCache {
   load(ref: string): Promise<ModelTemplate | null> {
     let template = this.templates.get(ref);
     if (!template) {
-      const url = this.resolve(ref);
-      template = url
-        ? this.fetchModel(url).then(
-            (gltf) => {
-              let skinned = false;
-              gltf.scene.traverse((node) => {
-                if ((node as { isSkinnedMesh?: boolean }).isSkinnedMesh) skinned = true;
-              });
-              const loaded: ModelTemplate = {
-                scene: gltf.scene,
-                animations: gltf.animations,
-                skinned,
-              };
-              this.loaded.set(ref, loaded);
-              return loaded;
-            },
-            () => {
-              this.loaded.set(ref, null);
-              return null;
-            },
-          )
-        : Promise.resolve(null);
-      if (!url) this.loaded.set(ref, null);
+      template = this.fetchTemplate(ref).then(
+        (loaded) => {
+          this.loaded.set(ref, loaded);
+          return loaded;
+        },
+        () => {
+          this.loaded.set(ref, null);
+          return null;
+        },
+      );
       this.templates.set(ref, template);
     }
     return template;
@@ -73,14 +75,44 @@ export class ModelCache {
     this.loaded.delete(ref);
   }
 
-  private async fetchModel(url: string) {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Model ${url}: HTTP ${response.status}`);
-    return this.loader.parseAsync(await response.arrayBuffer(), '');
+  private async fetchTemplate(ref: string): Promise<ModelTemplate | null> {
+    const resolved = await this.resolve(ref);
+    if (!resolved) return null;
+    const source: ModelSource = typeof resolved === 'string' ? { url: resolved } : resolved;
+    const response = await fetch(source.url);
+    if (!response.ok) throw new Error(`Model ${source.url}: HTTP ${response.status}`);
+    const gltf = await this.loader.parseAsync(await response.arrayBuffer(), '');
+    const scene = placeModel(gltf.scene, source);
+    let skinned = false;
+    scene.traverse((node) => {
+      if ((node as { isSkinnedMesh?: boolean }).isSkinnedMesh) skinned = true;
+    });
+    return { scene, animations: gltf.animations, skinned };
   }
 
   /** A copy of a loaded model. Static copies share geometry and materials. */
   static instantiate(template: ModelTemplate): Object3D {
     return template.skinned ? cloneSkinned(template.scene) : template.scene.clone(true);
   }
+}
+
+/** Applies scale and pivot of a model source: wraps the model in a group when needed. */
+function placeModel(model: Group, source: ModelSource): Group {
+  const scale = source.scale ?? 1;
+  const pivot = source.pivot ?? 'original';
+  if (scale === 1 && pivot === 'original') return model;
+  model.scale.multiplyScalar(scale);
+  model.updateMatrixWorld(true);
+  if (pivot !== 'original') {
+    const bounds = new Box3().setFromObject(model);
+    if (!bounds.isEmpty()) {
+      const anchor = bounds.getCenter(new Vector3());
+      if (pivot === 'bottom') anchor.y = bounds.min.y;
+      model.position.sub(anchor);
+    }
+  }
+  const root = new Group();
+  root.name = model.name;
+  root.add(model);
+  return root;
 }

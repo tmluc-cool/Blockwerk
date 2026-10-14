@@ -21,10 +21,10 @@ export type {
 } from './world/GameObject';
 export { applyTransformData, World } from './world/World';
 export { ModelCache } from './models/ModelCache';
-export type { ModelTemplate, ModelUrlResolver } from './models/ModelCache';
+export type { ModelSource, ModelTemplate, ModelUrlResolver } from './models/ModelCache';
 export { InstanceBatcher } from './models/InstanceBatcher';
 export type { WorldOptions } from './world/World';
-export { defineComponent, resolveValues } from './components/defineComponent';
+export { defineComponent, isFieldVisible, resolveValues } from './components/defineComponent';
 export type * from './components/defineComponent';
 export { COMPONENTS, getComponentDefinition } from './components';
 export { colliderRegistry } from './components/colliders';

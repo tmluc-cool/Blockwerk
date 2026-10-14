@@ -11,6 +11,19 @@ interface FieldBase {
   readonly text: LocalizedText;
   /** Inspector group, e.g. `material` (shown as its own foldout). */
   readonly group?: string;
+  /** Shown only while another field is empty (`null` or `""`) or, with `empty: false`, set. */
+  readonly visibleIf?: { readonly field: string; readonly empty: boolean };
+}
+
+/** Whether a field is shown for the given values (see `visibleIf`). */
+export function isFieldVisible(
+  field: FieldDefinition,
+  values: Readonly<Record<string, unknown>>,
+): boolean {
+  if (!field.visibleIf) return true;
+  const other = values[field.visibleIf.field];
+  const empty = other === null || other === undefined || other === '';
+  return empty === field.visibleIf.empty;
 }
 
 /** Number field. */

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Box3 } from 'three';
 import type { InstancedMesh, Mesh } from 'three';
 import { Game, ModelCache, World } from '../src';
 import type { GameObject } from '../src';
@@ -48,7 +49,12 @@ function triangleModel(): string {
 const MODEL_URL = triangleModel();
 
 function models(): ModelCache {
-  return new ModelCache((ref) => (ref === 'library:test/tree' ? MODEL_URL : null));
+  return new ModelCache((ref) => {
+    if (ref === 'library:test/tree') return MODEL_URL;
+    if (ref === 'project00001') return { url: MODEL_URL, scale: 2, pivot: 'bottom' as const };
+    if (ref === 'project00002') return { url: MODEL_URL, pivot: 'center' as const };
+    return null;
+  });
 }
 
 function trees(count: number, model = 'library:test/tree') {
@@ -95,6 +101,19 @@ describe('models and automatic instancing', () => {
     });
     expect(world.objectFromNode(mesh)?.id).toBe('tree00000000');
     world.dispose();
+  });
+
+  it('applies scale and pivot of project models', async () => {
+    const cache = models();
+    const bottom = await cache.load('project00001');
+    const center = await cache.load('project00002');
+    if (!bottom || !center) throw new Error('not loaded');
+    const box = (template: typeof bottom) =>
+      new Box3().setFromObject(ModelCache.instantiate(template));
+    // The triangle spans 0..1 in X and Y: doubled, bottom center at the origin.
+    expect(box(bottom).min.toArray()).toEqual([-1, 0, 0]);
+    expect(box(bottom).max.toArray()).toEqual([1, 2, 0]);
+    expect(box(center).min.toArray()).toEqual([-0.5, -0.5, 0]);
   });
 
   it('draws equal models as one instanced mesh and follows visibility and movement', async () => {

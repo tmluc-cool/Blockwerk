@@ -73,6 +73,7 @@ export const meshRenderer = defineComponent({
       text: { de: 'Modell', en: 'Model' },
     },
     shape: {
+      visibleIf: { field: 'model', empty: true },
       type: 'enum',
       default: 'cube',
       options: PRIMITIVE_SHAPES.map((value) => ({ value, text: SHAPE_TEXT[value] })),
@@ -89,12 +90,14 @@ export const meshRenderer = defineComponent({
       text: { de: 'Empfängt Schatten', en: 'Receive Shadows' },
     },
     color: {
+      visibleIf: { field: 'model', empty: true },
       type: 'color',
       default: '#d9d9d9',
       group: 'material',
       text: { de: 'Farbe', en: 'Color' },
     },
     metallic: {
+      visibleIf: { field: 'model', empty: true },
       type: 'number',
       default: 0,
       min: 0,
@@ -104,6 +107,7 @@ export const meshRenderer = defineComponent({
       text: { de: 'Metallisch', en: 'Metallic' },
     },
     smoothness: {
+      visibleIf: { field: 'model', empty: true },
       type: 'number',
       default: 0.45,
       min: 0,
@@ -113,6 +117,7 @@ export const meshRenderer = defineComponent({
       text: { de: 'Glätte', en: 'Smoothness' },
     },
     texture: {
+      visibleIf: { field: 'model', empty: true },
       type: 'enum',
       default: 'none',
       options: [
@@ -123,6 +128,7 @@ export const meshRenderer = defineComponent({
       text: { de: 'Textur', en: 'Texture' },
     },
     tiling: {
+      visibleIf: { field: 'model', empty: true },
       type: 'number',
       default: 1,
       min: 0.01,
