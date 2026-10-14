@@ -1,12 +1,13 @@
 import { assetDisplayName } from '@blockwerk/project';
 import { compileBlockScript } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
+import { lastGameViewStats } from './game/GameViewport';
 import { useLayout } from './layout/layoutController';
 import { activeSceneView } from './scene/sceneViews';
 import type { SceneCameraSnapshot } from './scene/SceneViewport';
 import { hasUnsavedChanges, importProject, saveProject, useDocument } from './state/document';
 import { useEditor } from './state/editor';
-import { currentGame, usePlay } from './state/play';
+import { currentGame, playPerformance, usePlay } from './state/play';
 import { useSettings } from './state/settings';
 
 /** A live object as seen by tests. */
@@ -46,6 +47,14 @@ export interface BlockwerkDebugHooks {
   playStatus(): string;
   /** Milliseconds from Play to the first rendered game frame. */
   playStartupMs(): number | null;
+  /** Play mode: frame rate, work per frame, and draw calls and triangles of the game view. */
+  playPerformance(): {
+    fps: number;
+    frameMs: number;
+    frames: number;
+    drawCalls: number;
+    triangles: number;
+  };
   /** Live objects of the running game with a given name. */
   liveObjects(name: string): ObjectProbe[];
   gameVars(): Readonly<Record<string, unknown>>;
@@ -117,6 +126,14 @@ export function installTestHooks(): void {
     },
     playStatus: () => usePlay.getState().status,
     playStartupMs: () => usePlay.getState().startupMs,
+    playPerformance: () => {
+      const stats = lastGameViewStats();
+      return {
+        ...playPerformance(),
+        drawCalls: stats?.drawCalls ?? 0,
+        triangles: stats?.triangles ?? 0,
+      };
+    },
     liveObjects: (name) =>
       [...(currentGame()?.world.allObjects() ?? [])]
         .filter((object) => object.name === name && !object.destroyed)

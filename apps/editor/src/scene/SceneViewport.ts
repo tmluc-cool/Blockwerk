@@ -35,6 +35,7 @@ import { brushStamp } from '../library/brush';
 import type { GroundPoint } from '../library/brush';
 import { SceneInput } from './SceneInput';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from './worlds';
+import { isOnScreen } from './visibility';
 
 /** Shading modes of the scene view (Unity: Draw Mode). */
 export type ShadingMode = 'shaded' | 'wireframe';
@@ -806,6 +807,8 @@ export class SceneViewport {
 
   /** Renders now (also called by the play loop for every game frame). */
   render(): void {
+    // Hidden tabs (e.g. behind the Game view while playing) draw nothing.
+    if (!isOnScreen(this.canvas)) return;
     const aspect = this.width / this.height;
     this.camera.apply(this.perspective, this.orthographic, aspect);
     const camera = this.activeCamera();

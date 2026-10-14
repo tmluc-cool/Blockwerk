@@ -387,5 +387,6 @@
   "myPrefabs.remove": "Aus „Meine Prefabs“ entfernen",
   "myPrefabs.files": "{n} Dateien",
   "reference.choosePrefab": "(Prefab wählen)",
-  "console.game.missingPrefab": "„{object}“: Prefab fehlt ({asset})."
+  "console.game.missingPrefab": "„{object}“: Prefab fehlt ({asset}).",
+  "game.fps": "Bilder/s"
 }
