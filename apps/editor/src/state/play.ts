@@ -7,7 +7,14 @@ import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
 import { focusPanel } from '../layout/layoutController';
-import { currentEditWorld, defaultObjectName, renderViews, setPlayWorld } from '../scene/worlds';
+import { editorModels } from '../library/models';
+import {
+  currentEditWorld,
+  defaultObjectName,
+  renderViews,
+  setPlayWorld,
+  worldUpdated,
+} from '../scene/worlds';
 import { useConsole } from './console';
 import { editScene, useDocument } from './document';
 
@@ -216,6 +223,8 @@ export function play(): void {
     scripts: (id) => compiled.get(id)?.asset ?? null,
     log: logGame,
     displayName: defaultObjectName,
+    models: editorModels,
+    onModelLoaded: worldUpdated,
   });
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
   game.world.updateSun();

@@ -1,6 +1,6 @@
 import { assetDisplayName } from '@blockwerk/project';
 import type { ComponentData, JsonValue, SceneObjectData } from '@blockwerk/project';
-import { COMPONENTS, getComponentDefinition } from '@blockwerk/runtime';
+import { COMPONENTS, getComponentDefinition, isFieldVisible } from '@blockwerk/runtime';
 import type { ComponentDefinition, FieldDefinition } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { ChevronDown, ChevronRight, EllipsisVertical, Pin } from 'lucide-react';
@@ -214,7 +214,10 @@ function ComponentSection({ slot, ids, activeId, playing, onMenu }: ComponentSec
       </section>
     );
   }
-  const fieldEntries = Object.entries(definition.fields) as [string, FieldDefinition][];
+  // Fields that depend on others (e.g. Shape only without a model) show if any object needs them.
+  const fieldEntries = (Object.entries(definition.fields) as [string, FieldDefinition][]).filter(
+    ([, field]) => slot.components.some((component) => isFieldVisible(field, component.values)),
+  );
   const ungrouped = fieldEntries.filter(([, field]) => !field.group);
   const groups = [
     ...new Set(
@@ -245,7 +248,7 @@ function ComponentSection({ slot, ids, activeId, playing, onMenu }: ComponentSec
           slot.components.map((component) => component.values[name] ?? fieldDefault(field)),
         )}
         testId={`${testBase}-${name}`}
-        assets={field.type === 'asset' ? scripts : undefined}
+        assets={field.type === 'asset' && field.assetType === 'blockScript' ? scripts : undefined}
         disabled={playing && field.type === 'asset'}
         onOpenAsset={(id) => openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)}
         onChange={(value) => editComponentValue(ids, slot.type, slot.index, name, value)}

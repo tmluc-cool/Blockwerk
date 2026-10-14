@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { ContextMenu } from '../chrome/ContextMenu';
 import type { ContextMenuState } from '../chrome/ContextMenu';
 import { createAssetWithPrompt } from '../chrome/menus';
+import { ASSET_DRAG_TYPE } from '../library/projectDrag';
 import { openScriptEditor } from '../navigation';
 import { prompt } from '../state/dialogs';
 import {
@@ -21,8 +22,6 @@ import {
 import { useEditor } from '../state/editor';
 import { usePlay } from '../state/play';
 import { useT } from '../state/settings';
-
-const DRAG_TYPE = 'application/x-blockwerk-asset';
 
 function depth(folder: string): number {
   return folder.split('/').length - 1;
@@ -149,11 +148,11 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
               data-folder={item}
               onClick={() => setFolder(item)}
               onDragOver={(event) => {
-                if (event.dataTransfer.types.includes(DRAG_TYPE)) event.preventDefault();
+                if (event.dataTransfer.types.includes(ASSET_DRAG_TYPE)) event.preventDefault();
               }}
               onDrop={(event) => {
                 event.preventDefault();
-                const id = event.dataTransfer.getData(DRAG_TYPE);
+                const id = event.dataTransfer.getData(ASSET_DRAG_TYPE);
                 if (id) moveAssetToFolder(id, item);
               }}
             >
@@ -199,7 +198,7 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
                 if (event.key === 'Enter') openAsset(asset);
               }}
               onDragStart={(event) => {
-                event.dataTransfer.setData(DRAG_TYPE, asset.id);
+                event.dataTransfer.setData(ASSET_DRAG_TYPE, asset.id);
                 event.dataTransfer.effectAllowed = 'move';
               }}
             >

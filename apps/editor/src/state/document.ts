@@ -8,12 +8,16 @@ import {
   FORMAT_VERSION,
   joinPath,
   loadProject,
+  modelImportSettings,
   ProjectLoadError,
 } from '@blockwerk/project';
 import type {
   AnyAsset,
+  AssetEntry,
   AssetType,
   BlockScriptData,
+  ModelImportSettings,
+  NewProjectFolders,
   Project,
   ProjectFileSystem,
   SceneData,
@@ -21,6 +25,7 @@ import type {
 import { create } from 'zustand';
 import { History } from '../document/history';
 import type { TranslationKey } from '../i18n';
+import { editorModels, setProjectModelSource } from '../library/models';
 import { detectBackend } from '../storage/backends';
 import type { ProjectBackend, ProjectListing } from '../storage/backends';
 import { useConsole } from './console';
@@ -28,9 +33,36 @@ import { useEditor } from './editor';
 import { t, useSettings } from './settings';
 
 /** Folder names of new projects, in the user's language. */
-function newProjectFolders(): { scenes: string; blockScripts: string } {
-  return { scenes: t('project.folder.scenes'), blockScripts: t('project.folder.blockScripts') };
+function newProjectFolders(): NewProjectFolders {
+  return {
+    scenes: t('project.folder.scenes'),
+    blockScripts: t('project.folder.blockScripts'),
+    prefabs: t('project.folder.prefabs'),
+    models: t('project.folder.models'),
+  };
 }
+
+/** Blob URLs of project models, by asset ID and content hash. */
+const modelUrls = new Map<string, { hash: string; url: string }>();
+
+// Project models are served to the 3D views as blob URLs with their import settings.
+setProjectModelSource(async (assetId) => {
+  const { project } = useDocument.getState();
+  const entry = project?.assetOfType(assetId, 'model');
+  const bytes = project?.modelBytes(assetId);
+  if (!entry || !bytes) return null;
+  let cached = modelUrls.get(assetId);
+  if (cached?.hash !== entry.data.hash) {
+    if (cached) URL.revokeObjectURL(cached.url);
+    cached = {
+      hash: entry.data.hash,
+      url: URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: 'model/gltf-binary' })),
+    };
+    modelUrls.set(assetId, cached);
+  }
+  const settings = modelImportSettings(entry.meta);
+  return { url: cached.url, scale: settings.scale, pivot: settings.pivot };
+});
 
 interface DocumentState {
   status: 'loading' | 'ready' | 'error';
@@ -340,6 +372,54 @@ export function createSceneAsset(folder: string, name: string): AnyAsset | null 
   const entry = project.createAsset('scene', project.uniqueAssetPath(folder, name, 'scene'), scene);
   assetsChanged();
   return entry as AnyAsset;
+}
+
+/** Adds an imported model (GLB) to the project. */
+export function importModelAsset(
+  folder: string,
+  name: string,
+  data: Uint8Array,
+  settings?: ModelImportSettings,
+  license: string | null = null,
+): AssetEntry<'model'> | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const entry = project.createModel(
+    project.uniqueAssetPath(folder, name, 'model'),
+    data,
+    settings,
+    license,
+  );
+  assetsChanged();
+  return entry;
+}
+
+/** Changes the import settings and license of a model (import inspector). */
+export function updateModelSettings(
+  id: string,
+  settings: ModelImportSettings,
+  license: string | null,
+): void {
+  const { project } = useDocument.getState();
+  const entry = project?.assetOfType(id, 'model');
+  if (!project || !entry) return;
+  project.updateMeta(id, { importSettings: { ...settings }, license });
+  editorModels.invalidate(id);
+  assetsChanged();
+  modelsChanged();
+}
+
+type ModelsListener = () => void;
+const modelsListeners = new Set<ModelsListener>();
+
+/** Calls `listener` when models changed and the 3D views must load them again. */
+export function onModelsChanged(listener: ModelsListener): () => void {
+  modelsListeners.add(listener);
+  return () => modelsListeners.delete(listener);
+}
+
+function modelsChanged(): void {
+  for (const listener of [...modelsListeners]) listener();
 }
 
 /** Default folder for new assets of a type. */

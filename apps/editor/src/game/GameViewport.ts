@@ -203,7 +203,7 @@ export class GameViewport {
     }
     camera.aspect = size.x / Math.max(1, size.y);
     camera.updateProjectionMatrix();
-    world.updateSun();
+    world.prepareRender();
     camera.updateMatrixWorld();
     // Sun shadows cover the area in front of the camera.
     const focus = camera.getWorldPosition(new Vector3());

@@ -1,6 +1,7 @@
 import type { SceneData, SceneObjectData } from '@blockwerk/project';
 import { World } from '@blockwerk/runtime';
-import { useDocument } from '../state/document';
+import { editorModels } from '../library/models';
+import { onModelsChanged, useDocument } from '../state/document';
 import { t, useSettings } from '../state/settings';
 import type { TranslationKey } from '../i18n';
 
@@ -47,7 +48,11 @@ function sync(): void {
   } else if (!editWorld || !editScene || !sharesObjects(editScene, scene)) {
     // Another scene was opened: start over instead of diffing unrelated data.
     editWorld?.dispose();
-    editWorld = new World(scene, { displayName: defaultObjectName });
+    editWorld = new World(scene, {
+      displayName: defaultObjectName,
+      models: editorModels,
+      onModelLoaded: worldUpdated,
+    });
   } else {
     editWorld.sync(scene);
   }
@@ -64,6 +69,8 @@ function sharesObjects(a: SceneData, b: SceneData): boolean {
 useDocument.subscribe((state, previous) => {
   if (state.scene !== previous.scene) sync();
 });
+// Changed import settings: build the edit world again so models are placed anew.
+onModelsChanged(rebuild);
 useSettings.subscribe((state, previous) => {
   if (state.locale !== previous.locale) rebuild();
 });

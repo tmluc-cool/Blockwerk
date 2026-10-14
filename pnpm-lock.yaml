@@ -65,6 +65,9 @@ importers:
       '@blockwerk/compiler':
         specifier: workspace:*
         version: link:../../packages/compiler
+      '@blockwerk/library':
+        specifier: workspace:*
+        version: link:../../packages/library
       '@blockwerk/project':
         specifier: workspace:*
         version: link:../../packages/project

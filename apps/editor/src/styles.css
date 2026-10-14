@@ -554,6 +554,126 @@ button:focus-visible {
   width: 100%;
 }
 
+/* Asset library */
+
+.asset-library .folder-tree .count {
+  margin-left: auto;
+  padding-right: 6px;
+  font-size: 11px;
+}
+
+.asset-library .tree-indent {
+  display: inline-block;
+  width: 14px;
+}
+
+.library-grid {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+  overflow: auto;
+}
+
+.library-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--bw-text);
+  text-align: center;
+  cursor: grab;
+}
+
+.library-tile img {
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 3px;
+  background: var(--bw-panel-alt);
+}
+
+.library-tile span {
+  overflow: hidden;
+  width: 100%;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.library-tile:hover {
+  background: var(--bw-hover);
+}
+
+.library-tile.selected {
+  background: var(--bw-selection);
+  color: var(--bw-selection-text);
+}
+
+.library-tile .favorite-mark {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: var(--bw-accent);
+  fill: var(--bw-accent);
+}
+
+.library-details {
+  display: flex;
+  flex: 0 0 240px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  overflow: auto;
+  border-left: 1px solid var(--bw-border);
+}
+
+.library-details h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.library-details dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.library-details dt {
+  color: var(--bw-text-dim);
+}
+
+.library-details dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.model-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  cursor: grab;
+}
+
+.button-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.button-column button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Inspector */
 
 .inspector {
@@ -1186,4 +1306,81 @@ button.small {
 
 .console-row.linked:hover {
   background: var(--bw-hover);
+}
+
+/* Model field (Mesh Renderer) */
+
+.model-field {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.model-field-button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: left;
+}
+
+.model-field-button img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.model-field-button span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.model-field.missing .model-field-button {
+  color: var(--bw-error);
+}
+
+.model-picker {
+  position: absolute;
+  z-index: 50;
+  top: 100%;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 280px;
+  max-height: 360px;
+  padding: 6px;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel);
+  box-shadow: var(--bw-shadow);
+}
+
+.model-picker-list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.model-picker-list button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.model-picker-list button:hover {
+  background: var(--bw-hover);
+}
+
+.model-picker-list img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }

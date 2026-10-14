@@ -1,11 +1,15 @@
 import type { IDockviewPanelProps } from 'dockview-react';
 import { Grid3x3, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import type { DragEvent } from 'react';
 import { AxisGizmo } from '../scene/AxisGizmo';
 import { activateSceneView, registerSceneView, unregisterSceneView } from '../scene/sceneViews';
 import { SceneViewport } from '../scene/SceneViewport';
 import type { SceneCameraSnapshot, ShadingMode } from '../scene/SceneViewport';
+import { createLibraryObject } from '../document/actions';
 import { editTransforms } from '../document/edits';
+import { libraryRef } from '../library/assetLibrary';
+import { draggedLibraryEntry, endLibraryDrag } from '../library/drag';
 import { sealHistory } from '../state/document';
 import { useEditor } from '../state/editor';
 import { useT } from '../state/settings';
@@ -85,6 +89,39 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     viewportRef.current?.refreshTool();
   }, [tool, pivotMode, space]);
 
+  /** Canvas position of a drag event in CSS pixels. */
+  const canvasPoint = (event: DragEvent): { x: number; y: number } => {
+    const rect = viewportRef.current?.canvas.getBoundingClientRect();
+    return { x: event.clientX - (rect?.left ?? 0), y: event.clientY - (rect?.top ?? 0) };
+  };
+
+  // Dragging a model from the asset library shows it standing on the surface under the mouse.
+  const onDragOver = (event: DragEvent): void => {
+    const entry = draggedLibraryEntry();
+    const viewport = viewportRef.current;
+    if (!entry || !viewport) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    const { x, y } = canvasPoint(event);
+    viewport.showDropPreview(libraryRef(entry), viewport.surfacePoint(x, y));
+  };
+  const onDragLeave = (event: DragEvent): void => {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+    viewportRef.current?.showDropPreview(null);
+  };
+  const onDrop = (event: DragEvent): void => {
+    const entry = draggedLibraryEntry();
+    const viewport = viewportRef.current;
+    if (!entry || !viewport) return;
+    event.preventDefault();
+    const { x, y } = canvasPoint(event);
+    const point = viewport.surfacePoint(x, y);
+    viewport.showDropPreview(null);
+    endLibraryDrag();
+    activateSceneView(viewport);
+    createLibraryObject(entry, [point.x, point.y, point.z]);
+  };
+
   if (!supported) {
     return (
       <div className="panel scene">
@@ -142,7 +179,14 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
           </span>
         )}
       </div>
-      <div className="viewport-host" ref={hostRef}>
+      <div
+        className="viewport-host"
+        ref={hostRef}
+        data-testid="scene-drop"
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
         <AxisGizmo
           snapshot={snapshot}
           onView={(view) => viewportRef.current?.setAxisView(view)}

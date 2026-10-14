@@ -4,6 +4,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useRef, useState } from 'react';
 import type { TranslationKey } from '../../i18n';
 import { useT } from '../../state/settings';
+import { ModelField } from './ModelField';
 
 /** Marker for values that differ between selected objects (shown as "—"). */
 export const MIXED: unique symbol = Symbol('mixed');
@@ -262,6 +263,9 @@ export function FieldEditor({
         </select>
       );
     case 'asset': {
+      if (field.assetType === 'model') {
+        return <ModelField value={value} onChange={onChange} disabled={disabled} testId={testId} />;
+      }
       const id = typeof value === 'string' ? value : '';
       return (
         <span className="asset-field">

@@ -1,6 +1,7 @@
 import { createRenderer } from '@blockwerk/runtime';
 import type { GameObject, World } from '@blockwerk/runtime';
 import type { TransformData } from '@blockwerk/project';
+import { ModelCache } from '@blockwerk/runtime';
 import {
   ArrowHelper,
   Box3,
@@ -13,6 +14,7 @@ import {
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
+  Plane,
   Raycaster,
   Scene,
   Sphere,
@@ -23,6 +25,7 @@ import {
 import type { Camera, Intersection, WebGLRenderer, Matrix4 } from 'three';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { transformFromMatrix } from '../document/sceneOps';
+import { editorModels } from '../library/models';
 import type { Tool } from '../state/editor';
 import { EditorGrid } from './EditorGrid';
 import { SceneCamera } from './SceneCamera';
@@ -99,6 +102,8 @@ export class SceneViewport {
   private readonly selectionBoxes = new Map<string, Box3Helper>();
   private readonly wireframe = new MeshBasicMaterial({ color: 0xd0d4dc, wireframe: true });
   private world: World | null = null;
+  /** Model shown where a dragged library entry would land. */
+  private dropPreview: { ref: string; object: Object3D | null; point: Vector3 } | null = null;
   private selection: readonly string[] = [];
   private dragStart: { proxy: Matrix4; objects: Map<string, Matrix4> } | null = null;
   private snapping = false;
@@ -244,6 +249,85 @@ export class SceneViewport {
     return this.camera.pivot.clone();
   }
 
+  /**
+   * The world point under a canvas position (CSS pixels) for placing objects: the first
+   * surface of an object, else the ground plane, else the pivot. `ignore` objects are skipped.
+   */
+  surfacePoint(x: number, y: number, ignore: readonly string[] = []): Vector3 {
+    this.camera.apply(this.perspective, this.orthographic, this.width / this.height);
+    this.raycaster.setFromCamera(this.pointer(x, y), this.activeCamera());
+    const world = this.world;
+    if (world) {
+      world.scene.updateMatrixWorld();
+      const hit = this.raycaster.intersectObjects(world.scene.children, true).find((item) => {
+        if (!isPickable(item.object)) return false;
+        const object = world.objectFromNode(item.object);
+        return object !== undefined && !ignore.includes(object.id);
+      });
+      if (hit) return hit.point.clone();
+    }
+    const ground = this.raycaster.ray.intersectPlane(
+      new Plane(new Vector3(0, 1, 0), 0),
+      new Vector3(),
+    );
+    return ground ?? this.placementPoint();
+  }
+
+  /**
+   * Where a model placed without a drop position stands: on the first surface below the pivot,
+   * else on the ground plane below it (Unity places at the pivot; standing is nicer for models).
+   */
+  surfaceBelowPivot(ignore: readonly string[] = []): Vector3 {
+    const pivot = this.placementPoint();
+    const world = this.world;
+    if (world) {
+      world.scene.updateMatrixWorld();
+      this.raycaster.set(pivot.clone().add(new Vector3(0, 0.01, 0)), new Vector3(0, -1, 0));
+      const hit = this.raycaster.intersectObjects(world.scene.children, true).find((item) => {
+        if (!isPickable(item.object)) return false;
+        const object = world.objectFromNode(item.object);
+        return object !== undefined && !ignore.includes(object.id);
+      });
+      if (hit) return hit.point.clone();
+    }
+    return pivot.y > 0 ? new Vector3(pivot.x, 0, pivot.z) : pivot;
+  }
+
+  /**
+   * Shows model `ref` standing at `point` while a library entry is dragged over the view;
+   * `null` hides it.
+   */
+  showDropPreview(ref: string | null, point?: Vector3): void {
+    const world = this.world;
+    if (!ref || !world) {
+      this.dropPreview?.object?.removeFromParent();
+      this.dropPreview = null;
+      this.requestRender();
+      return;
+    }
+    if (this.dropPreview?.ref !== ref) {
+      this.dropPreview?.object?.removeFromParent();
+      const preview: { ref: string; object: Object3D | null; point: Vector3 } = {
+        ref,
+        object: null,
+        point: point?.clone() ?? this.placementPoint(),
+      };
+      this.dropPreview = preview;
+      void editorModels.load(ref).then((template) => {
+        if (this.dropPreview !== preview || !template || !this.world) return;
+        preview.object = ModelCache.instantiate(template);
+        preview.object.position.copy(preview.point);
+        this.world.scene.add(preview.object);
+        this.requestRender();
+      });
+    }
+    if (point) {
+      this.dropPreview.point.copy(point);
+      this.dropPreview.object?.position.copy(point);
+    }
+    this.requestRender();
+  }
+
   /** Turns to an axis view (scene gizmo). */
   setAxisView(view: AxisView): void {
     this.camera.setAxisView(view);
@@ -313,6 +397,7 @@ export class SceneViewport {
   private worldChanged(): void {
     const world = currentWorld();
     if (world !== this.world) {
+      this.showDropPreview(null);
       // Baked lighting stays with its world (worlds free it when they are disposed).
       this.world = world;
       for (const icon of this.icons.values()) icon.dispose();
@@ -645,7 +730,7 @@ export class SceneViewport {
     renderer.autoClear = true;
     const world = this.world;
     if (world) {
-      world.updateSun();
+      world.prepareRender();
       world.environment.setFocus(this.camera.pivot);
       world.environment.prepare(renderer, camera);
       const scene = world.scene;
@@ -676,10 +761,14 @@ export class SceneViewport {
   }
 }
 
-/** Visible meshes count for picking (helpers and invisible parts do not). */
+/**
+ * Visible meshes count for picking (helpers and invisible parts do not). Meshes drawn by
+ * automatic instancing are hidden themselves but count as visible.
+ */
 function isPickable(object: Object3D): boolean {
   if (!(object as { isMesh?: boolean }).isMesh) return false;
-  for (let current: Object3D | null = object; current; current = current.parent) {
+  if (!object.visible && object.userData['instanced'] !== true) return false;
+  for (let current: Object3D | null = object.parent; current; current = current.parent) {
     if (!current.visible) return false;
   }
   return true;

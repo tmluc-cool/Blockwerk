@@ -1,11 +1,14 @@
+import type { LibraryEntry } from '@blockwerk/library';
 import type { ComponentData, SceneData, TransformData } from '@blockwerk/project';
 import type { PrimitiveShape } from '@blockwerk/runtime';
 import type { TranslationKey } from '../i18n';
+import { libraryRef } from '../library/assetLibrary';
+import { useLibraryPrefs } from '../library/libraryPrefs';
 import { activeSceneView } from '../scene/sceneViews';
 import { editScene, useDocument } from '../state/document';
 import { activeObjectId, ALL_AREAS, useEditor } from '../state/editor';
 import { usePlay } from '../state/play';
-import { t } from '../state/settings';
+import { t, useSettings } from '../state/settings';
 import {
   addComponent,
   createObject,
@@ -104,6 +107,64 @@ export function createPrimitiveObject(
     placement(),
     parent,
   );
+}
+
+/** Renderer and suggested collider for a model of the asset library. */
+export function libraryComponents(entry: LibraryEntry): Omit<ComponentData, 'id'>[] {
+  const renderer = { type: 'meshRenderer', enabled: true, values: { model: libraryRef(entry) } };
+  const collider = entry.collider;
+  switch (collider.type) {
+    case 'box':
+      return [
+        renderer,
+        {
+          type: 'boxCollider',
+          enabled: true,
+          values: { center: [...collider.center], size: [...collider.size] },
+        },
+      ];
+    case 'capsule':
+      return [
+        renderer,
+        {
+          type: 'capsuleCollider',
+          enabled: true,
+          values: {
+            center: [...collider.center],
+            radius: collider.radius,
+            height: collider.height,
+          },
+        },
+      ];
+    case 'none':
+      return [renderer];
+  }
+}
+
+/**
+ * Places a model of the asset library in the scene (drag and drop, "Place in Scene"), standing
+ * at `position` (default: the scene view pivot). Selects it and remembers it as recently used.
+ */
+export function createLibraryObject(
+  entry: LibraryEntry,
+  position?: readonly [number, number, number],
+): string | null {
+  const transform = placement();
+  const round = (value: number): number => Math.round(value * 1000) / 1000 || 0;
+  const surface = position ? null : activeSceneView()?.surfaceBelowPivot();
+  position ??= surface ? [surface.x, surface.y, surface.z] : undefined;
+  const id = create(
+    entry.name[useSettings.getState().locale],
+    libraryComponents(entry),
+    position
+      ? { ...transform, position: [round(position[0]), round(position[1]), round(position[2])] }
+      : transform,
+  );
+  if (id) {
+    useEditor.getState().setRenaming(null);
+    useLibraryPrefs.getState().markUsed(entry.id);
+  }
+  return id;
 }
 
 /** Object > Camera. */
