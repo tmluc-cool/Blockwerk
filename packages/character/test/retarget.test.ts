@@ -294,4 +294,37 @@ describe('retargetClip', () => {
     const _unused: BoneMap = target.map;
     void _unused;
   });
+
+  it('transfers bone scale from the clip relative to the rest scale of both skeletons', () => {
+    // Some exporters keep bones scaled in the rest pose (0.5) and let the clips set 1.
+    const scaled = (rig: MappedRig, factor: number): MappedRig => ({
+      ...rig,
+      rig: {
+        bones: rig.rig.bones.map((bone) => ({ ...bone, scale: [factor, factor, factor] as const })),
+      },
+    });
+    const donor = scaled(source, 0.5);
+    const receiver = scaled(target, 0.7);
+    const spineName = donor.map['spine'] as string;
+    const base = worldRotationClip(donor, {});
+    const clip = new AnimationClip(base.name, base.duration, [
+      ...base.tracks,
+      new VectorKeyframeTrack(`${spineName}.scale`, [0, 1], [1, 1, 1, 1, 1, 1]),
+    ]);
+    const retargeted = retargetClip(clip, donor, receiver);
+    const track = retargeted.tracks.find(
+      (candidate) => candidate.name === `${receiver.map['spine']}.scale`,
+    );
+    expect(track).toBeDefined();
+    // 1 / 0.5 = 2 times the donor's rest scale, so 2 × 0.7 on the receiver.
+    expect(Array.from(track?.values.slice(0, 3) ?? [])).toEqual([
+      expect.closeTo(1.4, 5),
+      expect.closeTo(1.4, 5),
+      expect.closeTo(1.4, 5),
+    ]);
+    // Bones the clip does not scale get no scale track.
+    expect(retargeted.tracks.filter((candidate) => candidate.name.endsWith('.scale'))).toHaveLength(
+      1,
+    );
+  });
 });

@@ -1,12 +1,13 @@
 import { mapBones, retargetClip, rigFromObject } from '@blockwerk/character';
 import type { BoneMapping, MappedRig } from '@blockwerk/character';
-import { Box3, Color, MathUtils, Vector3 } from 'three';
-import type { AnimationClip, Material, Mesh, Object3D } from 'three';
+import { AnimationMixer, Box3, Color, MathUtils, Vector3 } from 'three';
+import type { AnimationClip, Material, Mesh, Object3D, Quaternion, Skeleton } from 'three';
 import { ANIMATION_STATES, matchClips } from '../animation/states';
 import { PROFILE_NAMES, PROFILE_TEXT } from '../character/movement';
 import { ModelCache } from '../models/ModelCache';
 import type { ModelTemplate } from '../models/ModelCache';
 import { controlRegistry } from './controls';
+import { parseAttachments, parseList } from './lists';
 import { defineComponent } from './defineComponent';
 import { renderedModels } from './meshRenderer';
 
@@ -37,42 +38,50 @@ export interface FigureInfo {
 /** Figures by object. */
 export const figureRegistry = new WeakMap<object, FigureInfo>();
 
-/** `a=b;c=d` → pairs. */
-export function parseList(text: string): [string, string][] {
-  return text
-    .split(';')
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .flatMap((entry) => {
-      const split = entry.lastIndexOf('=');
-      return split > 0
-        ? ([[entry.slice(0, split).trim(), entry.slice(split + 1).trim()]] as [string, string][])
-        : [];
+/**
+ * Runs `measure` while the model is in the first frame of `clip` (the rest pose if there is none).
+ * The skeleton is put back afterwards.
+ */
+function withStandingPose<T>(root: Object3D, clip: AnimationClip | null, measure: () => T): T {
+  if (!clip) return measure();
+  const saved: { node: Object3D; position: Vector3; quaternion: Quaternion; scale: Vector3 }[] = [];
+  root.traverse((node) => {
+    saved.push({
+      node,
+      position: node.position.clone(),
+      quaternion: node.quaternion.clone(),
+      scale: node.scale.clone(),
     });
+  });
+  const mixer = new AnimationMixer(root);
+  mixer.clipAction(clip).play();
+  mixer.setTime(0);
+  try {
+    return measure();
+  } finally {
+    mixer.stopAllAction();
+    mixer.uncacheRoot(root);
+    for (const item of saved) {
+      item.node.position.copy(item.position);
+      item.node.quaternion.copy(item.quaternion);
+      item.node.scale.copy(item.scale);
+    }
+    root.updateMatrixWorld(true);
+  }
 }
 
-/** Attachments are written as `item@point;item@point`. */
-export function parseAttachments(text: string): [string, string][] {
-  return text
-    .split(';')
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .flatMap((entry) => {
-      const split = entry.lastIndexOf('@');
-      return split > 0
-        ? ([[entry.slice(0, split).trim(), entry.slice(split + 1).trim()]] as [string, string][])
-        : [];
-    });
-}
-
-/** Height of the visible, non-gear meshes of a model. */
+/**
+ * Bounds of the visible, non-gear meshes of a model in its current pose. The bone matrices are
+ * brought up to date first (they are only computed when something is drawn).
+ */
 function bodyBounds(root: Object3D, gear: ReadonlySet<string>, hidden: ReadonlySet<string>): Box3 {
   const box = new Box3();
-  root.updateWorldMatrix(true, true);
+  root.updateMatrixWorld(true);
   root.traverse((node) => {
-    const mesh = node as Mesh;
+    const mesh = node as Mesh & { skeleton?: Skeleton };
     if (!mesh.isMesh || gear.has(node.name) || hidden.has(node.name)) return;
-    box.union(new Box3().setFromObject(mesh));
+    mesh.skeleton?.update();
+    box.union(new Box3().setFromObject(mesh, true));
   });
   return box;
 }
@@ -189,11 +198,56 @@ export const character = defineComponent({
       ],
       text: { de: 'Bewegungs-Profil', en: 'Movement Profile' },
     },
+    build: {
+      type: 'number',
+      default: 1,
+      min: 0.6,
+      max: 1.6,
+      step: 0.05,
+      group: 'body',
+      text: { de: 'Statur (Breite)', en: 'Build (Width)' },
+    },
+    headScale: {
+      type: 'number',
+      default: 1,
+      min: 0.6,
+      max: 1.8,
+      step: 0.05,
+      group: 'body',
+      text: { de: 'Kopfgrösse', en: 'Head Size' },
+    },
+    armScale: {
+      type: 'number',
+      default: 1,
+      min: 0.7,
+      max: 1.5,
+      step: 0.05,
+      group: 'body',
+      text: { de: 'Armlänge', en: 'Arm Length' },
+    },
+    legScale: {
+      type: 'number',
+      default: 1,
+      min: 0.7,
+      max: 1.5,
+      step: 0.05,
+      group: 'body',
+      text: { de: 'Beinlänge', en: 'Leg Length' },
+    },
     hiddenParts: {
       type: 'string',
       default: '',
       group: 'parts',
       text: { de: 'Ausgeblendete Teile (mit ; getrennt)', en: 'Hidden Parts (separated by ;)' },
+    },
+    shownGear: {
+      type: 'string',
+      default: '',
+      group: 'parts',
+      text: {
+        de: 'Eingeblendete Ausrüstungsteile (mit ; getrennt)',
+        en: 'Shown Gear Parts (separated by ;)',
+      },
     },
     tints: {
       type: 'string',
@@ -206,6 +260,15 @@ export const character = defineComponent({
       default: '',
       group: 'parts',
       text: { de: 'Ausrüstung (Modell@Punkt; …)', en: 'Equipment (model@point; …)' },
+    },
+    sounds: {
+      type: 'string',
+      default: '',
+      group: 'sounds',
+      text: {
+        de: 'Klang-Set (Ereignis=Klang; …)',
+        en: 'Sound Set (event=sound; …)',
+      },
     },
     libraryAnimations: {
       type: 'boolean',
@@ -244,9 +307,15 @@ export const character = defineComponent({
       model: null as string | null,
       bodyHeight: 1.8,
       profile: 'custom',
+      build: 1,
+      headScale: 1,
+      armScale: 1,
+      legScale: 1,
       hiddenParts: '',
+      shownGear: '',
       tints: '',
       attachments: '',
+      sounds: '',
       libraryAnimations: true,
       animationSource: null as string | null,
       boneMap: '',
@@ -312,6 +381,68 @@ export const character = defineComponent({
       renderedModels.delete(object);
     };
 
+    /** Body sliders: head size, arm and leg length scale the standard bones. */
+    const scaleBones = (): void => {
+      if (!model || !rig) return;
+      const groups: [number, readonly string[]][] = [
+        [values.headScale, ['head']],
+        [values.armScale, ['leftUpperArm', 'rightUpperArm']],
+        [values.legScale, ['leftUpperLeg', 'rightUpperLeg']],
+      ];
+      for (const [factor, bones] of groups) {
+        for (const bone of bones) {
+          const name = rig.map[bone];
+          if (name) model.getObjectByName(name)?.scale.setScalar(factor);
+        }
+      }
+    };
+
+    /**
+     * The clip that shows the figure standing: the model's own idle animation, else the
+     * retargeted one. Models are often exported in a rest pose that is not what the clips show
+     * (bones scaled in the rest pose, a different size), so the body is measured in this pose.
+     */
+    const standingClip = (): AnimationClip | null => {
+      const own = template?.animations ?? [];
+      const clips = [...own, ...(renderedModels.get(object)?.extraClips ?? [])];
+      const state = matchClips(
+        clips.map((clip) => clip.name),
+        template?.animationMap,
+      ).get('idle');
+      return clips.find((clip) => clip.name === state) ?? null;
+    };
+
+    /** Size: body height without gear and hidden parts, feet on the ground. */
+    const fit = (): void => {
+      if (!model) return;
+      const meshes = meshNodes(model);
+      const hidden = new Set(
+        values.hiddenParts
+          .split(';')
+          .map((name) => name.trim())
+          .filter(Boolean),
+      );
+      const gear = new Set(
+        mode === 'skeleton'
+          ? meshes
+              .filter((mesh) => !(mesh as { isSkinnedMesh?: boolean }).isSkinnedMesh)
+              .map((m) => m.name)
+          : [],
+      );
+      model.scale.setScalar(1);
+      model.position.set(0, 0, 0);
+      const box = withStandingPose(model, standingClip(), () =>
+        bodyBounds(model as Object3D, gear, hidden),
+      );
+      naturalHeight = box.isEmpty() ? 0 : box.max.y - box.min.y;
+      scale = values.bodyHeight > 0 && naturalHeight > 1e-6 ? values.bodyHeight / naturalHeight : 1;
+      model.scale.set(scale * values.build, scale, scale * values.build);
+      scaleBones();
+      baseY = box.isEmpty() ? 0 : -box.min.y * scale;
+      model.position.y = baseY;
+      publish();
+    };
+
     /** Hidden parts, tints, size and attachments from the current values. */
     const refresh = (): void => {
       if (!model || !template) return;
@@ -321,8 +452,18 @@ export const character = defineComponent({
           .map((name) => name.trim())
           .filter(Boolean),
       );
+      // Loose gear (swords, shields, capes … without skin) stays hidden until it is shown.
+      const shown = new Set(
+        values.shownGear
+          .split(';')
+          .map((name) => name.trim())
+          .filter(Boolean),
+      );
       const meshes = meshNodes(model);
-      for (const mesh of meshes) mesh.visible = !hidden.has(mesh.name);
+      for (const mesh of meshes) {
+        const gear = mode === 'skeleton' && !(mesh as { isSkinnedMesh?: boolean }).isSkinnedMesh;
+        mesh.visible = !hidden.has(mesh.name) && (!gear || shown.has(mesh.name));
+      }
       // Tints: a copy of the material of the part with a color that multiplies its texture.
       clearTints();
       for (const [name, color] of parseList(values.tints)) {
@@ -338,22 +479,7 @@ export const character = defineComponent({
           ? mesh.material.map(tint)
           : tint(mesh.material);
       }
-      // Size: body height without gear and hidden parts, feet on the ground.
-      const gear = new Set(
-        mode === 'skeleton'
-          ? meshes
-              .filter((mesh) => !(mesh as { isSkinnedMesh?: boolean }).isSkinnedMesh)
-              .map((m) => m.name)
-          : [],
-      );
-      model.scale.setScalar(1);
-      model.position.set(0, 0, 0);
-      const box = bodyBounds(model, gear, hidden);
-      naturalHeight = box.isEmpty() ? 0 : box.max.y - box.min.y;
-      scale = values.bodyHeight > 0 && naturalHeight > 1e-6 ? values.bodyHeight / naturalHeight : 1;
-      model.scale.setScalar(scale);
-      baseY = box.isEmpty() ? 0 : -box.min.y * scale;
-      model.position.y = baseY;
+      fit();
       // Equipment.
       for (const item of attached.values()) item.removeFromParent();
       attached.clear();
@@ -428,6 +554,8 @@ export const character = defineComponent({
           template: currentTemplate,
           extraClips: clips,
         });
+        // The retargeted idle pose is the reference for the body height.
+        fit();
       });
     };
 
@@ -516,7 +644,11 @@ export const character = defineComponent({
         model.position.y = baseY + bob * scale;
         model.rotation.x = lean;
         const factor = 1 - squash;
-        model.scale.set(scale * (1 + squash * 0.5), scale * factor, scale * (1 + squash * 0.5));
+        model.scale.set(
+          scale * values.build * (1 + squash * 0.5),
+          scale * factor,
+          scale * values.build * (1 + squash * 0.5),
+        );
       },
       destroy() {
         destroyed = true;

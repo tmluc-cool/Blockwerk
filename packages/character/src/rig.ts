@@ -6,6 +6,8 @@ import type { BoneInfo } from './mapping';
 export interface RigBone extends BoneInfo {
   readonly position: readonly [number, number, number];
   readonly quaternion: readonly [number, number, number, number];
+  /** Rest scale (default 1). Some exporters keep bones scaled in the rest pose and let the clips set the real scale. */
+  readonly scale?: readonly [number, number, number];
 }
 
 /** A skeleton: bones in parent-before-child order. */
@@ -61,6 +63,7 @@ export function rigFromObject(root: Object3D): Rig {
     parent: node.parent ? (index.get(node.parent) ?? null) : null,
     position: [node.position.x, node.position.y, node.position.z],
     quaternion: [node.quaternion.x, node.quaternion.y, node.quaternion.z, node.quaternion.w],
+    scale: [node.scale.x, node.scale.y, node.scale.z],
   }));
   // Parent before child (skeleton arrays usually are, but not always).
   const order: number[] = [];

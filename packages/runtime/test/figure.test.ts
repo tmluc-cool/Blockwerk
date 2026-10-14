@@ -199,6 +199,26 @@ describe('figure', () => {
     game.dispose();
   });
 
+  it('keeps loose gear hidden until it is listed as shown, and measures the body without it', async () => {
+    const models = new ModelCache(() => null);
+    models.provide(
+      'library:test/donor',
+      humanoid((n) => n, donorClips()),
+    );
+    models.provide(
+      'library:test/hero',
+      humanoid((n) => n),
+    );
+    const hidden = await launch(models, { model: 'library:test/hero' });
+    const info = figureRegistry.get(hidden.hero);
+    expect(info?.root.getObjectByName('Cape')?.visible).toBe(false);
+    expect((info?.root as Group).scale.y).toBeCloseTo(1.8 / 1.7, 2);
+    hidden.game.dispose();
+    const shown = await launch(models, { model: 'library:test/hero', shownGear: 'Cape' });
+    expect(figureRegistry.get(shown.hero)?.root.getObjectByName('Cape')?.visible).toBe(true);
+    shown.game.dispose();
+  });
+
   it('tints parts and attaches items to the right hand, following the animation', async () => {
     const models = new ModelCache(() => null);
     models.provide(

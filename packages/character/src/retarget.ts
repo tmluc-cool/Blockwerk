@@ -133,6 +133,33 @@ export function retargetClip(
   for (let frame = 0; frame <= frames; frame++) times.push((frame / frames) * clip.duration);
   const rotationValues = new Map<number, number[]>(shared.map((entry) => [entry.t, []]));
   const hipsValues: number[] = [];
+  // Scale: where the donor's clip scales a bone away from its rest scale, the target bone is
+  // scaled by the same factor from its own rest scale.
+  const scaleTracks = new Map<number, KeyframeTrack>();
+  for (const entry of shared) {
+    const bone = source.rig.bones[entry.s];
+    const track = bone ? trackOf(clip, bone.name, 'scale') : undefined;
+    if (!bone || !track) continue;
+    const sourceRest = bone.scale ?? [1, 1, 1];
+    const targetRest = target.rig.bones[entry.t]?.scale ?? [1, 1, 1];
+    const values: number[] = [];
+    let changes = false;
+    for (const time of times) {
+      const value = sample(track, time, 3);
+      for (let axis = 0; axis < 3; axis++) {
+        const rest = sourceRest[axis] || 1;
+        const ratio = (value[axis] ?? 1) / rest;
+        if (Math.abs(ratio - 1) > 1e-3) changes = true;
+        values.push((targetRest[axis] ?? 1) * ratio);
+      }
+    }
+    if (changes) {
+      scaleTracks.set(
+        entry.t,
+        new VectorKeyframeTrack(`${target.rig.bones[entry.t]?.name}.scale`, times, values),
+      );
+    }
+  }
 
   for (const time of times) {
     const rotations = source.rig.bones.map((bone, index) => {
@@ -202,5 +229,6 @@ export function retargetClip(
       new VectorKeyframeTrack(`${target.rig.bones[hips.t]?.name}.position`, times, hipsValues),
     );
   }
+  tracks.push(...scaleTracks.values());
   return new AnimationClip(clip.name, clip.duration, tracks);
 }

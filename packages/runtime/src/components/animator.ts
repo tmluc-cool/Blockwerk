@@ -9,6 +9,7 @@ import {
 import type { AnimationState } from '../animation/states';
 import type { GameObject } from '../world/GameObject';
 import { controlRegistry } from './controls';
+import { parseList } from './lists';
 import type { ControlState } from './controls';
 import { defineComponent } from './defineComponent';
 import { renderedModels } from './meshRenderer';
@@ -29,6 +30,8 @@ export interface AnimatorHandle {
   readonly current: string | null;
   /** Clip names of the model (empty while it loads). */
   readonly clips: readonly string[];
+  /** Playback position and length in seconds of the clip of a state or clip name, if it exists. */
+  timeOf(name: string): { readonly time: number; readonly duration: number } | null;
   /** Called when a clip started with `once` has finished. */
   onFinished: ((name: string) => void) | null;
   /** Animation events since the last call (blocks "when animation … started / finished"). */
@@ -107,6 +110,15 @@ export const animator = defineComponent({
       step: 0.1,
       text: { de: 'Geschwindigkeit', en: 'Speed' },
     },
+    markers: {
+      type: 'string',
+      default: '',
+      group: 'events',
+      text: {
+        de: 'Ereignisse (Zustand@Sekunde=Name; …)',
+        en: 'Events (state@seconds=name; …)',
+      },
+    },
     walkClipSpeed: {
       type: 'number',
       default: 2.2,
@@ -130,9 +142,12 @@ export const animator = defineComponent({
       defaultState: 'idle',
       crossFade: 0.2,
       speed: 1,
+      markers: '',
       walkClipSpeed: 2.2,
       runClipSpeed: 5.5,
     };
+    /** Time of each marker's clip at the last tick, to see when a marker was passed. */
+    const markerTimes = new Map<string, number>();
     let bound: RenderedModel | null = null;
     let mixer: AnimationMixer | null = null;
     const actions = new Map<string, AnimationAction>();
@@ -222,6 +237,13 @@ export const animator = defineComponent({
       },
       get clips() {
         return [...actions.keys()];
+      },
+      timeOf(name) {
+        const clip = clipOf(name);
+        const action = clip ? actions.get(clip) : undefined;
+        if (!action) return null;
+        const duration = action.getClip().duration;
+        return { time: duration > 0 ? action.time % duration : 0, duration };
       },
       onFinished: null,
       takeEvents() {
@@ -331,6 +353,26 @@ export const animator = defineComponent({
       follow.time = phase * follow.getClip().duration;
     };
 
+    /** Animation events (foot lands → step sound, hit moment → damage): "when animation … started". */
+    const fireMarkers = (): void => {
+      for (const [target, name] of parseList(values.markers)) {
+        const split = target.lastIndexOf('@');
+        if (split <= 0) continue;
+        const at = Number(target.slice(split + 1));
+        const clip = clipOf(target.slice(0, split));
+        const action = clip ? actions.get(clip) : undefined;
+        if (!action || !Number.isFinite(at) || (weights.get(action) ?? 0) < 0.3) continue;
+        const duration = action.getClip().duration;
+        const time = duration > 0 ? action.time % duration : 0;
+        const key = `${target}=${name}`;
+        const previous = markerTimes.get(key);
+        markerTimes.set(key, time);
+        if (previous === undefined) continue;
+        const passed = previous <= time ? previous < at && at <= time : at > previous || at <= time;
+        if (passed) events.push({ name, phase: 'started' });
+      }
+    };
+
     return {
       apply(next) {
         values = next;
@@ -365,6 +407,7 @@ export const animator = defineComponent({
         }
         syncLocomotion();
         mixer.update(context.dt);
+        fireMarkers();
       },
       destroy() {
         unbind();

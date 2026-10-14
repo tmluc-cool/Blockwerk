@@ -579,6 +579,19 @@ export function importModelAsset(
   return entry;
 }
 
+/** Adds an image (PNG), e.g. a character portrait, to the project. */
+export function importImageAsset(
+  folder: string,
+  name: string,
+  data: Uint8Array,
+): AssetEntry<'image'> | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const entry = project.createImage(project.uniqueAssetPath(folder, name, 'image'), data);
+  assetsChanged();
+  return entry;
+}
+
 /**
  * Adds assets that keep their IDs (from "My Prefabs"). Assets the project already has are
  * skipped. Returns how many were added.

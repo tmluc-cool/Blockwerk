@@ -38,13 +38,8 @@ export { colliderRegistry } from './components/colliders';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';
 export { motorRegistry } from './components/characterController';
-export {
-  ATTACHMENT_POINTS,
-  DEFAULT_ANIMATION_SOURCE,
-  figureRegistry,
-  parseAttachments,
-  parseList,
-} from './components/figure';
+export { ATTACHMENT_POINTS, DEFAULT_ANIMATION_SOURCE, figureRegistry } from './components/figure';
+export { parseAttachments, parseList } from './components/lists';
 export type { AttachmentPoint, FigureInfo } from './components/figure';
 export {
   applyMovementProfile,

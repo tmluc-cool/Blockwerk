@@ -1625,3 +1625,339 @@ button.small {
 .library-grid.my-prefabs .prefab-icon {
   color: var(--bw-prefab);
 }
+
+/* ---- Character Studio (SPEC 5.10) ---- */
+.panel.studio {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.studio-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 92px minmax(230px, 320px) minmax(220px, 1fr) minmax(200px, 250px);
+}
+.studio-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 4px;
+  border-right: 1px solid var(--bw-border);
+  background: var(--bw-panel-alt);
+}
+.studio-nav button {
+  text-align: left;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--bw-text);
+  cursor: pointer;
+}
+.studio-nav button:hover {
+  background: var(--bw-hover);
+}
+.studio-nav button.active {
+  background: var(--bw-selection);
+  color: var(--bw-selection-text);
+}
+.studio-left,
+.studio-right {
+  overflow: auto;
+  padding: 8px;
+  border-right: 1px solid var(--bw-border);
+}
+.studio-right {
+  border-right: 0;
+  border-left: 1px solid var(--bw-border);
+}
+.studio-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.studio-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+.studio-group {
+  margin-bottom: 12px;
+}
+.studio-group h4,
+.studio-animations h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bw-text-dim);
+}
+.studio-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.studio-row input[type='search'] {
+  flex: 1;
+  min-width: 0;
+}
+.studio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+}
+.studio-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel-alt);
+  color: var(--bw-text);
+  cursor: pointer;
+  font-size: 10px;
+}
+.studio-tile img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.studio-tile.active {
+  outline: 2px solid var(--bw-accent);
+}
+.studio-slider {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 64px;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.studio-slider-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--bw-text-dim);
+  font-size: 11px;
+}
+.studio-parts {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.studio-parts li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.studio-parts li.selected {
+  background: var(--bw-hover);
+}
+.studio-parts label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 1;
+}
+.studio-palettes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.palette {
+  display: flex;
+  padding: 2px;
+  border: 1px solid var(--bw-border);
+  border-radius: 4px;
+  background: var(--bw-panel-alt);
+  cursor: pointer;
+}
+.palette span {
+  width: 14px;
+  height: 20px;
+}
+.palette.active {
+  outline: 2px solid var(--bw-accent);
+}
+.studio-profiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.studio-profiles button.active {
+  background: var(--bw-selection);
+  color: var(--bw-selection-text);
+}
+.studio-numbers {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  margin: 0 0 6px;
+}
+.studio-numbers dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.studio-obstacles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.silhouette {
+  position: relative;
+  width: 140px;
+  height: 200px;
+  margin: 4px auto 8px;
+  border-radius: 6px;
+  background: var(--bw-input);
+}
+.bone-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--bw-panel);
+  cursor: pointer;
+}
+.bone-dot.mapped {
+  background: #4fbf6a;
+}
+.bone-dot.missing {
+  background: var(--bw-error);
+}
+.ok {
+  color: #4fbf6a;
+}
+.warn {
+  color: var(--bw-warning);
+}
+.studio-animations ul {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.studio-animations li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.studio-animations li.selected button {
+  color: var(--bw-accent);
+}
+.studio-timeline {
+  margin-top: 8px;
+}
+.timeline-bar {
+  position: relative;
+  height: 18px;
+  border-radius: 3px;
+  background: var(--bw-input);
+  cursor: crosshair;
+}
+.timeline-head {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--bw-accent);
+}
+.timeline-marker {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 2px;
+  background: #4fc3f7;
+}
+.studio-camera-canvas {
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  border-radius: 4px;
+  background: var(--bw-input);
+  cursor: move;
+}
+.studio-abilities {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding: 8px;
+  overflow-x: auto;
+  border-top: 1px solid var(--bw-border);
+  background: var(--bw-panel-alt);
+}
+.studio-abilities-title {
+  align-self: center;
+  font-weight: 600;
+}
+.ability-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 108px;
+  padding: 6px 8px;
+  border: 1px solid var(--bw-border);
+  border-radius: 6px;
+  background: var(--bw-panel);
+  font-size: 11px;
+  cursor: grab;
+}
+.ability-card.on {
+  border-color: var(--bw-accent);
+}
+.ability-card.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ability-icon {
+  display: inline-block;
+  font-size: 18px;
+}
+.ability-card.on .ability-doubleJump {
+  animation: ability-hop 1s ease-in-out infinite;
+}
+.ability-card.on .ability-roll {
+  animation: ability-spin 1.2s linear infinite;
+}
+.ability-card.on .ability-glide {
+  animation: ability-glide 2s ease-in-out infinite;
+}
+.ability-card.on .ability-stamina {
+  animation: ability-pulse 1.2s ease-in-out infinite;
+}
+@keyframes ability-hop {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes ability-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ability-glide {
+  50% {
+    transform: translateX(6px);
+  }
+}
+@keyframes ability-pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+.studio-portrait img {
+  width: 100%;
+  border-radius: 4px;
+}

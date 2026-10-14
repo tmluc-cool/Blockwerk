@@ -4,7 +4,7 @@ import { cameraRegistry } from '../components/camera';
 import type { CameraEntry } from '../components/camera';
 import { cameraBehaviorRegistry } from '../components/cameraBehaviors';
 import { abilityRegistry, ABILITY_NAMES } from '../components/abilities';
-import { parseAttachments, parseList } from '../components/figure';
+import { parseAttachments, parseList } from '../components/lists';
 import { applyMovementProfile, isProfileName } from '../character/movement';
 import { controlRegistry } from '../components/controls';
 import { resolveValues } from '../components/defineComponent';
@@ -279,28 +279,33 @@ export function detachItem(self: GameObject, point: string): void {
   }));
 }
 
-/** Shows or hides a part of the figure's model by its name. */
+/** Splits a `;` list into names. */
+function names(text: unknown): string[] {
+  return String(text ?? '')
+    .split(';')
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
+/** Shows or hides a part of the figure's model by its name (gear parts are hidden until shown). */
 export function setPartVisible(self: GameObject, part: string, visible: boolean): void {
   updateFigure(self, (values) => {
-    const hidden = String(values['hiddenParts'] ?? '')
-      .split(';')
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .filter((name) => name !== part);
-    if (!visible) hidden.push(part);
-    return { hiddenParts: hidden.join(';') };
+    const hidden = names(values['hiddenParts']).filter((name) => name !== part);
+    const shown = names(values['shownGear']).filter((name) => name !== part);
+    if (visible) shown.push(part);
+    else hidden.push(part);
+    return { hiddenParts: hidden.join(';'), shownGear: shown.join(';') };
   });
 }
 
 /** Swaps one part for another (a hat for a helmet): hides the first, shows the second. */
 export function switchPart(self: GameObject, from: string, to: string): void {
   updateFigure(self, (values) => {
-    const hidden = String(values['hiddenParts'] ?? '')
-      .split(';')
-      .map((name) => name.trim())
-      .filter((name) => name && name !== to);
+    const hidden = names(values['hiddenParts']).filter((name) => name !== to);
+    const shown = names(values['shownGear']).filter((name) => name !== from && name !== to);
     if (from && !hidden.includes(from)) hidden.push(from);
-    return { hiddenParts: hidden.join(';') };
+    shown.push(to);
+    return { hiddenParts: hidden.join(';'), shownGear: shown.join(';') };
   });
 }
 

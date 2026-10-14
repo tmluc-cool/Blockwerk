@@ -3,6 +3,7 @@ import { animatorRegistry, controlRegistry } from '@blockwerk/runtime';
 import { compileBlockScript } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
 import { lastGameViewStats } from './game/GameViewport';
+import { currentStage } from './studio/StudioStage';
 import { useLayout } from './layout/layoutController';
 import { activeSceneView } from './scene/sceneViews';
 import type { SceneCameraSnapshot } from './scene/SceneViewport';
@@ -65,6 +66,8 @@ export interface BlockwerkDebugHooks {
   screenPoint(id: string): { x: number; y: number } | null;
   /** Views the running game renders (one, or two with split screen) and how they are split. */
   gameViews(): { count: number; split: string; players: string[] };
+  /** The Character Studio's preview: mode, size, parts, equipment, clips, jump numbers. */
+  studioState(): ReturnType<NonNullable<ReturnType<typeof currentStage>>['inspect']>;
   /** Animation state, speed and ground contact of a live object (play mode). */
   characterState(name: string): {
     animation: string | null;
@@ -165,6 +168,7 @@ export function installTestHooks(): void {
         players: views?.views.map((view) => view.player) ?? [],
       };
     },
+    studioState: () => currentStage()?.inspect() ?? null,
     characterState: (name) => {
       const object = [...(currentGame()?.world.allObjects() ?? [])].find(
         (item) => item.name === name,
