@@ -1,346 +1,346 @@
-# Fortschritt
+# Progress
 
-Stand der Phasen aus `SPEC.md`, Abschnitt 10. Pro Phase: Plan vor Beginn, Ergebnis der Abnahme danach.
+Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting, acceptance result afterwards.
 
-| Phase | Titel | Status |
+| Phase | Title | Status |
 |---|---|---|
-| 0 | Fundament und Unity-Layout | abgeschlossen |
-| 1 | Objekte, Komponenten, Block-Skripte, Play-Modus | abgeschlossen |
-| 2 | Projekt-Fenster, Asset-Bibliothek, Prefabs | in Arbeit |
-| 3 | Spieler, Physik, Animation | offen |
-| 3b | Figuren-Studio | offen |
-| 4 | Umgebung und Grafik | offen |
-| 5 | NPCs und Spiellogik | offen |
-| 6 | UI, Menüs, Speichern | offen |
-| 7 | Grosse Projekte | offen |
-| 8 | Debugging | offen |
-| 9 | Build und Export | offen |
-| 10 | KI-Assistent | offen |
-| 11 | Feinschliff und Endabnahme | offen |
+| 0 | Foundation and Unity layout | done |
+| 1 | Objects, components, block scripts, Play Mode | done |
+| 2 | Project window, Asset Library, Prefabs | in progress |
+| 3 | Player, physics, animation | open |
+| 3b | Character Studio | open |
+| 4 | Environment and graphics | open |
+| 5 | NPCs and game logic | open |
+| 6 | UI, menus, saving | open |
+| 7 | Large projects | open |
+| 8 | Debugging | open |
+| 9 | Build and export | open |
+| 10 | AI assistant | open |
+| 11 | Polish and final acceptance | open |
 
 ---
 
-## Phase 3: Spieler, Physik, Animation
+## Phase 3: Player, physics, animation
 
-Branch: `phase/03-spieler` (baut auf Phase 2 auf, PR #3 ist noch nicht gemergt).
-
-### Plan
-
-**Teilaufgaben**
-
-1. **Physik** (`packages/runtime`, SPEC 8.4) mit Rapier3D (`@dimforge/rapier3d-compat`, Apache-2.0)
-   - Komponente **Rigidbody** (dynamisch, kinematisch; Masse, Dämpfung, Schwerkraft an/aus, Drehung sperren). Collider (Box, Kugel, Kapsel, neu: Zylinder, konvexe Hülle, Mesh) mit Reibung und Abprallen, „Ist Trigger“.
-   - Objekte ohne Rigidbody sind feste Hindernisse (wie Unitys statische Collider); per Skript bewegte Objekte werden mitgeführt.
-   - Physik-Ebenen-Matrix in den Projekteinstellungen, Schwerkraft pro Szene. Physik läuft nur im Play-Modus, im festen 60-Hz-Takt an der Stelle aus SPEC 8.1.
-   - Berührungs-Ereignisse aus Phase 1 bleiben unverändert; neu „Wenn [Objekt | Tag] Zone betritt / verlässt“ für Trigger.
-2. **Spielerfiguren** (SPEC 8.5): Komponente **Charakter-Controller** (Rapiers kinematischer Controller: Rampen bis Grenzwinkel, Abrutschen, Treppen steigen, am Boden haften, an Wänden entlanggleiten, dynamische Objekte schieben). Steuerungs-Komponenten **Third-Person**, **First-Person**, **Draufsicht** und **Fahrzeug** mit Beschleunigen/Bremsen, Drehen in Laufrichtung, Rennen, Ducken, Springen mit Sprung-Puffer und Gnadenfrist, Luftsteuerung, Landeerkennung. Standardwerte so, dass die Unity-Gefühl-Checkliste ohne Anpassung erfüllt ist.
-3. **Eingabe** (SPEC 8.10): Eingabe-Aktionen `Bewegen`, `Umsehen`, `Springen`, `Rennen`, `Ducken`, `Interagieren`, `Angreifen`, `Pause` mit Belegung pro Spieler (Spieler 1: WASD + Maus oder Gamepad 1; Spieler 2: Pfeiltasten + Ziffernblock oder Gamepad 2). Gamepads über die Gamepad-API, Mauszeiger im Spiel gefangen, `Esc` gibt ihn frei.
-4. **Kamera** (SPEC 8.6): Kamera-Verhalten **Third-Person-Orbit** (Maus und rechter Stick, Abstand, Höhe, Glättung, Wand-Kollision, Zoom per Mausrad, Sichtfeld beim Rennen), **First-Person**, **Draufsicht**, **Seitenansicht**, **feste Kamera**, **Kamerafahrt** (Wegpunkte), Kamerawackeln, weiche Übergänge. **Spieler 2:** geteilter Bildschirm (waagrecht/senkrecht) oder gemeinsame Kamera.
-5. **Animation** (SPEC 8.7): Komponente **Animator (vereinfacht)** für Modelle mit Skelett: automatische Zuordnung der Clip-Namen auf Standardzustände (Stehen, Gehen, Rennen, Springen, Fallen, Landen, Ducken, Angreifen, Treffer, Sterben, Winken …), weiche Überblendung, Abspielgeschwindigkeit passend zum Tempo. Zuordnung abweichender Namen im Import-Inspektor.
-6. **Blöcke** aus Anhang A mit „(3)“: Aktionen und Zonen, Spieler, Kamera, Animation, Physik. Jeder Block mit Golden- und Laufzeittest.
-7. **Editor:** neue Komponenten im Inspektor (aus den Definitionen), Physik-Einstellungen (Ebenen-Matrix, Schwerkraft), Spielansicht mit Mausfang, Gamepads und geteiltem Bildschirm, **Testgelände** (SPEC 5.6) mit „Im Testgelände spielen“.
-8. **Beispiel** `examples/03-held` (Ritter aus der Bibliothek nur mit Komponenten, Mauern, Treppen, Rampen, Kisten, bewegliche Plattform) und Abnahme mit Tests und Screenshot.
-
-**Betroffene Pakete:** `runtime` (Physik, Controller, Kamera, Animator, Eingabe), `blocks`, `compiler`, `project` (Physik-Einstellungen, Schwerkraft), `apps/editor`, `examples/`.
-
-**Risiken**
-
-- Rapier als WASM: Start im Play-Modus muss unter 1 Sekunde bleiben (einmal laden und wiederverwenden).
-- Spielgefühl lässt sich nur teilweise automatisch prüfen: Tests messen Beschleunigungsverläufe, Drehgeschwindigkeit, Sprunghöhe, Kamera-Abstand an Wänden und Überblendzeiten; der Rest per Screenshot und Bericht.
-- Gamepads gibt es in der Testumgebung nicht: die Tests geben ein simuliertes Gamepad über die Gamepad-API vor.
-- KayKit-Figuren haben keine Animationen „Fallen“ und „Ducken“; „Fallen“ nutzt die Sprung-Schwebe-Animation, „Ducken“ fällt ohne Clip auf Stehen zurück.
-- Retargeting auf das Standard-Skelett (VRM-Knochennamen) gehört zum Figuren-Studio (Phase 3b); in Phase 3 spielen Figuren ihre eigenen Animationen.
-
-## Phase 2: Projekt-Fenster, Asset-Bibliothek, Prefabs
-
-Branch: `phase/02-bibliothek` (baut auf Phase 1 auf).
+Branch: `phase/03-spieler` (builds on Phase 2, PR #3 is not merged yet).
 
 ### Plan
 
-**Teilaufgaben**
+**Subtasks**
 
-1. **Asset-Bibliothek bauen** (`packages/library`, SPEC 6.1, 6.2, Anhang C)
-   - Quellenbeschreibungen in `packages/library/sources/*.json` (URL, Lizenz, Urheber, Kategorien und Tags nach Dateinamen, Übersetzungen der Namen, Collider-Vorschlag, Animationsnamen).
-   - `pnpm assets:fetch`: lädt die Pakete (Git oder ZIP), prüft die Lizenz (nur CC0), optimiert jedes Modell mit `@gltf-transform` (Duplikate, Schweissen, Meshopt-Kompression), normalisiert Massstab und Drehpunkt (unten mittig), rendert Vorschaubilder (Playwright + three.js) und schreibt `library/index.json` und `library/LICENSES.md`. Bereits verarbeitete Modelle werden übersprungen (Cache).
-   - Startpaket: KayKit-Pakete (CC0, offiziell auf GitHub): Mittelalter-Hexagon, Dungeon, Stadt, Möbel, Restaurant, Halloween, Raumbasis, Prototyp, Abenteurer- und Skelett-Figuren (zusammen rund 900 Modelle). Kenney, Quaternius und Poly Haven bekommen ebenfalls Quellenbeschreibungen.
-2. **Laufzeit:** Modelle laden (GLTF mit Meshopt), Modell-Feld im Modell-Renderer (Bibliotheks- oder Projekt-Modell statt Grundform), **automatische Instanziierung** gleicher Modelle (`InstancedMesh`), Collider-Vorschlag aus den Modellmassen.
-3. **Projektformat** (Erweiterung, siehe Vorschlag unten): Binärdateien, Asset-Typen „Modell“ und „Prefab“, Prefab-Exemplare mit Überschreibungen, Varianten, verschachtelte Prefabs.
+1. **Physics** (`packages/runtime`, SPEC 8.4) with Rapier3D (`@dimforge/rapier3d-compat`, Apache-2.0)
+   - **Rigidbody** component (dynamic, kinematic; mass, damping, gravity on/off, lock rotation). Colliders (Box, Sphere, Capsule, new: Cylinder, Convex Hull, Mesh) with friction and bounciness, "Is Trigger".
+   - Objects without a Rigidbody are fixed obstacles (like Unity's static colliders); objects moved by script are carried along.
+   - Physics layer matrix in the project settings, gravity per scene. Physics runs only in Play Mode, at a fixed 60 Hz step at the point defined in SPEC 8.1.
+   - Touch events from Phase 1 stay unchanged; new "When [object | tag] enters / leaves zone" for triggers.
+2. **Player characters** (SPEC 8.5): **Character Controller** component (Rapier's kinematic controller: ramps up to a limit angle, sliding off, climbing stairs, sticking to the ground, sliding along walls, pushing dynamic objects). Control components **Third Person**, **First Person**, **Top Down** and **Vehicle** with acceleration/braking, turning in the walking direction, sprinting, crouching, jumping with jump buffer and coyote time, air control, landing detection. Default values chosen so that the Unity-feel checklist is met without adjustment.
+3. **Input** (SPEC 8.10): input actions `Move`, `Look`, `Jump`, `Sprint`, `Crouch`, `Interact`, `Attack`, `Pause` with bindings per player (player 1: WASD + mouse or gamepad 1; player 2: arrow keys + numpad or gamepad 2). Gamepads via the Gamepad API, mouse cursor captured in the game, `Esc` releases it.
+4. **Camera** (SPEC 8.6): camera behaviors **Third-person orbit** (mouse and right stick, distance, height, smoothing, wall collision, zoom via mouse wheel, field of view while sprinting), **First person**, **Top down**, **Side view**, **fixed camera**, **camera fly-through** (waypoints), camera shake, smooth transitions. **Player 2:** split screen (horizontal/vertical) or shared camera.
+5. **Animation** (SPEC 8.7): **Animator (simplified)** component for models with a skeleton: automatic mapping of clip names to standard states (Idle, Walk, Run, Jump, Fall, Land, Crouch, Attack, Hit, Die, Wave …), smooth blending, playback speed matched to movement speed. Mapping of deviating names in the import Inspector.
+6. **Blocks** from Appendix A marked "(3)": actions and zones, player, camera, animation, physics. Every block with a golden test and a runtime test.
+7. **Editor:** new components in the Inspector (from the definitions), physics settings (layer matrix, gravity), Game view with mouse capture, gamepads and split screen, **Test Area** (SPEC 5.6) with "Play in Test Area".
+8. **Example** `examples/03-held` (knight from the library using components only, walls, stairs, ramps, crates, moving platform) and acceptance with tests and screenshot.
+
+**Affected packages:** `runtime` (physics, controller, camera, Animator, input), `blocks`, `compiler`, `project` (physics settings, gravity), `apps/editor`, `examples/`.
+
+**Risks**
+
+- Rapier as WASM: starting Play Mode must stay under 1 second (load once and reuse).
+- Game feel can only be partly checked automatically: tests measure acceleration curves, turning speed, jump height, camera distance at walls and blend times; the rest via screenshot and report.
+- There are no gamepads in the test environment: the tests supply a simulated gamepad through the Gamepad API.
+- KayKit characters have no "Fall" and "Crouch" animations; "Fall" uses the jump hover animation, "Crouch" falls back to Idle when there is no clip.
+- Retargeting to the standard skeleton (VRM bone names) belongs to the Character Studio (Phase 3b); in Phase 3 characters play their own animations.
+
+## Phase 2: Project window, Asset Library, Prefabs
+
+Branch: `phase/02-bibliothek` (builds on Phase 1).
+
+### Plan
+
+**Subtasks**
+
+1. **Build the Asset Library** (`packages/library`, SPEC 6.1, 6.2, Appendix C)
+   - Source descriptions in `packages/library/sources/*.json` (URL, license, author, categories and tags by file name, name translations, collider suggestion, animation names).
+   - `pnpm assets:fetch`: downloads the packs (Git or ZIP), checks the license (CC0 only), optimizes each model with `@gltf-transform` (duplicates, welding, Meshopt compression), normalizes scale and pivot (bottom center), renders preview images (Playwright + three.js) and writes `library/index.json` and `library/LICENSES.md`. Models that were already processed are skipped (cache).
+   - Starter pack: KayKit packs (CC0, official on GitHub): Medieval Hexagon, Dungeon, City, Furniture, Restaurant, Halloween, Room Base, Prototype, Adventurer and Skeleton characters (about 900 models in total). Kenney, Quaternius and Poly Haven also get source descriptions.
+2. **Runtime:** load models (GLTF with Meshopt), model field in the Model Renderer (library or project model instead of a primitive), **automatic instancing** of identical models (`InstancedMesh`), collider suggestion from the model dimensions.
+3. **Project format** (extension, see proposal below): binary files, asset types "Model" and "Prefab", prefab instances with overrides, variants, nested prefabs.
 4. **Editor**
-   - Asset-Bibliothek: Raster mit Vorschaubildern, Kategorien, unscharfe Suche (de/en), Filter (animiert, Polygonanzahl), Favoriten, zuletzt benutzt, drehbare 3D-Vorschau, „In Projekt importieren“.
-   - Hineinziehen in die Szene mit Aufsetzen auf die Oberfläche unter dem Mauszeiger; **Pinsel** zum Verteilen vieler Objekte mit zufälliger Drehung und Grösse.
-   - Projekt-Fenster: Modelle importieren (Datei hineinziehen oder Menü; GLB/glTF direkt, FBX/OBJ werden zu GLB), Import-Inspektor (Massstab mit 1,8-m-Vergleichsfigur, Drehpunkt, Collider erzeugen, Lizenz), Vorschaubilder, Grössenregler, Typfilter.
-   - Prefabs wie Unity: Objekt aus der Hierarchie ins Projekt-Fenster ziehen erzeugt ein Prefab; Exemplare blau in der Hierarchie; Prefab-Modus per Doppelklick; überschriebene Werte fett mit Randmarkierung, „Übernehmen“/„Zurücksetzen“ pro Wert und für alles; Varianten; verschachtelte Prefabs; „Meine Prefabs“ (projektübergreifend, mit Abhängigkeiten).
-5. **Beispiel** `examples/02-dorf` (Häuser, Brunnen, Zäune, 200 Bäume) und Abnahme mit Tests, Messung der Bildrate und Screenshot.
+   - Asset Library: grid with preview images, categories, fuzzy search (de/en), filters (animated, polygon count), favorites, recently used, rotatable 3D preview, "Import into Project".
+   - Dragging into the Scene with snapping to the surface under the mouse pointer; **brush** to scatter many objects with random rotation and size.
+   - Project window: import models (drag in a file or via menu; GLB/glTF directly, FBX/OBJ are converted to GLB), import Inspector (scale with a 1.8 m reference figure, pivot, generate collider, license), preview images, size slider, type filter.
+   - Prefabs like Unity: dragging an object from the Hierarchy into the Project window creates a Prefab; instances are blue in the Hierarchy; Prefab Mode via double-click; overridden values bold with a border marker, "Apply"/"Revert" per value and for everything; variants; nested prefabs; "My Prefabs" (across projects, with dependencies).
+5. **Example** `examples/02-dorf` (houses, well, fences, 200 trees) and acceptance with tests, frame rate measurement and screenshot.
 
-**Vorschlag Formaterweiterung** (zur Bestätigung; Umsetzung erst nach der Bibliothek)
+**Format extension proposal** (for confirmation; implementation only after the library)
 
 ```
-Assets/Modelle/haus.glb               importiertes Modell (binär) + haus.glb.meta.json
+Assets/Modelle/haus.glb               imported model (binary) + haus.glb.meta.json
                                       meta.importSettings: { scale, pivot, generateCollider }, meta.license
-Assets/Prefabs/laterne.prefab.json    { formatVersion, root, objects: { ID → Objekt wie in Szenen },
-                                        base?: Prefab-ID der Basis (Variante), overrides: [...] }
-Szene, Prefab-Exemplar:               Objekt erhält  prefab: { asset: Prefab-ID, object: ID im Prefab }
-                                      und am Exemplar-Wurzelobjekt  overrides: [ { object, path, value } ]
-Modell-Renderer:                      Feld  model: "library:<ID>" oder Projekt-Asset-ID (statt Grundform)
+Assets/Prefabs/laterne.prefab.json    { formatVersion, root, objects: { ID → object as in scenes },
+                                        base?: prefab ID of the base (variant), overrides: [...] }
+Scene, prefab instance:               object gets  prefab: { asset: prefab ID, object: ID in the prefab }
+                                      and on the instance root object  overrides: [ { object, path, value } ]
+Model Renderer:                       field  model: "library:<ID>" or project asset ID (instead of a primitive)
 ```
 
-- Exemplare werden in der Szene vollständig gespeichert (lesbar, die Laufzeit braucht keine Prefab-Logik). Beim Laden und nach jeder Prefab-Änderung werden sie aus dem Prefab neu erzeugt, die Überschreibungen bleiben. Position, Drehung und Name des Exemplar-Wurzelobjekts gelten immer als überschrieben (wie in Unity).
-- Varianten speichern nur ihre Unterschiede zur Basis (gleiche Überschreibungs-Liste). Verschachtelte Prefabs sind Prefab-Exemplare innerhalb eines Prefabs.
-- Bibliotheksmodelle werden nur per stabiler ID verwiesen und nicht ins Projekt kopiert; „In Projekt importieren“ kopiert das GLB nach `Assets/Modelle/`.
+- Instances are stored in full in the scene (readable, the runtime needs no prefab logic). On loading and after every prefab change they are regenerated from the prefab, and the overrides are kept. Position, rotation and name of the instance root object always count as overridden (like in Unity).
+- Variants store only their differences from the base (same override list). Nested prefabs are prefab instances inside a prefab.
+- Library models are referenced only by stable ID and are not copied into the project; "Import into Project" copies the GLB to `Assets/Modelle/`.
 
-**Betroffene Pakete:** `library` (neu befüllt), `runtime`, `project`, `apps/editor`, `apps/desktop` (Bibliothek ausliefern, Binärdateien), `examples/`, `.github/workflows` (Bibliothek in der CI laden und zwischenspeichern).
+**Affected packages:** `library` (newly filled), `runtime`, `project`, `apps/editor`, `apps/desktop` (ship the library, binary files), `examples/`, `.github/workflows` (fetch and cache the library in CI).
 
-**Risiken**
+**Risks**
 
-- Netzwerk: In dieser Cloud-Umgebung sind kenney.nl, quaternius.com, itch.io und polyhaven.com gesperrt, GitHub ist erreichbar. Das Startpaket kommt deshalb hier aus den KayKit-Paketen auf GitHub; die übrigen Quellen funktionieren auf Rechnern mit normalem Internetzugang und in der CI.
-- Texturkompression: `sharp` (Standardweg von `@gltf-transform`) bringt libvips unter LGPL mit und ist nicht erlaubt. KayKit nutzt eine kleine Farbpalette als Textur, daher bleiben Texturen PNG; Meshopt verkleinert die Geometrie.
-- Bildrate: Die CI rendert ohne Grafikkarte (SwiftShader). 60 FPS werden über Draw Calls (Instanziierung) und die Bildzeit gemessen; Messwerte aus der Software-Darstellung sind nur ein Anhaltspunkt.
-- Grösse: Die Bibliothek (rund 100 MB) liegt nicht im Repository (`library/` ist in `.gitignore`), die CI lädt und speichert sie zwischen.
+- Network: in this cloud environment kenney.nl, quaternius.com, itch.io and polyhaven.com are blocked, GitHub is reachable. The starter pack therefore comes from the KayKit packs on GitHub here; the other sources work on machines with normal internet access and in CI.
+- Texture compression: `sharp` (the default path of `@gltf-transform`) brings libvips under LGPL and is not allowed. KayKit uses a small color palette as a texture, so textures stay PNG; Meshopt shrinks the geometry.
+- Frame rate: CI renders without a graphics card (SwiftShader). 60 FPS is measured via draw calls (instancing) and frame time; measurements from software rendering are only a rough guide.
+- Size: the library (about 100 MB) is not in the repository (`library/` is in `.gitignore`), CI downloads and caches it.
 
-### Annahmen
+### Assumptions
 
-- **Projektformat wie vorgeschlagen** (keine Einwände): Modelle als `Assets/Modelle/*.glb` mit Import-Einstellungen (Massstab, Drehpunkt, Collider erzeugen) und Lizenz in der Meta-Datei; Prefabs als `Assets/Prefabs/*.prefab.json`. Prefab-Exemplare stehen vollständig in der Szene (lesbar, die Laufzeit braucht keine Prefab-Logik); jedes Objekt eines Exemplars trägt `prefab: { asset, object }`, das Wurzelobjekt zusätzlich die Liste der Überschreibungen. Name, Position und Drehung der Exemplar-Wurzel gehören immer zum Exemplar (wie in Unity).
-- **Überschreibungen** entstehen automatisch bei jeder Änderung an einem Exemplar (Inspektor, Gizmo, Rückgängig) und sind fett mit blauer Randmarkierung zu sehen; Rechtsklick auf den Wert oder die Liste „Überschreibungen“ in der Prefab-Leiste übernimmt oder setzt zurück. Hinzugefügte Objekte und Komponenten bleiben beim Abgleich erhalten. Gelöschte Prefab-Teile eines Exemplars kommen beim nächsten Abgleich zurück (Unity verlangt dafür „Entpacken“, das es im Kontextmenü gibt).
-- **Varianten** speichern nur ihre Unterschiede zur Basis (plus eigene neue Objekte). Wird aus einem Exemplar ein neues Prefab gezogen, wird das Exemplar dabei entpackt.
-- **Massstab der Bibliothek:** Die KayKit-Pakete haben unterschiedliche Spielzeug-Massstäbe. Jedes Paket bekommt in seiner Quellbeschreibung einen Faktor, damit eine Figur etwa 1,8 m gross ist und Türen, Möbel und Bäume dazu passen (z. B. Mittelalter ×4, Stadt ×5, Figuren ×0,55, Halloween ×0,6). Der Faktor fliesst in den Cache-Schlüssel ein.
-- **Startpaket aus KayKit:** In dieser Cloud-Umgebung sind kenney.nl, quaternius.com, itch.io und polyhaven.com gesperrt. Das Startpaket besteht deshalb aus 10 KayKit-Paketen von GitHub (903 Modelle, alle CC0). Quellbeschreibungen für Kenney, Quaternius und Poly Haven folgen, sobald diese Seiten erreichbar sind.
-- **Texturen bleiben PNG:** Die Standard-Texturkompression von `@gltf-transform` braucht `sharp` (libvips, LGPL) und ist nicht erlaubt. KayKit nutzt eine kleine Farbpaletten-Textur, Meshopt verkleinert die Geometrie.
-- **Bibliothek ausliefern:** `library/` liegt nicht im Repository. Editor im Browser und Vorschau-Server liefern sie unter `library/` aus; die Desktop-App liest sie aus dem Repository-Ordner (Entwicklung) bzw. aus ihren Ressourcen (Installer, Phase 9).
-- **„Meine Prefabs“** liegen pro Benutzer in der Browser-Datenbank (IndexedDB, in der Desktop-App im Benutzerprofil), mit allen Abhängigkeiten (Modelle, Block-Skripte, verschachtelte Prefabs, Basis von Varianten) und gleichen Asset-IDs. Beim Übernehmen in ein Projekt werden vorhandene Assets (gleiche ID) nicht doppelt angelegt.
-- **„erzeuge [Prefab] bei [Objekt]“** ist ein Stapelblock (das neue Objekt startet „Wenn ich erstellt werde“). Der Rückgabewert „→ gibt Objekt zurück“ kommt mit Objekt-Variablen in einer späteren Phase.
-- **Pinsel:** verteilt das gewählte Bibliotheksmodell oder Prefab mit Mindestabstand, zufälliger Drehung und Grösse auf Oberflächen; ein Pinselstrich ist ein Rückgängig-Schritt; `Esc` beendet den Pinsel.
-- **Ein Modell ersetzt die Grundform:** Ist im Modell-Renderer ein Modell gesetzt, werden Form und Material-Felder ausgeblendet; das Modell behält seine eigenen Materialien. Fehlt das Modell, erscheint die Grundform als Platzhalter.
-- **Ausgeblendete Ansichten zeichnen nicht:** Szene oder Spiel hinter einem anderen Reiter werden nicht gerendert (spart im Play-Modus die Hälfte der Arbeit).
+- **Project format as proposed** (no objections): models as `Assets/Modelle/*.glb` with import settings (scale, pivot, generate collider) and license in the meta file; prefabs as `Assets/Prefabs/*.prefab.json`. Prefab instances are stored in full in the scene (readable, the runtime needs no prefab logic); every object of an instance carries `prefab: { asset, object }`, the root object additionally carries the list of overrides. Name, position and rotation of the instance root always belong to the instance (like in Unity).
+- **Overrides** are created automatically on every change to an instance (Inspector, gizmo, undo) and are shown in bold with a blue border marker; right-clicking the value or the "Overrides" list in the prefab bar applies or reverts. Added objects and components are kept on sync. Deleted prefab parts of an instance come back on the next sync (Unity requires "Unpack" for this, which exists in the context menu).
+- **Variants** store only their differences from the base (plus their own new objects). If an instance is dragged out into a new prefab, the instance is unpacked in the process.
+- **Library scale:** the KayKit packs have different toy scales. Each pack gets a factor in its source description so that a character is about 1.8 m tall and doors, furniture and trees match (e.g. Medieval ×4, City ×5, characters ×0.55, Halloween ×0.6). The factor goes into the cache key.
+- **Starter pack from KayKit:** in this cloud environment kenney.nl, quaternius.com, itch.io and polyhaven.com are blocked. The starter pack therefore consists of 10 KayKit packs from GitHub (903 models, all CC0). Source descriptions for Kenney, Quaternius and Poly Haven follow as soon as these sites are reachable.
+- **Textures stay PNG:** the default texture compression of `@gltf-transform` needs `sharp` (libvips, LGPL) and is not allowed. KayKit uses a small color palette texture, Meshopt shrinks the geometry.
+- **Shipping the library:** `library/` is not in the repository. The browser editor and the preview server serve it under `library/`; the desktop app reads it from the repository folder (development) or from its resources (installer, Phase 9).
+- **"My Prefabs"** are stored per user in the browser database (IndexedDB, in the desktop app in the user profile), with all dependencies (models, block scripts, nested prefabs, base of variants) and identical asset IDs. When taking them into a project, existing assets (same ID) are not created twice.
+- **"create [Prefab] at [Object]"** is a stack block (the new object starts "When I am created"). The return value "→ returns object" comes with object variables in a later phase.
+- **Brush:** scatters the selected library model or prefab onto surfaces with minimum distance, random rotation and size; one brush stroke is one undo step; `Esc` ends the brush.
+- **A model replaces the primitive:** if a model is set in the Model Renderer, the shape and material fields are hidden; the model keeps its own materials. If the model is missing, the primitive appears as a placeholder.
+- **Hidden views do not draw:** Scene or Game behind another tab are not rendered (in Play Mode this saves half of the work).
 
-### Ergebnis
+### Result
 
-**Umgesetzt**
+**Implemented**
 
-- **Asset-Bibliothek** (`packages/library`): Quellbeschreibungen mit fester Version (Git-Commit), Lizenzprüfung, Optimierung mit `@gltf-transform` (Duplikate, Schweissen, Drehpunkt unten mittig, Massstab, Meshopt), Vorschaubilder, `library/index.json` und `library/LICENSES.md`, Cache für unveränderte Modelle. 903 CC0-Modelle aus 10 KayKit-Paketen.
-- **Laufzeit:** Modelle laden (GLB mit Meshopt) mit Import-Einstellungen, Modell-Feld im Modell-Renderer, **automatische Instanziierung** gleicher Modelle (`InstancedMesh`, Sichtbarkeit und Bewegung werden verfolgt, Auswahl per Mausklick bleibt), Prefabs zur Laufzeit erzeugen.
-- **Projektformat:** Binärdateien in allen Dateisystemen (Speicher, Node, Browser, Desktop), Modell- und Prefab-Assets, Überschreibungen, Varianten, verschachtelte Prefabs, Abhängigkeiten, Übernehmen von Assets mit gleicher ID.
-- **Editor:** Fenster „Asset-Bibliothek“ (unscharfe Suche de/en, Kategorien, Filter animiert/Polygone, Favoriten, zuletzt benutzt, Grössenregler, drehbare 3D-Vorschau, Details mit Lizenz und Urheber, „In Szene platzieren“, „In Projekt importieren“, „Meine Prefabs“), Hineinziehen in die Szene mit Vorschau und Aufsetzen auf die Oberfläche, Pinsel. Modell-Feld mit Suche und Ablegen. Projekt-Fenster: Modelle importieren (GLB, glTF, FBX und OBJ werden zu GLB), Import-Inspektor mit Grösse und 1,8-m-Vergleich, Prefab erstellen per Ziehen aus der Hierarchie, Prefabs und Modelle in Szene oder Hierarchie ziehen, Prefab-Varianten. Prefab-Exemplare blau, Prefab-Leiste im Inspektor (Öffnen, Auswählen, Überschreibungen übernehmen/zurücksetzen, Entpacken), Prefab-Modus mit Leiste „Zurück zur Szene“. Statistik der Spielansicht zeigt Bilder pro Sekunde.
-- **Beispiel** `examples/02-dorf`: Dorfplatz mit Brunnen, 10 Häusern, Zaunring mit Tor, Weg, 200 Bäumen, Prefab „Laterne“ (Strassenlaterne mit Licht) und Variante „Rote Laterne“, eine Laterne mit überschriebener Helligkeit, Kamerafahrt um das Dorf (Block-Skript).
+- **Asset Library** (`packages/library`): source descriptions with a pinned version (Git commit), license check, optimization with `@gltf-transform` (duplicates, welding, pivot bottom center, scale, Meshopt), preview images, `library/index.json` and `library/LICENSES.md`, cache for unchanged models. 903 CC0 models from 10 KayKit packs.
+- **Runtime:** load models (GLB with Meshopt) with import settings, model field in the Model Renderer, **automatic instancing** of identical models (`InstancedMesh`, visibility and movement are tracked, selection by mouse click is preserved), create prefabs at runtime.
+- **Project format:** binary files in all file systems (memory, Node, browser, desktop), model and prefab assets, overrides, variants, nested prefabs, dependencies, taking over assets with the same ID.
+- **Editor:** "Asset Library" window (fuzzy search de/en, categories, animated/polygon filters, favorites, recently used, size slider, rotatable 3D preview, details with license and author, "Place in Scene", "Import into Project", "My Prefabs"), dragging into the Scene with preview and snapping to the surface, brush. Model field with search and drop. Project window: import models (GLB, glTF, FBX and OBJ are converted to GLB), import Inspector with size and 1.8 m comparison, create a Prefab by dragging from the Hierarchy, drag prefabs and models into the Scene or Hierarchy, Prefab Variants. Prefab instances blue, prefab bar in the Inspector (Open, Select, apply/revert overrides, Unpack), Prefab Mode with a "Back to Scene" bar. The Game view stats show frames per second.
+- **Example** `examples/02-dorf`: village square with a well, 10 houses, a fence ring with a gate, a path, 200 trees, the Prefab "Laterne" (street lamp with light) and the variant "Rote Laterne", one lamp with an overridden brightness, a camera fly-through around the village (block script).
 
-**Abnahme**
+**Acceptance**
 
-- [x] Startpaket mit mindestens 300 Modellen, alle CC0, mit Vorschaubild und Lizenzeintrag: 903 Modelle aus 10 Paketen (Unit-Test prüft Index, Lizenz, Vorschaubild und Datei jedes Eintrags; `library/LICENSES.md`).
-- [ ] `examples/02-dorf`: Dorf mit Häusern, Brunnen, Zäunen und 200 Bäumen in unter 15 Minuten nur aus der Bibliothek gebaut, 60 FPS im Play-Modus. Aufbau erfüllt: Der E2E-Test baut über die Oberfläche (Bibliothek, Hineinziehen, Pinsel) ein Dorf mit 8 Häusern, Brunnen, Zäunen und 200 Bäumen in 0,3 Minuten und spielt es ab; `examples/02-dorf` ist das ausgebaute Dorf. **60 FPS sind hier nicht nachweisbar**, weil die Umgebung ohne Grafikkarte rendert (siehe Messung); bitte auf einem Rechner mit Grafikkarte prüfen.
-- [x] Prefab „Laterne“ geändert: alle Exemplare übernehmen es, ein überschriebener Wert bleibt; Variante „Rote Laterne“ erbt Änderungen der Basis (Unit-Tests in `packages/project` und E2E-Test im Editor mit Prefab-Modus, Speichern und Neuladen).
-- [ ] `pnpm test`, `pnpm lint`, `pnpm build` lokal grün; CI auf GitHub: siehe Pull Request (der erste Lauf baut die Bibliothek, danach kommt sie aus dem Cache).
+- [x] Starter pack with at least 300 models, all CC0, each with a preview image and a license entry: 903 models from 10 packs (unit test checks index, license, preview image and file of every entry; `library/LICENSES.md`).
+- [ ] `examples/02-dorf`: village with houses, well, fences and 200 trees built in under 15 minutes from the library alone, 60 FPS in Play Mode. Construction met: the E2E test builds a village with 8 houses, a well, fences and 200 trees through the UI (library, dragging in, brush) in 0.3 minutes and plays it; `examples/02-dorf` is the expanded village. **60 FPS cannot be demonstrated here** because the environment renders without a graphics card (see measurement); please check on a machine with a graphics card.
+- [x] Prefab "Laterne" changed: all instances pick it up, an overridden value stays; variant "Rote Laterne" inherits changes of the base (unit tests in `packages/project` and E2E test in the editor with Prefab Mode, saving and reloading).
+- [ ] `pnpm test`, `pnpm lint`, `pnpm build` green locally; CI on GitHub: see pull request (the first run builds the library, afterwards it comes from the cache).
 
-Messung im Beispiel „Dorf“ (Spielansicht, Software-Renderer ohne Grafikkarte): 35 Draw Calls für 289 Objekte, 123 120 Dreiecke, etwa 10–15 ms Arbeit pro Bild, 2 Bilder/s. Zum Vergleich erreicht das einfache Beispiel aus Phase 1 hier nur 4 Bilder/s; die Bildrate ist in dieser Umgebung durch die Software-Darstellung begrenzt.
+Measurement in the "Dorf" example (Game view, software renderer without a graphics card): 35 draw calls for 289 objects, 123,120 triangles, about 10–15 ms of work per frame, 2 frames/s. For comparison, the simple example from Phase 1 reaches only 4 frames/s here; the frame rate in this environment is limited by software rendering.
 
-Tests: 177 Unit-/Golden-/Laufzeittests (Vitest), 41 End-to-End-Tests (39 Browser, 2 Desktop-App). Screenshot: `docs/screenshots/phase-02.png`.
+Tests: 177 unit/golden/runtime tests (Vitest), 41 end-to-end tests (39 browser, 2 desktop app). Screenshot: `docs/screenshots/phase-02.png`.
 
-**Offen / Hinweise für später**
+**Open / notes for later**
 
-- **60 FPS auf echter Grafikkarte bestätigen:** Beispiel „Dorf“ öffnen, Play, im Spiel-Fenster „Statistik“ einschalten (zeigt Bilder/s, Bildzeit, Draw Calls).
-- Kenney, Quaternius und Poly Haven (Texturen, HDRI-Himmel), Tiere, Fahrzeuge und Effekte fehlen im Startpaket, bis die Seiten erreichbar sind (Anhang C).
-- Animierte Figuren der Bibliothek werden erst mit dem Animator (Phase 3) abgespielt; Skelett-Modelle werden noch nicht instanziiert.
-- Materialien als eigene Assets, Texturen und Klänge im Projekt-Fenster folgen in späteren Phasen; Vorschaubilder für Projekt-Modelle im Projekt-Fenster ebenfalls.
-- „Meine Prefabs“ zeigt noch keine Vorschaubilder.
+- **Confirm 60 FPS on a real graphics card:** open the "Dorf" example, Play, switch on "Stats" in the Game window (shows frames/s, frame time, draw calls).
+- Kenney, Quaternius and Poly Haven (textures, HDRI sky), animals, vehicles and effects are missing from the starter pack until the sites are reachable (Appendix C).
+- Animated characters from the library are only played with the Animator (Phase 3); skeleton models are not instanced yet.
+- Materials as separate assets, textures and sounds in the Project window follow in later phases; preview images for project models in the Project window as well.
+- "My Prefabs" does not show preview images yet.
 
-## Phase 1: Objekte, Komponenten, Block-Skripte, Play-Modus
+## Phase 1: Objects, components, block scripts, Play Mode
 
-Branch: `phase/01-objekte` (baut auf Phase 0 auf, PR #1 ist noch nicht gemergt).
+Branch: `phase/01-objekte` (builds on Phase 0, PR #1 is not merged yet).
 
 ### Plan
 
-**Teilaufgaben**
+**Subtasks**
 
-1. **Projektformat** (`packages/project`, SPEC 9.1)
-   - Dateisystem-Schnittstelle mit drei Umsetzungen: im Speicher (Tests), Node.js (Electron, Tests, Beispiele), Browser (Origin Private File System, Projekte bleiben im Browser gespeichert).
-   - zod-Schemas, Formatversion, Migrationen mit Sicherungskopie, deterministisches Schreiben (sortierte Schlüssel, 2 Leerzeichen, LF). Gespeichert werden nur Dateien, deren Inhalt sich geändert hat.
-   - Meta-Dateien mit stabiler ID pro Asset, Verweise nur über IDs. Umbenennen und Verschieben von Assets nimmt die Meta-Datei mit.
-2. **Laufzeit** (`packages/runtime`)
-   - `defineComponent` als einzige Quelle für Komponenten (Felder, Typen, Standardwerte, Texte). Komponenten in Phase 1: Transform, Modell-Renderer (Grundformen), Material, Box-/Kugel-/Kapsel-Collider (Überlappungstest ohne Physik, Rapier folgt in Phase 3), Kamera, Licht, Block-Skript.
-   - Welt aus Szenendaten aufbauen; Scheduler mit fester 60-Hz-Logikrate, Reihenfolge nach SPEC 8.1, Generator-Threads nach Anhang B, Interpolation fürs Rendern.
-   - Dienste für Skripte: Eingabe (Tasten, Maus), Zeit, Warten, Stoppuhr, Zufall, Berührungen, Erzeugen/Zerstören, Variablen (Objekt und Spiel), Variablen-Anzeigen auf dem Bildschirm.
-   - Fehler in Skripten stoppen nur den Thread und landen mit Block-ID in der Konsole.
-3. **Blöcke und Compiler**: alle Blöcke aus Anhang A mit „(1)“ (Ereignisse, Bewegung, Aussehen, Steuerung, Fühlen, Operatoren, Variablen). Scratch-artige Typumwandlung, Objekt-, Tag- und Tasten-Auswahllisten aus der Szene. Jede Blockart mit Golden- und Laufzeittest.
+1. **Project format** (`packages/project`, SPEC 9.1)
+   - File system interface with three implementations: in memory (tests), Node.js (Electron, tests, examples), browser (Origin Private File System, projects stay stored in the browser).
+   - zod schemas, format version, migrations with backup copy, deterministic writing (sorted keys, 2 spaces, LF). Only files whose content has changed are saved.
+   - Meta files with a stable ID per asset, references only via IDs. Renaming and moving assets takes the meta file along.
+2. **Runtime** (`packages/runtime`)
+   - `defineComponent` as the single source for components (fields, types, default values, texts). Components in Phase 1: Transform, Model Renderer (primitives), Material, Box/Sphere/Capsule Collider (overlap test without physics, Rapier follows in Phase 3), Camera, Light, Block Script.
+   - Build the world from scene data; scheduler with a fixed 60 Hz logic rate, order according to SPEC 8.1, generator threads according to Appendix B, interpolation for rendering.
+   - Services for scripts: input (keys, mouse), time, waiting, stopwatch, random, touches, create/destroy, variables (object and game), variable displays on screen.
+   - Errors in scripts stop only the thread and end up in the Console with the block ID.
+3. **Blocks and compiler**: all blocks from Appendix A marked "(1)" (events, motion, looks, control, sensing, operators, variables). Scratch-style type conversion, object, tag and key selection lists from the scene. Every block kind with a golden test and a runtime test.
 4. **Editor**
-   - Projekt öffnen, speichern (`Strg+S`), automatisch speichern; Beispielprojekt öffnen; neues Projekt aus Vorlage.
-   - Hierarchie: Eltern-Kind, Ziehen und Ablegen, Umbenennen (`F2`), Duplizieren (`Strg+D`), Löschen (`Entf`), leeres Objekt (`Strg+Shift+N`). Bereichs-Reiter sind Wurzel-Objekte und filtern die Hierarchie.
-   - Szene: Gizmos für Verschieben, Drehen, Skalieren, Kombi mit Einrasten (`Strg`), Mehrfachauswahl (`Strg`/`Shift`), Grundformen im Menü „Objekt“.
-   - Inspektor: Kopfzeile (Aktiv, Name, Tag, Ebene, Statisch), Transform, Komponenten aus `defineComponent`, „Komponente hinzufügen“ mit Suche, Kontextmenü (Zurücksetzen, Kopieren, Einfügen, Entfernen, nach oben/unten), Mehrfachbearbeitung mit „—“.
-   - Block-Skript als Asset im Projekt-Fenster und als Komponente; Variablen-Liste im Block-Editor mit „im Inspektor zeigen“; Doppelklick öffnet den Block-Editor.
-   - Rückgängig/Wiederholen für alle Änderungen an der Szene.
-   - Play-Modus: Start in unter 1 Sekunde, Zurücksetzen beim Stoppen, „Diesen Wert behalten“, Pause, Einzelbild, Zeitlupe (0,25×, 0,5×), Hot Reload der Blöcke, Tönung des Editors.
-   - Konsole: Klick auf einen Eintrag springt zum Block bzw. Objekt.
-5. **Beispiel** `examples/01-hindernis` und Abnahme mit Tests und Screenshot.
+   - Open project, save (`Ctrl+S`), auto-save; open example project; new project from template.
+   - Hierarchy: parent-child, drag and drop, rename (`F2`), duplicate (`Ctrl+D`), delete (`Del`), empty object (`Ctrl+Shift+N`). Area tabs are root objects and filter the Hierarchy.
+   - Scene: gizmos for Move, Rotate, Scale, Combined with snapping (`Ctrl`), multi-selection (`Ctrl`/`Shift`), primitives in the "Object" menu.
+   - Inspector: header (Active, Name, Tag, Layer, Static), Transform, components from `defineComponent`, "Add Component" with search, context menu (Reset, Copy, Paste, Remove, move up/down), multi-editing with "—".
+   - Block Script as an asset in the Project window and as a component; variable list in the Block Editor with "show in Inspector"; double-click opens the Block Editor.
+   - Undo/Redo for all changes to the scene.
+   - Play Mode: start in under 1 second, reset on stop, "Keep this value", Pause, Step, slow motion (0.25×, 0.5×), hot reload of the blocks, editor tint.
+   - Console: clicking an entry jumps to the block or object.
+5. **Example** `examples/01-hindernis` and acceptance with tests and screenshot.
 
-**Vorschlag Projektformat** (Details zu SPEC 9.1, vor der Umsetzung zur Bestätigung)
+**Project format proposal** (details for SPEC 9.1, for confirmation before implementation)
 
 ```
 mein-spiel/
-  blockwerk.json                         { formatVersion, name, startScene (Asset-ID), settings }
+  blockwerk.json                         { formatVersion, name, startScene (asset ID), settings }
   Assets/
-    Szenen/hindernis.scene.json          Objekte als Map ID → Objekt (Name, Eltern-ID, Reihenfolge,
-                                         Aktiv, Tag, Ebene, Statisch, Transform, Komponenten-Liste)
+    Szenen/hindernis.scene.json          objects as map ID → object (name, parent ID, order,
+                                         active, tag, layer, static, transform, component list)
     Szenen/hindernis.scene.json.meta.json { formatVersion, id, type, importSettings, license }
-    Block-Skripte/steuerung.blocks.json  { formatVersion, variables[], workspace (Blockly-JSON) }
+    Block-Skripte/steuerung.blocks.json  { formatVersion, variables[], workspace (Blockly JSON) }
     Block-Skripte/steuerung.blocks.json.meta.json
-  Einstellungen/tags-und-ebenen.json      Tags und Ebenen
-  .blockwerk/                            Sicherungskopien, Cache (in .gitignore)
+  Einstellungen/tags-und-ebenen.json      tags and layers
+  .blockwerk/                            backup copies, cache (in .gitignore)
 ```
 
-- Objekte stehen als Map mit sortierten IDs in der Datei, die Reihenfolge unter Geschwistern als Zahl `order`. So erzeugt eine Änderung nur Diffs am betroffenen Objekt.
-- Bereichs-Reiter sind Wurzel-Objekte mit einem Feld `area` (Art des Bereichs).
-- Meta-Dateien heissen wie die Datei plus `.meta.json` (wie Unitys `.meta`).
-- IDs: 12 Zeichen Kleinbuchstaben und Ziffern, zufällig.
+- Objects are stored as a map with sorted IDs in the file, the order among siblings as a number `order`. This way a change produces diffs only on the affected object.
+- Area tabs are root objects with a field `area` (kind of area).
+- Meta files are named like the file plus `.meta.json` (like Unity's `.meta`).
+- IDs: 12 characters, lowercase letters and digits, random.
 
-**Betroffene Pakete:** `project` (neu befüllt), `runtime`, `blocks`, `compiler`, `apps/editor`, `apps/desktop` (Dateizugriff über IPC), `examples/`.
+**Affected packages:** `project` (newly filled), `runtime`, `blocks`, `compiler`, `apps/editor`, `apps/desktop` (file access via IPC), `examples/`.
 
-**Risiken**
+**Risks**
 
-- Umfang: Phase 1 ist die grösste Phase bisher. Reihenfolge: Laufzeit und Compiler zuerst (testbar ohne Oberfläche), dann Projektformat, dann Editor.
-- Isolation des Play-Modus: Skriptfehler werden pro Thread abgefangen. Endlosschleifen ohne Frame-Abgabe können in Phase 1 nicht entstehen (Schleifen geben immer den Frame ab); die Absicherung dafür kommt mit eigenen Blöcken „ohne Bildschirmaktualisierung“ (Phase 7/8).
-- Berührungen ohne Physik-Engine: einfache Überlappungstests der Collider. Rapier ersetzt das in Phase 3, die Blöcke bleiben gleich.
-- Browser-Speicher (OPFS) ist pro Browser-Profil; Export/Import als Ordner folgt mit der Desktop-App bzw. Phase 9.
+- Scope: Phase 1 is the largest phase so far. Order: runtime and compiler first (testable without a UI), then the project format, then the editor.
+- Isolation of Play Mode: script errors are caught per thread. Infinite loops without yielding a frame cannot occur in Phase 1 (loops always yield the frame); the safeguard for this comes with dedicated blocks "without screen refresh" (Phase 7/8).
+- Touches without a physics engine: simple overlap tests of the colliders. Rapier replaces this in Phase 3, the blocks stay the same.
+- Browser storage (OPFS) is per browser profile; export/import as a folder follows with the desktop app or Phase 9.
 
-### Annahmen
+### Assumptions
 
-- **Projektformat wie vorgeschlagen** (keine Einwände). Die Ordner unter `Assets/` heissen bei neuen Projekten wie die Oberfläche (deutsch „Szenen“, „Block-Skripte“; englisch „Scenes“, „Block Scripts“); `Einstellungen/` und `.blockwerk/` sind feste Namen wie in SPEC 9.1. Neue Projekte bekommen eine `.gitignore` mit `.blockwerk/`.
-- **Speicherort:** Im Browser liegen Projekte im privaten Dateisystem des Browsers (OPFS), in der Desktop-App als echte Ordner unter `Dokumente/Blockwerk` (oder in einem frei gewählten Ordner über „Projekt öffnen → Anderen Ordner wählen“). Die Desktop-App erlaubt Dateizugriffe nur in Projektordnern, die angelegt oder gewählt wurden.
-- **Automatisches Speichern** zwei Sekunden nach jeder Änderung und beim Verlassen der Seite, nie während des Spielens. Abschaltbar unter „Datei → Automatisch speichern“.
-- **Berührungen ohne Physik:** Collider werden auf Überlappung geprüft (Würfel, Kugel, Kapsel). Objekte laufen noch durch Hindernisse hindurch; Rapier kommt in Phase 3, die Blöcke bleiben gleich.
-- **Blöcke mit Phase-2-Bezug:** „erzeuge [Prefab | Asset] bei [ ] → gibt Objekt zurück“ gibt es in Phase 1 als „erzeuge Kopie von [Objekt]“ (Unity: Instantiate eines Szenenobjekts); die Prefab-Variante mit Rückgabewert folgt mit Prefabs in Phase 2. „setze Farbe / Material“ setzt in Phase 1 die Farbe (Material-Assets folgen). „aktiviere / deaktiviere“ wirkt auf Objekte; Komponenten folgen.
-- **„zerstöre [mich | Objekt]“** ist ein Stapelblock; zerstört er das eigene Objekt, endet das Skript sofort (wie „lösche diesen Klon“ in Scratch).
-- **Blickrichtung:** 0° schaut nach +Z, 90° nach +X, genau wie die Y-Drehung im Inspektor. Wegen des bestätigten Koordinatensystems (+X ist links) wird der Wert beim Rechtsdrehen kleiner.
-- **Maus x/y** in Pixeln ab der Mitte der Spielansicht, oben und rechts positiv (wie Scratch).
-- **Block-ID umbenannt:** Der Testblock `motion.moveForward` aus Phase 0 heisst jetzt `motion.move` mit Richtungsauswahl. Es gab noch kein Release, daher ohne Migration.
-- **Variablen** in Phase 1: Typen Zahl, Text, Wahrheitswert; Gültigkeit „für dieses Objekt“ (im Inspektor zeigbar, Wert pro Objekt in der Block-Skript-Komponente) oder „für das ganze Spiel“. Szenen- und lokale Variablen kommen mit Phase 5/7 (lokale Variablen sind im Compiler schon vorhanden), „wird gespeichert“ mit Phase 6.
-- **Play-Modus:** Szenen- und Spielansicht zeigen beide die laufende Spielwelt; Hierarchie und Inspektor zeigen live die Spielobjekte (auch Kopien). Änderungen im Inspektor oder mit Gizmos wirken nur aufs Spiel; „Diesen Wert behalten“ steht neben jedem geänderten Wert, „Alle Änderungen dieses Objekts behalten“ als Knopf über dem Inspektor (statt nur per Rechtsklick).
-- **Startzeit des Play-Modus** wird vom Klick bis zum ersten fertig gezeichneten Spielbild gemessen und in der Konsole ausgegeben. Dafür übernimmt die Spielwelt das vorberechnete Himmelslicht der Editor-Welt; die Himmelslicht-Karte ist 64 px gross (genügt für diffuses Licht, spart viel Zeit).
-- **Leuchten laufender Skripte:** Skripte, die in der letzten Viertelsekunde liefen, leuchten (sonst wären kurze Skripte wie „Wenn Taste gehalten“ nie sichtbar).
-- **Einrasten mit `Strg`** in Unity-Standardschritten: 0,25 m, 15°, Skalierung 0,1.
-- **Neue Objekte** erscheinen am Drehpunkt der Szenen-Kamera im aktiven Bereich (Unity: am Szenen-Drehpunkt). Grundformen bekommen wie in Unity passend einen Collider.
-- **Kombi-Werkzeug** zeigt Verschiebe- und Drehgriffe zusammen; das Rechteck-Werkzeug verhält sich bis zur UI-Phase wie Verschieben.
-- **Eingebaute Tags** wie in Unity: `Untagged`, `MainCamera`, `Player`; Ebene `Default`. Eigene Tags und Ebenen über die Auswahlliste im Inspektor.
-- **Unbekannte Komponenten** (z. B. aus einer neueren Version) bleiben beim Speichern unverändert erhalten.
-- **Beispielprojekte** werden im Editor über „Datei → Beispielprojekt öffnen“ als Kopie geöffnet; die Dateien in `examples/` bleiben unberührt. Prettier formatiert Projektdateien in `examples/` nicht (der Editor schreibt sie selbst deterministisch).
+- **Project format as proposed** (no objections). The folders under `Assets/` are named like the UI in new projects (German "Szenen", "Block-Skripte"; English "Scenes", "Block Scripts"); `Einstellungen/` and `.blockwerk/` are fixed names as in SPEC 9.1. New projects get a `.gitignore` with `.blockwerk/`.
+- **Storage location:** in the browser, projects live in the browser's private file system (OPFS); in the desktop app as real folders under `Documents/Blockwerk` (or in a freely chosen folder via "Open Project → Choose Another Folder"). The desktop app allows file access only in project folders that were created or chosen.
+- **Auto-save** two seconds after every change and when leaving the page, never while playing. Can be switched off under "File → Auto Save".
+- **Touches without physics:** colliders are checked for overlap (box, sphere, capsule). Objects still pass through obstacles; Rapier comes in Phase 3, the blocks stay the same.
+- **Blocks with a Phase 2 connection:** "create [Prefab | Asset] at [ ] → returns object" exists in Phase 1 as "create copy of [Object]" (Unity: Instantiate of a scene object); the prefab variant with a return value follows with prefabs in Phase 2. "set color / material" sets the color in Phase 1 (material assets follow). "activate / deactivate" acts on objects; components follow.
+- **"destroy [me | object]"** is a stack block; if it destroys the own object, the script ends immediately (like "delete this clone" in Scratch).
+- **Facing direction:** 0° looks toward +Z, 90° toward +X, exactly like the Y rotation in the Inspector. Because of the confirmed coordinate system (+X is left), the value decreases when turning right.
+- **Mouse x/y** in pixels from the center of the Game view, up and right positive (like Scratch).
+- **Block ID renamed:** the test block `motion.moveForward` from Phase 0 is now called `motion.move` with a direction selection. There was no release yet, so without migration.
+- **Variables** in Phase 1: types number, text, boolean; scope "for this object" (can be shown in the Inspector, value per object in the Block Script component) or "for the whole game". Scene and local variables come with Phase 5/7 (local variables already exist in the compiler), "is saved" with Phase 6.
+- **Play Mode:** Scene and Game views both show the running game world; Hierarchy and Inspector show the game objects live (including copies). Changes in the Inspector or with gizmos affect only the game; "Keep this value" sits next to every changed value, "Keep all changes of this object" as a button above the Inspector (instead of only via right-click).
+- **Start time of Play Mode** is measured from the click to the first fully drawn game frame and printed to the Console. For this, the game world takes over the precomputed sky light of the editor world; the sky light map is 64 px (sufficient for diffuse light, saves a lot of time).
+- **Glowing running scripts:** scripts that ran in the last quarter second glow (otherwise short scripts like "When key held" would never be visible).
+- **Snapping with `Ctrl`** in Unity default steps: 0.25 m, 15°, scale 0.1.
+- **New objects** appear at the pivot of the Scene camera in the active area (Unity: at the Scene pivot). Primitives get a fitting collider, as in Unity.
+- **Combined tool** shows move and rotate handles together; the Rect tool behaves like Move until the UI phase.
+- **Built-in tags** as in Unity: `Untagged`, `MainCamera`, `Player`; layer `Default`. Custom tags and layers via the selection list in the Inspector.
+- **Unknown components** (e.g. from a newer version) are preserved unchanged on saving.
+- **Example projects** are opened in the editor via "File → Open Example Project" as a copy; the files in `examples/` stay untouched. Prettier does not format project files in `examples/` (the editor writes them deterministically itself).
 
-### Ergebnis
+### Result
 
-**Umgesetzt**
+**Implemented**
 
-- **Laufzeit:** Komponenten über `defineComponent` (Modell-Renderer mit Grundformen und Material, Box-/Kugel-/Kapsel-Collider, Kamera, Licht, Block-Skript); Welt aus Szenendaten mit inkrementellem Abgleich; Spiel mit fester 60-Hz-Logik, Generator-Threads, Interpolation, Ereignissen (Start, jeder Frame, Tasten, Klick, Berühren, Erstellen, Zerstören), Kopien, Variablen und Anzeigen. Skriptfehler stoppen nur den betroffenen Thread und melden die Block-ID.
-- **Blöcke:** alle Blöcke aus Anhang A mit „(1)“ (Ereignisse, Bewegung, Aussehen, Steuerung, Fühlen, Operatoren, Variablen), Auswahllisten mit Objekten und Tags der Szene (stabile IDs), Farbfeld, Variablenfelder. Scratch-artige Typumwandlung an Steckplätzen. Jeder Block mit Golden- und Laufzeittest.
-- **Projektformat:** `packages/project` mit Dateisystem-Schnittstelle (Speicher, Node, Browser, Desktop über IPC), Meta-Dateien mit stabilen IDs, deterministischem Schreiben nur geänderter Dateien, sicherem Umbenennen (auch nur Gross-/Kleinschreibung), Meldungen zu beschädigten, kopierten oder neueren Dateien, Migrationen mit Sicherungskopie.
-- **Editor:** Projekt neu/öffnen/Beispiel, Speichern (`Strg+S`), automatisches Speichern, Rückgängig/Wiederholen (`Strg+Z`/`Strg+Y`). Hierarchie mit Bereichen als Wurzel-Objekten, Ziehen und Ablegen (behält die Weltposition), Umbenennen (`F2`), Duplizieren (`Strg+D`), Löschen (`Entf`), Kontextmenü, Suche, Mehrfachauswahl (`Strg`/`Shift`). Szene mit Gizmos (Verschieben, Drehen, Skalieren, Kombi; Pivot/Mitte, Lokal/Global; Einrasten mit `Strg`), Kamera- und Licht-Symbolen, Auswahlrahmen. Inspektor aus den Komponenten-Definitionen mit Mehrfachbearbeitung („—“), Ziehen an Feldbeschriftungen, Kontextmenü (Zurücksetzen, Werte kopieren/einfügen, Entfernen, nach oben/unten), „Komponente hinzufügen“ mit Suche und Kategorien, Tags und Ebenen. Projekt-Fenster mit Ordnerbaum, Erstellen, Umbenennen, Löschen, Verschieben per Ziehen, Doppelklick öffnet. Block-Editor mit Skriptauswahl, Kopfzeile (Skript und Objekt), Variablenliste rechts (Typ, Gültigkeit, Startwert, „im Inspektor zeigen“).
-- **Play-Modus:** Play/Pause/Einzelbild (`Strg+P`, `Strg+Shift+P`, `Strg+Alt+P`), Zeitlupe 0,5× und 0,25×, Tönung des Editors, Spielansicht bekommt die Tastatur, Variablen-Anzeigen, Hot Reload der Blöcke, leuchtende Skripte, „Diesen Wert behalten“, Zurücksetzen beim Stoppen. Konsole mit Sprung zu Block und Objekt.
-- **Desktop:** Projekte als echte Ordner, Zugriff nur auf freigegebene Projektordner.
-- **Beispiel** `examples/01-hindernis`: Parcours aus Grundformen, gesteuerter Würfel (Block-Skript „Steuerung“ mit Inspektor-Feld „Tempo“), zweiter Würfel mit demselben Skript und anderem Tempo, drei Kugeln mit Tag `Einsammelbar` (Skript „Einsammeln“), Punkteanzeige.
+- **Runtime:** components via `defineComponent` (Model Renderer with primitives and Material, Box/Sphere/Capsule Collider, Camera, Light, Block Script); world from scene data with incremental sync; game with fixed 60 Hz logic, generator threads, interpolation, events (start, every frame, keys, click, touch, created, destroyed), copies, variables and displays. Script errors stop only the affected thread and report the block ID.
+- **Blocks:** all blocks from Appendix A marked "(1)" (events, motion, looks, control, sensing, operators, variables), selection lists with objects and tags of the scene (stable IDs), color field, variable fields. Scratch-style type conversion at slots. Every block with a golden test and a runtime test.
+- **Project format:** `packages/project` with file system interface (memory, Node, browser, desktop via IPC), meta files with stable IDs, deterministic writing of changed files only, safe renaming (also of only upper/lower case), messages about damaged, copied or newer files, migrations with backup copy.
+- **Editor:** project new/open/example, save (`Ctrl+S`), auto-save, Undo/Redo (`Ctrl+Z`/`Ctrl+Y`). Hierarchy with areas as root objects, drag and drop (keeps the world position), rename (`F2`), duplicate (`Ctrl+D`), delete (`Del`), context menu, search, multi-selection (`Ctrl`/`Shift`). Scene with gizmos (Move, Rotate, Scale, Combined; Pivot/Center, Local/Global; snapping with `Ctrl`), camera and light icons, selection outline. Inspector from the component definitions with multi-editing ("—"), dragging on field labels, context menu (Reset, copy/paste values, Remove, move up/down), "Add Component" with search and categories, tags and layers. Project window with folder tree, create, rename, delete, move by dragging, double-click opens. Block Editor with script selection, header (script and object), variable list on the right (type, scope, start value, "show in Inspector").
+- **Play Mode:** Play/Pause/Step (`Ctrl+P`, `Ctrl+Shift+P`, `Ctrl+Alt+P`), slow motion 0.5× and 0.25×, editor tint, Game view receives the keyboard, variable displays, hot reload of the blocks, glowing scripts, "Keep this value", reset on stop. Console with jump to block and object.
+- **Desktop:** projects as real folders, access only to approved project folders.
+- **Example** `examples/01-hindernis`: obstacle course made of primitives, a controlled cube (Block Script "Steuerung" with Inspector field "Tempo"), a second cube with the same script and a different speed, three spheres with the tag `Einsammelbar` (script "Einsammeln"), score display.
 
-**Abnahme**
+**Acceptance**
 
-- [x] `examples/01-hindernis`: Ein Würfel mit Block-Skript wird mit WASD gesteuert, sammelt drei Kugeln (Tag `Einsammelbar`), Punkte erscheinen; die Geschwindigkeit ist ein Inspektor-Feld (Unit-Test ohne Oberfläche und E2E-Test im Editor mit echten Tastendrücken).
-- [x] Dasselbe Block-Skript an einem zweiten Würfel mit anderer Geschwindigkeit funktioniert unabhängig (Tempo 2 statt 4: halbe Strecke, geprüft in beiden Tests).
-- [x] Play-Modus startet in unter 1 Sekunde (gemessen vom Klick bis zum ersten Spielbild, im Software-Renderer der Tests etwa 30–160 ms), Stoppen setzt zurück, ein behaltener Wert bleibt (E2E).
-- [x] Speichern, schliessen, laden: identisch; erneutes Speichern ändert keine Datei (null Git-Diffs; geprüft am Beispiel auf der Festplatte, im Browser per Neuladen und in der Desktop-App per Neustart). Ein Asset umbenennen bricht keinen Verweis (Unit- und E2E-Test).
-- [x] `pnpm test`, `pnpm lint`, `pnpm build` grün; CI auf GitHub unter Windows und Linux grün ([CI-Lauf](https://github.com/tmluc-cool/Blockwerk/actions/runs/38411453659)).
+- [x] `examples/01-hindernis`: a cube with a Block Script is controlled with WASD, collects three spheres (tag `Einsammelbar`), points appear; the speed is an Inspector field (unit test without UI and E2E test in the editor with real key presses).
+- [x] The same Block Script on a second cube with a different speed works independently (speed 2 instead of 4: half the distance, checked in both tests).
+- [x] Play Mode starts in under 1 second (measured from the click to the first game frame, about 30–160 ms in the software renderer of the tests), stopping resets, a kept value stays (E2E).
+- [x] Save, close, load: identical; saving again changes no file (zero Git diffs; checked on the example on disk, in the browser by reloading and in the desktop app by restarting). Renaming an asset breaks no reference (unit and E2E test).
+- [x] `pnpm test`, `pnpm lint`, `pnpm build` green; CI on GitHub green on Windows and Linux ([CI run](https://github.com/tmluc-cool/Blockwerk/actions/runs/38411453659)).
 
-Messung im Beispielprojekt (Spielansicht, Software-Renderer): 27 Draw Calls, 14 160 Dreiecke, Bildzeit 3,5 ms.
+Measurement in the example project (Game view, software renderer): 27 draw calls, 14,160 triangles, frame time 3.5 ms.
 
-Tests: 135 Unit-/Golden-/Laufzeittests (Vitest), 33 End-to-End-Tests (31 Browser, 2 Desktop-App). Screenshot: `docs/screenshots/phase-01.png`.
+Tests: 135 unit/golden/runtime tests (Vitest), 33 end-to-end tests (31 browser, 2 desktop app). Screenshot: `docs/screenshots/phase-01.png`.
 
-**Offen / Hinweise für später**
+**Open / notes for later**
 
-- Physik (Rapier) kommt in Phase 3; bis dahin gibt es keine Schwerkraft und keine festen Hindernisse.
-- Gleiche Modelle teilen sich die Geometrie, werden aber noch nicht automatisch instanziiert (kommt mit den Bibliotheksmodellen in Phase 2).
-- Objekte aus der Hierarchie auf Block-Steckplätze bzw. Verweise per Ziehen in Inspektor-Felder ziehen (SPEC 5.7, 5.9), Tippen zum Block-Suchen (7.8), „Von hier spielen“ (5.5), Einrasten an Eckpunkten (`V`) und das Ebenen-Menü sind noch nicht umgesetzt.
-- Browser-Projekte bleiben im jeweiligen Browserprofil; Import/Export als Ordner bzw. `.blockwerk`-Datei folgt.
+- Physics (Rapier) comes in Phase 3; until then there is no gravity and there are no solid obstacles.
+- Identical models share their geometry but are not yet instanced automatically (comes with the library models in Phase 2).
+- Dragging objects from the Hierarchy onto block slots, or references by dragging into Inspector fields (SPEC 5.7, 5.9), typing to search blocks (7.8), "Play from here" (5.5), snapping to vertices (`V`) and the layers menu are not implemented yet.
+- Browser projects stay in the respective browser profile; import/export as a folder or `.blockwerk` file follows.
 
-## Phase 0: Fundament und Unity-Layout
+## Phase 0: Foundation and Unity layout
 
 ### Plan
 
-**Teilaufgaben**
+**Subtasks**
 
-1. **Monorepo-Gerüst**
-   - pnpm-Workspace mit `packages/*` und `apps/*`, Node LTS (`.nvmrc`), TypeScript strict (`tsconfig.base.json`).
-   - ESLint (Flat Config, `typescript-eslint`, `no-explicit-any` als Fehler, Importverbot Blockly/`apps` in `packages/runtime`, keine Textliterale in JSX), Prettier (LF, 2 Leerzeichen), `.gitattributes` mit LF.
-   - Vitest mit einem Projekt pro Paket, Playwright für Browser und Electron.
-   - Skripte: `pnpm dev`, `pnpm dev:desktop`, `pnpm test`, `pnpm test:e2e`, `pnpm lint`, `pnpm build`.
-   - Pakete nach `CLAUDE.md`: `blocks`, `compiler`, `runtime` mit Inhalt; `project`, `library`, `character` als leere Gerüste für spätere Phasen.
-2. **Editor-Hülle** (`apps/editor`, React + Vite + Zustand + `dockview`)
-   - Menüleiste (Datei, Bearbeiten, Assets, Objekt, Komponente, Fenster, Hilfe), Werkzeugleiste (Hand/Verschieben/Drehen/Skalieren/Rechteck/Kombi mit `Q`–`Y`, Pivot/Mitte, Lokal/Global, Play/Pause/Einzelbild, Ebenen, Layout).
-   - Bereichs-Reiter (Alle, Umgebung, Spieler 1, Spieler 2, NPCs, Gegenstände, UI, +) mit `Alt+1` … `Alt+9`.
-   - Andockbare Fenster: Hierarchie, Szene, Spiel, Block-Editor, Inspektor, Projekt, Asset-Bibliothek, Konsole. Verschieben, als Reiter gruppieren, schwebend lösen und in ein eigenes Fenster abtrennen.
-   - Layouts: automatische Speicherung des aktuellen Layouts, Vorlagen „Standard“ und „Blöcke gross“, eigene Layouts speichern, laden, löschen. `Strg+1` … `Strg+5` fokussiert Fenster.
-   - i18n Deutsch/Englisch über JSON-Dateien, Umschaltung im Menü, Test auf vollständige Schlüssel in beiden Sprachen. Dunkles Design als Standard, helles wählbar.
-3. **Szenen-Ansicht** (`packages/runtime` + `apps/editor`)
-   - Laufzeit: Renderer (WebGL2, ACES-Tone-Mapping, sRGB), Umgebung aus berechnetem Himmel mit Sonnenstand, Umgebungslicht aus dem Himmel, Sonne mit weichen Schatten, texturierter Boden, Nebel in der Ferne.
-   - Standardszene im Editor: Hauptkamera, Sonne, Boden, Testwürfel. Hierarchie zeigt sie, Auswahl per Klick in Hierarchie oder Szene, Inspektor zeigt Name und Transform (nur lesend, Bearbeiten kommt in Phase 1).
-   - Unity-Kamerasteuerung: rechte Maustaste + WASD fliegen, Q/E runter/hoch, Shift schneller, Mausrad während des Fliegens ändert Tempo; Alt + linke Maustaste umkreisen; mittlere Maustaste oder Hand-Werkzeug verschieben; Mausrad zoomen; `F` und Doppelklick in der Hierarchie fokussieren (weich animiert).
-   - Achsenwürfel oben rechts: Klick auf Achse → Ansicht von dieser Seite, Klick auf die Beschriftung → perspektivisch/orthografisch.
-   - Editor-Raster (unendlich, blendet aus), Auswahlrahmen. Spiel-Ansicht rendert aus der Hauptkamera mit Statistik (Bildzeit, Draw Calls, Dreiecke).
-4. **Blöcke**
-   - `defineBlock` in `packages/blocks` als einzige Quelle, daraus Blockly-JSON, Toolbox pro Bereich (passende Kategorien zuerst) und Suchwörter.
-   - Testblöcke: „Wenn Spiel startet“ (Hut) und „gehe ( ) Meter vorwärts“ (Stapel, Beispiel aus SPEC 7.10).
-   - Minimaler Compiler (Block-JSON → Zwischenrepräsentation → JavaScript-Generator-Funktionen nach Anhang B). Die Zwischenrepräsentation enthält schon Funktionen mit Rückgabewert und lokale Variablen.
-   - Golden-Test und Laufzeittest für jede neue Blockart.
-   - Blockly im Block-Editor mit Sprachumschaltung (Blockly-Texte und eigene Blocktexte), Kopfzeile mit Skript und Objekt.
-5. **Electron-Hülle** (`apps/desktop`): Hauptprozess, Preload mit Kontext-Isolation, abgetrennte Fenster erlaubt, `pnpm dev:desktop` startet Vite und Electron.
-6. **GitHub-Grundlage**: `README.md`-Gerüst, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `CHANGELOG.md`, `THIRD_PARTY.md` (mit Lizenzprüfung als Skript), Issue-Vorlagen (Fehler, Idee, neuer Block, neues Asset-Paket), PR-Vorlage mit Checkliste, `ci.yml` (Lint, Typprüfung, Tests, Build, Playwright mit Screenshots als Artefakt, Windows und Linux).
-7. **Abnahme**: alle Kriterien prüfen, Screenshot nach `docs/screenshots/phase-00.png`, Ergebnis hier eintragen, Pull Request.
+1. **Monorepo scaffold**
+   - pnpm workspace with `packages/*` and `apps/*`, Node LTS (`.nvmrc`), TypeScript strict (`tsconfig.base.json`).
+   - ESLint (flat config, `typescript-eslint`, `no-explicit-any` as an error, import ban for Blockly/`apps` in `packages/runtime`, no text literals in JSX), Prettier (LF, 2 spaces), `.gitattributes` with LF.
+   - Vitest with one project per package, Playwright for browser and Electron.
+   - Scripts: `pnpm dev`, `pnpm dev:desktop`, `pnpm test`, `pnpm test:e2e`, `pnpm lint`, `pnpm build`.
+   - Packages according to `CLAUDE.md`: `blocks`, `compiler`, `runtime` with content; `project`, `library`, `character` as empty scaffolds for later phases.
+2. **Editor shell** (`apps/editor`, React + Vite + Zustand + `dockview`)
+   - Menu bar (File, Edit, Assets, Object, Component, Window, Help), toolbar (Hand/Move/Rotate/Scale/Rect/Combined with `Q`–`Y`, Pivot/Center, Local/Global, Play/Pause/Step, Layers, Layout).
+   - Area tabs (All, Environment, Player 1, Player 2, NPCs, Items, UI, +) with `Alt+1` … `Alt+9`.
+   - Dockable windows: Hierarchy, Scene, Game, Block Editor, Inspector, Project, Asset Library, Console. Move, group as tabs, detach as floating and detach into a separate window.
+   - Layouts: automatic saving of the current layout, templates "Default" and "Blocks large", save, load and delete custom layouts. `Ctrl+1` … `Ctrl+5` focuses windows.
+   - i18n German/English via JSON files, switching in the menu, test for complete keys in both languages. Dark theme as default, light selectable.
+3. **Scene view** (`packages/runtime` + `apps/editor`)
+   - Runtime: renderer (WebGL2, ACES tone mapping, sRGB), environment from a computed sky with sun position, ambient light from the sky, sun with soft shadows, textured ground, fog in the distance.
+   - Default scene in the editor: Main Camera, sun, ground, test cube. The Hierarchy shows them, selection by click in the Hierarchy or Scene, the Inspector shows name and Transform (read-only, editing comes in Phase 1).
+   - Unity camera controls: right mouse button + WASD fly, Q/E down/up, Shift faster, mouse wheel while flying changes speed; Alt + left mouse button orbit; middle mouse button or Hand tool pan; mouse wheel zoom; `F` and double-click in the Hierarchy focus (smoothly animated).
+   - Axis cube at the top right: click on an axis → view from that side, click on the label → perspective/orthographic.
+   - Editor grid (infinite, fades out), selection outline. Game view renders from the Main Camera with stats (frame time, draw calls, triangles).
+4. **Blocks**
+   - `defineBlock` in `packages/blocks` as the single source, from it Blockly JSON, toolbox per area (matching categories first) and search keywords.
+   - Test blocks: "When game starts" (hat) and "move ( ) meters forward" (stack, example from SPEC 7.10).
+   - Minimal compiler (block JSON → intermediate representation → JavaScript generator functions according to Appendix B). The intermediate representation already contains functions with return values and local variables.
+   - Golden test and runtime test for every new block kind.
+   - Blockly in the Block Editor with language switching (Blockly texts and own block texts), header with script and object.
+5. **Electron shell** (`apps/desktop`): main process, preload with context isolation, detached windows allowed, `pnpm dev:desktop` starts Vite and Electron.
+6. **GitHub foundation**: `README.md` scaffold, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `CHANGELOG.md`, `THIRD_PARTY.md` (with license check as a script), issue templates (bug, idea, new block, new asset pack), PR template with checklist, `ci.yml` (lint, type check, tests, build, Playwright with screenshots as an artifact, Windows and Linux).
+7. **Acceptance**: check all criteria, screenshot to `docs/screenshots/phase-00.png`, enter the result here, pull request.
 
-**Betroffene Pakete:** alle (Neuanlage). Inhalt in `blocks`, `compiler`, `runtime`, `apps/editor`, `apps/desktop`.
+**Affected packages:** all (new creation). Content in `blocks`, `compiler`, `runtime`, `apps/editor`, `apps/desktop`.
 
-**Risiken**
+**Risks**
 
-- WebGL in Headless-Chromium und Electron ohne GPU (CI, Container): Playwright mit SwiftShader starten. Leistung dort nicht aussagekräftig, nur Funktion.
-- Abgetrennte Fenster (Popout) mit WebGL-Canvas und Blockly: Beide hängen am Dokument des Hauptfensters. Muss im Browser und in Electron geprüft werden.
-- Electron unter Linux-CI braucht `xvfb` und `--no-sandbox` (AppArmor auf Ubuntu-Runnern).
-- Gespeicherte Layouts mit abgetrennten Fenstern dürfen beim Start keine Popups erzwingen (Popup-Blocker).
-- Versionssprünge der Abhängigkeiten seit Stand des Modellwissens: APIs von `dockview`, `blockly`, `three`, `vitest` beim Einbau gegen die installierten Typen prüfen.
+- WebGL in headless Chromium and Electron without a GPU (CI, containers): start Playwright with SwiftShader. Performance there is not meaningful, function only.
+- Detached windows (popout) with a WebGL canvas and Blockly: both hang on the document of the main window. Must be checked in the browser and in Electron.
+- Electron on Linux CI needs `xvfb` and `--no-sandbox` (AppArmor on Ubuntu runners).
+- Saved layouts with detached windows must not force popups on startup (popup blocker).
+- Version jumps of the dependencies since the state of the model's knowledge: check APIs of `dockview`, `blockly`, `three`, `vitest` against the installed types when integrating.
 
-### Annahmen
+### Assumptions
 
-- **Branch:** Phase 0 wird auf dem Branch `claude/new-session-k687n4` entwickelt statt auf `phase/00-fundament`. Die Cloud-Sitzung darf nur auf diesen Branch pushen. Der Nutzer hat die Wahl freigestellt.
-- **Beispielprojekt Phase 0:** Das Projektformat kommt erst in Phase 1, einen Play-Modus gibt es in Phase 0 noch nicht. Als „Beispielszene“ dient die Standardszene des Editors (Himmel, Sonne, Boden, Testwürfel). `examples/` bekommt ab Phase 1 echte Projekte.
-- **Standardszene ohne Projektdatei:** Die Objekte der Standardszene leben in Phase 0 nur im Speicher. Ihre Namen kommen aus den i18n-Dateien. Ab Phase 1 sind Objektnamen Projektdaten.
-- **Layouts** sind Benutzereinstellungen und kein Teil des Projekts (wie in Unity). Sie liegen im `localStorage` des Editors (in Electron im Benutzerordner) und überstehen Neustarts.
-- **KI-Knopf** in der Werkzeugleiste bleibt unsichtbar, solange kein API-Schlüssel hinterlegt ist (SPEC 9.4: „Ohne Schlüssel ist nichts davon sichtbar“).
-- **Play, Pause, Einzelbild** sind in Phase 0 sichtbar, aber deaktiviert. Der Play-Modus kommt in Phase 1.
-- **Koordinatensystem (vom Nutzer bestätigt):** Y oben, 1 Einheit = 1 Meter, „vorwärts“ ist lokal +Z (wie SPEC 7.10 und glTF), „rechts“ ist lokal −X.
-- **Electron-Menü:** Die Menüleiste ist Teil der Editor-Oberfläche (gleich in Browser und Desktop). Das native Electron-Menü ist ausgeblendet.
-- **Icons:** eigene, neutrale Symbole aus `lucide-react` (ISC), keine Unity- oder Scratch-Grafiken.
+- **Branch:** Phase 0 is developed on the branch `claude/new-session-k687n4` instead of `phase/00-fundament`. The cloud session may only push to this branch. The user left the choice open.
+- **Example project Phase 0:** the project format only comes in Phase 1, and there is no Play Mode in Phase 0 yet. The default scene of the editor (sky, sun, ground, test cube) serves as the "example scene". `examples/` gets real projects from Phase 1 on.
+- **Default scene without a project file:** the objects of the default scene live only in memory in Phase 0. Their names come from the i18n files. From Phase 1 on, object names are project data.
+- **Layouts** are user settings and not part of the project (like in Unity). They are stored in the editor's `localStorage` (in Electron in the user folder) and survive restarts.
+- **AI button** in the toolbar stays invisible as long as no API key is stored (SPEC 9.4: "Without a key none of this is visible").
+- **Play, Pause, Step** are visible but disabled in Phase 0. Play Mode comes in Phase 1.
+- **Coordinate system (confirmed by the user):** Y up, 1 unit = 1 meter, "forward" is local +Z (like SPEC 7.10 and glTF), "right" is local −X.
+- **Electron menu:** the menu bar is part of the editor UI (identical in browser and desktop). The native Electron menu is hidden.
+- **Icons:** own, neutral symbols from `lucide-react` (ISC), no Unity or Scratch graphics.
 
-- **Repository-Dokumente auf Englisch:** `README.md` hat eine deutsche Hauptbeschreibung mit englischer Kurzfassung; `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md` sind wie Code und Commits auf Englisch. `PROGRESS.md` bleibt Deutsch (Bericht an den Nutzer).
-- **Lizenzen MIT-0 und 0BSD** gelten als Varianten von MIT bzw. BSD und sind erlaubt. `lru-cache` (BlueOak-1.0.0) kommt nur über Blockly → jsdom (Node.js) ins Projekt und ist nicht im Editor-Bundle; das ist in `THIRD_PARTY.md` als Ausnahme begründet.
-- **Software-Rendering:** Die Electron-App weicht bei fehlender oder gesperrter GPU auf SwiftShader aus, damit die 3D-Ansichten immer laufen (nur lokale Inhalte, daher unbedenklich).
-- **Playwright 1.56** statt der neuesten Version, weil die Cloud-Umgebung genau dieses Chromium vorinstalliert hat. Die CI installiert dieselbe Version.
-- **ESLint 10 ohne `eslint-plugin-react`:** Die Regel „keine festen Texte in JSX“ ist eine kleine eigene Regel (`blockwerk/no-ui-literals`) in `eslint.config.js`.
+- **Repository documents in English:** all repository documents (`README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`, `PROGRESS.md`, issue and pull request templates) are in English, like code and commits. Only `SPEC.md` and `CLAUDE.md` are German. The editor and the engine stay bilingual (German and English).
+- **Licenses MIT-0 and 0BSD** count as variants of MIT and BSD respectively and are allowed. `lru-cache` (BlueOak-1.0.0) enters the project only via Blockly → jsdom (Node.js) and is not in the editor bundle; this is justified in `THIRD_PARTY.md` as an exception.
+- **Software rendering:** the Electron app falls back to SwiftShader when the GPU is missing or blocked, so that the 3D views always run (local content only, therefore harmless).
+- **Playwright 1.56** instead of the latest version, because the cloud environment has exactly this Chromium preinstalled. CI installs the same version.
+- **ESLint 10 without `eslint-plugin-react`:** the rule "no fixed texts in JSX" is a small custom rule (`blockwerk/no-ui-literals`) in `eslint.config.js`.
 
-### Ergebnis
+### Result
 
-**Umgesetzt**
+**Implemented**
 
-- Monorepo mit `packages/blocks`, `compiler`, `runtime` (mit Inhalt) und `project`, `library`, `character` (Gerüste), `apps/editor`, `apps/desktop`. TypeScript strict, ESLint (inkl. Importgrenzen für `runtime`, `blocks`, `compiler`), Prettier, Vitest, Playwright, Lizenzprüfung.
-- Editor im Unity-Standard-Layout: Menüleiste, Werkzeugleiste (Q W E R T Y, Pivot/Mitte, Lokal/Global, Play/Pause/Einzelbild deaktiviert, Ebenen, Layout), Bereichs-Reiter mit `Alt+1…9` und eigenen Reitern, andockbare Fenster Hierarchie, Szene, Spiel, Block-Editor, Inspektor, Projekt, Asset-Bibliothek, Konsole.
-- Fenster verschieben, als Reiter gruppieren, schwebend lösen, in eigenes Fenster abtrennen (Browser und Electron). Layout wird automatisch gespeichert; Vorlagen „Standard“ und „Blöcke gross“; eigene Layouts speichern, laden, löschen; Fenster über „Fenster“ wieder öffnen; `Strg+1…5` fokussiert Fenster.
-- Szenen-Ansicht: berechneter Himmel mit Wolken, Sonne mit weichen Schatten, Umgebungslicht aus dem Himmel, texturierter Boden, Nebel, Editor-Raster, Kamera- und Sonnen-Gizmo, Auswahl per Klick. Kamera wie Unity: rechte Maustaste + WASD/QE fliegen (Shift schneller, Mausrad = Tempo), Alt + links umkreisen, Alt + rechts zoomen, mittlere Maustaste oder Hand-Werkzeug verschieben, Mausrad zoomen, `F` und Doppelklick fokussieren. Achsenwürfel mit Achsenansichten und Perspektivisch/Orthografisch.
-- Spiel-Ansicht aus der Hauptkamera mit Seitenverhältnis und Statistik (Bildzeit, Draw Calls, Dreiecke). Beispielszene: 4 Draw Calls, 38 Dreiecke.
-- `defineBlock` als einzige Quelle; daraus Blockly-JSON, Palette pro Bereich, Suchindex. Testblöcke „Wenn Spiel startet“ und „gehe ( ) Meter vorwärts“. Compiler Block-JSON → Zwischenrepräsentation (mit Funktionen, Rückgabewerten, lokalen Variablen) → Generator-Funktionen mit Zeilen-zu-Block-Zuordnung. Golden- und Laufzeittests, die jede Katalog-Blockart erzwingen.
-- Block-Editor mit Blockly (Zelos-Darstellung, Hut-Blöcke), Blockly-Medien lokal statt vom CDN. Blockly läuft in einer eigenen Seite (`blocks.html`) im Fenster, damit Ziehen, Palette und Zahlenfelder auch im schwebenden oder abgetrennten Fenster (zweiter Bildschirm) funktionieren.
-- Deutsch/Englisch komplett über i18n-Dateien (Menüs, Fenster, Blöcke, Blockly), dunkles und helles Design.
-- Electron-Hülle: Editor über `blockwerk://` mit Content-Security-Policy ohne Netzwerk, abgetrennte Fenster als Editor-Fenster, `pnpm dev:desktop`.
-- GitHub-Grundlage: `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `CHANGELOG.md`, `THIRD_PARTY.md` (generiert und geprüft), Issue-Vorlagen (Fehler, Idee, neuer Block, Asset-Paket), PR-Vorlage, `ci.yml` für Windows und Linux.
+- Monorepo with `packages/blocks`, `compiler`, `runtime` (with content) and `project`, `library`, `character` (scaffolds), `apps/editor`, `apps/desktop`. TypeScript strict, ESLint (including import boundaries for `runtime`, `blocks`, `compiler`), Prettier, Vitest, Playwright, license check.
+- Editor in the Unity default layout: menu bar, toolbar (Q W E R T Y, Pivot/Center, Local/Global, Play/Pause/Step disabled, Layers, Layout), area tabs with `Alt+1…9` and custom tabs, dockable windows Hierarchy, Scene, Game, Block Editor, Inspector, Project, Asset Library, Console.
+- Move windows, group as tabs, detach as floating, detach into a separate window (browser and Electron). Layout is saved automatically; templates "Default" and "Blocks large"; save, load, delete custom layouts; reopen windows via "Window"; `Ctrl+1…5` focuses windows.
+- Scene view: computed sky with clouds, sun with soft shadows, ambient light from the sky, textured ground, fog, editor grid, camera and sun gizmo, selection by click. Camera like Unity: right mouse button + WASD/QE fly (Shift faster, mouse wheel = speed), Alt + left orbit, Alt + right zoom, middle mouse button or Hand tool pan, mouse wheel zoom, `F` and double-click focus. Axis cube with axis views and Perspective/Orthographic.
+- Game view from the Main Camera with aspect ratio and stats (frame time, draw calls, triangles). Example scene: 4 draw calls, 38 triangles.
+- `defineBlock` as the single source; from it Blockly JSON, palette per area, search index. Test blocks "When game starts" and "move ( ) meters forward". Compiler block JSON → intermediate representation (with functions, return values, local variables) → generator functions with line-to-block mapping. Golden and runtime tests that enforce every catalog block kind.
+- Block Editor with Blockly (Zelos rendering, hat blocks), Blockly media local instead of from the CDN. Blockly runs in a separate page (`blocks.html`) in the window, so that dragging, palette and number fields also work in a floating or detached window (second screen).
+- German/English fully via i18n files (menus, windows, blocks, Blockly), dark and light theme.
+- Electron shell: editor via `blockwerk://` with a Content Security Policy without network, detached windows as editor windows, `pnpm dev:desktop`.
+- GitHub foundation: `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `CHANGELOG.md`, `THIRD_PARTY.md` (generated and checked), issue templates (bug, idea, new block, asset pack), PR template, `ci.yml` for Windows and Linux.
 
-**Abnahme**
+**Acceptance**
 
-- [x] `pnpm dev` und `pnpm dev:desktop` öffnen den Editor. `pnpm test` (59 Tests), `pnpm lint`, `pnpm build` grün.
-- [x] Repository ist auf GitHub (öffentlich), die CI läuft dort auf Windows und Linux grün ([CI-Lauf](https://github.com/tmluc-cool/Blockwerk/actions/runs/38379593872)).
-- [x] Fenster lassen sich verschieben, als Reiter gruppieren und abtrennen; Layout bleibt nach Neustart erhalten (E2E im Browser per Neuladen und in Electron per echtem Neustart der App).
-- [x] Szenen-Kamera bedient sich wie in Unity: Fliegen, Umkreisen, Verschieben, Zoomen, Fokussieren (E2E-Tests).
-- [x] Die leere Szene sieht ordentlich aus: Himmel, Licht, weicher Schatten eines Testwürfels (`docs/screenshots/phase-00.png`).
+- [x] `pnpm dev` and `pnpm dev:desktop` open the editor. `pnpm test` (59 tests), `pnpm lint`, `pnpm build` green.
+- [x] Repository is on GitHub (public), CI runs green there on Windows and Linux ([CI run](https://github.com/tmluc-cool/Blockwerk/actions/runs/38379593872)).
+- [x] Windows can be moved, grouped as tabs and detached; layout is kept after a restart (E2E in the browser by reloading and in Electron by a real restart of the app).
+- [x] Scene camera is operated like in Unity: fly, orbit, pan, zoom, focus (E2E tests).
+- [x] The empty scene looks decent: sky, light, soft shadow of a test cube (`docs/screenshots/phase-00.png`).
 
-Tests: 59 Unit-/Golden-Tests (Vitest), 24 End-to-End-Tests (23 Browser, 1 Desktop-App mit Neustart). Ein Wächter in den E2E-Tests schlägt fehl, sobald der Editor eine Netzwerkanfrage ausserhalb von `localhost` macht.
+Tests: 59 unit/golden tests (Vitest), 24 end-to-end tests (23 browser, 1 desktop app with restart). A guard in the E2E tests fails as soon as the editor makes a network request outside `localhost`.
 
-**Offen / Hinweise für später**
+**Open / notes for later**
 
-- Play-Modus, Projektformat, echte Objekte und Inspektor-Bearbeitung kommen in Phase 1. Bis dahin sind Play/Pause/Einzelbild und viele Menüpunkte sichtbar, aber deaktiviert.
-- GitHub Discussions ist im Repository noch nicht aktiviert (Link in den Issue-Vorlagen), Labels (`good first issue`, `block`, …) und der Schutz von `main` müssen in den Repository-Einstellungen angelegt werden.
-- Die GitHub-Actions-Versionen (`@v4`) laufen noch mit einer Node-20-Hinweismeldung; beim nächsten CI-Umbau auf die aktuellen Hauptversionen anheben.
+- Play Mode, project format, real objects and Inspector editing come in Phase 1. Until then Play/Pause/Step and many menu items are visible but disabled.
+- GitHub Discussions is not enabled in the repository yet (link in the issue templates), labels (`good first issue`, `block`, …) and the protection of `main` must be set up in the repository settings.
+- The GitHub Actions versions (`@v4`) still run with a Node 20 notice; raise to the current major versions at the next CI rework.
