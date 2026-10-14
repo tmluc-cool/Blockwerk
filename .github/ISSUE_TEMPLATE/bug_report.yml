@@ -1,18 +1,18 @@
-name: Fehler melden / Bug report
-description: Etwas funktioniert nicht wie erwartet. / Something does not work as expected.
+name: Bug report
+description: Something does not work as expected.
 labels: [bug]
 body:
   - type: textarea
     id: what
     attributes:
-      label: Was ist passiert? / What happened?
-      description: Beschreibe den Fehler und was du stattdessen erwartet hast. / Describe the bug and what you expected instead.
+      label: What happened?
+      description: Describe the bug and what you expected instead.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Schritte zum Nachstellen / Steps to reproduce
+      label: Steps to reproduce
       placeholder: |
         1. …
         2. …
@@ -21,20 +21,20 @@ body:
   - type: dropdown
     id: where
     attributes:
-      label: Wo? / Where?
+      label: Where?
       options:
-        - Desktop-App (Windows)
+        - Desktop app (Windows)
         - Browser
-        - Exportiertes Spiel / Exported game
+        - Exported game
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: Version
-      placeholder: z. B. / e.g. 0.1.0 oder Commit
+      placeholder: e.g. 0.1.0 or a commit
   - type: textarea
     id: extra
     attributes:
-      label: Screenshots, Konsole, Projektdatei / Screenshots, console, project file
-      description: Meldungen aus der Konsole helfen sehr. / Console messages help a lot.
+      label: Screenshots, console, project file
+      description: Console messages help a lot.

@@ -1,32 +1,32 @@
-name: Neues Asset-Paket / New asset pack
-description: Ein Paket für die Asset-Bibliothek vorschlagen (nur CC0). / Propose a pack for the asset library (CC0 only).
+name: New asset pack
+description: Propose a pack for the asset library (CC0 only).
 labels: [assets]
 body:
   - type: input
     id: url
     attributes:
-      label: Quelle / Source URL
+      label: Source URL
     validations:
       required: true
   - type: input
     id: license
     attributes:
-      label: Lizenz / License
-      description: Nur CC0 wird in die mitgelieferte Bibliothek aufgenommen. / Only CC0 is accepted for the bundled library.
+      label: License
+      description: Only CC0 is accepted for the bundled library.
       placeholder: CC0-1.0
     validations:
       required: true
   - type: textarea
     id: content
     attributes:
-      label: Inhalt / Content
-      description: Kategorien, Anzahl Modelle, animierte Figuren? / Categories, number of models, animated characters?
+      label: Content
+      description: Categories, number of models, animated characters?
     validations:
       required: true
   - type: checkboxes
     id: confirm
     attributes:
-      label: Bestätigung / Confirmation
+      label: Confirmation
       options:
-        - label: Das Paket steht unter CC0 und enthält keine Mixamo- oder Store-Dateien. / The pack is CC0 and contains no Mixamo or store files.
+        - label: The pack is CC0 and contains no Mixamo or paid-store files.
           required: true

@@ -1,16 +1,16 @@
-## Was ändert sich? / What changes?
+## What changes?
 
-<!-- Kurze Beschreibung. Bei Phasen: Abnahme-Checkliste aus SPEC.md einfügen. -->
+<!-- Short description. For phases: paste the acceptance checklist from SPEC.md. -->
 
-## Checkliste / Checklist
+## Checklist
 
-- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` und `pnpm build` sind grün.
-- [ ] Neue Blockarten haben einen Golden-Test (Block-JSON → erwartetes JS) und einen Laufzeittest.
-- [ ] Alle neuen Texte der Oberfläche stehen auf Deutsch und Englisch in den i18n-Dateien.
-- [ ] Oberflächen-Änderungen: Screenshot ist angehängt.
-- [ ] Neue Abhängigkeiten haben eine erlaubte Lizenz, `pnpm run licenses` wurde ausgeführt.
-- [ ] Commits folgen Conventional Commits (`feat(runtime): …`).
+- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm build` are green.
+- [ ] New block types have a golden test (block JSON → expected JS) and a runtime test.
+- [ ] All new interface texts exist in German and English in the i18n files.
+- [ ] Interface changes: a screenshot is attached.
+- [ ] New dependencies have an allowed license and `pnpm run licenses` was run.
+- [ ] Commits follow Conventional Commits (`feat(runtime): …`).
 
 ## Screenshot
 
-<!-- Bei Oberflächen-Änderungen. -->
+<!-- For interface changes. -->
