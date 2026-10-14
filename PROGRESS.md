@@ -78,7 +78,8 @@ Branch: `phase/03b-figuren-studio` (builds on Phase 3; PR #6 is not merged yet).
 - [x] Profile Arcade → Heavy: the numbers and the arc change (1.80 m → 0.60 m), the knight walks at 1.4 m/s in the Test Area, and the real jump of the running game is 0.54 to 0.66 m (end-to-end test steps the paused game tick by tick).
 - [x] Ability cards Double Jump and Roll dragged onto the figure work in the Test Area without a single block (end-to-end test counts the ability events).
 - [x] Portrait becomes an image asset; "Like Player 1, other colors" creates a prefab variant for player 2 (end-to-end test).
-- [ ] `pnpm test`, `pnpm lint`, `pnpm build` green locally; CI on GitHub: see pull request.
+- [x] `pnpm test` (265 tests), `pnpm lint`, `pnpm typecheck` and `pnpm build` green locally; end-to-end 49/49.
+- [ ] CI on GitHub: see pull request.
 
 Not demonstrable here: the look of the retargeted animations on other characters than the KayKit knight (needs a look with a graphics card), the modular Quaternius characters (host blocked), 60 FPS.
 
