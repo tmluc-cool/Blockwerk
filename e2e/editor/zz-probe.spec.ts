@@ -1,6 +1,6 @@
 import { expect, tab, test } from './fixtures';
 
-test('probe: studio frame rate on this machine', async ({ editor: page }) => {
+test('probe of the studio frame rate on this machine', async ({ editor: page }) => {
   test.setTimeout(280_000);
   const t0 = Date.now();
   await page.getByTestId('menu-file').click();
