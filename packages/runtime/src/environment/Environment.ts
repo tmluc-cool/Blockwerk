@@ -241,6 +241,20 @@ export class Environment {
     this.lightingSource = source;
   }
 
+  /** Changes the shadow map size (graphics level); the map is allocated again on the next draw. */
+  setShadowMapSize(size: number): void {
+    if (this.options.shadowMapSize === size) return;
+    this.options.shadowMapSize = size;
+    this.sun.shadow.mapSize.set(size, size);
+    this.sun.shadow.map?.dispose();
+    this.sun.shadow.map = null;
+  }
+
+  /** Blur radius of the sun's shadow edges in texels (graphics level). */
+  setShadowRadius(radius: number): void {
+    this.sun.shadow.radius = radius;
+  }
+
   /**
    * Centers the sun's shadow area on a point of interest (usually the camera focus).
    * The center is snapped to whole shadow texels so shadows do not shimmer while moving.

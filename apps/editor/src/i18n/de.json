@@ -559,5 +559,10 @@
   "studio.player2": "Wie Spieler 1, andere Farben",
   "studio.saveMine": "In Meine Figuren speichern",
   "studio.player2Done": "Spieler 2 aus „{name}“ erstellt.",
-  "studio.savedMine": "„{name}“ in Meine Figuren gespeichert."
+  "studio.savedMine": "„{name}“ in Meine Figuren gespeichert.",
+  "game.quality": "Grafik",
+  "game.quality.low": "Niedrig",
+  "game.quality.medium": "Mittel",
+  "game.quality.high": "Hoch",
+  "game.quality.ultra": "Ultra"
 }

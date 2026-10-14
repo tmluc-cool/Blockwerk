@@ -211,6 +211,8 @@ export const projectFileSchema = z.object({
   name: z.string().min(1),
   /** Asset ID of the scene that opens first. */
   startScene: idSchema.nullable(),
+  /** Graphics level a game starts with (`low` … `ultra`); players can switch it. Optional. */
+  graphicsLevel: z.enum(['low', 'medium', 'high', 'ultra']).optional(),
 });
 /** Contents of `blockwerk.json`. */
 export type ProjectFileData = z.infer<typeof projectFileSchema>;

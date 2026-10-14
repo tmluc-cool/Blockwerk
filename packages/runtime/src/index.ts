@@ -1,4 +1,21 @@
 export { createRenderer } from './rendering/createRenderer';
+export {
+  autoQuality,
+  currentQuality,
+  isQualityName,
+  isSoftwareRenderer,
+  onQualityChange,
+  pixelRatioFor,
+  QUALITY_LEVELS,
+  QUALITY_NAMES,
+  qualitySettings,
+  setQuality,
+} from './rendering/quality';
+export type { QualityName, QualitySettings } from './rendering/quality';
+export { DEFAULT_POST_SETTINGS, effectivePost, PostProcessing } from './rendering/PostProcessing';
+export type { EffectivePost, PostSettings } from './rendering/PostProcessing';
+export { ViewRenderer } from './rendering/ViewRenderer';
+export { postRegistry } from './components/postProcessing';
 export type { RendererOptions } from './rendering/createRenderer';
 export { measureFrame } from './rendering/RenderStats';
 export type { RenderStats } from './rendering/RenderStats';

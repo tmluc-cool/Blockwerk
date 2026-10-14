@@ -559,5 +559,10 @@
   "studio.player2": "Like Player 1, other colors",
   "studio.saveMine": "Save to My Characters",
   "studio.player2Done": "Player 2 created from “{name}”.",
-  "studio.savedMine": "Saved “{name}” to My Characters."
+  "studio.savedMine": "Saved “{name}” to My Characters.",
+  "game.quality": "Graphics",
+  "game.quality.low": "Low",
+  "game.quality.medium": "Medium",
+  "game.quality.high": "High",
+  "game.quality.ultra": "Ultra"
 }

@@ -1,3 +1,5 @@
+import { postRegistry } from '../components/postProcessing';
+import type { PostSettings } from '../rendering/PostProcessing';
 import type { ComponentData, SceneData, SceneObjectData } from '@blockwerk/project';
 import { Euler, MathUtils, Scene, Vector3 } from 'three';
 import type { Object3D, PerspectiveCamera } from 'three';
@@ -114,6 +116,17 @@ export class World {
     for (let current = node; current; current = current.parent) {
       const id: unknown = current.userData['gameObjectId'];
       if (typeof id === 'string') return this.objects.get(id);
+    }
+    return undefined;
+  }
+
+  /**
+   * Post-processing settings of a camera: from a Post-Processing component on its object or a
+   * parent. `null` means switched off, `undefined` that there is no component.
+   */
+  postSettings(camera: Object3D): PostSettings | null | undefined {
+    for (let object = this.objectFromNode(camera) ?? null; object; object = object.parent) {
+      if (postRegistry.has(object)) return postRegistry.get(object);
     }
     return undefined;
   }
