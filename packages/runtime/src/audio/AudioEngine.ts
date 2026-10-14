@@ -61,9 +61,14 @@ interface Playing {
 
 const DEFAULT_MAX_DISTANCE = 30;
 
-/** The default Web Audio context, or `null` outside a browser. */
+/**
+ * The default Web Audio context, or `null` outside a browser and in automated browsers
+ * (`navigator.webdriver`: test machines have no speakers and a real audio device only costs time).
+ */
 function browserContext(): AudioContext | null {
-  return typeof AudioContext === 'undefined' ? null : new AudioContext();
+  if (typeof AudioContext === 'undefined') return null;
+  if (typeof navigator !== 'undefined' && navigator.webdriver) return null;
+  return new AudioContext();
 }
 
 /**
@@ -139,12 +144,16 @@ export class AudioEngine {
     }
     this.applyVolumes();
     this.applyListener();
+    if (context.state === 'suspended') void context.resume();
     return context;
   }
 
-  /** Lets sound start after the browser allowed it (call from a click or key press). */
+  /**
+   * Lets sound start after the browser allowed it (call from a click or key press). It does not
+   * create the audio context by itself: that happens with the first sound.
+   */
   resume(): void {
-    const context = this.ensure();
+    const context = this.context;
     if (context && context.state === 'suspended') void context.resume();
   }
 
@@ -310,7 +319,7 @@ export class AudioEngine {
       const busNode = this.buses.get(bus) ?? this.master;
       if (position) {
         panner = context.createPanner();
-        panner.panningModel = 'HRTF';
+        panner.panningModel = 'equalpower';
         panner.distanceModel = 'linear';
         panner.refDistance = options.minDistance ?? 1;
         panner.maxDistance = options.maxDistance ?? DEFAULT_MAX_DISTANCE;

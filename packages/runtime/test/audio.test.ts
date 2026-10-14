@@ -69,7 +69,7 @@ describe('AudioEngine', () => {
 
   it('follows the listener', () => {
     const { engine, context } = makeEngine();
-    engine.resume();
+    expect(engine.available).toBe(true);
     engine.setListener(new Vector3(1, 2, 3), new Vector3(0, 0, -1), new Vector3(0, 1, 0));
     expect(context.listener.positionX.value).toBe(1);
     expect(context.listener.positionY.value).toBe(2);
@@ -230,7 +230,7 @@ describe('audio source component and character sounds', () => {
     });
     game.stepTick();
     // The context starts with the first sound (or when the browser allows it); the pose waits.
-    engine.resume();
+    expect(engine.available).toBe(true);
     expect(context.listener.positionX.value).toBe(3);
     expect(context.listener.positionY.value).toBe(4);
     expect(context.listener.forwardZ.value).toBeCloseTo(1);

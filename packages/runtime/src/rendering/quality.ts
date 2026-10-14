@@ -133,7 +133,7 @@ export function isSoftwareRenderer(renderer: WebGLRenderer): boolean {
     const gl = renderer.getContext();
     const info = gl.getExtension('WEBGL_debug_renderer_info');
     const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
-    return /swiftshader|llvmpipe|softpipe|software/i.test(name);
+    return /swiftshader|llvmpipe|softpipe|software|warp|basic render/i.test(name);
   } catch {
     return false;
   }
