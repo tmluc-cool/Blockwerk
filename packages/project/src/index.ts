@@ -62,6 +62,7 @@ export {
   isInstanceRoot,
   linkToPrefab,
   objectValues,
+  assetDependencies,
   prefabFromEdited,
   resolvePrefab,
   revertOverrides,

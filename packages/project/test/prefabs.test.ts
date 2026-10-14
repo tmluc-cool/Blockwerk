@@ -375,3 +375,62 @@ describe('prefabs', () => {
     expect(resolvePrefab('loop00000001', source)).toBeUndefined();
   });
 });
+
+describe('asset dependencies and adopting assets', () => {
+  it('finds nested prefabs, variant bases, scripts and models, and keeps IDs when adopting', async () => {
+    const { MemoryFileSystem, createProject, createDefaultScene, assetDependencies } =
+      await import('../src');
+    const fs = new MemoryFileSystem();
+    const project = await createProject(fs, {
+      name: 'A',
+      sceneName: 'S',
+      folders: { scenes: 'Szenen', blockScripts: 'Skripte', prefabs: 'Prefabs', models: 'Modelle' },
+      scene: createDefaultScene({ camera: 'Kamera', sun: 'Sonne', ground: 'Boden' }),
+    });
+    const model = project.createModel('Assets/Modelle/Haus.glb', new Uint8Array([1, 2, 3]));
+    const script = project.createAsset('blockScript', 'Assets/Skripte/Tuer.blocks.json', {
+      formatVersion: FORMAT_VERSION,
+      variables: [],
+      workspace: {},
+    });
+    const house = project.createAsset('prefab', 'Assets/Prefabs/Haus.prefab.json', {
+      formatVersion: FORMAT_VERSION,
+      base: null,
+      root: 'houseroot001',
+      objects: {
+        houseroot001: object('Haus', null, [
+          { id: 'render000001', type: 'meshRenderer', enabled: true, values: { model: model.id } },
+          { id: 'script000001', type: 'blockScript', enabled: true, values: { script: script.id } },
+        ]),
+      },
+      overrides: [],
+    });
+    const variant = project.createAsset('prefab', 'Assets/Prefabs/Rotes Haus.prefab.json', {
+      formatVersion: FORMAT_VERSION,
+      base: house.id,
+      root: 'houseroot001',
+      objects: {},
+      overrides: [],
+    });
+    const content = (id: string) => {
+      const asset = project.asset(id);
+      return asset && asset.type !== 'model' ? (asset.data as never) : undefined;
+    };
+    const deps = assetDependencies(variant.id, content, (id) => project.asset(id) !== undefined);
+    expect(deps).toEqual([house.id, model.id, script.id, variant.id].sort());
+
+    // Adopting into another project keeps IDs; existing ones are skipped.
+    const other = await createProject(new MemoryFileSystem(), {
+      name: 'B',
+      sceneName: 'S',
+      folders: { scenes: 'Szenen', blockScripts: 'Skripte', prefabs: 'Prefabs', models: 'Modelle' },
+      scene: createDefaultScene({ camera: 'Kamera', sun: 'Sonne', ground: 'Boden' }),
+    });
+    const adopted = other.adoptAsset(model.path, model.meta, { bytes: new Uint8Array([1, 2, 3]) });
+    expect(adopted?.id).toBe(model.id);
+    expect(other.adoptAsset(model.path, model.meta, { bytes: new Uint8Array([1]) })).toBeNull();
+    const copy = other.adoptAsset(house.path, house.meta, { data: house.data });
+    expect(copy?.id).toBe(house.id);
+    expect(other.modelBytes(model.id)).toEqual(new Uint8Array([1, 2, 3]));
+  });
+});

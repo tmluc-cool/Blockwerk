@@ -340,6 +340,40 @@ export class Project {
     return entry;
   }
 
+  /**
+   * Adds an asset that keeps its identity (meta data with ID), e.g. from "My Prefabs". The path is
+   * made unique if taken. Returns `null` if an asset with this ID already exists.
+   */
+  adoptAsset(
+    path: string,
+    meta: MetaData,
+    content: { data: AssetDataByType[JsonAssetType] } | { bytes: Uint8Array },
+  ): AnyAsset | null {
+    if (this.entries.has(meta.id)) return null;
+    const type = meta.type;
+    const normalized = normalizePath(path);
+    const free = this.isPathTaken(normalized)
+      ? this.uniqueAssetPath(dirname(normalized), assetDisplayName(normalized), type)
+      : this.checkAssetPath(type, normalized);
+    let entry: AnyAsset;
+    if ('bytes' in content) {
+      if (type !== 'model') throw new Error(`Only models are binary: ${normalized}`);
+      entry = {
+        id: meta.id,
+        type,
+        path: free,
+        meta,
+        data: { hash: hashBytes(content.bytes), byteLength: content.bytes.byteLength },
+      };
+      this.bytes.set(meta.id, content.bytes);
+    } else {
+      if (type === 'model') throw new Error(`Models need their bytes: ${normalized}`);
+      entry = { id: meta.id, type, path: free, meta, data: content.data } as AnyAsset;
+    }
+    this.entries.set(entry.id, entry);
+    return entry;
+  }
+
   /** The GLB file of a model asset. */
   modelBytes(id: string): Uint8Array | undefined {
     return this.bytes.get(id);

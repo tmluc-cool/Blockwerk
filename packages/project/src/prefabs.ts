@@ -572,3 +572,39 @@ export function applyOverridesToPrefab(
   const edited = applyOverrides(resolved.objects, overrides);
   return prefabFromEdited(data, edited, source);
 }
+
+/** Collects every string in a JSON value that looks like a stable ID. */
+function idsIn(value: JsonValue, into: Set<string>): void {
+  if (typeof value === 'string') {
+    if (/^[a-z0-9]{12}$/.test(value)) into.add(value);
+  } else if (Array.isArray(value)) {
+    for (const item of value) idsIn(item, into);
+  } else if (value !== null && typeof value === 'object') {
+    for (const item of Object.values(value)) idsIn(item, into);
+  }
+}
+
+/**
+ * Every asset an asset needs, including itself: nested prefabs, the base of variants, block
+ * scripts, prefabs and models they reference (library models are referenced by `library:` IDs
+ * and need nothing). `content` returns the JSON of an asset (models have none); `exists` tells
+ * which IDs are assets of the project.
+ */
+export function assetDependencies(
+  assetId: string,
+  content: (id: string) => JsonValue | undefined,
+  exists: (id: string) => boolean,
+): string[] {
+  const found = new Set<string>();
+  const visit = (id: string): void => {
+    if (found.has(id) || !exists(id)) return;
+    found.add(id);
+    const json = content(id);
+    if (json === undefined) return;
+    const ids = new Set<string>();
+    idsIn(json, ids);
+    for (const reference of ids) visit(reference);
+  };
+  visit(assetId);
+  return [...found].sort();
+}
