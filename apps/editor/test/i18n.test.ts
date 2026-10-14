@@ -1,3 +1,4 @@
+import { BUILTIN_SOUNDS, COMPONENTS } from '@blockwerk/runtime';
 import { describe, expect, it } from 'vitest';
 import { DICTIONARIES, translate } from '../src/i18n';
 
@@ -21,6 +22,18 @@ describe('i18n', () => {
     for (const key of Object.keys(DICTIONARIES.en) as (keyof typeof DICTIONARIES.en)[]) {
       expect(placeholders(DICTIONARIES.de[key]), key).toEqual(placeholders(DICTIONARIES.en[key]));
     }
+  });
+
+  it('translates every inspector group of every component and every built-in sound', () => {
+    const groups = new Set(
+      COMPONENTS.flatMap((definition) =>
+        Object.values(definition.fields).flatMap((field) => (field.group ? [field.group] : [])),
+      ),
+    );
+    for (const group of groups)
+      expect(DICTIONARIES.en, group).toHaveProperty(`component.group.${group}`);
+    for (const name of BUILTIN_SOUNDS)
+      expect(DICTIONARIES.en, name).toHaveProperty(`sound.builtin.${name}`);
   });
 
   it('fills in parameters', () => {

@@ -79,6 +79,8 @@ export default defineConfig({
   // Relative asset paths so the build also works from Electron's custom protocol.
   base: './',
   plugins: [react(), blocklyMedia(), assetLibrary()],
+  // Terrain files of the bundled examples are binary assets.
+  assetsInclude: ['**/*.bin'],
   server: { port: 5173, strictPort: true },
   preview: { port: 4173, strictPort: true },
   build: {

@@ -647,5 +647,19 @@
   "sound.builtin.music-adventure": "Music: adventure",
   "game.mute": "Mute audio",
   "studio.sounds.default": "Default",
-  "studio.sound.splash": "Splash"
+  "studio.sound.splash": "Splash",
+  "component.group.spatial": "Spatial Sound",
+  "component.group.advanced": "Advanced",
+  "component.group.animation": "Animation",
+  "component.group.bloom": "Bloom",
+  "component.group.body": "Body",
+  "component.group.constraints": "Constraints",
+  "component.group.depth": "Depth of Field",
+  "component.group.events": "Events",
+  "component.group.grading": "Color Grading",
+  "component.group.occlusion": "Ambient Occlusion",
+  "component.group.parts": "Parts",
+  "component.group.sounds": "Sounds",
+  "component.group.vignette": "Vignette",
+  "component.group.zoom": "Zoom"
 }

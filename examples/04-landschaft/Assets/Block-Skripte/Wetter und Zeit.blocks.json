@@ -1,0 +1,140 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-1",
+          "next": {
+            "block": {
+              "id": "t-2",
+              "inputs": {
+                "hours": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 8
+                    },
+                    "id": "t-3",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "id": "t-4",
+                  "inputs": {
+                    "factor": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 480
+                        },
+                        "id": "t-5",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "fields": {
+                        "sound": "builtin:music-calm"
+                      },
+                      "id": "t-6",
+                      "next": {
+                        "block": {
+                          "id": "t-15",
+                          "inputs": {
+                            "body": {
+                              "block": {
+                                "id": "t-7",
+                                "inputs": {
+                                  "seconds": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 45
+                                      },
+                                      "id": "t-8",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "fields": {
+                                      "weather": "rain"
+                                    },
+                                    "id": "t-9",
+                                    "inputs": {
+                                      "seconds": {
+                                        "shadow": {
+                                          "fields": {
+                                            "NUM": 12
+                                          },
+                                          "id": "t-10",
+                                          "type": "literal.number"
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "id": "t-11",
+                                        "inputs": {
+                                          "seconds": {
+                                            "shadow": {
+                                              "fields": {
+                                                "NUM": 40
+                                              },
+                                              "id": "t-12",
+                                              "type": "literal.number"
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "fields": {
+                                              "weather": "clear"
+                                            },
+                                            "id": "t-13",
+                                            "inputs": {
+                                              "seconds": {
+                                                "shadow": {
+                                                  "fields": {
+                                                    "NUM": 12
+                                                  },
+                                                  "id": "t-14",
+                                                  "type": "literal.number"
+                                                }
+                                              }
+                                            },
+                                            "type": "environment.setWeather"
+                                          }
+                                        },
+                                        "type": "control.wait"
+                                      }
+                                    },
+                                    "type": "environment.setWeather"
+                                  }
+                                },
+                                "type": "control.wait"
+                              }
+                            }
+                          },
+                          "type": "control.forever"
+                        }
+                      },
+                      "type": "sound.playMusic"
+                    }
+                  },
+                  "type": "environment.setTimeSpeed"
+                }
+              },
+              "type": "environment.setTimeOfDay"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -568,7 +568,7 @@ export class SceneViewport {
     move.setMode(tool === 'scale' ? 'scale' : 'translate');
     const space = this.callbacks.space() === 'local' || tool === 'scale' ? 'local' : 'world';
     for (const gizmo of this.gizmos) gizmo.setSpace(space);
-    if (objects.length === 0 || this.callbacks.brush()) {
+    if (objects.length === 0 || this.callbacks.brush() || this.callbacks.terrainBrush() !== null) {
       move.detach();
       rotate.detach();
       return;

@@ -468,12 +468,16 @@ export async function createNewProject(name: string): Promise<void> {
 export async function importProject(
   name: string,
   files: Readonly<Record<string, string>>,
+  binaries: Readonly<Record<string, string>> = {},
 ): Promise<void> {
   const backend = await backendOrDetect();
   if (useDocument.getState().projectRef && hasUnsavedChanges()) await saveProject({ quiet: true });
   const ref = await backend.create(name);
   const fs = await backend.open(ref);
   for (const [path, text] of Object.entries(files)) await fs.writeText(path, text);
+  for (const [path, url] of Object.entries(binaries)) {
+    await fs.writeBytes(path, new Uint8Array(await (await fetch(url)).arrayBuffer()));
+  }
   const project = await loadProject(fs);
   activate(backend, ref, project, fs);
 }

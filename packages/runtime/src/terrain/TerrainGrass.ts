@@ -29,29 +29,35 @@ export interface GrassSettings {
 }
 
 /** Most clumps one terrain draws, whatever the density. */
-const MAX_CLUMPS = 120000;
+const MAX_CLUMPS = 90000;
 
-/** A clump: three crossed, tapered blades, with colors from dark at the root to light at the tip. */
+/** A clump: a tuft of thin leaning blades, dark at the root and light at the tip. */
 function clumpGeometry(): BufferGeometry {
   const positions: number[] = [];
   const colors: number[] = [];
   const normals: number[] = [];
-  const blades = 3;
+  const blades = 5;
   for (let blade = 0; blade < blades; blade++) {
-    const angle = (blade / blades) * Math.PI;
-    const dx = Math.cos(angle);
-    const dz = Math.sin(angle);
-    const half = 0.09;
-    // Two triangles per blade: a wide root and a pointed tip.
-    const corners: [number, number, number][] = [
-      [-half * dx, 0, -half * dz],
-      [half * dx, 0, half * dz],
-      [0, 1, 0],
+    // Fixed spread: the same tuft every time.
+    const around = blade * 2.4;
+    const ox = Math.cos(around) * 0.13 * (0.4 + (blade % 3) * 0.3);
+    const oz = Math.sin(around) * 0.13 * (0.4 + (blade % 3) * 0.3);
+    const height = 0.55 + 0.45 * (((blade * 37) % 10) / 10);
+    const facing = blade * 1.1;
+    const dx = Math.cos(facing);
+    const dz = Math.sin(facing);
+    const width = 0.04;
+    const lean = 0.18 * height;
+    const lx = Math.cos(around + 0.6);
+    const lz = Math.sin(around + 0.6);
+    const corners: [number, number, number, number][] = [
+      [ox - width * dx, 0, oz - width * dz, 0.42],
+      [ox + width * dx, 0, oz + width * dz, 0.42],
+      [ox + lean * lx, height, oz + lean * lz, 1],
     ];
-    for (const [x, y, z] of corners) {
+    for (const [x, y, z, light] of corners) {
       positions.push(x, y, z);
       normals.push(0, 1, 0);
-      const light = 0.55 + 0.45 * y;
       colors.push(light, light, light);
     }
   }

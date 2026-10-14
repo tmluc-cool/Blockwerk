@@ -69,7 +69,7 @@ const fields = {
   },
   grassHeight: {
     type: 'number',
-    default: 0.45,
+    default: 0.55,
     min: 0.05,
     max: 2,
     step: 0.05,
@@ -130,7 +130,7 @@ export const terrain = defineComponent({
     let grassSettings = {
       enabled: true,
       density: 2,
-      height: 0.45,
+      height: 0.55,
       color: '#7fb24a',
       layer: 0,
       minHeight: -1000,

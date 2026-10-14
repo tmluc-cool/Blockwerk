@@ -175,7 +175,7 @@ async function openExampleDialog(t: Translate): Promise<void> {
     EXAMPLES.map((example) => ({ value: example.id, label: exampleName(example) })),
   );
   const example = EXAMPLES.find((item) => item.id === id);
-  if (example) await importProject(exampleName(example), example.files);
+  if (example) await importProject(exampleName(example), example.files, example.binaries);
 }
 
 /** The top-level menus of the menu bar (Unity: File, Edit, Assets, GameObject, Component, Window, Help). */

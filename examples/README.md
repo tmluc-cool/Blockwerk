@@ -10,7 +10,7 @@ section 10) and must run in play mode.
 | 2     | `02-dorf`                                                   | done    |
 | 3     | `03-held`                                                   | done    |
 | 3b    | `03b-figur`                                                 | done    |
-| 4     | `04-landschaft`                                             | planned |
+| 4     | `04-landschaft`                                             | done    |
 | 5     | `05-quest`                                                  | planned |
 | 7     | `07-gross`                                                  | planned |
 | 8     | `08-kaputt`                                                 | planned |

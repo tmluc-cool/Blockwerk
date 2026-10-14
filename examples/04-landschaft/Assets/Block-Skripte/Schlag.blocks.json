@@ -1,0 +1,119 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "F",
+            "mode": "pressed"
+          },
+          "id": "t-36",
+          "next": {
+            "block": {
+              "fields": {
+                "at": "self",
+                "effect": "sparks"
+              },
+              "id": "t-37",
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:hit",
+                    "where": "here"
+                  },
+                  "id": "t-38",
+                  "next": {
+                    "block": {
+                      "id": "t-39",
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 0.3
+                            },
+                            "id": "t-41",
+                            "type": "literal.number"
+                          }
+                        },
+                        "strength": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 1.5
+                            },
+                            "id": "t-40",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "type": "camera.shake"
+                    }
+                  },
+                  "type": "sound.play"
+                }
+              },
+              "type": "effects.spawn"
+            }
+          },
+          "type": "events.whenKey"
+        },
+        {
+          "fields": {
+            "key": "E",
+            "mode": "pressed"
+          },
+          "id": "t-42",
+          "next": {
+            "block": {
+              "fields": {
+                "at": "self",
+                "effect": "explosion"
+              },
+              "id": "t-43",
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:explosion",
+                    "where": "here"
+                  },
+                  "id": "t-44",
+                  "next": {
+                    "block": {
+                      "id": "t-45",
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 0.6
+                            },
+                            "id": "t-47",
+                            "type": "literal.number"
+                          }
+                        },
+                        "strength": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 3
+                            },
+                            "id": "t-46",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "type": "camera.shake"
+                    }
+                  },
+                  "type": "sound.play"
+                }
+              },
+              "type": "effects.spawn"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}
