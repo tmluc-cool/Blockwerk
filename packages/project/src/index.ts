@@ -79,3 +79,5 @@ export {
 } from './prefabs';
 export type { InstantiateOptions, ObjectMap, PrefabSource, ResolvedPrefab } from './prefabs';
 export type { DefaultSceneNames } from './templates';
+export { createUiTemplate, UI_TEMPLATE_KINDS, UI_TEMPLATE_LABELS } from './uiTemplates';
+export type { UiTemplateKind, UiTemplateLabel, UiTemplateTargets } from './uiTemplates';

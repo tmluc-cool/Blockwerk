@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   assetTypeOfPath,
+  createUiTemplate,
+  UI_TEMPLATE_KINDS,
+  UI_TEMPLATE_LABELS,
   FORMAT_VERSION,
   loadProject,
   MemoryFileSystem,
@@ -10,7 +13,7 @@ import {
   uiSchema,
   variableSchema,
 } from '../src';
-import type { UiAction, UiData } from '../src';
+import type { UiAction, UiData, UiElement, UiTemplateLabel } from '../src';
 
 const ui: UiData = {
   formatVersion: FORMAT_VERSION,
@@ -132,5 +135,92 @@ describe('saved variables and save slots', () => {
     };
     expect(saveSchema.parse(save)).toEqual(save);
     expect(saveSchema.safeParse({ ...save, slot: 4 }).success).toBe(false);
+  });
+});
+
+const labels = Object.fromEntries(UI_TEMPLATE_LABELS.map((key) => [key, `T:${key}`])) as Record<
+  UiTemplateLabel,
+  string
+>;
+
+function flatten(elements: readonly UiElement[]): UiElement[] {
+  return elements.flatMap((element) => [element, ...flatten(element.children ?? [])]);
+}
+
+describe('menu templates', () => {
+  const targets = {
+    startScene: 'startscene001',
+    menuScene: 'menuscene001',
+    settingsUi: 'settingsui01',
+  };
+
+  it('every template is a valid canvas with unique element IDs', () => {
+    for (const kind of UI_TEMPLATE_KINDS) {
+      const data = createUiTemplate(kind, labels, targets);
+      expect(uiSchema.safeParse(data).success, kind).toBe(true);
+      const ids = flatten(data.elements).map((element) => element.id);
+      expect(new Set(ids).size, kind).toBe(ids.length);
+    }
+  });
+
+  it('the main menu starts the game, opens the settings and loads the three slots', () => {
+    const data = createUiTemplate('mainMenu', labels, targets);
+    const actions = flatten(data.elements).flatMap((element) => element.actions ?? []);
+    expect(actions).toContainEqual({ type: 'loadScene', scene: 'startscene001', spawn: '' });
+    expect(actions).toContainEqual({ type: 'showUi', ui: 'settingsui01' });
+    expect(
+      actions.filter((action) => action.type === 'loadGame').map((action) => action.slot),
+    ).toEqual([1, 2, 3]);
+    const texts = flatten(data.elements).map((element) => element.text);
+    expect(texts).toContain('T:play');
+    expect(texts).toContain('T:loadSlot'.replace('{n}', '1'));
+  });
+
+  it('the pause menu resumes, restarts, saves and loads, and goes back to the main menu', () => {
+    const data = createUiTemplate('pauseMenu', labels, targets);
+    const actions = flatten(data.elements).flatMap((element) => element.actions ?? []);
+    for (const type of ['resume', 'restart', 'saveGame', 'loadGame', 'showUi']) {
+      expect(
+        actions.some((action) => action.type === type),
+        type,
+      ).toBe(true);
+    }
+    expect(actions).toContainEqual({ type: 'loadScene', scene: 'menuscene001', spawn: '' });
+  });
+
+  it('the settings offer graphics level, four volumes, mouse sensitivity, full screen and keys', () => {
+    const data = createUiTemplate('settings', labels, targets);
+    const elements = flatten(data.elements);
+    expect(
+      elements.filter((element) => element.type === 'slider').map((element) => element.setting),
+    ).toEqual(['masterVolume', 'musicVolume', 'effectsVolume', 'voicesVolume', 'mouseSensitivity']);
+    expect(
+      elements.some(
+        (element) => element.type === 'dropdown' && element.setting === 'graphicsLevel',
+      ),
+    ).toBe(true);
+    expect(
+      elements.some((element) => element.type === 'toggle' && element.setting === 'fullscreen'),
+    ).toBe(true);
+    expect(elements.some((element) => element.type === 'keybindings')).toBe(true);
+    expect(elements.flatMap((element) => element.actions ?? [])).toContainEqual({
+      type: 'hideUi',
+      ui: 'settingsui01',
+    });
+  });
+
+  it('the HUD has a life bar bound to the health, an inventory, a hint and a dialog box', () => {
+    const data = createUiTemplate('hud', labels);
+    const types = data.elements.map((element) => element.type);
+    expect(types).toEqual(expect.arrayContaining(['bar', 'text', 'inventory', 'hint', 'dialog']));
+    expect(data.elements.find((element) => element.type === 'bar')?.bind).toEqual({
+      kind: 'health',
+    });
+  });
+
+  it('buttons without a target have no action instead of a broken one', () => {
+    const data = createUiTemplate('mainMenu', labels);
+    const play = flatten(data.elements).find((element) => element.text === 'T:play');
+    expect(play?.actions).toEqual([]);
   });
 });
