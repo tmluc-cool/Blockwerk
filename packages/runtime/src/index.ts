@@ -215,6 +215,7 @@ export type { SaveStorage } from './saves/saves';
 export { ANCHOR_PRESETS, applyAnchorPreset, canvasScale, layoutRect } from './ui/layout';
 export type { AnchorPreset, Rect, UiPlacement } from './ui/layout';
 export { formatValue, keyLabel, UiRenderer } from './ui/UiRenderer';
+export { cloneValue, valueToText } from './game/values';
 export type { UiFrame, UiHost, UiLoading } from './ui/UiRenderer';
 export { UI_STRING_KEYS } from './ui/strings';
 export type { UiStringKey, UiStrings } from './ui/strings';

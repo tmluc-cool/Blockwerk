@@ -1,4 +1,12 @@
-import { assetDisplayName, createId, VARIABLE_TYPES } from '@blockwerk/project';
+import {
+  assetDisplayName,
+  createId,
+  renameGameVariable,
+  sharedGameVariables,
+  updateGameVariable,
+  adoptGameVariable,
+  VARIABLE_TYPES,
+} from '@blockwerk/project';
 import type { BlockScriptData, SceneData, VariableData } from '@blockwerk/project';
 import { BUILTIN_SOUNDS } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
@@ -120,6 +128,20 @@ function setVariables(entry: ScriptEntry, variables: VariableData[]): void {
   updateBlockScript(entry.id, { ...entry.data, variables });
 }
 
+/** All block scripts of the project. */
+function allScripts(): { id: string; data: BlockScriptData }[] {
+  const { project } = useDocument.getState();
+  return (project?.assetsOfType('blockScript') ?? []).map((entry) => ({
+    id: entry.id,
+    data: entry.data,
+  }));
+}
+
+/** Applies the new data of several scripts (a game variable lives in all of them). */
+function applyToScripts(changed: Map<string, BlockScriptData>): void {
+  for (const [id, data] of changed) updateBlockScript(id, data);
+}
+
 /** Asks for a name and adds a variable to the open script. */
 function createVariable(): void {
   const entry = openScriptEntry();
@@ -141,22 +163,57 @@ function createVariable(): void {
   });
 }
 
+/** The start value of a variable of a type. */
+function defaultFor(type: VariableData['type']): VariableData['default'] {
+  switch (type) {
+    case 'number':
+      return 0;
+    case 'boolean':
+      return false;
+    case 'list':
+      return [];
+    case 'dictionary':
+      return {};
+    case 'string':
+      return '';
+  }
+}
+
 function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boolean }) {
   const t = useT();
   const update = (id: string, change: Partial<VariableData>): void => {
+    const current = entry.data.variables.find((variable) => variable.id === id);
+    if (!current) return;
+    const next = { ...current, ...change };
+    // Keep the default value in the variable's type.
+    if (change.type) next.default = defaultFor(change.type);
+    if (next.scope === 'game' || next.type === 'list' || next.type === 'dictionary')
+      next.inspector = false;
+    if (current.scope === 'game' && next.scope === 'game') {
+      // A game variable is one variable for the whole project: every script that declares it
+      // changes with it ("Rename everywhere").
+      const scripts = allScripts();
+      if (change.name !== undefined) applyToScripts(renameGameVariable(scripts, id, change.name));
+      if (change.type !== undefined || change.default !== undefined || change.saved !== undefined) {
+        applyToScripts(
+          updateGameVariable(scripts, id, {
+            type: next.type,
+            default: next.default,
+            ...(next.saved === undefined ? {} : { saved: next.saved }),
+          }),
+        );
+      }
+      return;
+    }
     setVariables(
       entry,
-      entry.data.variables.map((variable) => {
-        if (variable.id !== id) return variable;
-        const next = { ...variable, ...change };
-        // Keep the default value in the variable's type.
-        if (change.type)
-          next.default = change.type === 'number' ? 0 : change.type === 'boolean' ? false : '';
-        if (next.scope === 'game') next.inspector = false;
-        return next;
-      }),
+      entry.data.variables.map((variable) => (variable.id === id ? next : variable)),
     );
   };
+  // Game variables that other scripts declare and this one does not use yet.
+  const available = sharedGameVariables(allScripts()).filter(
+    (shared) => !entry.data.variables.some((variable) => variable.id === shared.variable.id),
+  );
   return (
     <aside className="variables-panel" data-testid="variables-panel">
       <div className="variables-header">
@@ -238,7 +295,9 @@ function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boo
           </div>
           <div className="variable-row">
             <span className="muted">{t('blockEditor.default')}</span>
-            {variable.type === 'boolean' ? (
+            {variable.type === 'list' || variable.type === 'dictionary' ? (
+              <span className="muted">{variable.type === 'list' ? '[ ]' : '{ }'}</span>
+            ) : variable.type === 'boolean' ? (
               <input
                 type="checkbox"
                 checked={variable.default === true}
@@ -265,7 +324,11 @@ function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boo
             <input
               type="checkbox"
               checked={variable.inspector}
-              disabled={variable.scope === 'game'}
+              disabled={
+                variable.scope === 'game' ||
+                variable.type === 'list' ||
+                variable.type === 'dictionary'
+              }
               data-testid="variable-inspector"
               onChange={(event) => update(variable.id, { inspector: event.target.checked })}
             />
@@ -283,6 +346,26 @@ function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boo
           </label>
         </div>
       ))}
+      {available.length > 0 && (
+        <div className="variable-shared" data-testid="shared-variables">
+          <div className="muted small">{t('blockEditor.sharedVariables')}</div>
+          {available.map((shared) => (
+            <button
+              key={shared.variable.id}
+              type="button"
+              className="variable-use"
+              title={t('blockEditor.useVariable')}
+              data-testid={`use-variable-${shared.variable.name}`}
+              onClick={() => {
+                const data = adoptGameVariable(entry.data, shared.variable);
+                if (data) updateBlockScript(entry.id, data);
+              }}
+            >
+              <Plus size={12} /> {shared.variable.name}
+            </button>
+          ))}
+        </div>
+      )}
     </aside>
   );
 }
@@ -365,8 +448,15 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
         onVariablesChange: (variables) => {
           const target = openScriptEntry();
           if (!target) return;
-          const merged = variables.map((variable) => {
+          for (const variable of variables) {
             const known = target.data.variables.find((item) => item.id === variable.id);
+            if (known?.scope === 'game' && known.name !== variable.name)
+              applyToScripts(renameGameVariable(allScripts(), variable.id, variable.name));
+          }
+          const fresh = openScriptEntry();
+          if (!fresh) return;
+          const merged = variables.map((variable) => {
+            const known = fresh.data.variables.find((item) => item.id === variable.id);
             return known
               ? { ...known, name: variable.name }
               : {
@@ -378,10 +468,10 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
                   inspector: false,
                 };
           });
-          if (JSON.stringify(merged) === JSON.stringify(target.data.variables)) return;
-          const data = { ...target.data, variables: merged };
-          shownRef.current = { id: target.id, data };
-          updateBlockScript(target.id, data);
+          if (JSON.stringify(merged) === JSON.stringify(fresh.data.variables)) return;
+          const data = { ...fresh.data, variables: merged };
+          shownRef.current = { id: fresh.id, data };
+          updateBlockScript(fresh.id, data);
         },
         onCreateVariable: createVariable,
         onKeyDown: (event) => handleShortcut(event, { modifiersOnly: true }),

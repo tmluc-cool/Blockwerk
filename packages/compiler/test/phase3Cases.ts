@@ -38,9 +38,20 @@ export interface RuntimeCase {
 
 export const A = 'varaaaaaaaaa';
 export const B = 'varbbbbbbbbb';
-const VARIABLES: VariableData[] = [
+export const LIST = 'varlistxxxxx';
+export const DICT = 'vardictxxxxx';
+export const VARIABLES: VariableData[] = [
   { id: A, name: 'A', type: 'number', scope: 'game', default: 0, inspector: false },
   { id: B, name: 'B', type: 'string', scope: 'game', default: '', inspector: false },
+  { id: LIST, name: 'Liste', type: 'list', scope: 'game', default: [], inspector: false },
+  {
+    id: DICT,
+    name: 'Wörterbuch',
+    type: 'dictionary',
+    scope: 'game',
+    default: {},
+    inspector: false,
+  },
 ];
 
 type Vec = [number, number, number];

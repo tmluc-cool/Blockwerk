@@ -159,7 +159,7 @@ export const sceneSchema = z.object({
 export type SceneData = z.infer<typeof sceneSchema>;
 
 /** Value types of block-script variables. */
-export const VARIABLE_TYPES = ['number', 'string', 'boolean'] as const;
+export const VARIABLE_TYPES = ['number', 'string', 'boolean', 'list', 'dictionary'] as const;
 export const variableTypeSchema = z.enum(VARIABLE_TYPES);
 export type VariableType = z.infer<typeof variableTypeSchema>;
 
@@ -169,7 +169,8 @@ export const variableSchema = z.object({
   type: variableTypeSchema,
   /** `object`: one value per object (can be shown in the inspector); `game`: shared by all scripts. */
   scope: z.enum(['object', 'game']),
-  default: z.union([z.number(), z.string(), z.boolean()]),
+  /** Lists default to `[]`, dictionaries to `{}`; the others to a number, text or condition. */
+  default: jsonValueSchema,
   /** Show as a field of the block-script component in the inspector. */
   inspector: z.boolean(),
   /** Part of a save slot (game-scoped variables only). Optional so older files stay unchanged. */
@@ -428,7 +429,7 @@ export const saveSchema = z.object({
   /** When the game was saved (ISO 8601). */
   savedAt: z.string(),
   /** Game variables marked "saved". */
-  vars: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
+  vars: z.record(z.string(), jsonValueSchema),
   players: z.array(savedPlayerSchema),
 });
 /** A save slot (SPEC 8.14). */

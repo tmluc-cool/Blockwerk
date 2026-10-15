@@ -81,3 +81,10 @@ export type { InstantiateOptions, ObjectMap, PrefabSource, ResolvedPrefab } from
 export type { DefaultSceneNames } from './templates';
 export { createUiTemplate, UI_TEMPLATE_KINDS, UI_TEMPLATE_LABELS } from './uiTemplates';
 export type { UiTemplateKind, UiTemplateLabel, UiTemplateTargets } from './uiTemplates';
+export {
+  renameGameVariable,
+  sharedGameVariables,
+  updateGameVariable,
+  adoptGameVariable,
+} from './scriptRefactor';
+export type { ScriptRef, SharedVariable } from './scriptRefactor';

@@ -48,6 +48,27 @@ export interface GameApi {
   letterOf(index: number, text: string): string;
   contains(text: string, part: string): boolean;
 
+  // Lists and dictionaries (SPEC 7.3). Lists count from 1; wrong kinds of values are ignored.
+  split(text: string, separator: string): VariableValue[];
+  listAdd(list: unknown, item: VariableValue): void;
+  listInsert(list: unknown, index: number, item: VariableValue): void;
+  listRemoveAt(list: unknown, index: number): void;
+  listSet(list: unknown, index: number, item: VariableValue): void;
+  listClear(list: unknown): void;
+  listGet(list: unknown, index: number): VariableValue;
+  listLength(list: unknown): number;
+  /** Place of the first match (1 is the first), 0 if the item is missing. */
+  listIndexOf(list: unknown, item: unknown): number;
+  listJoin(list: unknown, separator: string): string;
+  /** What "for each" walks through: a copy of a list, or the keys of a dictionary. */
+  items(value: unknown): VariableValue[];
+  dictSet(dictionary: unknown, key: string, value: VariableValue): void;
+  dictRemove(dictionary: unknown, key: string): void;
+  dictGet(dictionary: unknown, key: string): VariableValue;
+  dictHas(dictionary: unknown, key: string): boolean;
+  dictKeys(dictionary: unknown): VariableValue[];
+  dictSize(dictionary: unknown): number;
+
   /** Waits for some seconds (use with `yield*`). */
   wait(seconds: number): Generator<void, void, void>;
   /** Moves over time to an object or point (use with `yield*`). */

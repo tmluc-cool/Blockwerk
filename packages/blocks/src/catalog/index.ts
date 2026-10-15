@@ -156,6 +156,29 @@ import {
   touching,
 } from './sensing';
 import { changeVariable, getVariable, hideVariable, setVariable, showVariable } from './variables';
+import { changeLocal, declareLocal, getLocal, setLocal } from './locals';
+import {
+  dictGet,
+  dictHas,
+  dictKeys,
+  dictRemove,
+  dictSet,
+  dictSize,
+  forEachItem,
+  listAdd,
+  listClear,
+  listContains,
+  listGet,
+  listIndexOf,
+  listInsert,
+  listJoin,
+  listLength,
+  listRemoveAt,
+  listSet,
+  newDictionary,
+  newList,
+  splitText,
+} from './data';
 
 /** Every block of the built-in catalog, in palette order within each category. */
 export const BLOCK_CATALOG: readonly BlockDefinition[] = [
@@ -334,6 +357,31 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   changeVariable,
   showVariable,
   hideVariable,
+  declareLocal,
+  setLocal,
+  changeLocal,
+  getLocal,
+  // Lists and dictionaries
+  newList,
+  newDictionary,
+  splitText,
+  listAdd,
+  listInsert,
+  listRemoveAt,
+  listSet,
+  listClear,
+  listGet,
+  listLength,
+  listContains,
+  listIndexOf,
+  listJoin,
+  dictSet,
+  dictRemove,
+  dictGet,
+  dictHas,
+  dictKeys,
+  dictSize,
+  forEachItem,
   // Shadows
   numberLiteral,
   textLiteral,

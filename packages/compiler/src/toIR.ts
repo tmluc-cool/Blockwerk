@@ -92,6 +92,8 @@ function isDisabled(block: SerializedBlock): boolean {
 
 class IRBuilder {
   readonly diagnostics: Diagnostic[] = [];
+  /** Local variables that exist at the block being read (SPEC 7.4). */
+  private locals = new Set<string>();
 
   constructor(
     private readonly registry: BlockRegistry,
@@ -109,6 +111,7 @@ class IRBuilder {
         fields[name] = literal;
       }
     }
+    this.locals = new Set();
     return {
       id: block.id,
       event: definition.event(fields),
@@ -116,8 +119,27 @@ class IRBuilder {
     };
   }
 
+  /** The name a block with a local variable field refers to. */
+  private localName(block: SerializedBlock, definition: BlockDefinition): string {
+    const field = definition.local?.field;
+    const raw = field ? block.fields?.[field] : undefined;
+    return typeof raw === 'string' ? raw.trim() : '';
+  }
+
+  /** Whether a block that reads or writes a local variable names one that exists here. */
+  private localKnown(block: SerializedBlock, definition: BlockDefinition): boolean {
+    if (definition.local?.role !== 'use') return true;
+    const name = this.localName(block, definition);
+    if (this.locals.has(name)) return true;
+    this.report('warning', 'unknownLocal', block.id, { name });
+    return false;
+  }
+
   statements(first: SerializedBlock | undefined): IRStatement[] {
     const result: IRStatement[] = [];
+    // Variables declared in a nested body end with it; the ones above stay visible inside.
+    const outer = this.locals;
+    this.locals = new Set(outer);
     for (let block = first; block; block = block.next?.block) {
       if (isDisabled(block)) continue;
       const definition = this.definitionOf(block);
@@ -128,19 +150,29 @@ class IRBuilder {
       }
       const args: Record<string, IRExpression> = {};
       const substacks: Record<string, IRStatement[]> = {};
-      let valid = true;
+      let valid = this.localKnown(block, definition);
       for (const [name, input] of Object.entries(definition.inputs)) {
         if (input.type === 'statement') {
-          substacks[name] = this.statements(block.inputs?.[name]?.block);
+          const local = definition.local;
+          if (local?.role === 'loop' && local.substack === name) {
+            const here = this.locals;
+            this.locals = new Set(here).add(this.localName(block, definition));
+            substacks[name] = this.statements(block.inputs?.[name]?.block);
+            this.locals = here;
+          } else {
+            substacks[name] = this.statements(block.inputs?.[name]?.block);
+          }
         } else {
           const arg = this.argument(block, name, input);
           if (arg === null) valid = false;
           else args[name] = arg;
         }
       }
+      if (definition.local?.role === 'declare') this.locals.add(this.localName(block, definition));
       if (valid)
         result.push({ kind: 'block', blockId: block.id, type: block.type, args, substacks });
     }
+    this.locals = outer;
     return result;
   }
 
@@ -151,6 +183,7 @@ class IRBuilder {
       this.report('error', 'notAValue', block.id, { type: block.type });
       return null;
     }
+    if (!this.localKnown(block, definition)) return null;
     const args: Record<string, IRExpression> = {};
     for (const [name, input] of Object.entries(definition.inputs)) {
       if (input.type === 'statement') continue;

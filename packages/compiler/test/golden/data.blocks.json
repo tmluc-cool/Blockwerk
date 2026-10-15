@@ -1,0 +1,681 @@
+{
+  "variables": [
+    {
+      "id": "varlistxxxxx",
+      "name": "Liste",
+      "scope": "game"
+    },
+    {
+      "id": "vardictxxxxx",
+      "name": "Wörterbuch",
+      "scope": "game"
+    },
+    {
+      "id": "varoutxxxxxx",
+      "name": "Ergebnis",
+      "scope": "object"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "d-1",
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "d-3",
+              "fields": {
+                "variable": {
+                  "id": "varlistxxxxx"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "block": {
+                    "type": "data.newList",
+                    "id": "d-2"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "variables.set",
+                  "id": "d-5",
+                  "fields": {
+                    "variable": {
+                      "id": "vardictxxxxx"
+                    }
+                  },
+                  "inputs": {
+                    "value": {
+                      "block": {
+                        "type": "data.newDictionary",
+                        "id": "d-4"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "data.listAdd",
+                      "id": "d-7",
+                      "inputs": {
+                        "item": {
+                          "shadow": {
+                            "type": "literal.text",
+                            "id": "d-8",
+                            "fields": {
+                              "TEXT": "Apfel"
+                            }
+                          }
+                        },
+                        "list": {
+                          "block": {
+                            "type": "variables.get",
+                            "id": "d-6",
+                            "fields": {
+                              "variable": {
+                                "id": "varlistxxxxx"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "data.listAdd",
+                          "id": "d-10",
+                          "inputs": {
+                            "item": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "d-11",
+                                "fields": {
+                                  "NUM": 3
+                                }
+                              }
+                            },
+                            "list": {
+                              "block": {
+                                "type": "variables.get",
+                                "id": "d-9",
+                                "fields": {
+                                  "variable": {
+                                    "id": "varlistxxxxx"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "data.listInsert",
+                              "id": "d-13",
+                              "inputs": {
+                                "item": {
+                                  "shadow": {
+                                    "type": "literal.text",
+                                    "id": "d-14",
+                                    "fields": {
+                                      "TEXT": "Birne"
+                                    }
+                                  }
+                                },
+                                "index": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "d-15",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                },
+                                "list": {
+                                  "block": {
+                                    "type": "variables.get",
+                                    "id": "d-12",
+                                    "fields": {
+                                      "variable": {
+                                        "id": "varlistxxxxx"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "data.listSet",
+                                  "id": "d-17",
+                                  "inputs": {
+                                    "index": {
+                                      "shadow": {
+                                        "type": "literal.number",
+                                        "id": "d-18",
+                                        "fields": {
+                                          "NUM": 2
+                                        }
+                                      }
+                                    },
+                                    "list": {
+                                      "block": {
+                                        "type": "variables.get",
+                                        "id": "d-16",
+                                        "fields": {
+                                          "variable": {
+                                            "id": "varlistxxxxx"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "item": {
+                                      "shadow": {
+                                        "type": "literal.text",
+                                        "id": "d-19",
+                                        "fields": {
+                                          "TEXT": "Kirsche"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "data.listRemoveAt",
+                                      "id": "d-21",
+                                      "inputs": {
+                                        "index": {
+                                          "shadow": {
+                                            "type": "literal.number",
+                                            "id": "d-22",
+                                            "fields": {
+                                              "NUM": 3
+                                            }
+                                          }
+                                        },
+                                        "list": {
+                                          "block": {
+                                            "type": "variables.get",
+                                            "id": "d-20",
+                                            "fields": {
+                                              "variable": {
+                                                "id": "varlistxxxxx"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "variables.set",
+                                          "id": "d-26",
+                                          "fields": {
+                                            "variable": {
+                                              "id": "varoutxxxxxx"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "value": {
+                                              "block": {
+                                                "type": "data.listGet",
+                                                "id": "d-24",
+                                                "inputs": {
+                                                  "index": {
+                                                    "shadow": {
+                                                      "type": "literal.number",
+                                                      "id": "d-25",
+                                                      "fields": {
+                                                        "NUM": 1
+                                                      }
+                                                    }
+                                                  },
+                                                  "list": {
+                                                    "block": {
+                                                      "type": "variables.get",
+                                                      "id": "d-23",
+                                                      "fields": {
+                                                        "variable": {
+                                                          "id": "varlistxxxxx"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "control.if",
+                                              "id": "d-34",
+                                              "inputs": {
+                                                "condition": {
+                                                  "block": {
+                                                    "type": "data.listContains",
+                                                    "id": "d-28",
+                                                    "inputs": {
+                                                      "list": {
+                                                        "block": {
+                                                          "type": "variables.get",
+                                                          "id": "d-27",
+                                                          "fields": {
+                                                            "variable": {
+                                                              "id": "varlistxxxxx"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "item": {
+                                                        "shadow": {
+                                                          "type": "literal.text",
+                                                          "id": "d-29",
+                                                          "fields": {
+                                                            "TEXT": "Kirsche"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "then": {
+                                                  "block": {
+                                                    "type": "variables.set",
+                                                    "id": "d-33",
+                                                    "fields": {
+                                                      "variable": {
+                                                        "id": "varoutxxxxxx"
+                                                      }
+                                                    },
+                                                    "inputs": {
+                                                      "value": {
+                                                        "block": {
+                                                          "type": "data.listIndexOf",
+                                                          "id": "d-31",
+                                                          "inputs": {
+                                                            "item": {
+                                                              "shadow": {
+                                                                "type": "literal.text",
+                                                                "id": "d-32",
+                                                                "fields": {
+                                                                  "TEXT": "Kirsche"
+                                                                }
+                                                              }
+                                                            },
+                                                            "list": {
+                                                              "block": {
+                                                                "type": "variables.get",
+                                                                "id": "d-30",
+                                                                "fields": {
+                                                                  "variable": {
+                                                                    "id": "varlistxxxxx"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "variables.set",
+                                                  "id": "d-38",
+                                                  "fields": {
+                                                    "variable": {
+                                                      "id": "varoutxxxxxx"
+                                                    }
+                                                  },
+                                                  "inputs": {
+                                                    "value": {
+                                                      "block": {
+                                                        "type": "data.listJoin",
+                                                        "id": "d-36",
+                                                        "inputs": {
+                                                          "list": {
+                                                            "block": {
+                                                              "type": "variables.get",
+                                                              "id": "d-35",
+                                                              "fields": {
+                                                                "variable": {
+                                                                  "id": "varlistxxxxx"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "separator": {
+                                                            "shadow": {
+                                                              "type": "literal.text",
+                                                              "id": "d-37",
+                                                              "fields": {
+                                                                "TEXT": ", "
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "variables.set",
+                                                      "id": "d-43",
+                                                      "fields": {
+                                                        "variable": {
+                                                          "id": "varoutxxxxxx"
+                                                        }
+                                                      },
+                                                      "inputs": {
+                                                        "value": {
+                                                          "block": {
+                                                            "type": "data.listLength",
+                                                            "id": "d-42",
+                                                            "inputs": {
+                                                              "list": {
+                                                                "block": {
+                                                                  "type": "data.split",
+                                                                  "id": "d-39",
+                                                                  "inputs": {
+                                                                    "text": {
+                                                                      "shadow": {
+                                                                        "type": "literal.text",
+                                                                        "id": "d-40",
+                                                                        "fields": {
+                                                                          "TEXT": "a,b,c"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "separator": {
+                                                                      "shadow": {
+                                                                        "type": "literal.text",
+                                                                        "id": "d-41",
+                                                                        "fields": {
+                                                                          "TEXT": ","
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "data.listClear",
+                                                          "id": "d-45",
+                                                          "inputs": {
+                                                            "list": {
+                                                              "block": {
+                                                                "type": "variables.get",
+                                                                "id": "d-44",
+                                                                "fields": {
+                                                                  "variable": {
+                                                                    "id": "varlistxxxxx"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "events.everyFrame",
+          "id": "d-46",
+          "next": {
+            "block": {
+              "type": "data.dictSet",
+              "id": "d-48",
+              "inputs": {
+                "key": {
+                  "shadow": {
+                    "type": "literal.text",
+                    "id": "d-49",
+                    "fields": {
+                      "TEXT": "Leben"
+                    }
+                  }
+                },
+                "dictionary": {
+                  "block": {
+                    "type": "variables.get",
+                    "id": "d-47",
+                    "fields": {
+                      "variable": {
+                        "id": "vardictxxxxx"
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "d-50",
+                    "fields": {
+                      "NUM": 3
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "data.dictRemove",
+                  "id": "d-52",
+                  "inputs": {
+                    "key": {
+                      "shadow": {
+                        "type": "literal.text",
+                        "id": "d-53",
+                        "fields": {
+                          "TEXT": "Alt"
+                        }
+                      }
+                    },
+                    "dictionary": {
+                      "block": {
+                        "type": "variables.get",
+                        "id": "d-51",
+                        "fields": {
+                          "variable": {
+                            "id": "vardictxxxxx"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "control.if",
+                      "id": "d-61",
+                      "inputs": {
+                        "condition": {
+                          "block": {
+                            "type": "data.dictHas",
+                            "id": "d-55",
+                            "inputs": {
+                              "dictionary": {
+                                "block": {
+                                  "type": "variables.get",
+                                  "id": "d-54",
+                                  "fields": {
+                                    "variable": {
+                                      "id": "vardictxxxxx"
+                                    }
+                                  }
+                                }
+                              },
+                              "key": {
+                                "shadow": {
+                                  "type": "literal.text",
+                                  "id": "d-56",
+                                  "fields": {
+                                    "TEXT": "Leben"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "then": {
+                          "block": {
+                            "type": "variables.set",
+                            "id": "d-60",
+                            "fields": {
+                              "variable": {
+                                "id": "varoutxxxxxx"
+                              }
+                            },
+                            "inputs": {
+                              "value": {
+                                "block": {
+                                  "type": "data.dictGet",
+                                  "id": "d-58",
+                                  "inputs": {
+                                    "key": {
+                                      "shadow": {
+                                        "type": "literal.text",
+                                        "id": "d-59",
+                                        "fields": {
+                                          "TEXT": "Leben"
+                                        }
+                                      }
+                                    },
+                                    "dictionary": {
+                                      "block": {
+                                        "type": "variables.get",
+                                        "id": "d-57",
+                                        "fields": {
+                                          "variable": {
+                                            "id": "vardictxxxxx"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "variables.set",
+                          "id": "d-64",
+                          "fields": {
+                            "variable": {
+                              "id": "varoutxxxxxx"
+                            }
+                          },
+                          "inputs": {
+                            "value": {
+                              "block": {
+                                "type": "data.dictSize",
+                                "id": "d-63",
+                                "inputs": {
+                                  "dictionary": {
+                                    "block": {
+                                      "type": "variables.get",
+                                      "id": "d-62",
+                                      "fields": {
+                                        "variable": {
+                                          "id": "vardictxxxxx"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "data.forEachItem",
+                              "id": "d-69",
+                              "fields": {
+                                "name": "Schlüssel"
+                              },
+                              "inputs": {
+                                "list": {
+                                  "block": {
+                                    "type": "data.dictKeys",
+                                    "id": "d-66",
+                                    "inputs": {
+                                      "dictionary": {
+                                        "block": {
+                                          "type": "variables.get",
+                                          "id": "d-65",
+                                          "fields": {
+                                            "variable": {
+                                              "id": "vardictxxxxx"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "body": {
+                                  "block": {
+                                    "type": "variables.set",
+                                    "id": "d-68",
+                                    "fields": {
+                                      "variable": {
+                                        "id": "varoutxxxxxx"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "value": {
+                                        "block": {
+                                          "type": "locals.get",
+                                          "id": "d-67",
+                                          "fields": {
+                                            "name": "Schlüssel"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

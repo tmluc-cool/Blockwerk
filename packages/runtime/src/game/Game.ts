@@ -15,6 +15,7 @@ import type { Quaternion } from 'three';
 import { MathUtils, Plane, Raycaster, Vector2, Vector3 } from 'three';
 import { colliderRegistry } from '../components/colliders';
 import { errorLine } from '../scripts';
+import { cloneValue, dictOps, valueToText, listOps } from './values';
 import type { CompiledScriptModule, ScriptEntry } from '../scripts';
 import { GameObject } from '../world/GameObject';
 import type { VariableValue } from '../world/GameObject';
@@ -510,10 +511,10 @@ export class Game implements GameApi {
       this.noticeState = { key: 'saveFailed', at: this.tick };
       return false;
     }
-    const vars: Record<string, number | string | boolean> = {};
+    const vars: Record<string, VariableValue> = {};
     for (const id of this.savedIds()) {
       const value = this.vars[id];
-      if (value !== undefined) vars[id] = value;
+      if (value !== undefined) vars[id] = cloneValue(value);
     }
     const players = this.playerObjects().map((object) => {
       const health = peekHealth(object);
@@ -558,7 +559,7 @@ export class Game implements GameApi {
 
   /** Puts a save back: saved variables, and per player the position, items, health and stamina. */
   private applySave(save: SaveData): void {
-    Object.assign(this.vars, save.vars);
+    for (const [key, value] of Object.entries(save.vars)) this.vars[key] = cloneValue(value);
     const players = this.playerObjects();
     players.forEach((object, index) => {
       const kept = save.players[index];
@@ -602,7 +603,7 @@ export class Game implements GameApi {
   /** What the next scene's game takes over: variables, items and health of the players. */
   exportCarry(): CarryState {
     return {
-      vars: { ...this.vars },
+      vars: Object.fromEntries(Object.entries(this.vars).map(([k, v]) => [k, cloneValue(v)])),
       players: collectPlayers(this.playerObjects(), (object) => {
         const percent = gameplay.staminaPercent(object);
         return controlRegistry.get(object)?.stamina === null ? null : percent;
@@ -627,7 +628,7 @@ export class Game implements GameApi {
 
   /** Takes over the state of the previous scene and puts the players at the spawn point. */
   private applyCarry(carry: CarryState, spawn: string): void {
-    Object.assign(this.vars, carry.vars);
+    for (const [key, value] of Object.entries(carry.vars)) this.vars[key] = cloneValue(value);
     const players = this.playerObjects();
     players.forEach((object, index) => {
       const kept = carry.players[index];
@@ -944,9 +945,9 @@ export class Game implements GameApi {
       scripts[index] = { asset, entries: asset.module.scripts };
       for (const variable of asset.variables) {
         if (variable.scope === 'object' && !(variable.id in object.vars))
-          object.vars[variable.id] = variable.default;
+          object.vars[variable.id] = cloneValue(variable.default);
         if (variable.scope === 'game' && !(variable.id in this.vars))
-          this.vars[variable.id] = variable.default;
+          this.vars[variable.id] = cloneValue(variable.default);
         if (variable.scope === 'game' && variable.saved) this.attachedSavedVars.add(variable.id);
       }
       for (const entry of asset.module.scripts) {
@@ -1008,9 +1009,7 @@ export class Game implements GameApi {
   }
 
   str(value: unknown): string {
-    if (typeof value === 'string') return value;
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-    return '';
+    return valueToText(value);
   }
 
   bool(value: unknown): boolean {
@@ -1076,6 +1075,60 @@ export class Game implements GameApi {
 
   contains(text: string, part: string): boolean {
     return text.toLowerCase().includes(part.toLowerCase());
+  }
+
+  // ---------------------------------------------------------------- GameApi: lists, dictionaries
+
+  split(text: string, separator: string): VariableValue[] {
+    return text === '' ? [] : text.split(separator);
+  }
+  listAdd(list: unknown, item: VariableValue): void {
+    listOps.add(list, item);
+  }
+  listInsert(list: unknown, index: number, item: VariableValue): void {
+    listOps.insert(list, index, item);
+  }
+  listRemoveAt(list: unknown, index: number): void {
+    listOps.removeAt(list, index);
+  }
+  listSet(list: unknown, index: number, item: VariableValue): void {
+    listOps.set(list, index, item);
+  }
+  listClear(list: unknown): void {
+    listOps.clear(list);
+  }
+  listGet(list: unknown, index: number): VariableValue {
+    return listOps.get(list, index);
+  }
+  listLength(list: unknown): number {
+    return listOps.length(list);
+  }
+  listIndexOf(list: unknown, item: unknown): number {
+    return listOps.indexOf(list, item);
+  }
+  listJoin(list: unknown, separator: string): string {
+    return listOps.join(list, separator);
+  }
+  items(value: unknown): VariableValue[] {
+    return listOps.items(value);
+  }
+  dictSet(dictionary: unknown, key: string, value: VariableValue): void {
+    dictOps.set(dictionary, key, value);
+  }
+  dictRemove(dictionary: unknown, key: string): void {
+    dictOps.remove(dictionary, key);
+  }
+  dictGet(dictionary: unknown, key: string): VariableValue {
+    return dictOps.get(dictionary, key);
+  }
+  dictHas(dictionary: unknown, key: string): boolean {
+    return dictOps.has(dictionary, key);
+  }
+  dictKeys(dictionary: unknown): VariableValue[] {
+    return dictOps.keys(dictionary);
+  }
+  dictSize(dictionary: unknown): number {
+    return dictOps.size(dictionary);
   }
 
   // ---------------------------------------------------------------- GameApi: time
@@ -1319,7 +1372,12 @@ export class Game implements GameApi {
   private dialogHost(speaker: GameObject, user: GameObject): DialogHost {
     return {
       hasItem: (item, count) => (peekInventory(user)?.count(item) ?? 0) >= count,
-      variable: (id) => this.vars[id],
+      variable: (id) => {
+        const value = this.vars[id];
+        return typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean'
+          ? value
+          : undefined;
+      },
       answered: (answerId) => {
         for (const object of this.world.allObjects()) {
           if (!object.activeInHierarchy) continue;
@@ -1832,7 +1890,7 @@ export class Game implements GameApi {
     copy.object3d.quaternion.copy(source.object3d.quaternion);
     copy.object3d.scale.copy(source.object3d.scale);
     copy.setVisible(source.visible);
-    Object.assign(copy.vars, source.vars);
+    for (const [key, value] of Object.entries(source.vars)) copy.vars[key] = cloneValue(value);
     for (const object of copy.descendantsAndSelf()) {
       this.fireFor(object, 'created', () => true, true);
     }
@@ -1899,7 +1957,7 @@ export class Game implements GameApi {
       >;
       for (const variable of asset.variables) {
         if (variable.scope === 'game') {
-          if (!(variable.id in this.vars)) this.vars[variable.id] = variable.default;
+          if (!(variable.id in this.vars)) this.vars[variable.id] = cloneValue(variable.default);
           if (variable.saved) this.attachedSavedVars.add(variable.id);
           continue;
         }
@@ -1908,7 +1966,7 @@ export class Game implements GameApi {
           variable.inspector &&
           (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean')
             ? value
-            : variable.default;
+            : cloneValue(variable.default);
       }
       scripts.push({ asset, entries: asset.module.scripts });
     }
