@@ -2950,7 +2950,7 @@
       "active": true,
       "components": [],
       "layer": "Default",
-      "name": "Gruft",
+      "name": "Start",
       "order": 60,
       "parent": "qo0000000005",
       "static": false,
@@ -2959,7 +2959,7 @@
         "position": [
           0,
           0,
-          30
+          -26
         ],
         "rotation": [
           0,
@@ -2977,7 +2977,7 @@
       "active": true,
       "components": [],
       "layer": "Default",
-      "name": "Start",
+      "name": "Gruft",
       "order": 61,
       "parent": "qo0000000005",
       "static": false,
@@ -2986,7 +2986,7 @@
         "position": [
           0,
           0,
-          -26
+          30
         ],
         "rotation": [
           0,
@@ -4050,6 +4050,162 @@
         "rotation": [
           0,
           90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000169": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000246",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 0,
+            "ui": "questuihud01",
+            "visibility": "always"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "HUD",
+      "order": 84,
+      "parent": "qo0000000006",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000170": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000247",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 5,
+            "ui": "questuipaus1",
+            "visibility": "paused"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Pausemenü",
+      "order": 85,
+      "parent": "qo0000000006",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000171": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000248",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 10,
+            "ui": "questuiset01",
+            "visibility": "manual"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Einstellungen",
+      "order": 86,
+      "parent": "qo0000000006",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000175": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000252",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 20,
+            "ui": "questuivic01",
+            "visibility": "manual"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sieg",
+      "order": 87,
+      "parent": "qo0000000006",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
           0
         ],
         "scale": [

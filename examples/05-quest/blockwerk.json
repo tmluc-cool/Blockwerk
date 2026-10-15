@@ -2,5 +2,5 @@
   "formatVersion": 1,
   "graphicsLevel": "high",
   "name": "Quest",
-  "startScene": "questdorf001"
+  "startScene": "questmenu001"
 }

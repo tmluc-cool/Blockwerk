@@ -1,0 +1,405 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        1,
+        1
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "background": "rgba(8,10,16,0.7)",
+      "id": "e1",
+      "name": "Background",
+      "offsetMax": [
+        0,
+        0
+      ],
+      "offsetMin": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "panel",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 48,
+      "id": "e2",
+      "name": "Title",
+      "offsetMax": [
+        300,
+        140
+      ],
+      "offsetMin": [
+        -300,
+        70
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Pause",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "type": "hideUi",
+          "ui": "questuiset01"
+        },
+        {
+          "type": "resume"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 22,
+      "id": "e3",
+      "name": "Fortsetzen",
+      "offsetMax": [
+        160,
+        218
+      ],
+      "offsetMin": [
+        -160,
+        170
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Fortsetzen",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "type": "showUi",
+          "ui": "questuiset01"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 22,
+      "id": "e4",
+      "name": "Einstellungen",
+      "offsetMax": [
+        160,
+        278
+      ],
+      "offsetMin": [
+        -160,
+        230
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Einstellungen",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "type": "restart"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 22,
+      "id": "e5",
+      "name": "Neu starten",
+      "offsetMax": [
+        160,
+        338
+      ],
+      "offsetMin": [
+        -160,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Neu starten",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "scene": "questmenu001",
+          "spawn": "",
+          "type": "loadScene"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 22,
+      "id": "e6",
+      "name": "Hauptmenü",
+      "offsetMax": [
+        160,
+        398
+      ],
+      "offsetMin": [
+        -160,
+        350
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Hauptmenü",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 1,
+          "type": "saveGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 16,
+      "id": "e7",
+      "name": "Speichern 1",
+      "offsetMax": [
+        -64,
+        470
+      ],
+      "offsetMin": [
+        -160,
+        430
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Speichern 1",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 2,
+          "type": "saveGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 16,
+      "id": "e8",
+      "name": "Speichern 2",
+      "offsetMax": [
+        48,
+        470
+      ],
+      "offsetMin": [
+        -48,
+        430
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Speichern 2",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 3,
+          "type": "saveGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 16,
+      "id": "e9",
+      "name": "Speichern 3",
+      "offsetMax": [
+        160,
+        470
+      ],
+      "offsetMin": [
+        64,
+        430
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Speichern 3",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 1,
+          "type": "loadGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 16,
+      "id": "e10",
+      "name": "Laden 1",
+      "offsetMax": [
+        -64,
+        520
+      ],
+      "offsetMin": [
+        -160,
+        480
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Laden 1",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 2,
+          "type": "loadGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 16,
+      "id": "e11",
+      "name": "Laden 2",
+      "offsetMax": [
+        48,
+        520
+      ],
+      "offsetMin": [
+        -48,
+        480
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Laden 2",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 3,
+          "type": "loadGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 16,
+      "id": "e12",
+      "name": "Laden 3",
+      "offsetMax": [
+        160,
+        520
+      ],
+      "offsetMin": [
+        64,
+        480
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Laden 3",
+      "type": "button",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

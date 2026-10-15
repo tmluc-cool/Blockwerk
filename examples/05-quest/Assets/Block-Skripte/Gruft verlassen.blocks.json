@@ -9,14 +9,14 @@
             "phase": "enter",
             "target": "tag:Player"
           },
-          "id": "t-21",
+          "id": "t-13",
           "next": {
             "block": {
               "fields": {
                 "scene": "scene:questdorf001",
                 "spawn": "Gruft"
               },
-              "id": "t-22",
+              "id": "t-14",
               "type": "scenes.load"
             }
           },

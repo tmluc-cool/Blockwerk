@@ -1,0 +1,492 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "background": "rgba(14,16,24,0.96)",
+      "children": [
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e1",
+          "name": "Grafik",
+          "offsetMax": [
+            0,
+            -216
+          ],
+          "offsetMin": [
+            -330,
+            -250
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Grafik",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 18,
+          "id": "e2",
+          "name": "Graphics",
+          "offsetMax": [
+            280,
+            -216
+          ],
+          "offsetMin": [
+            30,
+            -250
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "graphicsLevel",
+          "type": "dropdown",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e3",
+          "name": "Gesamtlautstärke",
+          "offsetMax": [
+            0,
+            -174
+          ],
+          "offsetMin": [
+            -330,
+            -208
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Gesamtlautstärke",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e4",
+          "name": "masterVolume",
+          "offsetMax": [
+            280,
+            -174
+          ],
+          "offsetMin": [
+            30,
+            -208
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "masterVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e5",
+          "name": "Musik",
+          "offsetMax": [
+            0,
+            -132
+          ],
+          "offsetMin": [
+            -330,
+            -166
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Musik",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e6",
+          "name": "musicVolume",
+          "offsetMax": [
+            280,
+            -132
+          ],
+          "offsetMin": [
+            30,
+            -166
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "musicVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e7",
+          "name": "Effekte",
+          "offsetMax": [
+            0,
+            -90
+          ],
+          "offsetMin": [
+            -330,
+            -124
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Effekte",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e8",
+          "name": "effectsVolume",
+          "offsetMax": [
+            280,
+            -90
+          ],
+          "offsetMin": [
+            30,
+            -124
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "effectsVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e9",
+          "name": "Sprache",
+          "offsetMax": [
+            0,
+            -48
+          ],
+          "offsetMin": [
+            -330,
+            -82
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Sprache",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e10",
+          "name": "voicesVolume",
+          "offsetMax": [
+            280,
+            -48
+          ],
+          "offsetMin": [
+            30,
+            -82
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "voicesVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e11",
+          "name": "Maus-Empfindlichkeit",
+          "offsetMax": [
+            0,
+            -6
+          ],
+          "offsetMin": [
+            -330,
+            -40
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Maus-Empfindlichkeit",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e12",
+          "name": "mouseSensitivity",
+          "offsetMax": [
+            280,
+            -6
+          ],
+          "offsetMin": [
+            30,
+            -40
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "mouseSensitivity",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e13",
+          "name": "Vollbild",
+          "offsetMax": [
+            0,
+            36
+          ],
+          "offsetMin": [
+            -330,
+            2
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Vollbild",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 18,
+          "id": "e14",
+          "name": "Fullscreen",
+          "offsetMax": [
+            280,
+            36
+          ],
+          "offsetMin": [
+            30,
+            2
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "fullscreen",
+          "text": "",
+          "type": "toggle",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 16,
+          "id": "e15",
+          "name": "Keys",
+          "offsetMax": [
+            330,
+            210
+          ],
+          "offsetMin": [
+            -330,
+            60
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "type": "keybindings",
+          "visible": true
+        },
+        {
+          "actions": [
+            {
+              "type": "hideUi",
+              "ui": "questuiset01"
+            }
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e16",
+          "name": "Zurück",
+          "offsetMax": [
+            100,
+            269
+          ],
+          "offsetMin": [
+            -100,
+            225
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Zurück",
+          "type": "button",
+          "visible": true
+        }
+      ],
+      "id": "e17",
+      "name": "Panel",
+      "offsetMax": [
+        360,
+        260
+      ],
+      "offsetMin": [
+        -360,
+        -300
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "panel",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

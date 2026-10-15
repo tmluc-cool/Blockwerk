@@ -1,0 +1,926 @@
+{
+  "environment": {
+    "ambientIntensity": 0.45,
+    "fog": {
+      "enabled": true,
+      "far": 140,
+      "near": 40
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 17
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "qo0000000176": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000177": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000178": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000179": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000180": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000181": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000182": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000253",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          30,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000183": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000254",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#6f9a4a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000255",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Wiese",
+      "order": 7,
+      "parent": "qo0000000176",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          90,
+          1,
+          90
+        ]
+      }
+    },
+    "qo0000000184": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000256",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-a-red"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-a-red",
+      "order": 8,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -14,
+          0,
+          6
+        ],
+        "rotation": [
+          0,
+          160,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000185": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000257",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-tavern-red"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "tavern-red",
+      "order": 9,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          14
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000186": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000258",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-b-blue"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-b-blue",
+      "order": 10,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          14,
+          0,
+          6
+        ],
+        "rotation": [
+          0,
+          200,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000187": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000259",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-well-blue"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "well-blue",
+      "order": 11,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000188": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000260",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 1",
+      "order": 12,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -30,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000189": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000261",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 2",
+      "order": 13,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -23.5,
+          0,
+          25
+        ],
+        "rotation": [
+          0,
+          47,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000190": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000262",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 3",
+      "order": 14,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -17,
+          0,
+          28
+        ],
+        "rotation": [
+          0,
+          94,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000191": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000263",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 4",
+      "order": 15,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -10.5,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          141,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000192": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000264",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 5",
+      "order": 16,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0,
+          25
+        ],
+        "rotation": [
+          0,
+          188,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000193": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000265",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 6",
+      "order": 17,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.5,
+          0,
+          28
+        ],
+        "rotation": [
+          0,
+          235,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000194": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000266",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 7",
+      "order": 18,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          9,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          282,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000195": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000267",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 8",
+      "order": 19,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          15.5,
+          0,
+          25
+        ],
+        "rotation": [
+          0,
+          329,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000196": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000268",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 9",
+      "order": 20,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          22,
+          0,
+          28
+        ],
+        "rotation": [
+          0,
+          376,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000197": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000269",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 10",
+      "order": 21,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          28.5,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          423,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000198": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000270",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 55
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000271",
+          "type": "postProcessing",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 22,
+      "parent": "qo0000000177",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          4,
+          -16
+        ],
+        "rotation": [
+          8,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000199": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000272",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 0,
+            "ui": "questuimain1",
+            "visibility": "always"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptmenü",
+      "order": 23,
+      "parent": "qo0000000181",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000200": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000273",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 10,
+            "ui": "questuiset01",
+            "visibility": "manual"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Einstellungen",
+      "order": 24,
+      "parent": "qo0000000181",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000201": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000274",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt06"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Musik",
+      "order": 25,
+      "parent": "qo0000000176",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

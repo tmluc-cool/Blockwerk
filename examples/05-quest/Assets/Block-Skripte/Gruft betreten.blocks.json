@@ -9,14 +9,14 @@
             "phase": "enter",
             "target": "tag:Player"
           },
-          "id": "t-19",
+          "id": "t-11",
           "next": {
             "block": {
               "fields": {
                 "scene": "scene:questgruft01",
                 "spawn": "Eingang"
               },
-              "id": "t-20",
+              "id": "t-12",
               "type": "scenes.load"
             }
           },

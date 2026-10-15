@@ -8,14 +8,14 @@
           "fields": {
             "state": "chase"
           },
-          "id": "t-23",
+          "id": "t-15",
           "next": {
             "block": {
               "fields": {
                 "sound": "builtin:hurt",
                 "where": "here"
               },
-              "id": "t-24",
+              "id": "t-16",
               "type": "sound.play"
             }
           },

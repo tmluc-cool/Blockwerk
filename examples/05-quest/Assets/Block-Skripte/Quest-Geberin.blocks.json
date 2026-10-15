@@ -6,6 +6,7 @@
       "id": "questvartask",
       "inspector": false,
       "name": "Aufgabe",
+      "saved": true,
       "scope": "game",
       "type": "string"
     },
@@ -14,6 +15,7 @@
       "id": "questvarstat",
       "inspector": false,
       "name": "Quest",
+      "saved": true,
       "scope": "game",
       "type": "number"
     }
@@ -25,14 +27,14 @@
           "fields": {
             "answer": "annehmen"
           },
-          "id": "t-14",
+          "id": "t-3",
           "next": {
             "block": {
               "fields": {
                 "sound": "builtin:click",
                 "where": "everywhere"
               },
-              "id": "t-15",
+              "id": "t-4",
               "type": "sound.play"
             }
           },
@@ -42,21 +44,47 @@
           "fields": {
             "answer": "abgeben"
           },
-          "id": "t-16",
+          "id": "t-5",
           "next": {
             "block": {
               "fields": {
                 "at": "self",
                 "effect": "sparkle"
               },
-              "id": "t-17",
+              "id": "t-6",
               "next": {
                 "block": {
                   "fields": {
                     "sound": "builtin:win",
                     "where": "everywhere"
                   },
-                  "id": "t-18",
+                  "id": "t-7",
+                  "next": {
+                    "block": {
+                      "id": "t-8",
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 1.5
+                            },
+                            "id": "t-9",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "fields": {
+                            "ui": "ui:questuivic01"
+                          },
+                          "id": "t-10",
+                          "type": "ui.show"
+                        }
+                      },
+                      "type": "control.wait"
+                    }
+                  },
                   "type": "sound.play"
                 }
               },
