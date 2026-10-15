@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-109",
+          "next": {
+            "block": {
+              "id": "t-110",
+              "inputs": {
+                "percent": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 25
+                    },
+                    "id": "t-111",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "id": "t-112",
+                  "inputs": {
+                    "seconds": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 20
+                        },
+                        "id": "t-113",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "id": "t-114",
+                      "inputs": {
+                        "percent": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 5
+                            },
+                            "id": "t-115",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "type": "environment.setFogDensity"
+                    }
+                  },
+                  "type": "control.wait"
+                }
+              },
+              "type": "environment.setFogDensity"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

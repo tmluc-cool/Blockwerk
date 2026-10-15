@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "H",
+            "mode": "pressed"
+          },
+          "id": "t-773",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-774",
+              "inputs": {
+                "ARG0": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "B Brot kaufen, P Preise, R Rucksack, T würfeln, D Durchschnitt, M Laden"
+                    },
+                    "id": "t-775",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

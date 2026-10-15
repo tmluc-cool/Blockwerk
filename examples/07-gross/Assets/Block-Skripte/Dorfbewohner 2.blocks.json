@@ -1,0 +1,74 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-630",
+          "next": {
+            "block": {
+              "id": "t-637",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-631",
+                    "inputs": {
+                      "radius": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 7
+                          },
+                          "id": "t-632",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "id": "t-636",
+                        "inputs": {
+                          "seconds": {
+                            "block": {
+                              "id": "t-633",
+                              "inputs": {
+                                "from": {
+                                  "shadow": {
+                                    "fields": {
+                                      "NUM": 3
+                                    },
+                                    "id": "t-634",
+                                    "type": "literal.number"
+                                  }
+                                },
+                                "to": {
+                                  "shadow": {
+                                    "fields": {
+                                      "NUM": 9
+                                    },
+                                    "id": "t-635",
+                                    "type": "literal.number"
+                                  }
+                                }
+                              },
+                              "type": "sensing.random"
+                            }
+                          }
+                        },
+                        "type": "control.wait"
+                      }
+                    },
+                    "type": "npc.wander"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

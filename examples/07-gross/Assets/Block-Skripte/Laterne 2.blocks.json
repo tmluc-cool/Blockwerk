@@ -1,0 +1,120 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-146",
+          "next": {
+            "block": {
+              "id": "t-159",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-156",
+                    "inputs": {
+                      "condition": {
+                        "block": {
+                          "id": "t-153",
+                          "inputs": {
+                            "a": {
+                              "block": {
+                                "id": "t-148",
+                                "inputs": {
+                                  "a": {
+                                    "block": {
+                                      "id": "t-147",
+                                      "type": "environment.timeOfDay"
+                                    }
+                                  },
+                                  "b": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 6
+                                      },
+                                      "id": "t-149",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "operators.lt"
+                              }
+                            },
+                            "b": {
+                              "block": {
+                                "id": "t-151",
+                                "inputs": {
+                                  "a": {
+                                    "block": {
+                                      "id": "t-150",
+                                      "type": "environment.timeOfDay"
+                                    }
+                                  },
+                                  "b": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 18
+                                      },
+                                      "id": "t-152",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "operators.gt"
+                              }
+                            }
+                          },
+                          "type": "operators.or"
+                        }
+                      },
+                      "else": {
+                        "block": {
+                          "fields": {
+                            "state": "off"
+                          },
+                          "id": "t-155",
+                          "type": "environment.setLight"
+                        }
+                      },
+                      "then": {
+                        "block": {
+                          "fields": {
+                            "state": "on"
+                          },
+                          "id": "t-154",
+                          "type": "environment.setLight"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "id": "t-157",
+                        "inputs": {
+                          "seconds": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 4
+                              },
+                              "id": "t-158",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "type": "control.wait"
+                      }
+                    },
+                    "type": "control.ifElse"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": [],
+      "id": "grossvsack01",
+      "inspector": false,
+      "name": "Rucksack",
+      "saved": true,
+      "scope": "game",
+      "type": "list"
+    },
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "R",
+            "mode": "pressed"
+          },
+          "id": "t-393",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-399",
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "id": "t-397",
+                    "inputs": {
+                      "a": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": "Rucksack: "
+                          },
+                          "id": "t-398",
+                          "type": "literal.text"
+                        }
+                      },
+                      "b": {
+                        "block": {
+                          "id": "t-395",
+                          "inputs": {
+                            "list": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvsack01"
+                                  }
+                                },
+                                "id": "t-394",
+                                "type": "variables.get"
+                              }
+                            },
+                            "separator": {
+                              "shadow": {
+                                "fields": {
+                                  "TEXT": ", "
+                                },
+                                "id": "t-396",
+                                "type": "literal.text"
+                              }
+                            }
+                          },
+                          "type": "data.listJoin"
+                        }
+                      }
+                    },
+                    "type": "operators.join"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

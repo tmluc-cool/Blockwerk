@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "message": "alarm"
+          },
+          "id": "t-782",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-783",
+              "inputs": {
+                "ARG0": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Alarm! Die Wächter sind aufmerksam."
+                    },
+                    "id": "t-784",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenMessage"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

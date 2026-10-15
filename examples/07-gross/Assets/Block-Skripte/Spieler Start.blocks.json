@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 50,
+      "id": "grossvmuenz1",
+      "inspector": false,
+      "name": "Münzen",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-378",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-379",
+              "inputs": {
+                "ARG0": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Willkommen auf dem Markt! H für Hilfe."
+                    },
+                    "id": "t-380",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

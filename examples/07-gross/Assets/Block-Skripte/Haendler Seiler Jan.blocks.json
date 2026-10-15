@@ -1,0 +1,186 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 50,
+      "id": "grossvmuenz1",
+      "inspector": false,
+      "name": "Münzen",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    },
+    {
+      "default": {
+        "Apfel": 2,
+        "Brot": 3,
+        "Fackel": 6,
+        "Helm": 30,
+        "Karte": 25,
+        "Laterne": 9,
+        "Pfeil": 1,
+        "Schild": 28,
+        "Schwert": 40,
+        "Seil": 4,
+        "Trank": 12,
+        "Zelt": 18
+      },
+      "id": "grossvpreis1",
+      "inspector": false,
+      "name": "Preise",
+      "scope": "game",
+      "type": "dictionary"
+    },
+    {
+      "default": [],
+      "id": "grossvsack01",
+      "inspector": false,
+      "name": "Rucksack",
+      "saved": true,
+      "scope": "game",
+      "type": "list"
+    },
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-502",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-508",
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "id": "t-506",
+                    "inputs": {
+                      "a": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": "Seiler Jan: Seil für "
+                          },
+                          "id": "t-507",
+                          "type": "literal.text"
+                        }
+                      },
+                      "b": {
+                        "block": {
+                          "id": "t-504",
+                          "inputs": {
+                            "dictionary": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvpreis1"
+                                  }
+                                },
+                                "id": "t-503",
+                                "type": "variables.get"
+                              }
+                            },
+                            "key": {
+                              "shadow": {
+                                "fields": {
+                                  "TEXT": "Seil"
+                                },
+                                "id": "t-505",
+                                "type": "literal.text"
+                              }
+                            }
+                          },
+                          "type": "data.dictGet"
+                        }
+                      }
+                    },
+                    "type": "operators.join"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "id": "t-509",
+                  "inputs": {
+                    "seconds": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 1
+                        },
+                        "id": "t-510",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "extraState": {
+                        "fn": "def-buy",
+                        "library": "grosslib0001",
+                        "name": "Kaufen",
+                        "params": [
+                          {
+                            "name": "ware",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "id": "t-511",
+                      "inputs": {
+                        "ARG0": {
+                          "shadow": {
+                            "fields": {
+                              "TEXT": "Seil"
+                            },
+                            "id": "t-512",
+                            "type": "literal.text"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "fields": {
+                            "message": "gekauft",
+                            "target": "all"
+                          },
+                          "id": "t-513",
+                          "type": "control.sendMessage"
+                        }
+                      },
+                      "type": "custom.callCommand"
+                    }
+                  },
+                  "type": "control.wait"
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

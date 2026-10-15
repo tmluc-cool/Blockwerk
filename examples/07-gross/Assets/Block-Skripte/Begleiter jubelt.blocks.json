@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "message": "gekauft"
+          },
+          "id": "t-425",
+          "next": {
+            "block": {
+              "fields": {
+                "effect": "sparkle"
+              },
+              "id": "t-426",
+              "next": {
+                "block": {
+                  "fields": {
+                    "mode": "once"
+                  },
+                  "id": "t-427",
+                  "inputs": {
+                    "fade": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 0.2
+                        },
+                        "id": "t-429",
+                        "type": "literal.number"
+                      }
+                    },
+                    "name": {
+                      "shadow": {
+                        "fields": {
+                          "TEXT": "wave"
+                        },
+                        "id": "t-428",
+                        "type": "literal.text"
+                      }
+                    }
+                  },
+                  "type": "looks.playAnimation"
+                }
+              },
+              "type": "effects.spawn"
+            }
+          },
+          "type": "events.whenMessage"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

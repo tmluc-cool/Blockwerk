@@ -1,0 +1,73 @@
+{
+  "elements": [
+    {
+      "align": "left",
+      "anchorMax": [
+        0,
+        0
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "bind": {
+        "kind": "variable",
+        "variable": "grossvmeld01"
+      },
+      "fontSize": 18,
+      "id": "shoptitle",
+      "name": "Titel",
+      "offsetMax": [
+        624,
+        350
+      ],
+      "offsetMin": [
+        24,
+        320
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "text": "Laden: Preise stehen im Wörterbuch",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "align": "left",
+      "anchorMax": [
+        0,
+        0
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "bind": {
+        "kind": "variable",
+        "variable": "grossvmuenz1"
+      },
+      "fontSize": 18,
+      "id": "shopcoins",
+      "name": "Münzen",
+      "offsetMax": [
+        624,
+        390
+      ],
+      "offsetMin": [
+        24,
+        360
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "text": "Münzen: {value}",
+      "type": "text",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}
