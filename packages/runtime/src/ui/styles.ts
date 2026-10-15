@@ -12,8 +12,9 @@ export const UI_CSS = `
   background: rgba(30,34,44,0.9); color: inherit; cursor: pointer; }
 .bw-ui-btn:hover { background: rgba(70,90,140,0.95); }
 .bw-ui-el input[type="range"] { width: 100%; }
-.bw-ui-keys { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; width: 100%; height: 100%;
+.bw-ui-keys { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 4px 12px; width: 100%; height: 100%;
   overflow: auto; align-content: start; padding: 4px; pointer-events: auto; }
+.bw-ui-keys span { text-align: left; align-self: center; }
 .bw-ui-keys button { min-width: 90px; border: 1px solid rgba(255,255,255,0.35); border-radius: 4px;
   background: rgba(30,34,44,0.9); color: inherit; cursor: pointer; }
 .bw-ui-keys button.capturing { outline: 2px solid #4a8cff; }

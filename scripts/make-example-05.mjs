@@ -36,8 +36,6 @@ const PREFAB_ZOMBIE_B = 'questzombieb';
 
 // Game variables (IDs are shared by the scripts and the dialog).
 const VAR_TASK = 'questvartask';
-const VAR_LIFE = 'questvarlife';
-const VAR_COINS = 'questvarcoin';
 const VAR_QUEST = 'questvarstat';
 
 let objectCounter = 0;

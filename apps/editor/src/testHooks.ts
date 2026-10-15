@@ -103,6 +103,9 @@ export interface BlockwerkDebugHooks {
     talking: boolean;
     loading: string | null;
     items: Record<string, number>;
+    paused: boolean;
+    /** Position of the object named "Ritter". */
+    ritter: [number, number, number] | null;
   };
   /** Opens a scene of the project by its name (edit mode). */
   openSceneByName(name: string): boolean;
@@ -251,10 +254,14 @@ export function installTestHooks(): void {
       const game = currentGame();
       const npcStates: Record<string, string> = {};
       let items: Record<string, number> = {};
+      let ritter: [number, number, number] | null = null;
       for (const object of game?.world.allObjects() ?? []) {
         const state = peekNpcState(object);
         if (state && !object.destroyed) npcStates[object.name] = state.current;
-        if (object.name === 'Ritter') items = peekInventory(object)?.snapshot() ?? {};
+        if (object.name === 'Ritter' && !object.destroyed) {
+          items = peekInventory(object)?.snapshot() ?? {};
+          ritter = object.worldPosition().toArray() as [number, number, number];
+        }
       }
       return {
         scene: game?.sceneId ?? null,
@@ -263,6 +270,8 @@ export function installTestHooks(): void {
         talking: game?.talking ?? false,
         loading: usePlay.getState().loading?.title ?? null,
         items,
+        paused: game?.gamePaused ?? false,
+        ritter,
       };
     },
     openSceneByName: (name) => {

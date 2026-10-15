@@ -67,11 +67,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 22,
       "id": "e3",
@@ -86,7 +86,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Fortsetzen",
       "type": "button",
@@ -101,11 +101,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 22,
       "id": "e4",
@@ -120,7 +120,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Einstellungen",
       "type": "button",
@@ -134,11 +134,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 22,
       "id": "e5",
@@ -153,7 +153,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Neu starten",
       "type": "button",
@@ -169,11 +169,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 22,
       "id": "e6",
@@ -188,7 +188,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Hauptmenü",
       "type": "button",
@@ -203,11 +203,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 16,
       "id": "e7",
@@ -222,7 +222,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Speichern 1",
       "type": "button",
@@ -237,11 +237,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 16,
       "id": "e8",
@@ -256,7 +256,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Speichern 2",
       "type": "button",
@@ -271,11 +271,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 16,
       "id": "e9",
@@ -290,7 +290,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Speichern 3",
       "type": "button",
@@ -305,11 +305,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 16,
       "id": "e10",
@@ -324,7 +324,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Laden 1",
       "type": "button",
@@ -339,11 +339,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 16,
       "id": "e11",
@@ -358,7 +358,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Laden 2",
       "type": "button",
@@ -373,11 +373,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 16,
       "id": "e12",
@@ -392,7 +392,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Laden 3",
       "type": "button",

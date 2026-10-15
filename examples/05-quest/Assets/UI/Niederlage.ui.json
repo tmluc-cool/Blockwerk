@@ -63,11 +63,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 22,
       "id": "e3",
@@ -82,7 +82,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Neu starten",
       "type": "button",
@@ -98,11 +98,11 @@
       ],
       "anchorMax": [
         0.5,
-        0.5
+        0
       ],
       "anchorMin": [
         0.5,
-        0.5
+        0
       ],
       "fontSize": 22,
       "id": "e4",
@@ -117,7 +117,7 @@
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
       "text": "Hauptmenü",
       "type": "button",

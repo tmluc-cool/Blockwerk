@@ -122,7 +122,7 @@ function buttonColumn(
   top: number,
 ): UiElement[] {
   return buttons.map((button, index) =>
-    b.at('button', button.text, CENTER, -160, top + index * 60, 320, 48, {
+    b.at('button', button.text, TOP_CENTER, -160, top + index * 60, 320, 48, {
       text: button.text,
       fontSize: 22,
       actions: button.actions,
@@ -137,7 +137,7 @@ function slotButtons(
   action: (slot: 1 | 2 | 3) => UiAction,
 ): UiElement[] {
   return ([1, 2, 3] as const).map((slot, index) =>
-    b.at('button', fill(text, slot), CENTER, -160 + index * 112, top, 96, 40, {
+    b.at('button', fill(text, slot), TOP_CENTER, -160 + index * 112, top, 96, 40, {
       text: fill(text, slot),
       fontSize: 16,
       actions: [action(slot)],
@@ -239,7 +239,7 @@ export function createUiTemplate(
       ];
       const children: UiElement[] = [];
       rows.forEach((row, index) => {
-        const y = -250 + index * 42;
+        const y = -310 + index * 40;
         children.push(
           b.at('text', row.label, CENTER, -330, y, 330, 34, {
             text: row.label,
@@ -250,16 +250,21 @@ export function createUiTemplate(
         );
       });
       children.push(
-        b.at('keybindings', 'Keys', CENTER, -330, 60, 660, 150, { fontSize: 16 }),
-        b.at('button', labels.back, CENTER, -100, 225, 200, 44, {
+        b.at('text', 'Keys title', CENTER, -330, 16, 660, 26, {
+          text: labels.keys,
+          fontSize: 20,
+          align: 'left',
+        }),
+        b.at('keybindings', 'Keys', CENTER, -330, 44, 660, 214, { fontSize: 16 }),
+        b.at('button', labels.back, CENTER, -100, 262, 200, 44, {
           text: labels.back,
           fontSize: 20,
           actions: targets.settingsUi ? [{ type: 'hideUi', ui: targets.settingsUi }] : [],
         }),
       );
       return canvas([
-        b.at('panel', 'Panel', CENTER, -360, -300, 720, 560, {
-          background: 'rgba(14,16,24,0.96)',
+        b.at('panel', 'Panel', CENTER, -360, -340, 720, 660, {
+          background: '#0e1018',
           children,
         }),
       ]);

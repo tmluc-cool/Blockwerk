@@ -9,7 +9,7 @@
         0.5,
         0.5
       ],
-      "background": "rgba(14,16,24,0.96)",
+      "background": "#0e1018",
       "children": [
         {
           "align": "left",
@@ -26,11 +26,11 @@
           "name": "Grafik",
           "offsetMax": [
             0,
-            -216
+            -276
           ],
           "offsetMin": [
             -330,
-            -250
+            -310
           ],
           "pivot": [
             0.5,
@@ -54,11 +54,11 @@
           "name": "Graphics",
           "offsetMax": [
             280,
-            -216
+            -276
           ],
           "offsetMin": [
             30,
-            -250
+            -310
           ],
           "pivot": [
             0.5,
@@ -83,11 +83,11 @@
           "name": "Gesamtlautstärke",
           "offsetMax": [
             0,
-            -174
+            -236
           ],
           "offsetMin": [
             -330,
-            -208
+            -270
           ],
           "pivot": [
             0.5,
@@ -110,11 +110,11 @@
           "name": "masterVolume",
           "offsetMax": [
             280,
-            -174
+            -236
           ],
           "offsetMin": [
             30,
-            -208
+            -270
           ],
           "pivot": [
             0.5,
@@ -139,11 +139,11 @@
           "name": "Musik",
           "offsetMax": [
             0,
-            -132
+            -196
           ],
           "offsetMin": [
             -330,
-            -166
+            -230
           ],
           "pivot": [
             0.5,
@@ -166,11 +166,11 @@
           "name": "musicVolume",
           "offsetMax": [
             280,
-            -132
+            -196
           ],
           "offsetMin": [
             30,
-            -166
+            -230
           ],
           "pivot": [
             0.5,
@@ -195,11 +195,11 @@
           "name": "Effekte",
           "offsetMax": [
             0,
-            -90
+            -156
           ],
           "offsetMin": [
             -330,
-            -124
+            -190
           ],
           "pivot": [
             0.5,
@@ -222,11 +222,11 @@
           "name": "effectsVolume",
           "offsetMax": [
             280,
-            -90
+            -156
           ],
           "offsetMin": [
             30,
-            -124
+            -190
           ],
           "pivot": [
             0.5,
@@ -251,11 +251,11 @@
           "name": "Sprache",
           "offsetMax": [
             0,
-            -48
+            -116
           ],
           "offsetMin": [
             -330,
-            -82
+            -150
           ],
           "pivot": [
             0.5,
@@ -278,11 +278,11 @@
           "name": "voicesVolume",
           "offsetMax": [
             280,
-            -48
+            -116
           ],
           "offsetMin": [
             30,
-            -82
+            -150
           ],
           "pivot": [
             0.5,
@@ -307,11 +307,11 @@
           "name": "Maus-Empfindlichkeit",
           "offsetMax": [
             0,
-            -6
+            -76
           ],
           "offsetMin": [
             -330,
-            -40
+            -110
           ],
           "pivot": [
             0.5,
@@ -334,11 +334,11 @@
           "name": "mouseSensitivity",
           "offsetMax": [
             280,
-            -6
+            -76
           ],
           "offsetMin": [
             30,
-            -40
+            -110
           ],
           "pivot": [
             0.5,
@@ -363,11 +363,11 @@
           "name": "Vollbild",
           "offsetMax": [
             0,
-            36
+            -36
           ],
           "offsetMin": [
             -330,
-            2
+            -70
           ],
           "pivot": [
             0.5,
@@ -391,11 +391,11 @@
           "name": "Fullscreen",
           "offsetMax": [
             280,
-            36
+            -36
           ],
           "offsetMin": [
             30,
-            2
+            -70
           ],
           "pivot": [
             0.5,
@@ -404,6 +404,35 @@
           "setting": "fullscreen",
           "text": "",
           "type": "toggle",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e15",
+          "name": "Keys title",
+          "offsetMax": [
+            330,
+            42
+          ],
+          "offsetMin": [
+            -330,
+            16
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Tastenbelegung",
+          "type": "text",
           "visible": true
         },
         {
@@ -416,15 +445,15 @@
             0.5
           ],
           "fontSize": 16,
-          "id": "e15",
+          "id": "e16",
           "name": "Keys",
           "offsetMax": [
             330,
-            210
+            258
           ],
           "offsetMin": [
             -330,
-            60
+            44
           ],
           "pivot": [
             0.5,
@@ -449,15 +478,15 @@
             0.5
           ],
           "fontSize": 20,
-          "id": "e16",
+          "id": "e17",
           "name": "Zurück",
           "offsetMax": [
             100,
-            269
+            306
           ],
           "offsetMin": [
             -100,
-            225
+            262
           ],
           "pivot": [
             0.5,
@@ -468,15 +497,15 @@
           "visible": true
         }
       ],
-      "id": "e17",
+      "id": "e18",
       "name": "Panel",
       "offsetMax": [
         360,
-        260
+        320
       ],
       "offsetMin": [
         -360,
-        -300
+        -340
       ],
       "pivot": [
         0.5,
