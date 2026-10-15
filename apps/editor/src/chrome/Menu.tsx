@@ -1,5 +1,5 @@
 import { Check, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /** One entry of a dropdown menu. */
 export type MenuItem =
@@ -18,6 +18,25 @@ export type MenuItem =
 interface MenuListProps {
   readonly items: readonly MenuItem[];
   readonly onClose: () => void;
+}
+
+/** A nested menu that moves up when it would reach below the window. */
+function Submenu({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shift, setShift] = useState(0);
+  useLayoutEffect(() => {
+    const element = ref.current;
+    const view = element?.ownerDocument.defaultView;
+    if (!element || !view) return;
+    const { bottom } = element.getBoundingClientRect();
+    const overflow = bottom + shift - (view.innerHeight - 4);
+    if (overflow > 0 || shift !== 0) setShift(Math.max(0, overflow));
+  }, [shift]);
+  return (
+    <div className="submenu" ref={ref} style={shift ? { top: -5 - shift } : undefined}>
+      {children}
+    </div>
+  );
 }
 
 /** A dropdown list with optional nested submenus (opened on hover). */
@@ -53,9 +72,9 @@ export function MenuList({ items, onClose }: MenuListProps) {
             {item.shortcut && <span className="menu-shortcut">{item.shortcut}</span>}
             {hasSubmenu && <ChevronRight size={13} className="menu-arrow" />}
             {hasSubmenu && openIndex === index && item.submenu && (
-              <div className="submenu">
+              <Submenu>
                 <MenuList items={item.submenu} onClose={onClose} />
-              </div>
+              </Submenu>
             )}
           </div>
         );
