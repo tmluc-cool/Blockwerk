@@ -1,5 +1,11 @@
 import type { IDockviewPanelProps } from 'dockview-react';
-import { currentQuality, onQualityChange, QUALITY_NAMES, setQuality } from '@blockwerk/runtime';
+import {
+  currentQuality,
+  onQualityChange,
+  QUALITY_NAMES,
+  setQuality,
+  valueToText,
+} from '@blockwerk/runtime';
 import type { QualityName } from '@blockwerk/runtime';
 import { useEffect, useRef, useState } from 'react';
 import { GameViewport } from '../game/GameViewport';
@@ -124,7 +130,7 @@ export function GamePanel({ api }: IDockviewPanelProps) {
                 <span className="monitor-name">
                   {monitor.objectName ? `${monitor.objectName}: ${monitor.name}` : monitor.name}
                 </span>
-                <span className="monitor-value">{String(monitor.value)}</span>
+                <span className="monitor-value">{valueToText(monitor.value)}</span>
               </div>
             ))}
           </div>

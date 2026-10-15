@@ -1,4 +1,4 @@
-import type { Vec3 } from '@blockwerk/project';
+import type { JsonValue, Vec3 } from '@blockwerk/project';
 import { Euler, Group, MathUtils, Quaternion, Vector3 } from 'three';
 import type {
   ComponentBehavior,
@@ -8,7 +8,7 @@ import type {
 } from '../components/defineComponent';
 
 /** Value of a block-script variable. */
-export type VariableValue = number | string | boolean;
+export type VariableValue = JsonValue;
 
 /** Directions of the "move" block, relative to the object. */
 export type MoveDirection = 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';

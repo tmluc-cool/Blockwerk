@@ -1,0 +1,146 @@
+{
+  "variables": [
+    {
+      "id": "varlistxxxxx",
+      "name": "Liste",
+      "scope": "game"
+    },
+    {
+      "id": "vardictxxxxx",
+      "name": "Wörterbuch",
+      "scope": "game"
+    },
+    {
+      "id": "varoutxxxxxx",
+      "name": "Ergebnis",
+      "scope": "object"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "l-70",
+          "next": {
+            "block": {
+              "type": "locals.declare",
+              "id": "l-71",
+              "fields": {
+                "name": "summe"
+              },
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "l-72",
+                    "fields": {
+                      "NUM": 0
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "data.forEachItem",
+                  "id": "l-76",
+                  "fields": {
+                    "name": "zahl"
+                  },
+                  "inputs": {
+                    "list": {
+                      "block": {
+                        "type": "data.newList",
+                        "id": "l-73"
+                      }
+                    },
+                    "body": {
+                      "block": {
+                        "type": "locals.change",
+                        "id": "l-75",
+                        "fields": {
+                          "name": "summe"
+                        },
+                        "inputs": {
+                          "by": {
+                            "block": {
+                              "type": "locals.get",
+                              "id": "l-74",
+                              "fields": {
+                                "name": "zahl"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "locals.set",
+                      "id": "l-80",
+                      "fields": {
+                        "name": "summe"
+                      },
+                      "inputs": {
+                        "value": {
+                          "block": {
+                            "type": "operators.add",
+                            "id": "l-78",
+                            "inputs": {
+                              "a": {
+                                "block": {
+                                  "type": "locals.get",
+                                  "id": "l-77",
+                                  "fields": {
+                                    "name": "summe"
+                                  }
+                                }
+                              },
+                              "b": {
+                                "shadow": {
+                                  "type": "literal.number",
+                                  "id": "l-79",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "variables.set",
+                          "id": "l-82",
+                          "fields": {
+                            "variable": {
+                              "id": "varoutxxxxxx"
+                            }
+                          },
+                          "inputs": {
+                            "value": {
+                              "block": {
+                                "type": "locals.get",
+                                "id": "l-81",
+                                "fields": {
+                                  "name": "summe"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

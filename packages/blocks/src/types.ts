@@ -49,6 +49,7 @@ export type CategoryId =
   | 'variables'
   | 'ui'
   | 'scenes'
+  | 'data'
   | 'myBlocks'
   | 'debug';
 
@@ -187,7 +188,22 @@ export interface CompileMeta {
   readonly uid: string;
   /** The variable selected in a variable field. */
   variable(input: string): VariableRef;
+  /** JavaScript identifier of the local variable named in a text field. */
+  local(input: string): string;
+  /** JavaScript identifier of the parameter of the custom block named in a text field. */
+  param(input: string): string;
 }
+
+/**
+ * How a block deals with local variables (SPEC 7.4). `field` is the text field that holds the
+ * variable's name. `declare`: the variable exists for the blocks below in the same stack;
+ * `use`: the block reads or writes a variable that must exist; `loop`: the variable exists
+ * inside the statement input `substack`; `param`: the name must be a parameter of the custom
+ * block the block sits in.
+ */
+export type LocalUse =
+  | { readonly field: string; readonly role: 'declare' | 'use' | 'param' }
+  | { readonly field: string; readonly role: 'loop'; readonly substack: string };
 
 /**
  * Arguments passed to `compile`: for every input the JavaScript code of its value.
@@ -228,6 +244,8 @@ interface BlockDefinitionBase<I extends BlockInputs> {
   readonly since: number;
   /** Hidden blocks are not shown in the palette (e.g. literal shadow blocks). */
   readonly hidden?: boolean;
+  /** Set on blocks that declare or use a local variable or a parameter. */
+  readonly local?: LocalUse;
 }
 
 /** Hat block: starts a script when its event fires. */

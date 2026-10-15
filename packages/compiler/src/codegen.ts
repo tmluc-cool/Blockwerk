@@ -31,7 +31,7 @@ export interface CodegenOptions {
 const INDENT = '  ';
 const SUBSTACK_MARKER = (name: string): string => `/*@substack:${name}*/`;
 const SIMPLE_EXPRESSION =
-  /^(?:-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|"(?:[^"\\]|\\.)*"|[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\["(?:[^"\\]|\\.)*"\])*(?:\([^()]*\))?)$/;
+  /^(?:\[\]|\{\}|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|"(?:[^"\\]|\\.)*"|[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\["(?:[^"\\]|\\.)*"\])*(?:\([^()]*\))?)$/;
 
 /** Thrown when IR references something that does not exist. */
 export class CodegenError extends Error {
@@ -280,6 +280,8 @@ class Generator {
         const container = variable.scope === 'object' ? 'self.vars' : 'game.vars';
         return { ...variable, accessor: `${container}[${JSON.stringify(variable.id)}]` };
       },
+      local: (input: string): string => identifier('l_', textOf(irArgs[input])),
+      param: (input: string): string => identifier('p_', textOf(irArgs[input])),
     };
   }
 
@@ -290,6 +292,11 @@ class Generator {
     const values = ['self', 'game', ...args.map((arg) => this.expression(arg))];
     return `${this.functionName(functionId)}(${values.join(', ')})`;
   }
+}
+
+/** The text of a literal field value (a local variable's or parameter's name). */
+function textOf(arg: IRExpression | undefined): string {
+  return arg?.kind === 'literal' ? String(arg.value) : '';
 }
 
 /** JavaScript source for a literal value. Non-finite numbers become `0` (as in Scratch). */
