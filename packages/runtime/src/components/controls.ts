@@ -13,7 +13,7 @@ export interface ControlEvent {
 }
 
 /** How a control component steers. */
-export type ControlMode = 'thirdPerson' | 'firstPerson' | 'topDown' | 'vehicle';
+export type ControlMode = 'thirdPerson' | 'firstPerson' | 'topDown' | 'vehicle' | 'agent';
 
 /** Settings of a control that blocks may change at runtime. */
 export interface ControlSettings {

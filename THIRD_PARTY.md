@@ -15,6 +15,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `@gltf-transform/extensions` | 4.5.1 | MIT | development | packages/library |
 | `@gltf-transform/functions` | 4.5.1 | MIT | development | packages/library |
 | `@playwright/test` | 1.56.1 | Apache-2.0 | development | (root) |
+| `@recast-navigation/three` | 0.43.1 | MIT | runtime | packages/runtime |
 | `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor, packages/library |
 | `@types/react` | 19.3.0 | MIT | development | apps/editor |
 | `@types/react-dom` | 19.3.0 | MIT | development | apps/editor |
@@ -35,6 +36,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `prettier` | 3.9.10 | MIT | development | (root) |
 | `react` | 19.3.0 | MIT | runtime | apps/editor |
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
+| `recast-navigation` | 0.43.1 | MIT | runtime | packages/runtime |
 | `three` | 0.186.1 | MIT | development, runtime | apps/editor, packages/character, packages/compiler, packages/library, packages/runtime |
 | `tsx` | 4.23.15 | MIT | development | packages/library |
 | `typescript` | 6.0.3 | Apache-2.0 | development | (root), apps/desktop |
@@ -63,9 +65,17 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `@csstools/css-parser-algorithms` | 4.0.2 | MIT |
 | `@csstools/css-syntax-patches-for-csstree` | 1.1.15 | MIT-0 |
 | `@csstools/css-tokenizer` | 4.0.2 | MIT |
-| `@dimforge/rapier3d-compat` | 0.21.0 | Apache-2.0 |
+| `@dimforge/rapier3d-compat` | 0.12.0, 0.21.0 | Apache-2.0 |
 | `@exodus/bytes` | 1.16.0 | MIT |
+| `@recast-navigation/core` | 0.43.1 | MIT |
+| `@recast-navigation/generators` | 0.43.1 | MIT |
+| `@recast-navigation/three` | 0.43.1 | MIT |
+| `@recast-navigation/wasm` | 0.43.1 | MIT |
+| `@tweenjs/tween.js` | 23.1.3 | MIT |
 | `@types/react` | 19.3.0 | MIT |
+| `@types/stats.js` | 0.17.4 | MIT |
+| `@types/three` | 0.186.0 | MIT |
+| `@types/webxr` | 0.5.24 | MIT |
 | `bidi-js` | 1.1.0 | MIT |
 | `blockly` | 13.3.0 | Apache-2.0 |
 | `css-tree` | 3.2.1 | MIT |
@@ -76,18 +86,21 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `dockview-core` | 8.5.1 | MIT |
 | `dockview-react` | 8.5.1 | MIT |
 | `entities` | 8.1.0 | BSD-2-Clause |
+| `fflate` | 0.8.3 | MIT |
 | `html-encoding-sniffer` | 6.0.0 | MIT |
 | `is-potential-custom-element-name` | 1.0.1 | MIT |
 | `jsdom` | 29.1.1 | MIT |
 | `lru-cache` | 11.5.3 | BlueOak-1.0.0 |
 | `lucide-react` | 1.56.0 | ISC |
 | `mdn-data` | 2.27.1 | CC0-1.0 |
+| `meshoptimizer` | 1.1.1 | MIT |
 | `n8ao` | 2.0.1 | ISC |
 | `parse5` | 8.0.1 | MIT |
 | `postprocessing` | 6.39.5 | Zlib |
 | `punycode` | 2.3.1 | MIT |
 | `react` | 19.3.0 | MIT |
 | `react-dom` | 19.3.0 | MIT |
+| `recast-navigation` | 0.43.1 | MIT |
 | `require-from-string` | 2.0.2 | MIT |
 | `saxes` | 6.0.0 | ISC |
 | `scheduler` | 0.28.0 | MIT |
