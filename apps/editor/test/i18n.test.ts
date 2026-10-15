@@ -1,4 +1,5 @@
-import { BUILTIN_SOUNDS, COMPONENTS } from '@blockwerk/runtime';
+import { UI_TEMPLATE_LABELS } from '@blockwerk/project';
+import { BUILTIN_SOUNDS, COMPONENTS, UI_STRING_KEYS } from '@blockwerk/runtime';
 import { describe, expect, it } from 'vitest';
 import { DICTIONARIES, translate } from '../src/i18n';
 
@@ -34,6 +35,12 @@ describe('i18n', () => {
       expect(DICTIONARIES.en, group).toHaveProperty(`component.group.${group}`);
     for (const name of BUILTIN_SOUNDS)
       expect(DICTIONARIES.en, name).toHaveProperty(`sound.builtin.${name}`);
+  });
+
+  it('translates every text of the runtime UI layer and of the menu templates', () => {
+    for (const key of UI_STRING_KEYS) expect(DICTIONARIES.en, key).toHaveProperty(`ui.${key}`);
+    for (const key of UI_TEMPLATE_LABELS)
+      expect(DICTIONARIES.en, key).toHaveProperty(`uiTemplate.${key}`);
   });
 
   it('fills in parameters', () => {

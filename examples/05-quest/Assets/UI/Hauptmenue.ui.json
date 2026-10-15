@@ -1,0 +1,266 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        1,
+        1
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "background": "rgba(8,10,16,0.82)",
+      "id": "e1",
+      "name": "Background",
+      "offsetMax": [
+        0,
+        0
+      ],
+      "offsetMin": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "panel",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 64,
+      "id": "e2",
+      "name": "Title",
+      "offsetMax": [
+        400,
+        180
+      ],
+      "offsetMin": [
+        -400,
+        90
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Die Quest von Mira",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "scene": "questdorf001",
+          "spawn": "",
+          "type": "loadScene"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 22,
+      "id": "e3",
+      "name": "Spielen",
+      "offsetMax": [
+        160,
+        348
+      ],
+      "offsetMin": [
+        -160,
+        300
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Spielen",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "type": "showUi",
+          "ui": "questuiset01"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 22,
+      "id": "e4",
+      "name": "Einstellungen",
+      "offsetMax": [
+        160,
+        408
+      ],
+      "offsetMin": [
+        -160,
+        360
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Einstellungen",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "type": "quit"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 22,
+      "id": "e5",
+      "name": "Beenden",
+      "offsetMax": [
+        160,
+        468
+      ],
+      "offsetMin": [
+        -160,
+        420
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Beenden",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 1,
+          "type": "loadGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 16,
+      "id": "e6",
+      "name": "Laden 1",
+      "offsetMax": [
+        -64,
+        530
+      ],
+      "offsetMin": [
+        -160,
+        490
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Laden 1",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 2,
+          "type": "loadGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 16,
+      "id": "e7",
+      "name": "Laden 2",
+      "offsetMax": [
+        48,
+        530
+      ],
+      "offsetMin": [
+        -48,
+        490
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Laden 2",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "slot": 3,
+          "type": "loadGame"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 16,
+      "id": "e8",
+      "name": "Laden 3",
+      "offsetMax": [
+        160,
+        530
+      ],
+      "offsetMin": [
+        64,
+        490
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Laden 3",
+      "type": "button",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

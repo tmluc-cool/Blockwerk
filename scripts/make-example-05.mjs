@@ -5,6 +5,7 @@ import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   Project,
+  createUiTemplate,
   instantiatePrefab,
   resolvePrefab,
   updateInstanceOverrides,
@@ -20,6 +21,14 @@ rmSync(join(folder, 'Assets'), { recursive: true, force: true });
 // ------------------------------------------------------------------ ids and helpers
 const SCENE_VILLAGE = 'questdorf001';
 const SCENE_CRYPT = 'questgruft01';
+const SCENE_MENU = 'questmenu001';
+const UI_MAIN = 'questuimain1';
+const UI_PAUSE = 'questuipaus1';
+const UI_SETTINGS = 'questuiset01';
+const UI_VICTORY = 'questuivic01';
+const UI_DEFEAT = 'questuidef01';
+const UI_LOADING = 'questuiload1';
+const UI_HUD = 'questuihud01';
 const DIALOG = 'questdialog1';
 const PREFAB_ENEMY = 'questgegner1';
 const PREFAB_ZOMBIE_A = 'questzombiea';
@@ -27,8 +36,6 @@ const PREFAB_ZOMBIE_B = 'questzombieb';
 
 // Game variables (IDs are shared by the scripts and the dialog).
 const VAR_TASK = 'questvartask';
-const VAR_LIFE = 'questvarlife';
-const VAR_COINS = 'questvarcoin';
 const VAR_QUEST = 'questvarstat';
 
 let objectCounter = 0;
@@ -95,66 +102,36 @@ const attach = (scene, objectId, scriptId) =>
 const project = new Project({
   formatVersion: 1,
   name: 'Quest',
-  startScene: SCENE_VILLAGE,
+  startScene: SCENE_MENU,
   graphicsLevel: 'high',
 });
 project.tagsAndLayers = { formatVersion: 1, layers: [], tags: ['Enemy', 'NPC', 'Spawn'] };
 const meta = (id, type) => ({ formatVersion: 1, id, type, importSettings: {}, license: null });
 
 // ------------------------------------------------------------------ block scripts
-const gameVar = (id, name, type, def) => ({
+const gameVar = (id, name, type, def, saved = false) => ({
   id,
   name,
   type,
   scope: 'game',
   default: def,
   inspector: false,
+  ...(saved ? { saved: true } : {}),
 });
-const V_TASK = gameVar(VAR_TASK, 'Aufgabe', 'string', 'Sprich mit Mira');
-const V_LIFE = gameVar(VAR_LIFE, 'Leben', 'number', 100);
-const V_COINS = gameVar(VAR_COINS, 'Münzen', 'number', 0);
-const V_QUEST = gameVar(VAR_QUEST, 'Quest', 'number', 0);
+// The quest progress is part of a save slot.
+const V_TASK = gameVar(VAR_TASK, 'Aufgabe', 'string', 'Sprich mit Mira', true);
+const V_QUEST = gameVar(VAR_QUEST, 'Quest', 'number', 0, true);
 
 const scriptAssets = [];
 function addScript(id, name, variables, ...scripts) {
   scriptAssets.push({ id, name, variables, workspace: workspace(...scripts) });
 }
 
-// The HUD on the player: shows the task, the hit points and the coins.
+// The player: a sound when defeated (the life bar, the inventory and the task are the HUD canvas).
 addScript(
   'questscrpt01',
-  'Anzeige',
-  [V_TASK, V_LIFE, V_COINS],
-  [
-    b('events.whenGameStarts'),
-    b('variables.show', { variable: { id: VAR_TASK } }),
-    b('variables.show', { variable: { id: VAR_LIFE } }),
-    b('variables.show', { variable: { id: VAR_COINS } }),
-    b(
-      'control.forever',
-      {},
-      {
-        body: [
-          b(
-            'variables.set',
-            { variable: { id: VAR_LIFE } },
-            {
-              value: b('items.health', { target: 'self' }),
-            },
-          ),
-          b(
-            'variables.set',
-            { variable: { id: VAR_COINS } },
-            {
-              value: b('items.count', { item: 'Münze', target: 'self' }),
-            },
-          ),
-          b('control.wait', {}, { seconds: 0.2 }),
-        ],
-      },
-    ),
-  ],
-  // Defeated: the player wakes up again at the start (Health: respawn) and sees the task again.
+  'Spieler',
+  [],
   [
     b('items.whenHealth', { phase: 'died' }),
     b('sound.play', { sound: 'builtin:hurt', where: 'everywhere' }),
@@ -174,6 +151,8 @@ addScript(
     b('dialog.whenAnswer', { answer: 'abgeben' }),
     b('effects.spawn', { effect: 'sparkle', at: 'self' }),
     b('sound.play', { sound: 'builtin:win', where: 'everywhere' }),
+    b('control.wait', {}, { seconds: 1.5 }),
+    b('ui.show', { ui: `ui:${UI_VICTORY}` }),
   ],
 );
 
@@ -530,18 +509,18 @@ const crypt = village.add({
   components: [comp('boxCollider', { isTrigger: true, size: [4, 2, 2] })],
 });
 attach(village, crypt, 'questscrpt03');
-// Where the player appears when coming back from the crypt.
-village.add({
-  name: 'Gruft',
-  parent: village.area.items,
-  position: [0, 0, 30],
-  tag: 'Spawn',
-});
 // Where the player starts.
 village.add({
   name: 'Start',
   parent: village.area.items,
   position: [0, 0, -26],
+  tag: 'Spawn',
+});
+// Where the player appears when coming back from the crypt.
+village.add({
+  name: 'Gruft',
+  parent: village.area.items,
+  position: [0, 0, 30],
   tag: 'Spawn',
 });
 
@@ -797,11 +776,143 @@ attach(crypt_, heroCrypt, 'questscrpt01');
 const musicCrypt = crypt_.add({ name: 'Musik', parent: crypt_.area.environment });
 attach(crypt_, musicCrypt, 'questscrpt07');
 
+// ------------------------------------------------------------------ UI canvases (menus and HUD)
+const labels = {
+  gameTitle: 'Die Quest von Mira',
+  play: 'Spielen',
+  loadSlot: 'Laden {n}',
+  settings: 'Einstellungen',
+  quit: 'Beenden',
+  paused: 'Pause',
+  resume: 'Fortsetzen',
+  restart: 'Neu starten',
+  saveSlot: 'Speichern {n}',
+  mainMenu: 'Hauptmenü',
+  back: 'Zurück',
+  graphics: 'Grafik',
+  masterVolume: 'Gesamtlautstärke',
+  musicVolume: 'Musik',
+  effectsVolume: 'Effekte',
+  voicesVolume: 'Sprache',
+  mouseSensitivity: 'Maus-Empfindlichkeit',
+  fullscreen: 'Vollbild',
+  keys: 'Tastenbelegung',
+  victory: 'Auftrag erfüllt!',
+  defeat: 'Niederlage',
+  loading: 'Lädt …',
+  life: 'Leben',
+};
+const targets = { startScene: SCENE_VILLAGE, menuScene: SCENE_MENU, settingsUi: UI_SETTINGS };
+const uiAssets = [
+  [UI_MAIN, 'Hauptmenue', 'mainMenu'],
+  [UI_PAUSE, 'Pausemenue', 'pauseMenu'],
+  [UI_SETTINGS, 'Einstellungen', 'settings'],
+  [UI_VICTORY, 'Sieg', 'victory'],
+  [UI_DEFEAT, 'Niederlage', 'defeat'],
+  [UI_LOADING, 'Ladebildschirm', 'loading'],
+  [UI_HUD, 'HUD', 'hud'],
+];
+for (const [id, name, kind] of uiAssets) {
+  const data = createUiTemplate(kind, labels, targets);
+  if (kind === 'hud') {
+    // The task of the quest, below the life bar (a text bound to a game variable).
+    data.elements.splice(2, 0, {
+      id: 'etask',
+      name: 'Aufgabe',
+      type: 'text',
+      visible: true,
+      anchorMin: [0, 0],
+      anchorMax: [0, 0],
+      pivot: [0, 0],
+      offsetMin: [24, 92],
+      offsetMax: [424, 122],
+      text: 'Aufgabe: {value}',
+      bind: { kind: 'variable', variable: VAR_TASK },
+      align: 'left',
+      fontSize: 18,
+    });
+  }
+  if (kind === 'pauseMenu') {
+    // Continuing also closes the settings.
+    const walk = (list) => {
+      for (const element of list) {
+        if (element.text === labels.resume) {
+          element.actions = [{ type: 'hideUi', ui: UI_SETTINGS }, ...(element.actions ?? [])];
+        }
+        walk(element.children ?? []);
+      }
+    };
+    walk(data.elements);
+  }
+  project.adoptAsset(`Assets/UI/${name}.ui.json`, meta(id, 'ui'), { data });
+}
+
+/** An object that shows a UI canvas in a scene. */
+const addCanvas = (scene, name, ui, visibility, order = 0) =>
+  scene.add({
+    name,
+    parent: scene.area.ui,
+    components: [comp('uiCanvas', { ui, visibility, sortOrder: order, player: 'all' })],
+  });
+for (const scene of [village, crypt_]) {
+  addCanvas(scene, 'HUD', UI_HUD, 'always', 0);
+  addCanvas(scene, 'Pausemenü', UI_PAUSE, 'paused', 5);
+  addCanvas(scene, 'Einstellungen', UI_SETTINGS, 'manual', 10);
+}
+addCanvas(village, 'Sieg', UI_VICTORY, 'manual', 20);
+
+// ------------------------------------------------------------------ main menu scene
+const menu = createScene({
+  ambientIntensity: 0.45,
+  fog: { enabled: true, near: 40, far: 140 },
+  sky: { timeOfDay: 17, dayLength: 0, sunAzimuth: 0 },
+});
+sun(menu);
+ground(menu, 'Wiese', '#6f9a4a', [90, 90], [0, -0.5, 8]);
+[
+  ['building-home-a-red', -14, 6, 160],
+  ['building-tavern-red', 0, 14, 180],
+  ['building-home-b-blue', 14, 6, 200],
+  ['building-well-blue', 0, 2, 0],
+].forEach(([name, x, z, yaw]) => {
+  model(
+    menu,
+    name.replace('building-', ''),
+    `kaykit-medieval-hexagon/${name}`,
+    [x, 0, z],
+    yaw,
+    1.5,
+  );
+});
+for (let i = 0; i < 10; i++) {
+  model(
+    menu,
+    `Baum ${i + 1}`,
+    i % 2 ? 'kaykit-medieval-hexagon/tree-single-a' : 'kaykit-medieval-hexagon/tree-single-b',
+    [-30 + i * 6.5, 0, 22 + (i % 3) * 3],
+    i * 47,
+    1.5,
+  );
+}
+menu.add({
+  name: 'Hauptkamera',
+  parent: menu.area.player1,
+  position: [0, 4, -16],
+  rotation: [8, 0, 0],
+  tag: 'MainCamera',
+  components: [comp('camera', { fieldOfView: 55 }), comp('postProcessing')],
+});
+addCanvas(menu, 'Hauptmenü', UI_MAIN, 'always', 0);
+addCanvas(menu, 'Einstellungen', UI_SETTINGS, 'manual', 10);
+const musicMenu = menu.add({ name: 'Musik', parent: menu.area.environment });
+attach(menu, musicMenu, 'questscrpt06');
+
 // ------------------------------------------------------------------ write
 const writeScene = (id, name, scene) =>
   project.adoptAsset(`Assets/Szenen/${name}.scene.json`, meta(id, 'scene'), {
     data: { formatVersion: 1, environment: scene.environment, objects: scene.objects },
   });
+writeScene(SCENE_MENU, 'Hauptmenue', menu);
 writeScene(SCENE_VILLAGE, 'Dorf', village);
 writeScene(SCENE_CRYPT, 'Gruft', crypt_);
 

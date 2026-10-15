@@ -401,9 +401,28 @@ export class Game implements GameApi {
     }
   }
 
-  /** The canvases to draw now, back to front. */
-  uiCanvases(): { key: string; ui: UiData; player: 'all' | '1' | '2'; order: number }[] {
-    const result: { key: string; ui: UiData; player: 'all' | '1' | '2'; order: number }[] = [];
+  /** The text of a bound variable (strings and booleans keep their form), or `null` for other bindings. */
+  bindingText(binding: UiBinding): string | null {
+    if (binding.kind !== 'variable') return null;
+    const raw = this.vars[binding.variable];
+    return raw === undefined ? '' : String(raw);
+  }
+
+  /** The canvases to draw now, back to front; `modal` ones are menus that need the mouse. */
+  uiCanvases(): {
+    key: string;
+    ui: UiData;
+    player: 'all' | '1' | '2';
+    order: number;
+    modal: boolean;
+  }[] {
+    const result: {
+      key: string;
+      ui: UiData;
+      player: 'all' | '1' | '2';
+      order: number;
+      modal: boolean;
+    }[] = [];
     for (const object of this.world.allObjects()) {
       if (object.destroyed || !object.activeInHierarchy) continue;
       const state = uiCanvasRegistry.get(object);
@@ -414,7 +433,15 @@ export class Game implements GameApi {
         (state.visibility === 'manual' && state.shown);
       if (!visible) continue;
       const ui = this.options.uis?.(state.ui);
-      if (ui) result.push({ key: object.id, ui, player: state.player, order: state.order });
+      if (ui) {
+        result.push({
+          key: object.id,
+          ui,
+          player: state.player,
+          order: state.order,
+          modal: state.visibility !== 'always',
+        });
+      }
     }
     return result.sort((a, b) => a.order - b.order);
   }

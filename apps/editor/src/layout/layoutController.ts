@@ -48,7 +48,10 @@ export function openPanel(id: PanelId): void {
     existing.api.setActive();
     return;
   }
-  const group = api.activeGroup;
+  // The editors for dialogs and UI need room: they open next to the Scene view, not in the small
+  // bottom group the Project window lives in.
+  const wide = id === 'dialogEditor' || id === 'uiEditor';
+  const group = (wide ? api.getPanel('scene')?.group : undefined) ?? api.activeGroup;
   api.addPanel({
     id,
     component: id,

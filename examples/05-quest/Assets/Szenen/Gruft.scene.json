@@ -3235,6 +3235,123 @@
           1
         ]
       }
+    },
+    "qo0000000172": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000249",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 0,
+            "ui": "questuihud01",
+            "visibility": "always"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "HUD",
+      "order": 76,
+      "parent": "qo0000000098",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000173": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000250",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 5,
+            "ui": "questuipaus1",
+            "visibility": "paused"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Pausemenü",
+      "order": 77,
+      "parent": "qo0000000098",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000174": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000251",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 10,
+            "ui": "questuiset01",
+            "visibility": "manual"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Einstellungen",
+      "order": 78,
+      "parent": "qo0000000098",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
     }
   }
 }

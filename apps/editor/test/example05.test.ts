@@ -2,11 +2,13 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { compileBlockScript } from '@blockwerk/compiler';
 import { assetDisplayName, loadProject, resolvePrefab } from '@blockwerk/project';
-import type { Project, SceneData } from '@blockwerk/project';
+import type { Project, SaveData, SceneData, UiAction, UiElement } from '@blockwerk/project';
 import { NodeFileSystem } from '@blockwerk/project/node';
 import {
   Game,
+  GameSettings,
   initNavigation,
+  MemorySaveStorage,
   initPhysics,
   loadScriptModule,
   navAgentRegistry,
@@ -49,11 +51,18 @@ const sceneNamed = (project: Project, name: string): { id: string; data: SceneDa
 };
 
 /** Starts a game for a scene of the project like the editor does (with carry-over). */
+interface LaunchExtras {
+  readonly saves?: MemorySaveStorage;
+  readonly save?: SaveData;
+  readonly settings?: GameSettings;
+}
+
 async function launch(
   project: Project,
   name: string,
   carry?: CarryState,
   spawn?: string,
+  extras: LaunchExtras = {},
 ): Promise<{ game: Game; sceneId: string }> {
   const assets = new Map<string, ScriptAsset>();
   for (const entry of project.assetsOfType('blockScript')) {
@@ -76,7 +85,19 @@ async function launch(
     dialogs: (id) => project.assetOfType(id, 'dialog')?.data ?? null,
     prefabs: (id) =>
       resolvePrefab(id, (prefab) => project.assetOfType(prefab, 'prefab')?.data) ?? null,
+    uis: (id) => project.assetOfType(id, 'ui')?.data ?? null,
+    saves: extras.saves ?? new MemorySaveStorage(),
+    savedVariables: new Set(
+      project
+        .assetsOfType('blockScript')
+        .flatMap((entry) => entry.data.variables)
+        .filter((variable) => variable.scope === 'game' && variable.saved)
+        .map((variable) => variable.id),
+    ),
+    ...(extras.settings ? { settings: extras.settings } : {}),
+    ...(extras.save ? { save: extras.save } : {}),
     sceneId: scene.id,
+    sceneName: name,
     random: () => 0.5,
     ...(carry ? { carry } : {}),
     ...(spawn !== undefined ? { spawn } : {}),
@@ -116,6 +137,22 @@ const choose = (game: Game, answer: string): void => {
   game.chooseDialogAnswer(choice.index);
   run(game, 0.05);
 };
+
+function flattenUi(elements: readonly UiElement[]): UiElement[] {
+  return elements.flatMap((element) => [element, ...flattenUi(element.children ?? [])]);
+}
+
+/** The actions of the pause menu's button with a text. */
+function buttonActions(game: Game, text: string): UiAction[] {
+  game.setGamePaused(true);
+  const found = game
+    .uiCanvases()
+    .flatMap((canvas) => flattenUi(canvas.ui.elements))
+    .find((element) => element.text === text);
+  game.setGamePaused(false);
+  if (!found) throw new Error(`no button ${text}`);
+  return found.actions ?? [];
+}
 
 describe('examples/05-quest', { timeout: 180_000 }, () => {
   it('loads without problems and a save writes nothing', async () => {
@@ -309,5 +346,149 @@ describe('examples/05-quest', { timeout: 180_000 }, () => {
     run(game, 1.5);
     expect(zombie.worldPosition().distanceTo(frozen)).toBeGreaterThan(1);
     game.dispose();
+  });
+
+  it('the project starts in a main menu with play, settings, quit and the three load slots', async () => {
+    const project = await loadProject(new NodeFileSystem(folder));
+    expect(project.settings.startScene).toBe(sceneNamed(project, 'Hauptmenue').id);
+    const { game } = await launch(project, 'Hauptmenue');
+    run(game, 0.2);
+    const canvases = game.uiCanvases();
+    // The main menu is always there; the settings only after "Settings".
+    expect(canvases).toHaveLength(1);
+    const buttons = flattenUi(canvases[0]?.ui.elements ?? []).filter(
+      (element) => element.type === 'button',
+    );
+    expect(buttons.map((button) => button.text)).toEqual([
+      'Spielen',
+      'Einstellungen',
+      'Beenden',
+      'Laden 1',
+      'Laden 2',
+      'Laden 3',
+    ]);
+    const play = buttons.find((button) => button.text === 'Spielen');
+    for (const action of play?.actions ?? []) game.runUiAction(action);
+    expect(game.takeSceneRequest()?.scene).toBe(sceneNamed(project, 'Dorf').id);
+    const settings = buttons.find((button) => button.text === 'Einstellungen');
+    for (const action of settings?.actions ?? []) game.runUiAction(action);
+    expect(game.uiCanvases()).toHaveLength(2);
+    game.dispose();
+  });
+
+  it('the village has a life bar, an inventory display and hints; Esc shows the pause menu', async () => {
+    const project = await loadProject(new NodeFileSystem(folder));
+    const { game } = await launch(project, 'Dorf');
+    run(game, 0.3);
+    const hud = game.uiCanvases();
+    expect(hud).toHaveLength(1);
+    const types = flattenUi(hud[0]?.ui.elements ?? []).map((element) => element.type);
+    expect(types).toEqual(expect.arrayContaining(['bar', 'inventory', 'hint', 'dialog', 'text']));
+    const bar = flattenUi(hud[0]?.ui.elements ?? []).find((element) => element.type === 'bar');
+    const player = named(game, 'Ritter');
+    expect(bar?.bind && game.bindingValue(bar.bind, 1)).toEqual({ value: 100, max: 100 });
+    game.damageObject(player, 'self', 40);
+    expect(bar?.bind && game.bindingValue(bar.bind, 1).value).toBe(60);
+    // Pause: the pause menu appears and the game stands still.
+    game.setGamePaused(true);
+    expect(game.uiCanvases().length).toBe(2);
+    const ticks = game.tick;
+    game.advance(0.5);
+    expect(game.tick).toBe(ticks);
+    const resume = flattenUi(game.uiCanvases().at(-1)?.ui.elements ?? []).find(
+      (element) => element.text === 'Fortsetzen',
+    );
+    for (const action of resume?.actions ?? []) game.runUiAction(action);
+    expect(game.gamePaused).toBe(false);
+    game.dispose();
+  });
+
+  it('the settings change graphics level, volumes, mouse sensitivity and the keys', async () => {
+    const project = await loadProject(new NodeFileSystem(folder));
+    const settings = new GameSettings();
+    const { game } = await launch(project, 'Dorf', undefined, undefined, { settings });
+    const sliders = flattenUi(
+      project.assetsOfType('ui').find((asset) => assetDisplayName(asset.path) === 'Einstellungen')
+        ?.data.elements ?? [],
+    );
+    expect(sliders.filter((element) => element.type === 'slider').map((e) => e.setting)).toEqual([
+      'masterVolume',
+      'musicVolume',
+      'effectsVolume',
+      'voicesVolume',
+      'mouseSensitivity',
+    ]);
+    expect(sliders.some((element) => element.type === 'keybindings')).toBe(true);
+    expect(sliders.some((element) => element.type === 'dropdown')).toBe(true);
+    settings.set('musicVolume', 20);
+    settings.set('mouseSensitivity', 2);
+    settings.set('graphicsLevel', 'low');
+    settings.setBinding(1, 'interact', ['KeyU']);
+    expect(game.audio.volume('music')).toBeCloseTo(0.2);
+    expect(game.players[1].sensitivity).toBe(2);
+    // The new interact key works in the village.
+    standAt(game, 'Mira');
+    game.input.keyEvent('u', true, 'KeyU');
+    run(game, 0.05);
+    game.input.keyEvent('u', false, 'KeyU');
+    run(game, 0.05);
+    expect(game.talking).toBe(true);
+    game.dispose();
+  });
+
+  it('saves to three slots and loads each back with position, inventory and quest progress', async () => {
+    const project = await loadProject(new NodeFileSystem(folder));
+    const saves = new MemorySaveStorage();
+    let { game } = await launch(project, 'Dorf', undefined, undefined, { saves });
+    run(game, 0.3);
+    const hero = (): GameObject => named(game, 'Ritter');
+    // Slot 1: quest accepted, key in the bag, standing at the chest.
+    standAt(game, 'Mira');
+    interact(game);
+    choose(game, 'fragen');
+    choose(game, 'annehmen');
+    game.confirmDialog();
+    run(game, 0.1);
+    standAt(game, 'Truhe', [0, 0, -1.5]);
+    interact(game);
+    const chestSpot = hero().worldPosition().clone();
+    for (const action of buttonActions(game, 'Speichern 1')) game.runUiAction(action);
+    expect(saves.read(1)?.vars['questvarstat']).toBe(1);
+    // Slot 2: gate open (key used up), standing at the gate, a coin in the bag.
+    standAt(game, 'Tor', [0, 0, -2]);
+    interact(game);
+    game.addItem(hero(), 'self', 'Münze', 7);
+    const gateSpot = hero().worldPosition().clone();
+    game.saveGame(2);
+    // Slot 3 stays empty.
+    expect(game.slotUsed(3)).toBe(false);
+    game.dispose();
+
+    const check = async (
+      slot: number,
+      expected: { at: Vector3; key: number; coin: number },
+    ): Promise<void> => {
+      const first = (await launch(project, 'Dorf', undefined, undefined, { saves })).game;
+      first.loadGame(slot);
+      const request = first.takeSceneRequest();
+      expect(request?.scene).toBe(sceneNamed(project, 'Dorf').id);
+      first.dispose();
+      game = (await launch(project, 'Dorf', undefined, undefined, { saves, save: request?.save }))
+        .game;
+      run(game, 0.2);
+      expect(game.vars['questvarstat']).toBe(1);
+      expect(game.vars['questvartask']).toBe('Finde den Schlüssel in der Truhe');
+      expect(peekInventory(hero())?.count('Schlüssel')).toBe(expected.key);
+      expect(peekInventory(hero())?.count('Münze')).toBe(expected.coin);
+      expect(hero().worldPosition().distanceTo(expected.at)).toBeLessThan(0.6);
+      game.dispose();
+    };
+    await check(1, { at: chestSpot, key: 1, coin: 0 });
+    await check(2, { at: gateSpot, key: 0, coin: 7 });
+    // An empty slot loads nothing and says so.
+    const empty = (await launch(project, 'Dorf', undefined, undefined, { saves })).game;
+    expect(empty.loadGame(3)).toBe(false);
+    expect(empty.notice?.key).toBe('noSave');
+    empty.dispose();
   });
 });

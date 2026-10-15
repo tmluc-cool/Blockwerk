@@ -35,7 +35,7 @@ export function updateUiLayer(game: Game | null, loading: UiLoading | null): voi
       : {}),
   });
   // Menus and dialogs need the mouse.
-  if (game && (game.gamePaused || game.talking)) {
+  if (game && (game.gamePaused || game.talking || game.uiCanvases().some((c) => c.modal))) {
     renderer.parentDocument().exitPointerLock?.();
   }
 }

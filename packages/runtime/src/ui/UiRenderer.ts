@@ -619,8 +619,14 @@ export class UiRenderer {
     return (context) => {
       this.showIf(node, context);
       const { element } = node;
+      const template = element.text ?? '';
+      const raw = element.bind ? context.game.bindingText(element.bind) : null;
+      if (raw !== null && Number.isNaN(Number(raw))) {
+        this.setText(node.dom, template.replace(/\{value\}/g, raw));
+        return;
+      }
       const bound = element.bind ? context.game.bindingValue(element.bind, context.player) : null;
-      this.setText(node.dom, formatValue(element.text ?? '', bound?.value ?? 0));
+      this.setText(node.dom, formatValue(template, bound?.value ?? 0));
     };
   }
 

@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "died"
+          },
+          "id": "t-1",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:hurt",
+                "where": "everywhere"
+              },
+              "id": "t-2",
+              "type": "sound.play"
+            }
+          },
+          "type": "items.whenHealth"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

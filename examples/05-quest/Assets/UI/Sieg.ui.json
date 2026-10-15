@@ -1,0 +1,130 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        1,
+        1
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "background": "rgba(10,40,20,0.85)",
+      "id": "e1",
+      "name": "Background",
+      "offsetMax": [
+        0,
+        0
+      ],
+      "offsetMin": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "panel",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 72,
+      "id": "e2",
+      "name": "Title",
+      "offsetMax": [
+        400,
+        270
+      ],
+      "offsetMin": [
+        -400,
+        170
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Auftrag erfüllt!",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "type": "restart"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 22,
+      "id": "e3",
+      "name": "Neu starten",
+      "offsetMax": [
+        160,
+        388
+      ],
+      "offsetMin": [
+        -160,
+        340
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Neu starten",
+      "type": "button",
+      "visible": true
+    },
+    {
+      "actions": [
+        {
+          "scene": "questmenu001",
+          "spawn": "",
+          "type": "loadScene"
+        }
+      ],
+      "anchorMax": [
+        0.5,
+        0
+      ],
+      "anchorMin": [
+        0.5,
+        0
+      ],
+      "fontSize": 22,
+      "id": "e4",
+      "name": "Hauptmenü",
+      "offsetMax": [
+        160,
+        448
+      ],
+      "offsetMin": [
+        -160,
+        400
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "text": "Hauptmenü",
+      "type": "button",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

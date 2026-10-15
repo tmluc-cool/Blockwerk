@@ -260,4 +260,69 @@ describe('UiRenderer', () => {
     expect(parent.querySelector('[data-testid="loading-screen"]')).toBeNull();
     renderer.dispose();
   });
+
+  it('split screen: every player has their own HUD in their half, showing their own values', () => {
+    const parent = document.createElement('div');
+    document.body.appendChild(parent);
+    const game = new Game(
+      sceneData({
+        one000000001: objectData({
+          name: 'Eins',
+          components: [
+            component('characterController', {}, 'onecontroller'),
+            component('thirdPersonControl', { player: '1' }, 'onecontrolcmp'),
+            component('health', { max: 100, invulnerable: 0 }, 'onehealthcomp'),
+          ],
+        }),
+        two000000001: objectData({
+          name: 'Zwei',
+          components: [
+            component('characterController', {}, 'twocontroller'),
+            component('thirdPersonControl', { player: '2' }, 'twocontrolcmp'),
+            component('health', { max: 100, invulnerable: 0 }, 'twohealthcomp'),
+          ],
+        }),
+        hud000000001: objectData({
+          name: 'HUD',
+          components: [component('uiCanvas', { ui: 'hud', player: 'all' }, 'uicanvashud1')],
+        }),
+        only20000001: objectData({
+          name: 'Nur Zwei',
+          components: [
+            component(
+              'uiCanvas',
+              { ui: 'pause', player: '2', visibility: 'always' },
+              'uicanvasonly',
+            ),
+          ],
+        }),
+      }),
+      { scripts: () => null, uis: (id) => (id === 'hud' ? hud : id === 'pause' ? pause : null) },
+    );
+    const renderer = new UiRenderer(parent, { strings }, new GameSettings());
+    renderer.setSize(1280, 720);
+    const one = game.world.getObject('one000000001');
+    if (!one) throw new Error('no player one');
+    game.damageObject(one, 'self', 40);
+    renderer.update({ game, views: { players: [1, 2], split: 'vertical' } });
+    // (The built-in hint and dialog box are drawn once per half as well; they are not counted here.)
+    const views = [...parent.querySelectorAll<HTMLElement>('[data-testid="ui-canvas"]')].filter(
+      (view) => view.querySelector('[data-name="life"], [data-name="resume"]'),
+    );
+    // The HUD twice (one per half), the player-2 canvas once, in the right half.
+    expect(views.map((view) => view.style.left).sort()).toEqual(['0px', '640px', '640px']);
+    expect(views.every((view) => view.style.width === '640px')).toBe(true);
+    const bars = views
+      .filter((view) => view.querySelector('[data-name="life"]'))
+      .sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left))
+      .map((view) => view.querySelector<HTMLElement>('[data-name="life"]')?.dataset['fraction']);
+    expect(bars).toEqual(['0.6', '1']);
+    // In the half the elements scale with the half's size.
+    const left = views
+      .find((view) => view.style.left === '0px')
+      ?.querySelector<HTMLElement>('[data-name="life"]');
+    expect(left?.style.width).toBe('120px');
+    renderer.dispose();
+    game.dispose();
+  });
 });

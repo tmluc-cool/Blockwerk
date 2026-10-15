@@ -49,6 +49,8 @@ test.describe('phase 5', () => {
   }) => {
     test.setTimeout(scaled(300_000));
     await openExample(page, 'Quest');
+    // The project starts in the main menu; this test plays in the village.
+    expect(await page.evaluate(() => window.__blockwerk?.openSceneByName('Dorf'))).toBe(true);
     await page.getByTestId('play').click();
     await expect.poll(() => page.evaluate(() => window.__blockwerk?.playStatus())).toBe('playing');
     await tab(page, 'Spiel').click();
