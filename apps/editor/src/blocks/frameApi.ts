@@ -20,6 +20,8 @@ export interface FrameReferences {
   readonly dialogs: readonly { readonly id: string; readonly name: string }[];
   /** Scenes of the project (for "load scene"). */
   readonly scenes: readonly { readonly id: string; readonly name: string }[];
+  /** UI canvases of the project (for "show UI"). */
+  readonly uis: readonly { readonly id: string; readonly name: string }[];
   /** Built-in sounds and sound files (`value` is `builtin:<name>` or `audio:<asset ID>`). */
   readonly sounds: readonly { readonly value: string; readonly name: string }[];
   readonly labels: {
@@ -34,6 +36,7 @@ export interface FrameReferences {
     readonly choosePrefab: string;
     readonly chooseDialog: string;
     readonly chooseScene: string;
+    readonly chooseUi: string;
     readonly createVariable: string;
     readonly noVariables: string;
   };

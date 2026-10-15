@@ -1,0 +1,105 @@
+{
+  "variables": [
+    {
+      "id": "varcount0000",
+      "name": "Anzahl",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenKey",
+          "id": "t-1",
+          "fields": {
+            "key": "M"
+          },
+          "next": {
+            "block": {
+              "type": "ui.show",
+              "id": "t-2",
+              "fields": {
+                "ui": "ui:abcdefghijkl"
+              },
+              "next": {
+                "block": {
+                  "type": "ui.hide",
+                  "id": "t-3",
+                  "fields": {
+                    "ui": "ui:zyxwvutsrqpo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "events.whenKey",
+          "id": "t-4",
+          "fields": {
+            "key": "Enter"
+          },
+          "next": {
+            "block": {
+              "type": "saves.save",
+              "id": "t-5",
+              "fields": {
+                "slot": "2"
+              },
+              "next": {
+                "block": {
+                  "type": "control.if",
+                  "id": "t-10",
+                  "inputs": {
+                    "condition": {
+                      "block": {
+                        "type": "saves.slotUsed",
+                        "id": "t-6",
+                        "fields": {
+                          "slot": "2"
+                        }
+                      }
+                    },
+                    "then": {
+                      "block": {
+                        "type": "variables.set",
+                        "id": "t-7",
+                        "fields": {
+                          "variable": {
+                            "id": "varcount0000"
+                          }
+                        },
+                        "inputs": {
+                          "value": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "t-8",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "saves.load",
+                            "id": "t-9",
+                            "fields": {
+                              "slot": "2"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -30,7 +30,7 @@ import {
   resetComponent,
 } from '../document/sceneOps';
 import type { TransformPart } from '../document/sceneOps';
-import { openDialogEditor, openScriptEditor } from '../navigation';
+import { openDialogEditor, openScriptEditor, openUiEditor } from '../navigation';
 import { objectName } from '../scene/worlds';
 import { prompt } from '../state/dialogs';
 import {
@@ -280,6 +280,10 @@ function ComponentSection({
     project
       ?.assetsOfType('dialog')
       .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
+  const uis =
+    project
+      ?.assetsOfType('ui')
+      .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
   const terrains =
     project
       ?.assetsOfType('terrain')
@@ -314,14 +318,18 @@ function ComponentSection({
                 ? terrains
                 : field.assetType === 'dialog'
                   ? dialogs
-                  : undefined
+                  : field.assetType === 'ui'
+                    ? uis
+                    : undefined
             : undefined
         }
         disabled={playing && field.type === 'asset'}
         onOpenAsset={(id) =>
           field.type === 'asset' && field.assetType === 'dialog'
             ? openDialogEditor(id)
-            : openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)
+            : field.type === 'asset' && field.assetType === 'ui'
+              ? openUiEditor(id)
+              : openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)
         }
         onChange={(value) => {
           if (slot.type === 'particleSystem' && name === 'preset' && typeof value === 'string') {

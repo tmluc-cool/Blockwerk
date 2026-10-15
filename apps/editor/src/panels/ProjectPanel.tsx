@@ -11,6 +11,7 @@ import {
   Package,
   Boxes,
   Image as ImageIcon,
+  LayoutPanelTop,
   MessagesSquare,
   Mountain,
   Volume2,
@@ -29,7 +30,7 @@ import {
   OBJECTS_DRAG_TYPE,
   startAssetDrag,
 } from '../library/projectDrag';
-import { openDialogEditor, openScriptEditor } from '../navigation';
+import { openDialogEditor, openScriptEditor, openUiEditor } from '../navigation';
 import { prompt } from '../state/dialogs';
 import {
   createFolder,
@@ -57,6 +58,7 @@ function openAsset(asset: AnyAsset): void {
   else if (asset.type === 'prefab') openPrefab(asset.id);
   else if (asset.type === 'blockScript') openScriptEditor(asset.id);
   else if (asset.type === 'dialog') openDialogEditor(asset.id);
+  else if (asset.type === 'ui') openUiEditor(asset.id);
 }
 
 /** Icon of an asset tile. */
@@ -68,6 +70,8 @@ function assetIcon(asset: AnyAsset) {
       return <FileCode2 size={30} />;
     case 'dialog':
       return <MessagesSquare size={30} />;
+    case 'ui':
+      return <LayoutPanelTop size={30} />;
     case 'model':
       return <Box size={30} />;
     case 'image':
@@ -147,6 +151,12 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
       testId: 'project-create-dialog',
       disabled: playing,
       action: () => createAssetWithPrompt(t, 'dialog', target),
+    },
+    {
+      label: t('asset.type.ui'),
+      testId: 'project-create-ui',
+      disabled: playing,
+      action: () => createAssetWithPrompt(t, 'ui', target),
     },
     {
       label: t('asset.type.scene'),

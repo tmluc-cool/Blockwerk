@@ -28,6 +28,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `eslint-plugin-react-hooks` | 7.1.1 | MIT | development | (root) |
 | `fflate` | 0.8.2 | MIT | development | packages/library |
 | `globals` | 17.13.0 | MIT | development | (root) |
+| `jsdom` | 29.1.1 | MIT | development | packages/runtime |
 | `lucide-react` | 1.56.0 | ISC | runtime | apps/editor |
 | `meshoptimizer` | 1.3.0 | MIT | development | packages/library |
 | `n8ao` | 2.0.1 | ISC | runtime | packages/runtime |

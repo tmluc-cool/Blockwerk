@@ -70,6 +70,10 @@ function references(scene: SceneData | null): FrameReferences {
     id: asset.id,
     name: assetDisplayName(asset.path),
   }));
+  const uis = (project?.assetsOfType('ui') ?? []).map((asset) => ({
+    id: asset.id,
+    name: assetDisplayName(asset.path),
+  }));
   const sounds = [
     ...BUILTIN_SOUNDS.map((name) => ({
       value: `builtin:${name}`,
@@ -86,6 +90,7 @@ function references(scene: SceneData | null): FrameReferences {
     prefabs,
     dialogs,
     scenes,
+    uis,
     sounds,
     labels: {
       self: t('reference.self'),
@@ -99,6 +104,7 @@ function references(scene: SceneData | null): FrameReferences {
       choosePrefab: t('reference.choosePrefab'),
       chooseDialog: t('reference.chooseDialog'),
       chooseScene: t('reference.chooseScene'),
+      chooseUi: t('reference.chooseUi'),
       createVariable: t('blockEditor.createVariable'),
       noVariables: t('blockEditor.noVariables'),
     },
@@ -264,6 +270,16 @@ function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boo
               onChange={(event) => update(variable.id, { inspector: event.target.checked })}
             />
             {t('blockEditor.showInInspector')}
+          </label>
+          <label className="variable-row inspector-toggle" title={t('variable.savedHelp')}>
+            <input
+              type="checkbox"
+              checked={variable.saved === true}
+              disabled={variable.scope !== 'game'}
+              data-testid="variable-saved"
+              onChange={(event) => update(variable.id, { saved: event.target.checked })}
+            />
+            {t('variable.saved')}
           </label>
         </div>
       ))}

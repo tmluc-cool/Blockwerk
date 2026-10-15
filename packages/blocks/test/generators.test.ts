@@ -148,6 +148,7 @@ describe('buildToolbox', () => {
       'environment',
       'items',
       'effects',
+      'ui',
       'scenes',
     ]);
     const motion = toolbox.contents.find((category) => category.toolboxitemid === 'motion');

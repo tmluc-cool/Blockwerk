@@ -163,6 +163,13 @@ export interface GameApi {
   loadScene(self: GameObject, scene: string, spawn?: string): void;
   restartScene(): void;
 
+  // UI and saving (SPEC 8.12, 8.14)
+  showUi(self: GameObject, ui: string): void;
+  hideUi(self: GameObject, ui: string): void;
+  saveGame(slot: number): boolean;
+  loadGame(slot: number): boolean;
+  slotUsed(slot: number): boolean;
+
   // Dialogs (SPEC 8.8)
   /** Talks with the player and waits until the conversation is over (use with `yield*`). */
   startDialog(self: GameObject, dialog: string): Generator<void, void, void>;

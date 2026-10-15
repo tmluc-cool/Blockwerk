@@ -1,3 +1,4 @@
+import type { SaveData } from '@blockwerk/project';
 import { peekHealth, healthOf } from '../gameplay/health';
 import { inventoryOf, peekInventory } from '../gameplay/inventory';
 import type { GameObject } from '../world/GameObject';
@@ -23,6 +24,8 @@ export interface SceneRequest {
   readonly scene: string;
   /** Name of the spawn point (an object with the tag `Spawn`) the player appears at. */
   readonly spawn: string;
+  /** Loading a save slot: the saved state to put back (instead of a spawn point). */
+  readonly save?: SaveData;
 }
 
 /** Collects what the Player-tagged objects keep. */

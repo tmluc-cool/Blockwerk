@@ -15,6 +15,7 @@ import type { FileKind, MigrationRegistry } from './migrations';
 import {
   blockScriptSchema,
   dialogSchema,
+  uiSchema,
   DEFAULT_MODEL_IMPORT_SETTINGS,
   FORMAT_VERSION,
   metaSchema,
@@ -29,6 +30,7 @@ import type {
   BlockScriptData,
   DialogData,
   MetaData,
+  UiData,
   ModelImportSettings,
   PrefabData,
   ProjectFileData,
@@ -52,6 +54,7 @@ export const ASSET_EXTENSIONS: Readonly<Record<AssetType, string>> = {
   blockScript: '.blocks.json',
   prefab: '.prefab.json',
   dialog: '.dialog.json',
+  ui: '.ui.json',
   model: '.glb',
   image: '.png',
   terrain: '.terrain.bin',
@@ -102,6 +105,7 @@ export interface AssetDataByType {
   blockScript: BlockScriptData;
   prefab: PrefabData;
   dialog: DialogData;
+  ui: UiData;
   model: ModelData;
   image: ImageData;
   terrain: TerrainAssetData;
@@ -224,6 +228,7 @@ const SCHEMAS = {
   blockScript: blockScriptSchema,
   prefab: prefabSchema,
   dialog: dialogSchema,
+  ui: uiSchema,
 } satisfies Record<JsonAssetType, z.ZodType>;
 
 function describeIssues(error: z.ZodError): string {
@@ -802,6 +807,7 @@ export function defaultAssetFolder(type: AssetType, folders: NewProjectFolders):
     blockScript: folders.blockScripts,
     prefab: folders.prefabs,
     dialog: folders.dialogs ?? 'Dialogs',
+    ui: folders.uis ?? 'UI',
     model: folders.models,
     image: folders.images,
     terrain: folders.terrains ?? 'Terrains',
@@ -819,6 +825,8 @@ export interface NewProjectFolders {
   readonly images: string;
   /** Folder of dialogs (default `Dialogs`). */
   readonly dialogs?: string;
+  /** Folder of UI canvases (default `UI`). */
+  readonly uis?: string;
   /** Folder of terrains (default `Terrains`). */
   readonly terrains?: string;
   /** Folder of sounds (default `Sounds`). */

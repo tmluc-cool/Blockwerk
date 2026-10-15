@@ -11,6 +11,7 @@ import { HierarchyPanel } from '../panels/HierarchyPanel';
 import { InspectorPanel } from '../panels/InspectorPanel';
 import { LightingPanel } from '../panels/LightingPanel';
 import { DialogEditorPanel } from '../panels/DialogEditorPanel';
+import { UiEditorPanel } from '../panels/UiEditorPanel';
 import { NavigationPanel } from '../panels/NavigationPanel';
 import { ProjectPanel } from '../panels/ProjectPanel';
 import { ScenePanel } from '../panels/ScenePanel';
@@ -30,6 +31,7 @@ const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPane
   game: GamePanel,
   blockEditor: BlockEditorPanel,
   dialogEditor: DialogEditorPanel,
+  uiEditor: UiEditorPanel,
   inspector: InspectorPanel,
   lighting: LightingPanel,
   navigation: NavigationPanel,

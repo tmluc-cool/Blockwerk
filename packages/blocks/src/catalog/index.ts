@@ -70,6 +70,8 @@ import {
 } from './items';
 import { startDialog, whenAnswer } from './dialog';
 import { loadScene, restartScene } from './scenes';
+import { loadGame, saveGame, slotUsed } from './saves';
+import { hideUi, showUi } from './ui';
 import { numberLiteral, textLiteral } from './literals';
 import {
   currentState,
@@ -286,6 +288,11 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   stop,
   loadScene,
   restartScene,
+  saveGame,
+  loadGame,
+  slotUsed,
+  showUi,
+  hideUi,
   sendMessage,
   startTimer,
   forEachObject,
