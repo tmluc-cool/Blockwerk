@@ -10,8 +10,8 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 3 | Player, physics, animation | done |
 | 3b | Character Studio | done |
 | 4 | Environment and graphics | done |
-| 5 | NPCs and game logic | done (merged; Windows CI result of the PR was not seen) |
-| 6 | UI, menus, saving | in review |
+| 5 | NPCs and game logic | done |
+| 6 | UI, menus, saving | done |
 | 7 | Large projects | open |
 | 8 | Debugging | open |
 | 9 | Build and export | open |
@@ -76,7 +76,7 @@ Branch: `phase/06-oberflaeche` (builds on `main` with Phase 5 merged).
 - [x] (c) *Unity-feel items 8 (menus / settings) and 9 (loading screen instead of a stutter at scene change).* Menus and settings are covered by (a); the loading screen is shown on scene change and when a slot is loaded (end-to-end).
 - [x] Layout, settings, saves, renderer (jsdom), split-screen HUD, schema, templates, UI tree and translation tests; golden and runtime tests for the new blocks.
 - [x] `pnpm test` (427 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end 58/58 (one Phase 1 test failed first because the new pause key swallowed the editor's Ctrl+P; fixed and covered by a unit test).
-- [ ] CI on GitHub (Ubuntu and Windows): see pull request.
+- [x] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request ([CI run](https://github.com/tmluc-cool/Blockwerk/actions/runs/38731693786)). Earlier runs failed on Windows: the in-game pause key swallowed the editor's Ctrl+P, and a slow frame could remove the loading screen before it was drawn; both are fixed.
 
 **Open / not done**
 
@@ -85,7 +85,7 @@ Branch: `phase/06-oberflaeche` (builds on `main` with Phase 5 merged).
 - The built-in loading screen is always used; the loading template exists as an asset but is not wired to scene changes.
 - Saves hold quest variables and player state only: NPCs, doors, chests and object variables are not saved.
 - Still not built from Phase 5: list blocks, "drop item", "pause / resume" blocks and the event "When scene starts".
-- The Windows CI result of Phase 5's pull request was never seen.
+- The Windows CI of Phase 5's own pull request was never seen; the Phase 5 end-to-end tests (quest example, loading screen) pass on Windows in the Phase 6 run.
 
 Screenshots: `docs/screenshots/phase-06.png` (pause menu and settings over the village HUD) and `docs/screenshots/phase-06-menu.png` (main menu).
 
@@ -153,7 +153,7 @@ Branch: `phase/05-gegner` (builds on `main` with Phase 4 merged).
 - [x] Component tests: `navigation`, `npc`, `gameplay` (pickups, doors, chests, health, combat), `dialog` (session, Talkable) in `packages/runtime/test`.
 - [x] End-to-end: Navigation window, quest example with dialog and scene change, Dialog editor.
 - [x] `pnpm test` (378 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end 56/56.
-- [ ] CI on GitHub (Ubuntu and Windows): see pull request.
+- [x] CI on GitHub: Ubuntu and Windows green in the Phase 6 run ([CI run](https://github.com/tmluc-cool/Blockwerk/actions/runs/38731693786)), which includes the Phase 5 tests.
 
 **Open / not done**
 
