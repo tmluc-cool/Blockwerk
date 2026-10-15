@@ -366,6 +366,10 @@ let sceneChange: {
   readonly started: number;
   /** When the next scene was built (`null` before). */
   swappedAt: number | null;
+  /** Frames since the change began: the screen is drawn after the first one. */
+  frames: number;
+  /** The frame in which the screen was first shown after the build (`null` before). */
+  shownAt: number | null;
 } | null = null;
 
 /** Shows the loading screen and, a moment later, replaces the game by the next scene's game. */
@@ -378,15 +382,19 @@ function beginSceneChange(request: SceneRequest): void {
     return;
   }
   const title = assetDisplayName(entry.path);
-  sceneChange = { request, started: performance.now(), swappedAt: null };
+  sceneChange = { request, started: performance.now(), swappedAt: null, frames: 0, shownAt: null };
   usePlay.setState({
     loading: { title, progress: 0, tip: Math.floor(Math.random() * LOADING_TIPS) },
   });
-  // Let the loading screen appear before the heavy work starts.
-  setTimeout(() => {
+  // Let the loading screen be drawn before the heavy work starts (slow machines draw late).
+  const build = (): void => {
     const change = sceneChange;
     const old = game;
     if (!change || !old) return;
+    if (change.frames < 2) {
+      setTimeout(build, 30);
+      return;
+    }
     const data = entry.id === sceneId && scene ? scene : entry.data;
     const next = createGame(data, {
       sceneId: entry.id,
@@ -403,7 +411,8 @@ function beginSceneChange(request: SceneRequest): void {
     old.dispose();
     change.swappedAt = performance.now();
     usePlay.setState({ monitors: [], tick: 0 });
-  }, 80);
+  };
+  setTimeout(build, 80);
 }
 
 /** Moves the loading bar and hides the loading screen once the new scene is ready. */
@@ -411,8 +420,11 @@ function updateLoading(): void {
   const change = sceneChange;
   if (!change) return;
   const now = performance.now();
-  // The screen stays a moment after the (blocking) build, so it can be seen and read.
-  if (change.swappedAt !== null && now - change.swappedAt >= MIN_LOADING_MS) {
+  change.frames += 1;
+  // The screen stays a moment after the (blocking) build, counted from the first frame that shows
+  // it again, so even a slow frame after the build cannot take it away unseen.
+  if (change.swappedAt !== null && change.shownAt === null) change.shownAt = now;
+  if (change.shownAt !== null && now - change.shownAt >= MIN_LOADING_MS) {
     sceneChange = null;
     usePlay.setState({ loading: null });
     return;

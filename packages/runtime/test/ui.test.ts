@@ -193,6 +193,18 @@ describe('UiRenderer', () => {
     renderer.dispose();
   });
 
+  it("P with Ctrl (the editor's Play shortcut) does not pause the game", () => {
+    const { parent, game, frame, renderer } = make();
+    frame();
+    parent.dispatchEvent(
+      new KeyboardEvent('keydown', { code: 'KeyP', ctrlKey: true, bubbles: true }),
+    );
+    expect(game.gamePaused).toBe(false);
+    parent.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyP', bubbles: true }));
+    expect(game.gamePaused).toBe(true);
+    renderer.dispose();
+  });
+
   it('a slider changes the setting and the game applies it', () => {
     const { parent, game, settings, frame, renderer } = make();
     game.setGamePaused(true);
