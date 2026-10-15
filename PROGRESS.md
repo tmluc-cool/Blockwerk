@@ -88,6 +88,7 @@ Branch: `phase/07-grosse-projekte` (builds on `main` with Phase 6 merged).
 - Code blocks are trimmed to single lines in the code view's block link; Code blocks are never rewritten.
 - Phase 6 leftovers stay: no undo in the UI Editor, no gamepad navigation in menus, saves do not hold NPCs, doors and chests.
 - Windows-specific problems with names: the browser storage of the test Chromium here refuses umlauts in file names, so the example's file names are ASCII ("Waechter 1"); real browsers and the desktop app accept umlauts.
+- The Windows CI runner (software rendering) is the weak spot: after the Phase 7 merge a different 3D-heavy end-to-end test timed out in most runs (phase 1 and 3 in run 56, phase 3b in runs 60 and 62, none in run 61 and in the Phase 6 run). One real bug showed up in it and was fixed (stale blur timer of the quick-insert popup, PR 19); the rest are timeouts of tests whose logic passes on Linux. The Windows job now retries a failing test once (`retries: 1` in `playwright.config.ts`); a test that passes only on the retry is reported as "flaky" in the log. Linux and local runs stay strict.
 
 ### Assumptions (added while building)
 
