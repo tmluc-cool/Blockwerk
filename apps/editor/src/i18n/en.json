@@ -718,6 +718,7 @@
   "loading.tip0": "Tip: Press E to talk, open doors and pick things up.",
   "loading.tip1": "Tip: Your items and health come with you to the next scene.",
   "loading.tip2": "Tip: Zombies notice you in their view cone and by sound. Stay out of sight.",
+  "asset.type.ui": "UI Canvas",
   "game.mute": "Mute audio",
   "studio.sounds.default": "Default",
   "studio.sound.splash": "Splash",

@@ -172,6 +172,8 @@ export const variableSchema = z.object({
   default: z.union([z.number(), z.string(), z.boolean()]),
   /** Show as a field of the block-script component in the inspector. */
   inspector: z.boolean(),
+  /** Part of a save slot (game-scoped variables only). Optional so older files stay unchanged. */
+  saved: z.boolean().optional(),
 });
 /** A variable of a block script. */
 export type VariableData = z.infer<typeof variableSchema>;
@@ -265,6 +267,173 @@ export const dialogSchema = z.object({
 /** Contents of a `*.dialog.json` file (SPEC 8.8: Dialog editor). */
 export type DialogData = z.infer<typeof dialogSchema>;
 
+/** Something a UI button does when it is clicked. */
+export const uiActionSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('sendMessage'), message: z.string() }),
+  /** Shows a canvas that was opened by hand (`UI Canvas` with visibility "manual"). */
+  z.object({ type: z.literal('showUi'), ui: z.string() }),
+  z.object({ type: z.literal('hideUi'), ui: z.string() }),
+  z.object({ type: z.literal('loadScene'), scene: z.string(), spawn: z.string() }),
+  z.object({ type: z.literal('resume') }),
+  z.object({ type: z.literal('restart') }),
+  z.object({ type: z.literal('saveGame'), slot: z.number().int().min(1).max(3) }),
+  z.object({ type: z.literal('loadGame'), slot: z.number().int().min(1).max(3) }),
+  z.object({ type: z.literal('quit') }),
+]);
+/** An action of a UI button. */
+export type UiAction = z.infer<typeof uiActionSchema>;
+
+/** What a UI element shows: a number between 0 and its maximum. */
+export const uiBindingSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('variable'), variable: z.string() }),
+  z.object({ kind: z.literal('health') }),
+  z.object({ kind: z.literal('stamina') }),
+  z.object({ kind: z.literal('item'), item: z.string() }),
+  z.object({ kind: z.literal('loading') }),
+]);
+/** The data a UI element is bound to. */
+export type UiBinding = z.infer<typeof uiBindingSchema>;
+
+/** Player settings a slider, toggle or drop-down can change. */
+export const UI_SETTINGS = [
+  'masterVolume',
+  'musicVolume',
+  'effectsVolume',
+  'voicesVolume',
+  'mouseSensitivity',
+  'fullscreen',
+  'graphicsLevel',
+] as const;
+export const uiSettingSchema = z.enum(UI_SETTINGS);
+/** A player setting. */
+export type UiSetting = z.infer<typeof uiSettingSchema>;
+
+/** Kinds of UI elements (SPEC 8.12). */
+export const UI_ELEMENT_TYPES = [
+  'panel',
+  'text',
+  'image',
+  'bar',
+  'button',
+  'slider',
+  'toggle',
+  'dropdown',
+  'hint',
+  'crosshair',
+  'inventory',
+  'dialog',
+  'keybindings',
+] as const;
+export const uiElementTypeSchema = z.enum(UI_ELEMENT_TYPES);
+/** A kind of UI element. */
+export type UiElementType = z.infer<typeof uiElementTypeSchema>;
+
+const uiPairSchema = z.tuple([z.number(), z.number()]);
+
+/**
+ * An element of a UI canvas. The rectangle works like Unity's RectTransform: the anchors
+ * (0..1 of the parent, y down) give two corners, the offsets move them in reference pixels, the
+ * pivot is where scaling and rotation happen.
+ */
+export interface UiElement {
+  id: string;
+  name: string;
+  type: UiElementType;
+  visible: boolean;
+  anchorMin: [number, number];
+  anchorMax: [number, number];
+  pivot: [number, number];
+  offsetMin: [number, number];
+  offsetMax: [number, number];
+  /** Text of text and button elements; `{value}` is replaced by the bound value. */
+  text?: string;
+  fontSize?: number;
+  align?: 'left' | 'center' | 'right';
+  /** CSS color of the text or, for bars, of the fill. */
+  color?: string;
+  /** CSS color of the background; empty for none. */
+  background?: string;
+  opacity?: number;
+  /** Image asset ID (image elements). */
+  image?: string | null;
+  bind?: UiBinding;
+  /** Value that counts as full for bars and sliders bound to a variable or an item. */
+  max?: number;
+  min?: number;
+  step?: number;
+  setting?: UiSetting;
+  actions?: UiAction[];
+  columns?: number;
+  children?: UiElement[];
+}
+
+export const uiElementSchema: z.ZodType<UiElement> = z.lazy(() =>
+  z.object({
+    id: z.string().min(1),
+    name: z.string(),
+    type: uiElementTypeSchema,
+    visible: z.boolean(),
+    anchorMin: uiPairSchema,
+    anchorMax: uiPairSchema,
+    pivot: uiPairSchema,
+    offsetMin: uiPairSchema,
+    offsetMax: uiPairSchema,
+    text: z.string().optional(),
+    fontSize: z.number().optional(),
+    align: z.enum(['left', 'center', 'right']).optional(),
+    color: z.string().optional(),
+    background: z.string().optional(),
+    opacity: z.number().optional(),
+    image: z.string().nullable().optional(),
+    bind: uiBindingSchema.optional(),
+    max: z.number().optional(),
+    min: z.number().optional(),
+    step: z.number().optional(),
+    setting: uiSettingSchema.optional(),
+    actions: z.array(uiActionSchema).optional(),
+    columns: z.number().optional(),
+    children: z.array(uiElementSchema).optional(),
+  }),
+);
+
+export const uiSchema = z.object({
+  formatVersion: z.literal(FORMAT_VERSION),
+  /** Size the offsets and font sizes refer to; the canvas scales with the screen. */
+  referenceWidth: z.number().positive(),
+  referenceHeight: z.number().positive(),
+  elements: z.array(uiElementSchema),
+});
+/** Contents of a `*.ui.json` file: one UI canvas (SPEC 8.12). */
+export type UiData = z.infer<typeof uiSchema>;
+
+/** One player's state in a save slot. */
+export const savedPlayerSchema = z.object({
+  position: vec3Schema,
+  /** Rotation around the up axis, in degrees. */
+  yaw: z.number(),
+  items: z.record(z.string(), z.number()),
+  health: z.object({ current: z.number(), max: z.number() }).nullable(),
+  /** Stamina in percent; `null` if the player has none. */
+  stamina: z.number().nullable(),
+});
+/** A player in a save slot. */
+export type SavedPlayer = z.infer<typeof savedPlayerSchema>;
+
+export const saveSchema = z.object({
+  formatVersion: z.literal(FORMAT_VERSION),
+  slot: z.number().int().min(1).max(3),
+  /** Asset ID of the scene to continue in. */
+  scene: z.string(),
+  sceneName: z.string(),
+  /** When the game was saved (ISO 8601). */
+  savedAt: z.string(),
+  /** Game variables marked "saved". */
+  vars: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
+  players: z.array(savedPlayerSchema),
+});
+/** A save slot (SPEC 8.14). */
+export type SaveData = z.infer<typeof saveSchema>;
+
 /** Settings of an imported model (SPEC 6.3), stored in its meta file. */
 export const modelImportSettingsSchema = z.object({
   /** Uniform scale to meters. */
@@ -296,6 +465,7 @@ export const ASSET_TYPES = [
   'blockScript',
   'prefab',
   'dialog',
+  'ui',
   'model',
   'image',
   'terrain',

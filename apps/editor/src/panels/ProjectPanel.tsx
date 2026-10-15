@@ -11,6 +11,7 @@ import {
   Package,
   Boxes,
   Image as ImageIcon,
+  LayoutPanelTop,
   MessagesSquare,
   Mountain,
   Volume2,
@@ -68,6 +69,8 @@ function assetIcon(asset: AnyAsset) {
       return <FileCode2 size={30} />;
     case 'dialog':
       return <MessagesSquare size={30} />;
+    case 'ui':
+      return <LayoutPanelTop size={30} />;
     case 'model':
       return <Box size={30} />;
     case 'image':

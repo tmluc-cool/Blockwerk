@@ -2,7 +2,7 @@ import { FORMAT_VERSION } from './schema';
 
 /** Kinds of project files with their own format. */
 export type FileKind =
-  'project' | 'scene' | 'blockScript' | 'prefab' | 'dialog' | 'meta' | 'tagsAndLayers';
+  'project' | 'scene' | 'blockScript' | 'prefab' | 'dialog' | 'ui' | 'meta' | 'tagsAndLayers';
 
 /** Upgrades raw file data from `from` to `from + 1`. */
 export interface Migration {
@@ -20,6 +20,7 @@ export const MIGRATIONS: MigrationRegistry = {
   blockScript: [],
   prefab: [],
   dialog: [],
+  ui: [],
   meta: [],
   tagsAndLayers: [],
 };

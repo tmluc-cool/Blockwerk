@@ -718,6 +718,7 @@
   "loading.tip0": "Tipp: Mit E sprichst du, öffnest Türen und hebst Dinge auf.",
   "loading.tip1": "Tipp: Gegenstände und Leben nimmst du in die nächste Szene mit.",
   "loading.tip2": "Tipp: Zombies bemerken dich im Sichtkegel und am Geräusch. Bleib außer Sicht.",
+  "asset.type.ui": "UI-Leinwand",
   "game.mute": "Ton aus",
   "studio.sounds.default": "Standard",
   "studio.sound.splash": "Platschen",
