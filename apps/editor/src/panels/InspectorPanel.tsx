@@ -30,7 +30,7 @@ import {
   resetComponent,
 } from '../document/sceneOps';
 import type { TransformPart } from '../document/sceneOps';
-import { openScriptEditor } from '../navigation';
+import { openDialogEditor, openScriptEditor } from '../navigation';
 import { objectName } from '../scene/worlds';
 import { prompt } from '../state/dialogs';
 import {
@@ -276,6 +276,10 @@ function ComponentSection({
     project
       ?.assetsOfType('blockScript')
       .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
+  const dialogs =
+    project
+      ?.assetsOfType('dialog')
+      .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
   const terrains =
     project
       ?.assetsOfType('terrain')
@@ -308,11 +312,17 @@ function ComponentSection({
               ? scripts
               : field.assetType === 'terrain'
                 ? terrains
-                : undefined
+                : field.assetType === 'dialog'
+                  ? dialogs
+                  : undefined
             : undefined
         }
         disabled={playing && field.type === 'asset'}
-        onOpenAsset={(id) => openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)}
+        onOpenAsset={(id) =>
+          field.type === 'asset' && field.assetType === 'dialog'
+            ? openDialogEditor(id)
+            : openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)
+        }
         onChange={(value) => {
           if (slot.type === 'particleSystem' && name === 'preset' && typeof value === 'string') {
             const template = particleTemplateValues(value);

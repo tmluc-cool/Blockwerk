@@ -7,6 +7,7 @@ export type PanelId =
   | 'scene'
   | 'game'
   | 'blockEditor'
+  | 'dialogEditor'
   | 'inspector'
   | 'lighting'
   | 'navigation'
@@ -30,6 +31,7 @@ export const PANELS: readonly PanelDefinition[] = [
   { id: 'hierarchy', titleKey: 'panel.hierarchy', focusKey: '4' },
   { id: 'project', titleKey: 'panel.project', focusKey: '5' },
   { id: 'blockEditor', titleKey: 'panel.blockEditor' },
+  { id: 'dialogEditor', titleKey: 'panel.dialogEditor' },
   { id: 'figure', titleKey: 'panel.figure' },
   { id: 'lighting', titleKey: 'panel.lighting' },
   { id: 'navigation', titleKey: 'panel.navigation' },

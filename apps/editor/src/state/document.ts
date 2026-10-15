@@ -23,6 +23,7 @@ import type {
   AssetEntry,
   AssetType,
   BlockScriptData,
+  DialogData,
   MetaData,
   ModelImportSettings,
   NewProjectFolders,
@@ -52,6 +53,7 @@ function newProjectFolders(): NewProjectFolders {
     images: t('project.folder.images'),
     terrains: t('project.folder.terrains'),
     sounds: t('project.folder.sounds'),
+    dialogs: t('project.folder.dialogs'),
   };
 }
 
@@ -549,6 +551,34 @@ export function createBlockScript(folder: string, name: string): AnyAsset | null
   );
   assetsChanged();
   return entry as AnyAsset;
+}
+
+/** Creates a dialog with one starting line. */
+export function createDialog(folder: string, name: string): AnyAsset | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const data: DialogData = {
+    formatVersion: FORMAT_VERSION,
+    start: 'line1',
+    nodes: {
+      line1: { speaker: '', text: '', answers: [], x: 0, y: 0 },
+    },
+  };
+  const entry = project.createAsset(
+    'dialog',
+    project.uniqueAssetPath(folder, name, 'dialog'),
+    data,
+  );
+  assetsChanged();
+  return entry as AnyAsset;
+}
+
+/** Replaces the data of a dialog (Dialog editor). */
+export function updateDialog(id: string, data: DialogData): void {
+  const { project } = useDocument.getState();
+  if (!project?.assetOfType(id, 'dialog')) return;
+  project.updateAsset(id, 'dialog', data);
+  assetsChanged();
 }
 
 /** Creates a new scene with the default objects. */

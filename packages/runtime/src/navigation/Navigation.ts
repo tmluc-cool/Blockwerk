@@ -188,19 +188,30 @@ export class Navigation {
     return result.path.map((p) => new Vector3(p.x, p.y, p.z));
   }
 
-  /** A random point of the mesh within `radius` meters of a center, or `null`. */
-  randomPointAround(center: Vector3, radius: number): Vector3 | null {
+  /**
+   * A random point of the mesh within `radius` meters of a center, or `null`. Points are drawn from
+   * the disc around the center and kept if they lie on the mesh (Detour's own random point
+   * function does not limit itself to the circle on big open polygons).
+   */
+  randomPointAround(center: Vector3, radius: number, random: () => number): Vector3 | null {
     if (!this.ensureBuilt() || !this.query) return null;
-    const start = this.query.findNearestPoly(center, {
-      halfExtents: { x: 2, y: Math.max(2, this.settings.agentHeight), z: 2 },
-    });
-    if (!start.success) return null;
-    const result = this.query.findRandomPointAroundCircle(start.nearestPoint, radius, {
-      startRef: start.nearestRef,
-    });
-    if (!result.success) return null;
-    const p = result.randomPoint;
-    return new Vector3(p.x, p.y, p.z);
+    const half = { x: 1, y: Math.max(2, this.settings.agentHeight), z: 1 };
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const angle = random() * Math.PI * 2;
+      const distance = Math.sqrt(random()) * radius;
+      const sample = new Vector3(
+        center.x + Math.cos(angle) * distance,
+        center.y,
+        center.z + Math.sin(angle) * distance,
+      );
+      const found = this.query.findClosestPoint(sample, { halfExtents: half });
+      if (!found.success) continue;
+      const p = found.point;
+      // The point must really be there, not a snap across a wall.
+      if (Math.hypot(p.x - sample.x, p.z - sample.z) > 0.6) continue;
+      return new Vector3(p.x, p.y, p.z);
+    }
+    return null;
   }
 
   /** The triangles of the built mesh, to draw it in the Scene view. */

@@ -1,0 +1,80 @@
+{
+  "variables": [
+    {
+      "id": "varcount0000",
+      "name": "Anzahl",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "t-1",
+          "next": {
+            "block": {
+              "type": "dialog.start",
+              "id": "t-2",
+              "fields": {
+                "dialog": "dialog:abcdefghijkl"
+              },
+              "next": {
+                "block": {
+                  "type": "variables.set",
+                  "id": "t-3",
+                  "fields": {
+                    "variable": {
+                      "id": "varcount0000"
+                    }
+                  },
+                  "inputs": {
+                    "value": {
+                      "shadow": {
+                        "type": "literal.number",
+                        "id": "t-4",
+                        "fields": {
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "dialog.whenAnswer",
+          "id": "t-5",
+          "fields": {
+            "answer": "ja"
+          },
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "t-6",
+              "fields": {
+                "variable": {
+                  "id": "varcount0000"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "t-7",
+                    "fields": {
+                      "NUM": 2
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

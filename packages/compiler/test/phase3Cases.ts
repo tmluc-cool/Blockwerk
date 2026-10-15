@@ -1,4 +1,4 @@
-import type { SceneObjectData, VariableData } from '@blockwerk/project';
+import type { DialogData, SceneObjectData, VariableData } from '@blockwerk/project';
 import {
   animatorRegistry,
   cameraRegistry,
@@ -8,7 +8,7 @@ import {
   loadScriptModule,
   ModelCache,
 } from '@blockwerk/runtime';
-import type { AudioEngine, GameObject, ScriptAsset } from '@blockwerk/runtime';
+import type { AudioEngine, CarryState, GameObject, ScriptAsset } from '@blockwerk/runtime';
 import {
   AnimationClip,
   BoxGeometry,
@@ -105,6 +105,10 @@ export interface Scene {
   readonly scripts: Record<string, unknown>;
   readonly models?: ModelCache;
   readonly audio?: AudioEngine;
+  readonly dialogs?: Record<string, DialogData>;
+  readonly sceneId?: string;
+  readonly carry?: CarryState;
+  readonly spawn?: string;
 }
 
 export function launch(scene: Scene): Game {
@@ -121,6 +125,10 @@ export function launch(scene: Scene): Game {
       scripts: (id) => assets.get(id) ?? null,
       models: scene.models,
       audio: scene.audio,
+      dialogs: (id) => scene.dialogs?.[id] ?? null,
+      sceneId: scene.sceneId,
+      carry: scene.carry,
+      spawn: scene.spawn,
       random: () => 0.5,
     },
   );

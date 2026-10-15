@@ -3,7 +3,14 @@ import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SceneData } from '@blockwerk/project';
 import { Game, initPhysics, loadedRapier, loadScriptModule, setQuality } from '@blockwerk/runtime';
 import type { GamepadSnapshot } from '@blockwerk/runtime';
-import type { GameLogEntry, ScriptAsset, VariableMonitor, World } from '@blockwerk/runtime';
+import type {
+  CarryState,
+  GameLogEntry,
+  SceneRequest,
+  ScriptAsset,
+  VariableMonitor,
+  World,
+} from '@blockwerk/runtime';
 import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
@@ -45,6 +52,8 @@ interface PlayState {
   tick: number;
   /** Milliseconds from pressing Play to the first rendered game frame. */
   startupMs: number | null;
+  /** The loading screen between scenes (`null` when none is shown). */
+  loading: { readonly title: string; readonly progress: number; readonly tip: number } | null;
 }
 
 /** Play mode state. */
@@ -56,6 +65,7 @@ export const usePlay = create<PlayState>()(() => ({
   monitors: [],
   tick: 0,
   startupMs: null,
+  loading: null,
 }));
 
 let game: Game | null = null;
@@ -230,9 +240,12 @@ function loop(time: number): void {
   lastTime = time;
   const { status, timeScale } = usePlay.getState();
   game.timeScale = timeScale;
-  game.paused = status !== 'playing';
+  game.paused = status !== 'playing' || sceneChange !== null;
   game.input.setGamepads(readGamepads());
   const alpha = game.advance(dt);
+  const request = game.takeSceneRequest();
+  if (request) beginSceneChange(request);
+  updateLoading();
   game.renderInterpolated(alpha, renderViews);
   frameTimes.push(time);
   frameWork.push(performance.now() - workStart);
@@ -292,6 +305,92 @@ function physicsSettings(): {
   };
 }
 
+/** Number of tips the loading screen rotates through. */
+const LOADING_TIPS = 3;
+/** The loading screen stays this long after the next scene is built, so it never flashes. */
+const MIN_LOADING_MS = 450;
+
+interface GameExtras {
+  readonly sceneId?: string | undefined;
+  readonly carry?: CarryState;
+  readonly spawn?: string;
+}
+
+/** Builds a game for a scene with the project's scripts, prefabs, dialogs and physics settings. */
+function createGame(scene: SceneData, extras: GameExtras): Game {
+  return new Game(scene, {
+    scripts: (id) => compiled.get(id)?.asset ?? null,
+    dialogs: (id) => useDocument.getState().project?.assetOfType(id, 'dialog')?.data ?? null,
+    log: logGame,
+    displayName: defaultObjectName,
+    models: editorModels,
+    onModelLoaded: worldUpdated,
+    prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
+    physics: physicsSettings(),
+    ...(extras.sceneId ? { sceneId: extras.sceneId } : {}),
+    ...(extras.carry ? { carry: extras.carry } : {}),
+    ...(extras.spawn !== undefined ? { spawn: extras.spawn } : {}),
+  });
+}
+
+let sceneChange: {
+  readonly request: SceneRequest;
+  readonly started: number;
+  /** When the next scene was built (`null` before). */
+  swappedAt: number | null;
+} | null = null;
+
+/** Shows the loading screen and, a moment later, replaces the game by the next scene's game. */
+function beginSceneChange(request: SceneRequest): void {
+  if (sceneChange) return;
+  const { project, sceneId, scene } = useDocument.getState();
+  const entry = project?.assetOfType(request.scene, 'scene');
+  if (!entry) {
+    useConsole.getState().log('warning', 'console.game.missingScene', { asset: request.scene });
+    return;
+  }
+  const title = assetDisplayName(entry.path);
+  sceneChange = { request, started: performance.now(), swappedAt: null };
+  usePlay.setState({
+    loading: { title, progress: 0, tip: Math.floor(Math.random() * LOADING_TIPS) },
+  });
+  // Let the loading screen appear before the heavy work starts.
+  setTimeout(() => {
+    const change = sceneChange;
+    const old = game;
+    if (!change || !old) return;
+    const data = entry.id === sceneId && scene ? scene : entry.data;
+    const next = createGame(data, {
+      sceneId: entry.id,
+      carry: old.exportCarry(),
+      spawn: change.request.spawn,
+    });
+    next.audio.setMuted(useMute.getState().muted);
+    next.world.updateSun();
+    game = next;
+    setPlayWorld(next.world);
+    old.dispose();
+    change.swappedAt = performance.now();
+    usePlay.setState({ monitors: [], tick: 0 });
+  }, 80);
+}
+
+/** Moves the loading bar and hides the loading screen once the new scene is ready. */
+function updateLoading(): void {
+  const change = sceneChange;
+  if (!change) return;
+  const now = performance.now();
+  // The screen stays a moment after the (blocking) build, so it can be seen and read.
+  if (change.swappedAt !== null && now - change.swappedAt >= MIN_LOADING_MS) {
+    sceneChange = null;
+    usePlay.setState({ loading: null });
+    return;
+  }
+  const progress =
+    change.swappedAt === null ? Math.min(0.9, (now - change.started) / MIN_LOADING_MS) : 1;
+  usePlay.setState((state) => (state.loading ? { loading: { ...state.loading, progress } } : {}));
+}
+
 /**
  * Enters play mode (Ctrl+P). The start-up time is logged once the first frame is drawn. The
  * physics engine loads once and stays loaded; the very first start waits for it.
@@ -324,15 +423,7 @@ export function play(options: PlayOptions = {}): void {
     const asset = compileAsset(id, id, data);
     if (asset) compiled.set(id, { data, asset });
   }
-  game = new Game(scene, {
-    scripts: (id) => compiled.get(id)?.asset ?? null,
-    log: logGame,
-    displayName: defaultObjectName,
-    models: editorModels,
-    onModelLoaded: worldUpdated,
-    prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
-    physics: physicsSettings(),
-  });
+  game = createGame(scene, { sceneId: useDocument.getState().sceneId ?? undefined });
   game.audio.setMuted(useMute.getState().muted);
   // The Play click allows sound in the browser.
   game.audio.resume();
@@ -369,7 +460,8 @@ export function stop(): void {
   setPlayWorld(null);
   finished.dispose();
   compiled = new Map();
-  usePlay.setState({ status: 'stopped', changes: {}, monitors: [], tick: 0 });
+  sceneChange = null;
+  usePlay.setState({ status: 'stopped', changes: {}, monitors: [], tick: 0, loading: null });
 }
 
 /** Play button: starts or stops. */

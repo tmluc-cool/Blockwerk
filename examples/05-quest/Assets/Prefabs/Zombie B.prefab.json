@@ -1,0 +1,28 @@
+{
+  "base": "questgegner1",
+  "formatVersion": 1,
+  "objects": {},
+  "overrides": [
+    {
+      "object": "qo0000000079",
+      "path": "name",
+      "value": "Zombie B"
+    },
+    {
+      "object": "qo0000000079",
+      "path": "component:qc0000000130:model",
+      "value": "library:kaykit-skeletons/skeleton-minion"
+    },
+    {
+      "object": "qo0000000079",
+      "path": "component:qc0000000134:speed",
+      "value": 1.9
+    },
+    {
+      "object": "qo0000000079",
+      "path": "component:qc0000000135:viewAngle",
+      "value": 120
+    }
+  ],
+  "root": "qo0000000079"
+}

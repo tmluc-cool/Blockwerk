@@ -37,6 +37,7 @@ import type { AxisView } from './SceneCamera';
 import { brushStamp } from '../library/brush';
 import type { GroundPoint } from '../library/brush';
 import { useNavigationView } from '../navigation/navigationView';
+import { NpcGizmos } from './npcGizmos';
 import { SceneInput } from './SceneInput';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from './worlds';
 import { isOnScreen } from './visibility';
@@ -118,6 +119,7 @@ export class SceneViewport {
   private readonly orthographic = new OrthographicCamera();
   private readonly overlay = new Scene();
   private readonly grid = new EditorGrid();
+  private readonly npcGizmos = new NpcGizmos();
   private readonly input: SceneInput;
   private readonly raycaster = new Raycaster();
   private readonly gizmos: TransformControls[];
@@ -162,6 +164,7 @@ export class SceneViewport {
     container.appendChild(canvas);
     this.renderer = createRenderer({ canvas });
     this.overlay.add(this.grid);
+    this.overlay.add(this.npcGizmos.group);
     this.overlay.add(this.proxy);
 
     // Transform gizmos; the combined tool shows move and rotate handles together. The capture
@@ -508,6 +511,7 @@ export class SceneViewport {
       (this.navigationMesh.material as MeshBasicMaterial).dispose();
     }
     this.grid.dispose();
+    this.npcGizmos.dispose();
     this.wireframe.dispose();
     for (const world of new Set([this.world, currentEditWorld()])) {
       world?.environment.releaseRenderer(this.renderer);
@@ -887,6 +891,7 @@ export class SceneViewport {
     }
     renderer.autoClear = false;
     this.updateNavigationMesh();
+    this.npcGizmos.update(this.world, this.selection);
     renderer.render(this.overlay, camera);
     renderer.autoClear = true;
   }

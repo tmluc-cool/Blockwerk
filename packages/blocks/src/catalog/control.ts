@@ -183,3 +183,64 @@ export const stop = defineBlock({
   },
   since: 1,
 });
+
+export const sendMessage = defineBlock({
+  id: 'control.sendMessage',
+  category: 'control',
+  shape: 'stack',
+  inputs: {
+    message: { type: 'textField', default: 'ok' },
+    target: { type: 'reference', source: 'messageTarget', default: 'all' },
+  },
+  text: { de: 'sende Nachricht {message} an {target}', en: 'send message {message} to {target}' },
+  keywords: {
+    de: ['signal', 'rufen', 'senden', 'broadcast'],
+    en: ['broadcast', 'signal', 'notify', 'send'],
+  },
+  compile: ({ message, target }) => `game.sendMessage(self, ${message}, ${target});`,
+  docs: {
+    de: 'Schickt eine Nachricht an ein Objekt, an alle Objekte mit einem Tag oder an alle. Empfänger sind Skripte mit „Wenn ich Nachricht … empfange“. Zugestellt wird am Anfang des nächsten Ticks.',
+    en: 'Sends a message to one object, to all objects with a tag, or to everyone. Receivers are scripts with "when I receive message …". Delivery happens at the start of the next tick.',
+  },
+  since: 5,
+});
+
+export const startTimer = defineBlock({
+  id: 'control.startTimer',
+  category: 'control',
+  shape: 'stack',
+  inputs: {
+    name: { type: 'textField', default: 'timer1' },
+    seconds: { type: 'number', default: 5 },
+  },
+  text: { de: 'starte Timer {name} mit {seconds} s', en: 'start timer {name} for {seconds} s' },
+  keywords: { de: ['uhr', 'countdown', 'verzögerung'], en: ['countdown', 'delay', 'alarm'] },
+  compile: ({ name, seconds }) => `game.startTimer(self, ${name}, ${seconds});`,
+  docs: {
+    de: 'Startet einen Timer dieses Objekts. Danach läuft das Skript weiter; wenn die Zeit um ist, startet „Wenn Timer … abläuft“. Derselbe Name startet den Timer neu.',
+    en: 'Starts a timer of this object. The script goes on right away; when the time is up, "when timer … runs out" starts. The same name restarts the timer.',
+  },
+  since: 5,
+});
+
+export const forEachObject = defineBlock({
+  id: 'control.forEachObject',
+  category: 'control',
+  shape: 'c',
+  inputs: {
+    target: { type: 'reference', source: 'touchTarget', default: 'any' },
+    body: { type: 'statement' },
+  },
+  text: { de: 'für jedes Objekt in {target}', en: 'for each object in {target}' },
+  keywords: {
+    de: ['schleife', 'alle', 'jedes', 'tag'],
+    en: ['loop', 'every', 'each', 'tag', 'foreach'],
+  },
+  compile: ({ target }, { uid }) =>
+    `for (const ${uid} of game.objectsMatching(self, ${target})) {\n  game.setLoopObject(${uid});\n  /*@substack:body*/\n}`,
+  docs: {
+    de: 'Führt den Inhalt für jedes Objekt mit dem Tag aus (oder für alle). Im Inhalt steht „Schleifen-Objekt“ in den Objekt-Auswahlen für das gerade dran. Alle Durchläufe laufen im selben Frame, außer der Inhalt wartet.',
+    en: 'Runs the body for every object with the tag (or for everyone). Inside the body, "loop object" in the object choices names the current one. All passes run in the same frame unless the body waits.',
+  },
+  since: 5,
+});

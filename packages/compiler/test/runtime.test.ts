@@ -1,6 +1,12 @@
 import { BLOCK_CATALOG } from '@blockwerk/blocks';
 import type { SceneObjectData, VariableData } from '@blockwerk/project';
-import { Game, GameObject, initPhysics, loadScriptModule } from '@blockwerk/runtime';
+import {
+  Game,
+  GameObject,
+  initNavigation,
+  initPhysics,
+  loadScriptModule,
+} from '@blockwerk/runtime';
 import type { GameApi, GameLogEntry, ScriptAsset } from '@blockwerk/runtime';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { compileBlockScript } from '../src';
@@ -9,6 +15,7 @@ import type { TestBlock } from './dsl';
 import { loadFixture } from './fixtures';
 import { phase3Cases } from './phase3Cases';
 import { phase4Cases } from './phase4Cases';
+import { phase5Cases } from './phase5Cases';
 
 /**
  * Runtime tests: compiled blocks run in a real {@link Game}. Every catalog block must be
@@ -753,10 +760,11 @@ const cases: RuntimeCase[] = [
   },
 ];
 
-const allCases = [...cases, ...phase3Cases, ...phase4Cases];
+const allCases = [...cases, ...phase3Cases, ...phase4Cases, ...phase5Cases];
 
 beforeAll(async () => {
   await initPhysics();
+  await initNavigation();
 });
 
 describe('runtime tests', () => {

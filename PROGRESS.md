@@ -10,7 +10,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 3 | Player, physics, animation | done |
 | 3b | Character Studio | done |
 | 4 | Environment and graphics | done |
-| 5 | NPCs and game logic | in progress |
+| 5 | NPCs and game logic | in review |
 | 6 | UI, menus, saving | open |
 | 7 | Large projects | open |
 | 8 | Debugging | open |
@@ -53,10 +53,48 @@ Branch: `phase/05-gegner` (builds on `main` with Phase 4 merged).
 - **State model:** the state is a plain text on the object, not a graph. States are free text; the components bring the usual names (`idle`, `patrol`, `wander`, `chase`, `flee`, `attack`, `talk`). No state set means "all behavior components run".
 - **Patrol points** are the children of an object that the Patrol component points to (order = order in the hierarchy), because component fields do not hold lists.
 - **Dialog file:** `{ formatVersion, start, nodes: { <id>: { speaker, text, answers: [{ text, next, condition?, actions? }] } } }`. Conditions are `hasItem`, `variable` (compare) and `message`-free; actions are `setVariable`, `addItem`, `removeItem`, `sendMessage`, `startTimer`, `changeState`. Dialog texts are written in one language by the author (they are game content, not editor text).
-- **Interaction:** one "Interact" action (key E, gamepad X, listed in the project's input actions); the nearest **Usable / Door / Chest / Pickup (manual) / Talkable** within its radius and in front of the player is the target, and its hint text is shown at the bottom of the Game view.
+- **Interaction:** one "Interact" action (key E, gamepad Y; X stays the attack button); the nearest **Usable / Door / Chest / Pickup (manual) / Talkable** within its radius and in front of the player (anything within 1 m always counts) is the target, and its hint is shown at the bottom of the Game view (the editor translates the standard hints, so the runtime stays free of UI text).
 - **Inventory** counts items by name (text). Persistent across scenes through the player-state snapshot; saving to disk comes with Phase 6.
 - **Combat** is distance-based, no animation events needed: Melee Hit hits everything with a Health component inside a short cone in front of the attacker when its cooldown is over; ranged attacks spawn a Projectile object. The attack animation (if the model has one) is only played, not waited for.
-- **Zombies and quest giver** use KayKit characters from the CC0 library (`pnpm assets:fetch`), with their library animations through the Character component.
+- **Zombies and quest giver** use KayKit characters from the CC0 library (`pnpm assets:fetch`): the quest giver is the library's mage, the player the knight. The library has no zombie, so the two zombies use the skeleton warrior and the skeleton minion (CC0) and keep the name "Zombie".
+- **Scene change is done by the host, not inside one `Game`** (this replaces the plan above): a block only *asks* (`game.loadScene`), the editor's play loop sees the request, shows the loading screen, builds a new `Game` for the next scene with the previous game's `CarryState` (game variables, and per player: inventory, health, stamina) and drops the old one. This keeps `Game.world` constant for its whole life, so nothing that holds on to it can go stale. The player appears at the object tagged `Spawn` with the requested name. Everything else about the old scene is lost (a chest opened in the village is closed again when the village is loaded the second time); saving scene state comes with Phase 6.
+- **The loading screen** shows the scene's name, a progress bar and one of three tips, and stays 0.45 s after the next scene was built (building blocks the page for a moment, so the bar is only a rough indication).
+- **NPCs wait while a dialog is open** (patrol, follow, guard, attack, nav agents and the NPC command queue are paused), so nothing sneaks up on a player who is reading.
+- **Dialog editor:** one card per line with plain pickers for the targets (no node graph, no preview); changes are saved into the project immediately, without undo (the Dialog editor has no history yet). Answer IDs are what "When dialog answer [x]" listens for; the editor suggests one when an answer is added.
+- **Game variables in dialogs** are referenced by variable ID; the editor lists the game variables of all block scripts in the project.
+
+### Result
+
+**Implemented**
+
+- **Navigation:** Recast mesh from the static colliders of a scene (built lazily when the first agent needs it, or by the Bake button), Navigation window (agent radius, height, climb, slope, show mesh in the Scene view, settings stored in the scene with undo), Nav Agent and Nav Obstacle components.
+- **NPC components and states:** Wander, Patrol (points are the children of a route object), Follow, Flee, Guard (view cone, hearing, line of sight), Attack (melee and ranged) and a plain state name per NPC; the state shows above the NPC in play mode; the Scene view draws view cone and path of the selection. Blocks: go to (pathfinding), follow, flee, wander, patrol, stand still, change state, current state, "sees", "hears", "When state".
+- **Dialogs:** asset type `dialog`, Dialog editor window, Talkable component, dialog box in the Game view (mouse, number keys, arrow keys and Enter, gamepad), conditions (item, variable) and actions (variable, item, message, timer, NPC state), blocks "start dialog" (waits) and "When dialog answer".
+- **Items, inventory, health, combat:** Inventory, Pickup, Usable, Door (slide, lift, swing; key), Switch, Chest, Health (destroy, respawn, event only), Destructible, Checkpoint, Melee Hit (F, gamepad X) and Projectile components; the Interact action (E, gamepad Y) with a hint; blocks give, take, "has", count, open/close/toggle, pick up, damage, heal, health, "When I am used / picked up / opened …" and "When I am hurt / defeated".
+- **Messages, timers, loops:** "send message to", "When I receive message", "start timer", "When timer runs out", "for each object" with `loop` as a reference; messages arrive at the start of the next tick.
+- **Scenes:** "load scene [x] with loading screen, spawn point [y]" and "restart scene"; loading screen with title, bar and tip; the player's items, health and stamina and the game variables are carried over.
+- **Example** `examples/05-quest`: village with plaza, well, six houses, crates and barrels, a fence with a locked gate, Mira the quest giver (dialog), a chest with a key, two zombies (variants "Zombie A" and "Zombie B" of the prefab "Gegner", patrolling routes, view cone, chase around houses and crates, attacks), a crypt scene with the spell book behind the gate, loading screen both ways, HUD with task, life and coins (all made with blocks and components).
+
+**Acceptance**
+
+- [x] (a) *NPC gives a quest through a dialog, the player finds a key in a chest, opens a gate, brings an item back and gets a reward.* Unit test on the real project (`apps/editor/test/example05.test.ts`) plays the whole quest headlessly: accept in the dialog, key from the chest, gate locked and then open (key used up), the crypt entrance zone asks for the crypt, the book is picked up there, back in the village the book goes to Mira, 25 coins arrive, the quest variable is 2. End-to-end test: dialog box with mouse answers, chest by the Interact key.
+- [x] (b) *Two zombies (prefab variants of "Gegner") patrol, spot the player with a view cone and chase around obstacles; the state is visible in play mode.* Unit test: both patrol (their positions change, state `patrol`), step into the cone of Zombie A → state `chase`; the player then stands behind a house and the zombie reaches them within 15 s and hurts them. The test also checks that the instances really are variants of the base prefab. The state label shows above the zombies (end-to-end test reads the states, screenshot shows the `chase` label).
+- [x] (c) *Scene change village → crypt with a loading screen, player state kept.* End-to-end test: the loading screen with the scene name appears, the game continues in the crypt scene, the key from the chest and the quest variable are still there. Unit test: items, health, stamina and variables arrive and the player stands at the named spawn point.
+- [x] Block tests: golden fixtures and runtime cases for every new block (`npc`, `messages`, `items`, `dialog`, `scenes`); the "every block is covered" tests pass.
+- [x] Component tests: `navigation`, `npc`, `gameplay` (pickups, doors, chests, health, combat), `dialog` (session, Talkable) in `packages/runtime/test`.
+- [x] End-to-end: Navigation window, quest example with dialog and scene change, Dialog editor.
+- [x] `pnpm test` (378 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end E2E_PLACEHOLDER.
+- [ ] CI on GitHub (Ubuntu and Windows): see pull request.
+
+**Open / not done**
+
+- **List blocks** (variable type "list", "add to list", "for each item in list") are not built; the project's variable format only knows number, text and boolean. "For each object with tag" is done. This is a plan item; it moves to Phase 6, where saving needs list values anyway.
+- **"drop item"** block: not built (only "pick up"). **"pause / resume"** blocks and the event "When scene starts": not built ("When game starts" fires again at every scene start and does the same job).
+- **Dialog editor:** no preview and no undo. **Control settings and the character look** are not carried over a scene change (each scene brings its own player object); the example's player is the same in both scenes.
+- No scene state is kept when a scene is left (a chest opened before is closed again); that is saving, Phase 6.
+- The 3D feel of the zombies' walking could not be judged by eye here (software rendering); their movement and states are tested by numbers.
+
+Screenshot: `docs/screenshots/phase-05.png` (Game view with Mira's dialog, the task / life / coin display and a zombie that has noticed the player).
 
 ## Phase 4: Environment and graphics
 

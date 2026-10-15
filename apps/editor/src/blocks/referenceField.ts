@@ -3,21 +3,27 @@ import type { FrameReferences } from './frameApi';
 
 /** Values allowed in scene reference fields (same as the compiler accepts). */
 const REFERENCE =
-  /^(?:self|any|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
+  /^(?:self|any|all|loop|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|dialog:[a-z0-9]*|scene:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
 
 let references: FrameReferences = {
   objects: [],
   tags: [],
   prefabs: [],
+  dialogs: [],
+  scenes: [],
   sounds: [],
   labels: {
     self: 'self',
     any: 'anything',
+    all: 'everyone',
+    loop: 'loop object',
     mouse: 'mouse',
     origin: 'origin',
     tag: 'Tag',
     missing: '?',
     choosePrefab: '?',
+    chooseDialog: '?',
+    chooseScene: '?',
     createVariable: '+',
     noVariables: '',
   },
@@ -36,9 +42,21 @@ export function currentReferences(): FrameReferences {
 function labelOf(value: string): string {
   if (value === 'self') return references.labels.self;
   if (value === 'any') return references.labels.any;
+  if (value === 'all') return references.labels.all;
+  if (value === 'loop') return references.labels.loop;
   if (value === 'mouse') return references.labels.mouse;
   if (value === 'origin') return references.labels.origin;
   if (value.startsWith('tag:')) return `${references.labels.tag}: ${value.slice(4)}`;
+  if (value === 'scene:') return references.labels.chooseScene;
+  if (value.startsWith('scene:')) {
+    const id = value.slice(6);
+    return references.scenes.find((scene) => scene.id === id)?.name ?? references.labels.missing;
+  }
+  if (value === 'dialog:') return references.labels.chooseDialog;
+  if (value.startsWith('dialog:')) {
+    const id = value.slice(7);
+    return references.dialogs.find((dialog) => dialog.id === id)?.name ?? references.labels.missing;
+  }
   if (value === 'prefab:') return references.labels.choosePrefab;
   if (value.startsWith('prefab:')) {
     const id = value.slice(7);
@@ -82,13 +100,31 @@ export class FieldReference extends Blockly.FieldDropdown {
       if (values.length === 0) values.push('prefab:');
       return values.map((value) => [labelOf(value), value]);
     }
+    if (source === 'scene') {
+      values.push(...references.scenes.map((scene) => `scene:${scene.id}`));
+      const current = this.getValue();
+      if (current && !values.includes(current)) values.push(current);
+      if (values.length === 0) values.push('scene:');
+      return values.map((value) => [labelOf(value), value]);
+    }
+    if (source === 'dialog') {
+      values.push(...references.dialogs.map((dialog) => `dialog:${dialog.id}`));
+      const current = this.getValue();
+      if (current && !values.includes(current)) values.push(current);
+      if (values.length === 0) values.push('dialog:');
+      return values.map((value) => [labelOf(value), value]);
+    }
     if (source === 'sound') {
       values.push(...references.sounds.map((sound) => sound.value));
       const current = this.getValue();
       if (current && !values.includes(current)) values.push(current);
       return values.map((value) => [labelOf(value), value]);
     }
-    if (source === 'object') values.push('self');
+    if (source === 'object') values.push('self', 'loop');
+    if (source === 'messageTarget') {
+      values.push('self', 'all');
+      values.push(...references.tags.map((tag) => `tag:${tag}`));
+    }
     if (source === 'objectOrMouse') values.push('mouse');
     if (source === 'touchTarget') {
       values.push('any');

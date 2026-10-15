@@ -1,5 +1,6 @@
 import type {
   ComponentData,
+  DialogData,
   JsonValue,
   SceneData,
   SceneObjectData,
@@ -37,6 +38,18 @@ import { CameraTransitions } from '../camera/transitions';
 import { animatorRegistry } from '../components/animator';
 import { controlRegistry } from '../components/controls';
 import * as gameplay from './gameplayApi';
+import * as npcApi from './npcApi';
+import { NpcCommands } from './npcApi';
+import { npcOwners, npcStateOf } from '../npc/state';
+import * as itemsApi from './itemsApi';
+import { collectPlayers, restorePlayer } from './carry';
+import type { CarryState, SceneRequest } from './carry';
+import { DialogSession } from '../dialog/session';
+import type { DialogHost, DialogView } from '../dialog/session';
+import { inventoryOf, peekInventory } from '../gameplay/inventory';
+import { nearestWithTag } from '../npc/senses';
+import type { InteractionHint } from '../gameplay/interaction';
+import { playerObject } from '../components/cameraBehaviors';
 import { isWeatherType } from '../environment/Weather';
 import { emitterRegistry } from '../components/particleSystem';
 import { isParticlePreset } from '../effects/presets';
@@ -95,6 +108,14 @@ export interface VariableMonitor {
 export interface GameOptions extends WorldOptions {
   /** Compiled block-script assets by asset ID. */
   readonly scripts: (assetId: string) => ScriptAsset | null;
+  /** Dialog assets by asset ID ("start dialog", Talkable). */
+  readonly dialogs?: (assetId: string) => DialogData | null;
+  /** Asset ID of the scene this game plays (for "restart scene"). */
+  readonly sceneId?: string;
+  /** State from the previous scene (variables, players' items and health). */
+  readonly carry?: CarryState;
+  /** Name of the spawn point the players start at (an object tagged `Spawn`). */
+  readonly spawn?: string;
   readonly log?: (entry: GameLogEntry) => void;
   /** Random source in [0, 1); defaults to `Math.random`. */
   readonly random?: () => number;
@@ -124,6 +145,14 @@ interface Thread {
   done: boolean;
 }
 
+interface ActiveDialog {
+  readonly session: DialogSession;
+  readonly speaker: GameObject;
+  readonly player: 1 | 2;
+  /** Highlight keys of the last tick, so holding a key moves only once. */
+  readonly wasLocked: boolean;
+}
+
 interface TransformSnapshot {
   readonly position: Vector3;
   readonly quaternion: Quaternion;
@@ -131,6 +160,9 @@ interface TransformSnapshot {
 }
 
 const ORIGIN = new Vector3();
+
+/** Components that make NPCs act; they pause while a dialog is open. */
+const NPC_BEHAVIORS = new Set(['patrol', 'wander', 'follow', 'guard', 'attack', 'navAgent']);
 
 /** Shapes count as touching up to this distance (physics keeps resting bodies apart). */
 const CONTACT_MARGIN = 0.02;
@@ -213,6 +245,12 @@ export class Game implements GameApi {
   private readonly templates = new Map<string, SceneObjectData>();
   private readonly logical = new Map<GameObject, TransformSnapshot>();
   private accumulator = 0;
+  private readonly npcCommands = new NpcCommands();
+  private readonly hints: Record<1 | 2, InteractionHint | null> = { 1: null, 2: null };
+  private dialog: ActiveDialog | null = null;
+  private sceneRequest: SceneRequest | null = null;
+  private readonly timers = new Map<GameObject, Map<string, number>>();
+  private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
   private current: Thread | null = null;
   private pointer: { ndc: Vector2 } | null = null;
@@ -240,6 +278,7 @@ export class Game implements GameApi {
     this.world = new World(structuredClone(scene), options);
     this.audio = options.audio ?? new AudioEngine();
     this.world.audio = this.audio;
+    this.world.showNpcStates = true;
     this.characterSounds = new CharacterSounds(this.world, this.audio, this.random_);
     const rapier = loadedRapier();
     this.physics = rapier
@@ -258,8 +297,78 @@ export class Game implements GameApi {
       world: this.world,
       physics: this.physics,
       input: (player) => this.players[player],
+      random: () => this.random_(),
     };
     for (const object of this.world.allObjects()) this.attachScripts(object, null);
+    if (options.carry) this.applyCarry(options.carry, options.spawn ?? '');
+  }
+
+  // ---------------------------------------------------------------- scenes
+
+  /** Asset ID of the scene this game plays, if the host named it. */
+  get sceneId(): string | null {
+    return this.options.sceneId ?? null;
+  }
+
+  /** Asks the host to change the scene; "load scene" blocks call this. */
+  loadScene(_self: GameObject, scene: string, spawn = ''): void {
+    const id = this.str(scene).replace(/^scene:/, '');
+    if (id) this.sceneRequest = { scene: id, spawn: this.str(spawn) };
+  }
+
+  /** Asks the host to start the current scene again. */
+  restartScene(): void {
+    if (this.options.sceneId) this.sceneRequest = { scene: this.options.sceneId, spawn: '' };
+  }
+
+  /** The scene change the scripts asked for, once; the host then builds the next game. */
+  takeSceneRequest(): SceneRequest | null {
+    const request = this.sceneRequest;
+    this.sceneRequest = null;
+    return request;
+  }
+
+  /** What the next scene's game takes over: variables, items and health of the players. */
+  exportCarry(): CarryState {
+    return {
+      vars: { ...this.vars },
+      players: collectPlayers(this.playerObjects(), (object) => {
+        const percent = gameplay.staminaPercent(object);
+        return controlRegistry.get(object)?.stamina === null ? null : percent;
+      }),
+    };
+  }
+
+  /** The objects players control (player 1, player 2), then anything else tagged `Player`. */
+  private playerObjects(): GameObject[] {
+    const found: GameObject[] = [];
+    for (const player of [1, 2] as const) {
+      const object = playerObject(this.world, player);
+      if (object) found.push(object);
+    }
+    for (const object of this.world.allObjects()) {
+      if (object.tag === 'Player' && !object.destroyed && !found.includes(object)) {
+        found.push(object);
+      }
+    }
+    return found;
+  }
+
+  /** Takes over the state of the previous scene and puts the players at the spawn point. */
+  private applyCarry(carry: CarryState, spawn: string): void {
+    Object.assign(this.vars, carry.vars);
+    const players = this.playerObjects();
+    players.forEach((object, index) => {
+      const kept = carry.players[index];
+      if (kept) restorePlayer(object, kept, gameplay.setStamina);
+    });
+    const spawns = [...this.world.allObjects()].filter((object) => object.tag === 'Spawn');
+    const point = spawns.find((object) => object.name === spawn) ?? (spawn ? undefined : spawns[0]);
+    const first = players[0];
+    if (point && first) {
+      first.setWorldPosition(point.worldPosition());
+      this.physics?.setVelocity(first, new Vector3());
+    }
   }
 
   /** Runs the components' tick at a stage (SPEC 8.1). */
@@ -268,6 +377,7 @@ export class Game implements GameApi {
       if (object.destroyed || !object.activeInHierarchy) continue;
       for (const component of object.components) {
         if (component.enabled && component.behavior.tick) {
+          if (this.dialog && NPC_BEHAVIORS.has(component.definition.type)) continue;
           component.behavior.tick(stage, this.tickContext);
         }
       }
@@ -337,7 +447,17 @@ export class Game implements GameApi {
     this.players[1].update(this.input, pads[1], TICK_SECONDS);
     this.players[2].update(this.input, pads[2], TICK_SECONDS);
     this.snapshotTransforms();
+    this.updateTimers();
+    this.deliverMessages();
+    this.deliverObjectEvents();
     this.tickComponents('control');
+    // While someone talks, the NPCs wait (nothing sneaks up on the player in a dialog).
+    if (!this.dialog) {
+      this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
+      this.updateNpcStates();
+    }
+    this.updateDialog();
+    this.updateInteraction();
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
     this.fire(
@@ -355,7 +475,7 @@ export class Game implements GameApi {
     );
     this.stepThreads(this.threads);
     this.physics?.sync();
-    if (this.world.navigationInUse) this.world.navigation.update(TICK_SECONDS);
+    if (this.world.navigationInUse && !this.dialog) this.world.navigation.update(TICK_SECONDS);
     this.tickComponents('character');
     if (this.physics) {
       this.physics.sync();
@@ -709,6 +829,365 @@ export class Game implements GameApi {
     }
   }
 
+  // ---------------------------------------------------------------- GameApi: messages and timers
+
+  sendMessage(self: GameObject, message: string, target: ObjectRef): void {
+    const text = this.str(message);
+    if (target === 'all' || target === 'any') {
+      this.world.messages.send(text, { kind: 'all' }, self);
+    } else if (target.startsWith('tag:')) {
+      this.world.messages.send(text, { kind: 'tag', tag: target.slice(4) }, self);
+    } else {
+      const object = this.find(self, target);
+      if (object) this.world.messages.send(text, { kind: 'object', object }, self);
+    }
+  }
+
+  startTimer(self: GameObject, name: string, seconds: number): void {
+    const timers = this.timers.get(self) ?? new Map<string, number>();
+    timers.set(this.str(name), Math.max(0, this.num(seconds)));
+    this.timers.set(self, timers);
+  }
+
+  objectsMatching(self: GameObject, ref: ObjectRef): GameObject[] {
+    if (ref === 'all' || ref === 'any') {
+      return [...this.world.allObjects()].filter((object) => object.activeInHierarchy);
+    }
+    if (ref.startsWith('tag:')) {
+      const tag = ref.slice(4);
+      return [...this.world.allObjects()].filter(
+        (object) => object.tag === tag && object.activeInHierarchy,
+      );
+    }
+    const found = this.find(self, ref);
+    return found ? [found] : [];
+  }
+
+  setLoopObject(object: GameObject): void {
+    if (this.current) this.loopObjects.set(this.current, object);
+  }
+
+  /** Counts the timers down and starts "When timer [x] runs out" scripts (SPEC 8.1: after input). */
+  private updateTimers(): void {
+    for (const [object, timers] of this.timers) {
+      if (object.destroyed) {
+        this.timers.delete(object);
+        continue;
+      }
+      for (const [name, left] of [...timers]) {
+        const next = left - TICK_SECONDS;
+        if (next > 1e-9) {
+          timers.set(name, next);
+          continue;
+        }
+        timers.delete(name);
+        this.fireFor(object, 'timer', (params) => String(params['name'] ?? '') === name, true);
+      }
+      if (timers.size === 0) this.timers.delete(object);
+    }
+  }
+
+  /** Delivers the messages queued since the last tick. */
+  private deliverMessages(): void {
+    for (const { message, target } of this.world.messages.take()) {
+      const recipients =
+        target.kind === 'object'
+          ? [target.object]
+          : [...this.world.allObjects()].filter(
+              (object) => target.kind === 'all' || object.tag === target.tag,
+            );
+      for (const object of recipients) {
+        this.fireFor(
+          object,
+          'message',
+          (params) => String(params['message'] ?? '') === message,
+          true,
+        );
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- GameApi: items and combat
+
+  private get itemsContext(): itemsApi.ItemsContext {
+    return {
+      world: this.world,
+      resolve: (self, ref) => npcApi.resolveNearest(this.npcContext, self, ref),
+    };
+  }
+
+  addItem(self: GameObject, target: ObjectRef, item: string, count: number): void {
+    itemsApi.addItem(this.itemsContext, self, target, this.str(item), this.num(count));
+  }
+
+  removeItem(self: GameObject, target: ObjectRef, item: string, count: number): boolean {
+    return itemsApi.removeItem(this.itemsContext, self, target, this.str(item), this.num(count));
+  }
+
+  hasItem(self: GameObject, target: ObjectRef, item: string): boolean {
+    return itemsApi.hasItem(this.itemsContext, self, target, this.str(item));
+  }
+
+  itemCount(self: GameObject, target: ObjectRef, item: string): number {
+    return itemsApi.itemCount(this.itemsContext, self, target, this.str(item));
+  }
+
+  operateThing(self: GameObject, target: ObjectRef, action: 'open' | 'close' | 'toggle'): void {
+    itemsApi.operateThing(this.itemsContext, self, target, action);
+  }
+
+  pickUp(self: GameObject, target: ObjectRef): void {
+    itemsApi.pickUp(this.itemsContext, self, target);
+  }
+
+  damageObject(self: GameObject, target: ObjectRef, amount: number): void {
+    itemsApi.damage(this.itemsContext, self, target, this.num(amount));
+  }
+
+  healObject(self: GameObject, target: ObjectRef, amount: number): void {
+    itemsApi.heal(this.itemsContext, self, target, this.num(amount));
+  }
+
+  healthOfObject(self: GameObject, target: ObjectRef): number {
+    return itemsApi.healthPoints(this.itemsContext, self, target);
+  }
+
+  /** What the Interact action would do for a player now (for the hint in the Game view). */
+  interactionHint(player: 1 | 2): InteractionHint | null {
+    return this.hints[player];
+  }
+
+  /** Lets the players use what is in front of them and keeps the hints up to date. */
+  private updateInteraction(): void {
+    if (this.dialog) {
+      this.hints[1] = null;
+      this.hints[2] = null;
+      return;
+    }
+    for (const player of [1, 2] as const) {
+      const user = playerObject(this.world, player);
+      const best = user ? this.world.interactables.best(user) : null;
+      this.hints[player] = user && best ? best.hint(user) : null;
+      if (user && best && this.players[player].wasPressed('interact')) best.use(user);
+    }
+  }
+
+  /** Starts the scripts waiting for events that components raised (hurt, used, opened …). */
+  private deliverObjectEvents(): void {
+    for (const event of this.world.objectEvents.take()) {
+      if (event.object.destroyed) continue;
+      this.fireFor(
+        event.object,
+        event.type,
+        (params) =>
+          Object.entries(event.params).every(
+            ([key, value]) => String(params[key]) === String(value),
+          ),
+        true,
+      );
+    }
+  }
+
+  // ---------------------------------------------------------------- GameApi: dialogs
+
+  /** The dialog box content now, or `null` while nobody talks. */
+  dialogView(): DialogView | null {
+    return this.dialog?.session.view() ?? null;
+  }
+
+  /** Whether a conversation is running. */
+  get talking(): boolean {
+    return this.dialog !== null;
+  }
+
+  /** Picks an answer by its position (mouse click on the dialog box). */
+  chooseDialogAnswer(index: number): void {
+    this.dialog?.session.choose(index);
+    this.finishDialogIfDone();
+  }
+
+  /** Highlights the next or previous answer. */
+  moveDialogSelection(delta: number): void {
+    this.dialog?.session.move(delta);
+  }
+
+  /** Confirms the highlighted answer (or continues a line). */
+  confirmDialog(): void {
+    this.dialog?.session.confirm();
+    this.finishDialogIfDone();
+  }
+
+  /** Starts a conversation; false if the asset does not exist or another one runs. */
+  openDialog(speaker: GameObject, user: GameObject, assetId: string): boolean {
+    const data = this.options.dialogs?.(assetId);
+    if (!data || this.dialog) return false;
+    const player: 1 | 2 = playerObject(this.world, 2) === user ? 2 : 1;
+    const session = new DialogSession(data, this.dialogHost(speaker, user));
+    const wasLocked = this.players[player].locked;
+    this.players[player].locked = true;
+    this.dialog = { session, speaker, player, wasLocked };
+    this.finishDialogIfDone();
+    return true;
+  }
+
+  /** "start dialog [x]": talks and waits until the conversation is over (use with `yield*`). */
+  *startDialog(self: GameObject, ref: string): Generator<void, void, void> {
+    const assetId = this.str(ref).replace(/^dialog:/, '');
+    const user =
+      playerObject(this.world, 1) ?? nearestWithTag(this.world, 'Player', self.worldPosition());
+    if (!user) return;
+    while (this.dialog) yield;
+    if (!this.openDialog(self, user, assetId)) return;
+    const mine = this.dialog;
+    while (this.dialog && this.dialog === mine) yield;
+  }
+
+  private dialogHost(speaker: GameObject, user: GameObject): DialogHost {
+    return {
+      hasItem: (item, count) => (peekInventory(user)?.count(item) ?? 0) >= count,
+      variable: (id) => this.vars[id],
+      answered: (answerId) => {
+        for (const object of this.world.allObjects()) {
+          if (!object.activeInHierarchy) continue;
+          this.fireFor(
+            object,
+            'dialogAnswer',
+            (params) => String(params['answer']) === answerId,
+            true,
+          );
+        }
+      },
+      perform: (action) => {
+        switch (action.type) {
+          case 'setVariable':
+            this.vars[action.variable] = action.value;
+            break;
+          case 'addItem':
+            inventoryOf(user).add(action.item, action.count);
+            break;
+          case 'removeItem':
+            inventoryOf(user).remove(action.item, action.count);
+            break;
+          case 'sendMessage':
+            this.sendMessage(speaker, action.message, action.target);
+            break;
+          case 'startTimer':
+            this.startTimer(speaker, action.name, action.seconds);
+            break;
+          case 'changeState': {
+            const target = npcApi.resolveNearest(this.npcContext, speaker, action.target);
+            if (target) npcApi.setState(target, action.state);
+            break;
+          }
+        }
+      },
+    };
+  }
+
+  /** Ends the conversation once its session is over and gives the player control back. */
+  private finishDialogIfDone(): void {
+    const active = this.dialog;
+    if (!active?.session.done) return;
+    this.players[active.player].locked = active.wasLocked;
+    this.dialog = null;
+  }
+
+  /** Starts requested conversations and reads the keys that drive the dialog box. */
+  private updateDialog(): void {
+    const requests = this.world.dialogRequests.splice(0);
+    if (!this.dialog) {
+      for (const request of requests) {
+        if (this.openDialog(request.speaker, request.user, request.dialog)) break;
+      }
+      return;
+    }
+    const input = this.input;
+    const padIndex = this.gamepadIndices()[this.dialog.player];
+    const pad = padIndex === null ? null : input.gamepad(padIndex);
+    const padPressed = (index: number): boolean => !!pad?.buttons[index]?.pressed;
+    const pressed = (...keys: string[]): boolean => keys.some((key) => input.wasPressed(key));
+    if (pressed('ArrowDown', 'S') || this.padEdge(12, padPressed(13))) this.moveDialogSelection(1);
+    if (pressed('ArrowUp', 'W') || this.padEdge(13, padPressed(12))) this.moveDialogSelection(-1);
+    for (let digit = 1; digit <= 9; digit++) {
+      if (input.wasPressed(String(digit))) this.chooseDialogAnswer(digit - 1);
+    }
+    if (pressed('Enter', 'Space', 'E') || this.padEdge(14, padPressed(0) || padPressed(3))) {
+      this.confirmDialog();
+    }
+  }
+
+  private readonly padBefore = new Map<number, boolean>();
+
+  /** Rising edge of a gamepad button (`key` identifies it). */
+  private padEdge(key: number, now: boolean): boolean {
+    const before = this.padBefore.get(key) ?? false;
+    this.padBefore.set(key, now);
+    return now && !before;
+  }
+
+  // ---------------------------------------------------------------- GameApi: NPCs
+
+  private get npcContext(): npcApi.NpcContext {
+    return { world: this.world, find: (self, ref) => this.find(self, ref), random: this.random_ };
+  }
+
+  /** Lets time pass in the NPC states and starts "When state [x]" scripts for new states. */
+  private updateNpcStates(): void {
+    for (const object of npcOwners()) {
+      const state = npcStateOf(object);
+      state.advance(TICK_SECONDS);
+      for (const event of state.takeEvents()) {
+        if (event.type !== 'enter') continue;
+        this.fireFor(
+          object,
+          'state',
+          (params) => String(params['state'] ?? '') === event.state,
+          true,
+        );
+      }
+    }
+  }
+
+  *navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void> {
+    yield* npcApi.navigateTo(this.npcContext, this.npcCommands, self, target, TICK_SECONDS);
+  }
+
+  followTarget(self: GameObject, target: ObjectRef, distance: number): void {
+    npcApi.followObject(this.npcContext, this.npcCommands, self, target, distance);
+  }
+
+  fleeFrom(self: GameObject, target: ObjectRef): void {
+    npcApi.fleeFrom(this.npcContext, this.npcCommands, self, target);
+  }
+
+  wanderAround(self: GameObject, radius: number): void {
+    npcApi.wanderAround(this.npcCommands, self, radius);
+  }
+
+  patrolRoute(self: GameObject, route: ObjectRef): void {
+    npcApi.patrolRoute(this.npcContext, this.npcCommands, self, route);
+  }
+
+  stopWalking(self: GameObject): void {
+    npcApi.stopWalking(this.npcCommands, self);
+  }
+
+  npcState(self: GameObject): string {
+    return npcApi.stateOf(self);
+  }
+
+  setNpcState(self: GameObject, state: string): void {
+    npcApi.setState(self, state);
+  }
+
+  sees(self: GameObject, target: ObjectRef): boolean {
+    return npcApi.guardSees(this.npcContext, self, target);
+  }
+
+  hears(self: GameObject, target: ObjectRef): boolean {
+    return npcApi.guardHears(this.npcContext, self, target);
+  }
+
   resetTimer(): void {
     this.timerStart = this.time;
   }
@@ -721,6 +1200,10 @@ export class Game implements GameApi {
 
   find(self: GameObject, ref: ObjectRef): GameObject | null {
     if (ref === 'self') return self;
+    if (ref === 'loop') {
+      const looped = this.current ? this.loopObjects.get(this.current) : undefined;
+      return looped && !looped.destroyed ? looped : null;
+    }
     if (ref.startsWith('object:')) {
       const object = this.world.getObject(ref.slice(7));
       return object && !object.destroyed ? object : null;
@@ -1398,6 +1881,8 @@ export class Game implements GameApi {
   }
 
   private processDestroyQueue(): void {
+    for (const object of this.world.destroyRequests) this.destroyQueue.add(object);
+    this.world.destroyRequests.clear();
     if (this.destroyQueue.size === 0) return;
     const queue = [...this.destroyQueue];
     this.destroyQueue.clear();

@@ -1,0 +1,4063 @@
+{
+  "environment": {
+    "ambientIntensity": 0.4,
+    "fog": {
+      "enabled": true,
+      "far": 120,
+      "near": 40
+    },
+    "navigation": {
+      "agentHeight": 1.9,
+      "agentRadius": 0.45,
+      "cellSize": 0.25,
+      "maxClimb": 0.4,
+      "maxSlope": 45
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 14
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "qo0000000001": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000002": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000003": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000004": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000005": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000006": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000007": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          30,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000008": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#6f9a4a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Wiese",
+      "order": 7,
+      "parent": "qo0000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          90,
+          1,
+          90
+        ]
+      }
+    },
+    "qo0000000009": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000005",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-a-red"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000004",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.75,
+              0
+            ],
+            "size": [
+              3,
+              3.5,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-a-red",
+      "order": 8,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -17,
+          0,
+          5
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000010": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000007",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-b-blue"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000006",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.75,
+              0
+            ],
+            "size": [
+              3,
+              3.5,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-b-blue",
+      "order": 9,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -15,
+          0,
+          -9
+        ],
+        "rotation": [
+          0,
+          60,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000011": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000009",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-tavern-red"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000008",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.75,
+              0
+            ],
+            "size": [
+              3,
+              3.5,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "tavern-red",
+      "order": 10,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          16,
+          0,
+          6
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000011",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-a-yellow"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000010",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.75,
+              0
+            ],
+            "size": [
+              3,
+              3.5,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-a-yellow",
+      "order": 11,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          18,
+          0,
+          -12
+        ],
+        "rotation": [
+          0,
+          300,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000013": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000013",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-market-red"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000012",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.75,
+              0
+            ],
+            "size": [
+              3,
+              3.5,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "market-red",
+      "order": 12,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2,
+          0,
+          17
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000014": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000015",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-blacksmith-yellow"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000014",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.75,
+              0
+            ],
+            "size": [
+              3,
+              3.5,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "blacksmith-yellow",
+      "order": 13,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          10,
+          0,
+          15
+        ],
+        "rotation": [
+          0,
+          200,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000015": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000017",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-well-blue"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000016",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              2,
+              3,
+              2
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Brunnen",
+      "order": 14,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          -2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.2,
+          1.2
+        ]
+      }
+    },
+    "qo0000000016": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000019",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/crate-a-big"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000018",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste 1",
+      "order": 15,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          0,
+          -4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.3,
+          1.3
+        ]
+      }
+    },
+    "qo0000000017": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000021",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/crate-a-big"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000020",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste 2",
+      "order": 16,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0,
+          9
+        ],
+        "rotation": [
+          0,
+          37,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.3,
+          1.3
+        ]
+      }
+    },
+    "qo0000000018": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000023",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/crate-a-big"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000022",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste 3",
+      "order": 17,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6,
+          0,
+          8
+        ],
+        "rotation": [
+          0,
+          74,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.3,
+          1.3
+        ]
+      }
+    },
+    "qo0000000019": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000025",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/crate-a-big"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000024",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste 4",
+      "order": 18,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          -9
+        ],
+        "rotation": [
+          0,
+          111,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.3,
+          1.3
+        ]
+      }
+    },
+    "qo0000000020": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000027",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/crate-a-big"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000026",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste 5",
+      "order": 19,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -10,
+          0,
+          -2
+        ],
+        "rotation": [
+          0,
+          148,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.3,
+          1.3
+        ]
+      }
+    },
+    "qo0000000021": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000029",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/crate-a-big"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000028",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kiste 6",
+      "order": 20,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          11,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          185,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.3,
+          1.3
+        ]
+      }
+    },
+    "qo0000000022": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000031",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/barrel-large"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000030",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.7,
+              0
+            ],
+            "size": [
+              1.1,
+              1.4,
+              1.1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fass 1",
+      "order": 21,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -8,
+          0,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000023": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000033",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/barrel-large"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000032",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.7,
+              0
+            ],
+            "size": [
+              1.1,
+              1.4,
+              1.1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fass 2",
+      "order": 22,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          0,
+          12
+        ],
+        "rotation": [
+          0,
+          70,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000024": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000035",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/barrel-large"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000034",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.7,
+              0
+            ],
+            "size": [
+              1.1,
+              1.4,
+              1.1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fass 3",
+      "order": 23,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          14,
+          0,
+          -5
+        ],
+        "rotation": [
+          0,
+          140,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000025": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000037",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000036",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 1",
+      "order": 24,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          36,
+          0,
+          -6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000026": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000039",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000038",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 2",
+      "order": 25,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          33.83,
+          0,
+          4.26
+        ],
+        "rotation": [
+          0,
+          53,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000027": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000041",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000040",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 3",
+      "order": 26,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          27.58,
+          0,
+          13.28
+        ],
+        "rotation": [
+          0,
+          106,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000028": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000043",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000042",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 4",
+      "order": 27,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          18,
+          0,
+          19.98
+        ],
+        "rotation": [
+          0,
+          159,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000029": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000045",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000044",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 7",
+      "order": 28,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -18,
+          0,
+          19.98
+        ],
+        "rotation": [
+          0,
+          318,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000030": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000047",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000046",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 8",
+      "order": 29,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -27.58,
+          0,
+          13.28
+        ],
+        "rotation": [
+          0,
+          371,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000031": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000049",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000048",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 9",
+      "order": 30,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -33.83,
+          0,
+          4.26
+        ],
+        "rotation": [
+          0,
+          424,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000032": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000051",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000050",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 10",
+      "order": 31,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -36,
+          0,
+          -6
+        ],
+        "rotation": [
+          0,
+          477,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000033": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000053",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000052",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 11",
+      "order": 32,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -33.83,
+          0,
+          -16.26
+        ],
+        "rotation": [
+          0,
+          530,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000034": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000055",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000054",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 12",
+      "order": 33,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -27.58,
+          0,
+          -25.28
+        ],
+        "rotation": [
+          0,
+          583,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000035": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000057",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000056",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 13",
+      "order": 34,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -18,
+          0,
+          -31.98
+        ],
+        "rotation": [
+          0,
+          636,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000036": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000059",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000058",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 14",
+      "order": 35,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6.25,
+          0,
+          -35.54
+        ],
+        "rotation": [
+          0,
+          689,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000037": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000061",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000060",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 15",
+      "order": 36,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6.25,
+          0,
+          -35.54
+        ],
+        "rotation": [
+          0,
+          742,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000038": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000063",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000062",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 16",
+      "order": 37,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          18,
+          0,
+          -31.98
+        ],
+        "rotation": [
+          0,
+          795,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000039": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000065",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000064",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 17",
+      "order": 38,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          27.58,
+          0,
+          -25.28
+        ],
+        "rotation": [
+          0,
+          848,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000040": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000067",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000066",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 18",
+      "order": 39,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          33.83,
+          0,
+          -16.26
+        ],
+        "rotation": [
+          0,
+          901,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "qo0000000041": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000069",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000068",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 40,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.62,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000042": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000071",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000070",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 41,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.62,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000043": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000073",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000072",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 42,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -9.24,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000044": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000075",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000074",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 43,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          9.24,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000045": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000077",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000076",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 44,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -13.86,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000046": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000079",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000078",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 45,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          13.86,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000047": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000081",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000080",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 46,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -18.48,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000048": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000083",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000082",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 47,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          18.48,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000049": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000085",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000084",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 48,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -23.1,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000050": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000087",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000086",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zaun",
+      "order": 49,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          23.1,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000051": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000090",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/fence-stone-straight-gate"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000088",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              0.8,
+              3,
+              4.62
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000089",
+          "type": "door",
+          "values": {
+            "consumeKey": true,
+            "distance": 3.2,
+            "duration": 1.2,
+            "key": "Schlüssel",
+            "style": "lift"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Tor",
+      "order": 50,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          24
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000052": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000091",
+          "type": "boxCollider",
+          "values": {
+            "size": [
+              1,
+              4,
+              90
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Rand Ost",
+      "order": 51,
+      "parent": "qo0000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          41,
+          2,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000053": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000092",
+          "type": "boxCollider",
+          "values": {
+            "size": [
+              1,
+              4,
+              90
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Rand West",
+      "order": 52,
+      "parent": "qo0000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -41,
+          2,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000054": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000093",
+          "type": "boxCollider",
+          "values": {
+            "size": [
+              90,
+              4,
+              1
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Rand Süd",
+      "order": 53,
+      "parent": "qo0000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          2,
+          -37
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000055": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000095",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/crypt"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000094",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              2.4,
+              0
+            ],
+            "size": [
+              3.6,
+              4.8,
+              4.8
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Gruft",
+      "order": 54,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          40
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      }
+    },
+    "qo0000000056": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000097",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/grave-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000096",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.65,
+              0
+            ],
+            "size": [
+              1.2,
+              1.3,
+              0.6
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Grab 1",
+      "order": 55,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -12,
+          0,
+          31
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      }
+    },
+    "qo0000000057": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000099",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/grave-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000098",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.65,
+              0
+            ],
+            "size": [
+              1.2,
+              1.3,
+              0.6
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Grab 2",
+      "order": 56,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          12,
+          0,
+          33
+        ],
+        "rotation": [
+          0,
+          30,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      }
+    },
+    "qo0000000058": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000101",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/grave-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000100",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.65,
+              0
+            ],
+            "size": [
+              1.2,
+              1.3,
+              0.6
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Grab 3",
+      "order": 57,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -9,
+          0,
+          38
+        ],
+        "rotation": [
+          0,
+          60,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      }
+    },
+    "qo0000000059": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000103",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/grave-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000102",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.65,
+              0
+            ],
+            "size": [
+              1.2,
+              1.3,
+              0.6
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Grab 4",
+      "order": 58,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          10,
+          0,
+          40
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.4,
+          1.4
+        ]
+      }
+    },
+    "qo0000000060": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000104",
+          "type": "boxCollider",
+          "values": {
+            "isTrigger": true,
+            "size": [
+              4,
+              2,
+              2
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000105",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt03"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Gruft-Eingang",
+      "order": 59,
+      "parent": "qo0000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1,
+          34.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000061": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Gruft",
+      "order": 60,
+      "parent": "qo0000000005",
+      "static": false,
+      "tag": "Spawn",
+      "transform": {
+        "position": [
+          0,
+          0,
+          30
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000062": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Start",
+      "order": 61,
+      "parent": "qo0000000005",
+      "static": false,
+      "tag": "Spawn",
+      "transform": {
+        "position": [
+          0,
+          0,
+          -26
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000063": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000106",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/mage"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000107",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000108",
+          "type": "talkable",
+          "values": {
+            "dialog": "questdialog1",
+            "name": "Mira",
+            "radius": 3
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000109",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "size": [
+              0.8,
+              1.9,
+              0.8
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000110",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt02"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Mira",
+      "order": 62,
+      "parent": "qo0000000004",
+      "static": false,
+      "tag": "NPC",
+      "transform": {
+        "position": [
+          -8,
+          0,
+          -9
+        ],
+        "rotation": [
+          0,
+          120,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000064": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000111",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/chest"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000112",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.45,
+              0
+            ],
+            "size": [
+              1.2,
+              0.9,
+              1
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000113",
+          "type": "chest",
+          "values": {
+            "contents": "Schlüssel:1",
+            "radius": 2.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Truhe",
+      "order": 63,
+      "parent": "qo0000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.5,
+          0,
+          -6.5
+        ],
+        "rotation": [
+          0,
+          200,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000065": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000114",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/post-lantern"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Laterne 1",
+      "order": 64,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -3,
+          0,
+          -14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000066": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000115",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ffb866",
+            "intensity": 10,
+            "lightType": "point",
+            "range": 10
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Licht 1",
+      "order": 65,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -3,
+          2.6,
+          -14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000067": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000116",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-halloween/post-lantern"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Laterne 2",
+      "order": 66,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          0,
+          -14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000068": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000117",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ffb866",
+            "intensity": 10,
+            "lightType": "point",
+            "range": 10
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Licht 2",
+      "order": 67,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          2.6,
+          -14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000069": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000118",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/knight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000119",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000120",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000121",
+          "type": "thirdPersonControl",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000122",
+          "type": "inventory",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000123",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.8,
+            "max": 100,
+            "onDeath": "respawn",
+            "respawnDelay": 2
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000124",
+          "type": "meleeHit",
+          "values": {
+            "cooldown": 0.5,
+            "damage": 25,
+            "range": 2.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000128",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt01"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Ritter",
+      "order": 68,
+      "parent": "qo0000000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0.1,
+          -26
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000070": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000125",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 60
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000126",
+          "type": "thirdPersonCamera",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000127",
+          "type": "postProcessing",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 69,
+      "parent": "qo0000000002",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          3.1,
+          -32
+        ],
+        "rotation": [
+          15,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000071": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000129",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt06"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Musik",
+      "order": 70,
+      "parent": "qo0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000080": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Route A",
+      "order": 71,
+      "parent": "qo0000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000081": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 1",
+      "order": 72,
+      "parent": "qo0000000080",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -12,
+          0,
+          -12
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000082": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 2",
+      "order": 73,
+      "parent": "qo0000000080",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -12,
+          0,
+          4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000083": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 3",
+      "order": 74,
+      "parent": "qo0000000080",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -3,
+          0,
+          7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000084": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 4",
+      "order": 75,
+      "parent": "qo0000000080",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -3,
+          0,
+          -8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000085": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Route B",
+      "order": 76,
+      "parent": "qo0000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000086": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 1",
+      "order": 77,
+      "parent": "qo0000000085",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          8,
+          0,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000087": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 2",
+      "order": 78,
+      "parent": "qo0000000085",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          10,
+          0,
+          12
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000088": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 3",
+      "order": 79,
+      "parent": "qo0000000085",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2,
+          0,
+          20
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000089": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 4",
+      "order": 80,
+      "parent": "qo0000000085",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -8,
+          0,
+          19
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000090": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Punkt 5",
+      "order": 81,
+      "parent": "qo0000000085",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4,
+          0,
+          10
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000091": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000130",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-warrior"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000131",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000132",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 3.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000133",
+          "type": "npc",
+          "values": {
+            "startState": "patrol"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000134",
+          "type": "patrol",
+          "values": {
+            "route": "qo0000000080",
+            "speed": 1.4,
+            "wait": 1.2
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000135",
+          "type": "guard",
+          "values": {
+            "hearingRadius": 4,
+            "loseTime": 4,
+            "viewAngle": 100,
+            "viewDistance": 16
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000136",
+          "type": "follow",
+          "values": {
+            "distance": 1.4,
+            "speed": 3.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000137",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.3,
+            "damage": 12,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000138",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.3,
+            "max": 60,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000139",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000140",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt05"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zombie A",
+      "order": 82,
+      "parent": "qo0000000004",
+      "prefab": {
+        "asset": "questzombiea",
+        "object": "qo0000000079",
+        "overrides": [
+          {
+            "object": "qo0000000079",
+            "path": "component:qc0000000134:route",
+            "value": "qo0000000080"
+          }
+        ]
+      },
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          -12,
+          0,
+          -12
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000092": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000130",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000131",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000132",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 3.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000133",
+          "type": "npc",
+          "values": {
+            "startState": "patrol"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000134",
+          "type": "patrol",
+          "values": {
+            "route": "qo0000000085",
+            "speed": 1.9,
+            "wait": 1.2
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000135",
+          "type": "guard",
+          "values": {
+            "hearingRadius": 4,
+            "loseTime": 4,
+            "viewAngle": 120,
+            "viewDistance": 16
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000136",
+          "type": "follow",
+          "values": {
+            "distance": 1.4,
+            "speed": 3.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000137",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.3,
+            "damage": 12,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000138",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.3,
+            "max": 60,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000139",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000140",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt05"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zombie B",
+      "order": 83,
+      "parent": "qo0000000004",
+      "prefab": {
+        "asset": "questzombieb",
+        "object": "qo0000000079",
+        "overrides": [
+          {
+            "object": "qo0000000079",
+            "path": "component:qc0000000134:route",
+            "value": "qo0000000085"
+          }
+        ]
+      },
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          8,
+          0,
+          3
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

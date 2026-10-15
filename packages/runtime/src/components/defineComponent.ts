@@ -79,7 +79,7 @@ export interface EnumFieldDefinition extends FieldBase {
 }
 
 /** Asset kinds an asset field can point to. */
-export type AssetFieldType = 'blockScript' | 'model' | 'terrain' | 'sound';
+export type AssetFieldType = 'blockScript' | 'dialog' | 'model' | 'terrain' | 'sound';
 
 /** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {
@@ -149,6 +149,8 @@ export interface TickContext {
   readonly physics: Physics | null;
   /** Input actions of player 1 or 2. */
   input(player: 1 | 2): PlayerInput;
+  /** Random number in [0, 1) from the game's random source (seeded in tests). */
+  random(): number;
 }
 
 /** The live part of a component on an object. */

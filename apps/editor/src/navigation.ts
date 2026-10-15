@@ -12,6 +12,13 @@ export function openScriptEditor(assetId: string, objectId: string | null = null
   focusPanel('blockEditor');
 }
 
+/** Opens a dialog in the Dialog editor (double-click on a dialog). */
+export function openDialogEditor(assetId: string): void {
+  useEditor.getState().openDialogAsset(assetId);
+  openPanel('dialogEditor');
+  focusPanel('dialogEditor');
+}
+
 /** Follows a console entry: selects the object and shows the block. */
 export function revealLink(link: ConsoleLink): void {
   const editor = useEditor.getState();

@@ -1,0 +1,165 @@
+{
+  "variables": [
+    {
+      "id": "varcount0000",
+      "name": "Anzahl",
+      "scope": "game"
+    },
+    {
+      "id": "vartext00000",
+      "name": "Text",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "t-1",
+          "next": {
+            "block": {
+              "type": "control.sendMessage",
+              "id": "t-2",
+              "fields": {
+                "message": "hello",
+                "target": "all"
+              },
+              "next": {
+                "block": {
+                  "type": "control.sendMessage",
+                  "id": "t-3",
+                  "fields": {
+                    "message": "hello",
+                    "target": "tag:Wache"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "control.startTimer",
+                      "id": "t-4",
+                      "fields": {
+                        "name": "boom"
+                      },
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "type": "literal.number",
+                            "id": "t-5",
+                            "fields": {
+                              "NUM": 3
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "control.forEachObject",
+                          "id": "t-9",
+                          "fields": {
+                            "target": "tag:Muenze"
+                          },
+                          "inputs": {
+                            "body": {
+                              "block": {
+                                "type": "variables.change",
+                                "id": "t-6",
+                                "fields": {
+                                  "variable": {
+                                    "id": "varcount0000"
+                                  }
+                                },
+                                "inputs": {
+                                  "by": {
+                                    "shadow": {
+                                      "type": "literal.number",
+                                      "id": "t-7",
+                                      "fields": {
+                                        "NUM": 1
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "control.destroy",
+                                    "id": "t-8",
+                                    "fields": {
+                                      "target": "loop"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "events.whenMessage",
+          "id": "t-10",
+          "fields": {
+            "message": "hello"
+          },
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "t-11",
+              "fields": {
+                "variable": {
+                  "id": "vartext00000"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "type": "literal.text",
+                    "id": "t-12",
+                    "fields": {
+                      "TEXT": "Hallo"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "events.whenTimer",
+          "id": "t-13",
+          "fields": {
+            "name": "boom"
+          },
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "t-14",
+              "fields": {
+                "variable": {
+                  "id": "vartext00000"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "type": "literal.text",
+                    "id": "t-15",
+                    "fields": {
+                      "TEXT": "Boom"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

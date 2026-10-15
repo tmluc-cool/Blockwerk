@@ -37,6 +37,9 @@ import {
   stop,
   wait,
   waitUntil,
+  sendMessage,
+  startTimer,
+  forEachObject,
 } from './control';
 import {
   everyFrame,
@@ -48,9 +51,39 @@ import {
   whenDestroyed,
   whenGameStarts,
   whenKey,
+  whenMessage,
+  whenTimer,
   whenTouching,
 } from './events';
+import {
+  addItem,
+  countItem,
+  damage,
+  hasItem,
+  heal,
+  health,
+  pickUp,
+  removeItem,
+  setDoor,
+  whenHealth,
+  whenThing,
+} from './items';
+import { startDialog, whenAnswer } from './dialog';
+import { loadScene, restartScene } from './scenes';
 import { numberLiteral, textLiteral } from './literals';
+import {
+  currentState,
+  fleeFrom,
+  followTarget,
+  goToPath,
+  hearsTarget,
+  patrolRoute,
+  seesTarget,
+  setState,
+  standStill,
+  wanderAround,
+  whenState,
+} from './npc';
 import { hide, playAnimation, setActive, setColor, setSize, show } from './looks';
 import {
   setCameraDistance,
@@ -134,6 +167,12 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenAction,
   whenAnimation,
   whenAbility,
+  whenState,
+  whenAnswer,
+  whenThing,
+  whenHealth,
+  whenMessage,
+  whenTimer,
   whenCreated,
   whenDestroyed,
   // Motion
@@ -176,6 +215,28 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   shakeCamera,
   playCameraPath,
   setFieldOfView,
+  // NPC and AI
+  goToPath,
+  followTarget,
+  fleeFrom,
+  wanderAround,
+  patrolRoute,
+  standStill,
+  setState,
+  startDialog,
+  currentState,
+  seesTarget,
+  hearsTarget,
+  // Items
+  addItem,
+  removeItem,
+  hasItem,
+  countItem,
+  setDoor,
+  pickUp,
+  damage,
+  heal,
+  health,
   // Environment
   setTimeOfDay,
   setTimeSpeed,
@@ -223,6 +284,11 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   spawnPrefab,
   destroy,
   stop,
+  loadScene,
+  restartScene,
+  sendMessage,
+  startTimer,
+  forEachObject,
   // Sensing
   keyPressed,
   touching,

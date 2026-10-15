@@ -1,0 +1,3240 @@
+{
+  "environment": {
+    "ambientIntensity": 0.22,
+    "fog": {
+      "enabled": true,
+      "far": 36,
+      "near": 8
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 22
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "qo0000000093": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000094": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000095": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000096": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000097": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000098": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000099": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000141",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 6,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          -0.05,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000100": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000142",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 7,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          -0.05,
+          2.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000101": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000143",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 8,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          -0.05,
+          5.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000102": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000144",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 9,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          -0.05,
+          8.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000103": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000145",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 10,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          -0.05,
+          11.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000104": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000146",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 11,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          -0.05,
+          14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000105": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000147",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 12,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          -0.05,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000106": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000148",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 13,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          -0.05,
+          2.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000107": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000149",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 14,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          -0.05,
+          5.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000108": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000150",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 15,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          -0.05,
+          8.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000109": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000151",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 16,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          -0.05,
+          11.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000110": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000152",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 17,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          -0.05,
+          14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000111": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000153",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 18,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.05,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000112": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000154",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 19,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.05,
+          2.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000113": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000155",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 20,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.05,
+          5.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000114": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000156",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 21,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.05,
+          8.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000115": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000157",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 22,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.05,
+          11.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000116": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000158",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 23,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.05,
+          14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000117": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000159",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 24,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          -0.05,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000118": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000160",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 25,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          -0.05,
+          2.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000119": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000161",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 26,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          -0.05,
+          5.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000120": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000162",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 27,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          -0.05,
+          8.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000121": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000163",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 28,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          -0.05,
+          11.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000122": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000164",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 29,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          -0.05,
+          14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000123": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000165",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 30,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          -0.05,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000124": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000166",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 31,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          -0.05,
+          2.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000125": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000167",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 32,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          -0.05,
+          5.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000126": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000168",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 33,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          -0.05,
+          8.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000127": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000169",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 34,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          -0.05,
+          11.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000128": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000170",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/floor-tile-large"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 35,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          -0.05,
+          14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000129": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000171",
+          "type": "boxCollider",
+          "values": {
+            "size": [
+              20,
+              1,
+              24
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden-Collider",
+      "order": 36,
+      "parent": "qo0000000093",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000130": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000173",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000172",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Nord",
+      "order": 37,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          0,
+          15.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000131": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000175",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000174",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Nord",
+      "order": 38,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          0,
+          15.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000132": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000177",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000176",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Nord",
+      "order": 39,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          15.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000133": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000179",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000178",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Nord",
+      "order": 40,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          0,
+          15.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000134": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000181",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000180",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Nord",
+      "order": 41,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          0,
+          15.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000135": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000183",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000182",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Ost",
+      "order": 42,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000136": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000185",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000184",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand West",
+      "order": 43,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000137": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000187",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000186",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Ost",
+      "order": 44,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          2.8
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000138": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000189",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000188",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand West",
+      "order": 45,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7,
+          0,
+          2.8
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000139": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000191",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000190",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Ost",
+      "order": 46,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          5.6
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000140": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000193",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000192",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand West",
+      "order": 47,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7,
+          0,
+          5.6
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000141": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000195",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000194",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Ost",
+      "order": 48,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          8.4
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000142": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000197",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000196",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand West",
+      "order": 49,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7,
+          0,
+          8.4
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000143": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000199",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000198",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Ost",
+      "order": 50,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          11.2
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000144": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000201",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000200",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand West",
+      "order": 51,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7,
+          0,
+          11.2
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000145": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000203",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000202",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Ost",
+      "order": 52,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7,
+          0,
+          14
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000146": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000205",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000204",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand West",
+      "order": 53,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7,
+          0,
+          14
+        ],
+        "rotation": [
+          0,
+          270,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000147": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000207",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000206",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Süd",
+      "order": 54,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -5.6,
+          0,
+          -2.6
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000148": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000209",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000208",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Süd",
+      "order": 55,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.8,
+          0,
+          -2.6
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000149": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000211",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000210",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Süd",
+      "order": 56,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          -2.6
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000150": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000213",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000212",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Süd",
+      "order": 57,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.8,
+          0,
+          -2.6
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000151": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000215",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/wall"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000214",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              2.8,
+              2.8,
+              0.7
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wand Süd",
+      "order": 58,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          5.6,
+          0,
+          -2.6
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000152": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000216",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/torch-lit"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackel 1",
+      "order": 59,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.2,
+          1.4,
+          5.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ]
+      }
+    },
+    "qo0000000153": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000217",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ff9a44",
+            "intensity": 12,
+            "lightType": "point",
+            "range": 11
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackellicht 1",
+      "order": 60,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.2,
+          2.2,
+          5.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000154": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000218",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/torch-lit"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackel 2",
+      "order": 61,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.2,
+          1.4,
+          5.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ]
+      }
+    },
+    "qo0000000155": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000219",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ff9a44",
+            "intensity": 12,
+            "lightType": "point",
+            "range": 11
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackellicht 2",
+      "order": 62,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.2,
+          2.2,
+          5.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000156": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000220",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/torch-lit"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackel 3",
+      "order": 63,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.2,
+          1.4,
+          -0.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ]
+      }
+    },
+    "qo0000000157": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000221",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ff9a44",
+            "intensity": 12,
+            "lightType": "point",
+            "range": 11
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackellicht 3",
+      "order": 64,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4.2,
+          2.2,
+          -0.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000158": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000222",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/torch-lit"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackel 4",
+      "order": 65,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.2,
+          1.4,
+          -0.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ]
+      }
+    },
+    "qo0000000159": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000223",
+          "type": "light",
+          "values": {
+            "castShadows": false,
+            "color": "#ff9a44",
+            "intensity": 12,
+            "lightType": "point",
+            "range": 11
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Fackellicht 4",
+      "order": 66,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4.2,
+          2.2,
+          -0.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000160": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000225",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/pillar"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000224",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              1.05,
+              2.8,
+              1.05
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 1",
+      "order": 67,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2.5,
+          0,
+          9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000161": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000227",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/pillar"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000226",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.4,
+              0
+            ],
+            "size": [
+              1.05,
+              2.8,
+              1.05
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 2",
+      "order": 68,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.5,
+          0,
+          9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000162": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000229",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/table-long"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000228",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "size": [
+              2.5,
+              1,
+              1.2
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Tisch",
+      "order": 69,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          12.6
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000163": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000230",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/spellbook-closed"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000231",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Zauberbuch",
+            "mode": "interact",
+            "radius": 2.4,
+            "sound": "coin"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Zauberbuch",
+      "order": 70,
+      "parent": "qo0000000097",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.15,
+          12.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          4,
+          4,
+          4
+        ]
+      }
+    },
+    "qo0000000164": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Eingang",
+      "order": 71,
+      "parent": "qo0000000097",
+      "static": false,
+      "tag": "Spawn",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000165": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000232",
+          "type": "boxCollider",
+          "values": {
+            "isTrigger": true,
+            "size": [
+              6,
+              2,
+              1.2
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000233",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt04"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Ausgang",
+      "order": 72,
+      "parent": "qo0000000097",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1,
+          -1.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000166": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000234",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/knight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000235",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000236",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000237",
+          "type": "thirdPersonControl",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000238",
+          "type": "inventory",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000239",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.8,
+            "max": 100,
+            "onDeath": "respawn",
+            "respawnDelay": 2
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000240",
+          "type": "meleeHit",
+          "values": {
+            "cooldown": 0.5,
+            "damage": 25,
+            "range": 2.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000244",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt01"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Ritter",
+      "order": 73,
+      "parent": "qo0000000094",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0.1,
+          0.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000167": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000241",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 60
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000242",
+          "type": "thirdPersonCamera",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000243",
+          "type": "postProcessing",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 74,
+      "parent": "qo0000000094",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          3.1,
+          -5.5
+        ],
+        "rotation": [
+          15,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "qo0000000168": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000245",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt07"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Musik",
+      "order": 75,
+      "parent": "qo0000000093",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

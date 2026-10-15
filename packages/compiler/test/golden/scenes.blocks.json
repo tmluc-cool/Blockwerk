@@ -1,0 +1,40 @@
+{
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenKey",
+          "id": "t-1",
+          "fields": {
+            "key": "L"
+          },
+          "next": {
+            "block": {
+              "type": "scenes.load",
+              "id": "t-2",
+              "fields": {
+                "scene": "scene:abcdefghijkl",
+                "spawn": "Eingang"
+              }
+            }
+          }
+        },
+        {
+          "type": "events.whenKey",
+          "id": "t-3",
+          "fields": {
+            "key": "R"
+          },
+          "next": {
+            "block": {
+              "type": "scenes.restart",
+              "id": "t-4"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

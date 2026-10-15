@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-27",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:ambient-night"
+              },
+              "id": "t-28",
+              "type": "sound.playMusic"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

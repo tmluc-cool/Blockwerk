@@ -234,3 +234,39 @@ export const whenAnimation = defineBlock({
   },
   since: 3,
 });
+
+export const whenMessage = defineBlock({
+  id: 'events.whenMessage',
+  category: 'events',
+  shape: 'hat',
+  inputs: { message: { type: 'textField', default: 'ok' } },
+  text: { de: 'Wenn ich Nachricht {message} empfange', en: 'when I receive message {message}' },
+  keywords: {
+    de: ['nachricht', 'signal', 'empfangen'],
+    en: ['message', 'signal', 'broadcast', 'receive'],
+  },
+  event: ({ message }) => ({ type: 'message', params: { message } }),
+  docs: {
+    de: 'Startet das Skript, wenn dem Objekt diese Nachricht geschickt wird (Block „sende Nachricht“, auch von Schaltern und Truhen). Zugestellt wird am Anfang des nächsten Ticks.',
+    en: 'Runs the script when this message is sent to the object (block "send message", also from switches and chests). Delivery happens at the start of the next tick.',
+  },
+  since: 5,
+});
+
+export const whenTimer = defineBlock({
+  id: 'events.whenTimer',
+  category: 'events',
+  shape: 'hat',
+  inputs: { name: { type: 'textField', default: 'timer1' } },
+  text: { de: 'Wenn Timer {name} abläuft', en: 'when timer {name} runs out' },
+  keywords: {
+    de: ['timer', 'uhr', 'zeit', 'abgelaufen'],
+    en: ['timer', 'clock', 'countdown', 'expires'],
+  },
+  event: ({ name }) => ({ type: 'timer', params: { name } }),
+  docs: {
+    de: 'Startet das Skript, wenn ein mit „starte Timer“ gestarteter Timer dieses Objekts abgelaufen ist.',
+    en: 'Runs the script when a timer of this object started with "start timer" has run out.',
+  },
+  since: 5,
+});

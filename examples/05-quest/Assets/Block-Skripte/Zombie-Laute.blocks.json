@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "state": "chase"
+          },
+          "id": "t-23",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:hurt",
+                "where": "here"
+              },
+              "id": "t-24",
+              "type": "sound.play"
+            }
+          },
+          "type": "npc.whenState"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -135,6 +135,51 @@ export interface GameApi {
   setFieldOfView(self: GameObject, fov: number, seconds: number): void;
   playCameraPath(self: GameObject, ref: ObjectRef): void;
 
+  // Messages, timers and loops over objects (Appendix A, phase 5)
+  /** Sends a message to `self`, `all`, `tag:<name>` or `object:<id>`; delivered next tick. */
+  sendMessage(self: GameObject, message: string, target: ObjectRef): void;
+  /** Starts (or restarts) a timer of this object; "When timer [x] runs out" fires after `seconds`. */
+  startTimer(self: GameObject, name: string, seconds: number): void;
+  /** The active objects a reference names (a tag: all with it; `all`/`any`: every object). */
+  objectsMatching(self: GameObject, ref: ObjectRef): GameObject[];
+  /** Makes `object` the one the reference `loop` names in the running script. */
+  setLoopObject(object: GameObject): void;
+
+  // Items, inventory, health and combat (SPEC 8.13)
+  addItem(self: GameObject, target: ObjectRef, item: string, count: number): void;
+  removeItem(self: GameObject, target: ObjectRef, item: string, count: number): boolean;
+  hasItem(self: GameObject, target: ObjectRef, item: string): boolean;
+  itemCount(self: GameObject, target: ObjectRef, item: string): number;
+  /** Opens, closes or flips a door, chest or switch (blocks ignore keys). */
+  operateThing(self: GameObject, target: ObjectRef, action: 'open' | 'close' | 'toggle'): void;
+  /** Lets `self` pick up a pickup object. */
+  pickUp(self: GameObject, target: ObjectRef): void;
+  damageObject(self: GameObject, target: ObjectRef, amount: number): void;
+  healObject(self: GameObject, target: ObjectRef, amount: number): void;
+  healthOfObject(self: GameObject, target: ObjectRef): number;
+
+  // Scenes (SPEC 8.15)
+  /** Asks to change to another scene (`scene:<asset ID>`), appearing at a spawn point. */
+  loadScene(self: GameObject, scene: string, spawn?: string): void;
+  restartScene(): void;
+
+  // Dialogs (SPEC 8.8)
+  /** Talks with the player and waits until the conversation is over (use with `yield*`). */
+  startDialog(self: GameObject, dialog: string): Generator<void, void, void>;
+
+  // NPCs and navigation (SPEC 8.8)
+  /** Walks to an object over the navigation mesh and waits until it arrived (use with `yield*`). */
+  navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void>;
+  followTarget(self: GameObject, target: ObjectRef, distance: number): void;
+  fleeFrom(self: GameObject, target: ObjectRef): void;
+  wanderAround(self: GameObject, radius: number): void;
+  patrolRoute(self: GameObject, route: ObjectRef): void;
+  stopWalking(self: GameObject): void;
+  npcState(self: GameObject): string;
+  setNpcState(self: GameObject, state: string): void;
+  sees(self: GameObject, target: ObjectRef): boolean;
+  hears(self: GameObject, target: ObjectRef): boolean;
+
   // Animation (SPEC 8.7)
   playAnimation(self: GameObject, name: string, mode: 'once' | 'loop', fade: number): void;
 

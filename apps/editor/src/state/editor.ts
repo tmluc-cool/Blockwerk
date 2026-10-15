@@ -59,6 +59,8 @@ interface EditorState {
   /** Object whose name is being edited in the hierarchy. */
   renamingId: string | null;
   openScript: OpenScript | null;
+  /** Dialog open in the Dialog editor (asset ID). */
+  openDialog: string | null;
   /** Block the block editor should scroll to and select (console jump). */
   revealBlock: {
     readonly assetId: string;
@@ -76,6 +78,7 @@ interface EditorState {
   selectAsset: (id: string | null) => void;
   setRenaming: (id: string | null) => void;
   openBlockScript: (script: OpenScript | null) => void;
+  openDialogAsset: (assetId: string | null) => void;
   showBlock: (assetId: string, blockId: string) => void;
   setFlying: (flying: boolean) => void;
   /** Clears selection and area after another scene or project was opened. */
@@ -92,6 +95,7 @@ export const useEditor = create<EditorState>()((set) => ({
   selectedAssetId: null,
   renamingId: null,
   openScript: null,
+  openDialog: null,
   revealBlock: null,
   flying: false,
   setTool: (tool) => set({ tool }),
@@ -116,6 +120,7 @@ export const useEditor = create<EditorState>()((set) => ({
   selectAsset: (id) => set({ selectedAssetId: id, ...(id ? { selection: [] } : {}) }),
   setRenaming: (id) => set({ renamingId: id }),
   openBlockScript: (script) => set({ openScript: script }),
+  openDialogAsset: (assetId) => set({ openDialog: assetId }),
   showBlock: (assetId, blockId) =>
     set((state) => ({
       revealBlock: { assetId, blockId, nonce: (state.revealBlock?.nonce ?? 0) + 1 },

@@ -46,7 +46,9 @@ function cameraPlayer(object: GameObject): 1 | 2 {
 export function playerObject(world: World, player: 1 | 2): GameObject | null {
   for (const object of world.allObjects()) {
     if (!object.activeInHierarchy || object.destroyed) continue;
-    if (controlRegistry.get(object)?.player === player) return object;
+    const control = controlRegistry.get(object);
+    // NPCs walked by a Nav Agent have a control state too, but they are nobody's player.
+    if (control && control.mode !== 'agent' && control.player === player) return object;
   }
   return null;
 }

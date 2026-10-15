@@ -16,16 +16,24 @@ export interface FrameReferences {
   readonly tags: readonly string[];
   /** Prefabs of the project (for "create [prefab] at"). */
   readonly prefabs: readonly { readonly id: string; readonly name: string }[];
+  /** Dialogs of the project (for "start dialog"). */
+  readonly dialogs: readonly { readonly id: string; readonly name: string }[];
+  /** Scenes of the project (for "load scene"). */
+  readonly scenes: readonly { readonly id: string; readonly name: string }[];
   /** Built-in sounds and sound files (`value` is `builtin:<name>` or `audio:<asset ID>`). */
   readonly sounds: readonly { readonly value: string; readonly name: string }[];
   readonly labels: {
     readonly self: string;
     readonly any: string;
+    readonly all: string;
+    readonly loop: string;
     readonly mouse: string;
     readonly origin: string;
     readonly tag: string;
     readonly missing: string;
     readonly choosePrefab: string;
+    readonly chooseDialog: string;
+    readonly chooseScene: string;
     readonly createVariable: string;
     readonly noVariables: string;
   };

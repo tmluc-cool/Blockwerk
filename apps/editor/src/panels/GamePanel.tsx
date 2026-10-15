@@ -1,6 +1,7 @@
 import type { IDockviewPanelProps } from 'dockview-react';
 import { currentQuality, onQualityChange, QUALITY_NAMES, setQuality } from '@blockwerk/runtime';
 import type { QualityName } from '@blockwerk/runtime';
+import type { DialogView, InteractionHint } from '@blockwerk/runtime';
 import { useEffect, useRef, useState } from 'react';
 import { GameViewport } from '../game/GameViewport';
 import type { GameViewStats } from '../game/GameViewport';
@@ -27,6 +28,27 @@ export function GamePanel({ api }: IDockviewPanelProps) {
   const monitors = usePlay((state) => state.monitors);
   const status = usePlay((state) => state.status);
   const muted = useMute((state) => state.muted);
+  const loading = usePlay((state) => state.loading);
+  const [liveHint, setHint] = useState<InteractionHint | null>(null);
+  const [liveDialog, setDialog] = useState<DialogView | null>(null);
+  // Hint and dialog box only show while a game runs.
+  const hint = status === 'playing' ? liveHint : null;
+  const dialog = status === 'playing' ? liveDialog : null;
+  useEffect(() => {
+    if (status !== 'playing') return;
+    const timer = setInterval(() => {
+      const next = currentGame()?.interactionHint(1) ?? null;
+      setHint((old) => (old?.kind === next?.kind && old?.label === next?.label ? old : next));
+      const view = currentGame()?.dialogView() ?? null;
+      setDialog((old) => {
+        if (JSON.stringify(old) === JSON.stringify(view)) return old;
+        // The mouse is needed for the answers.
+        if (view && !old) document.exitPointerLock?.();
+        return view;
+      });
+    }, 120);
+    return () => clearInterval(timer);
+  }, [status]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -113,6 +135,55 @@ export function GamePanel({ api }: IDockviewPanelProps) {
       </div>
       <div className="viewport-host game-host" ref={hostRef}>
         {!hasCamera && <div className="empty-hint overlay-hint">{t('game.noCamera')}</div>}
+        {loading && (
+          <div className="loading-screen" data-testid="loading-screen">
+            <h2 data-testid="loading-title">{t('loading.title', { name: loading.title })}</h2>
+            <div className="loading-bar">
+              <div
+                className="loading-fill"
+                style={{ width: `${Math.round(loading.progress * 100)}%` }}
+              />
+            </div>
+            <p className="muted">{t(`loading.tip${loading.tip}` as never)}</p>
+          </div>
+        )}
+        {dialog && (
+          <div className="dialog-box" data-testid="dialog-box">
+            {dialog.speaker && <div className="dialog-speaker">{dialog.speaker}</div>}
+            <div className="dialog-text" data-testid="dialog-text">
+              {dialog.text}
+            </div>
+            {dialog.choices.length === 0 ? (
+              <button
+                type="button"
+                className="selected"
+                data-testid="dialog-continue"
+                onClick={() => currentGame()?.confirmDialog()}
+              >
+                {t('dialog.continue')}
+              </button>
+            ) : (
+              dialog.choices.map((choice) => (
+                <button
+                  key={choice.index}
+                  type="button"
+                  className={choice.index === dialog.selected ? 'selected' : ''}
+                  data-testid={`dialog-answer-${choice.index}`}
+                  onClick={() => currentGame()?.chooseDialogAnswer(choice.index)}
+                >
+                  {choice.index + 1}. {choice.text}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+        {hint && !dialog && (
+          <div className="interaction-hint" data-testid="interaction-hint" data-kind={hint.kind}>
+            {hint.kind === 'custom'
+              ? hint.label
+              : t(`hint.${hint.kind}` as never, { label: hint.label })}
+          </div>
+        )}
         {monitors.length > 0 && (
           <div className="monitors" data-testid="monitors">
             {monitors.map((monitor) => (

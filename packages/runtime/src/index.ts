@@ -69,6 +69,19 @@ export {
 export type { ParticleParams, ParticlePresetName } from './effects/presets';
 export { colliderRegistry } from './components/colliders';
 export { navAgentRegistry } from './components/navAgent';
+export { guardRegistry } from './components/guard';
+export { thingRegistry } from './components/items';
+export type { CarryState, PlayerCarry, SceneRequest } from './game/carry';
+export { DialogSession, conditionHolds } from './dialog/session';
+export type { DialogChoice, DialogHost, DialogView } from './dialog/session';
+export type { DialogAction } from '@blockwerk/project';
+export type { ThingHandle } from './components/items';
+export { Health, healthOf, peekHealth } from './gameplay/health';
+export { Inventory, inventoryOf, peekInventory } from './gameplay/inventory';
+export type { InteractionHint } from './gameplay/interaction';
+export type { GuardHandle } from './components/guard';
+export { NpcState, npcStateOf, peekNpcState } from './npc/state';
+export type { NpcStateChange } from './npc/state';
 export type { NavAgentHandle } from './components/navAgent';
 export {
   collectNavigationGeometry,
