@@ -156,6 +156,7 @@ import {
   touching,
 } from './sensing';
 import { changeVariable, getVariable, hideVariable, setVariable, showVariable } from './variables';
+import { codeValue, runCode } from './code';
 import { changeLocal, declareLocal, getLocal, setLocal } from './locals';
 import {
   callCommand,
@@ -401,6 +402,9 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   callCondition,
   returnValue,
   parameter,
+  // Code
+  runCode,
+  codeValue,
   // Shadows
   numberLiteral,
   textLiteral,

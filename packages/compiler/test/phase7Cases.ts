@@ -430,4 +430,35 @@ export const phase7Cases: RuntimeCase[] = [
       game.dispose();
     },
   },
+  {
+    name: 'code blocks run JavaScript with self, game, scene and three, also waiting with yield*',
+    covers: ['code.run', 'code.value'],
+    run: () => {
+      const game = launch({
+        objects: { ground000001: ground, hero00000001: hero([], 'code') },
+        scripts: {
+          code: workspace(
+            when(
+              start,
+              b('code.run', {
+                code: 'self.position.y += 2;\nyield* game.wait(0.1);\nself.position.x = three.MathUtils.clamp(9, 0, 3);',
+              }),
+              set(A, b('code.value', { code: 'scene.findAll().length' })),
+              set(B, b('code.value', { code: 'scene.find("Hero").name + "!"' })),
+            ),
+          ),
+        },
+      });
+      run(game, 0.05);
+      const knight = game.scene.find('Hero');
+      expect(knight?.position.y).toBeGreaterThan(1.5);
+      // The script waits inside the code block, so the rest has not run yet.
+      expect(game.vars[B]).toBe('');
+      run(game, 0.3);
+      expect(knight?.position.x).toBe(3);
+      expect(game.vars[A]).toBe(2);
+      expect(game.vars[B]).toBe('Hero!');
+      game.dispose();
+    },
+  },
 ];

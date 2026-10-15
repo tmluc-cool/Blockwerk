@@ -174,6 +174,10 @@ function mount(options: BlockFrameOptions): BlockFrameController {
     });
     loadState();
     created.addChangeListener((event: Blockly.Events.Abstract) => {
+      if (event.type === Blockly.Events.SELECTED) {
+        const selected = event as Blockly.Events.Selected;
+        options.onSelectBlock(selected.newElementId ?? null);
+      }
       if (loading) return;
       if (
         event.type === Blockly.Events.VAR_CREATE ||

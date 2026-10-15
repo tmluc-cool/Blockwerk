@@ -316,6 +316,7 @@ class Generator {
       },
       local: (input: string): string => identifier('l_', textOf(irArgs[input])),
       param: (input: string): string => identifier('p_', textOf(irArgs[input])),
+      text: (input: string): string => textOf(irArgs[input]),
     };
   }
 

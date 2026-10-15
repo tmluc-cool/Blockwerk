@@ -56,6 +56,11 @@ export interface IRResult {
   readonly diagnostics: readonly Diagnostic[];
 }
 
+/** Constructor of generator functions, used only to read the user's code (never to run it). */
+const GeneratorFunction = Object.getPrototypeOf(function* () {
+  /* parse only */
+}).constructor as new (...args: string[]) => unknown;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -240,6 +245,24 @@ class IRBuilder {
     this.report('warning', 'typeMismatch', blockId, { expected, actual });
   }
 
+  /** Whether the JavaScript of a code block can be read (SPEC 7.9); reports it if not. */
+  private codeReadable(block: SerializedBlock, definition: BlockDefinition): boolean {
+    const code = definition.code;
+    if (!code) return true;
+    const raw = block.fields?.[code.field];
+    const source = typeof raw === 'string' ? raw : '';
+    try {
+      const body = code.kind === 'expression' ? `return (${source});` : source;
+      new GeneratorFunction('self', 'game', 'scene', 'three', body);
+      return true;
+    } catch (error) {
+      this.report('error', 'codeSyntax', block.id, {
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return false;
+    }
+  }
+
   /** The name a block with a local variable field refers to. */
   private localName(block: SerializedBlock, definition: BlockDefinition): string {
     const field = definition.local?.field;
@@ -286,7 +309,7 @@ class IRBuilder {
       }
       const args: Record<string, IRExpression> = {};
       const substacks: Record<string, IRStatement[]> = {};
-      let valid = this.localKnown(block, definition);
+      let valid = this.localKnown(block, definition) && this.codeReadable(block, definition);
       for (const [name, input] of Object.entries(definition.inputs)) {
         if (input.type === 'statement') {
           const local = definition.local;
@@ -337,7 +360,7 @@ class IRBuilder {
       this.report('error', 'notAValue', block.id, { type: block.type });
       return null;
     }
-    if (!this.localKnown(block, definition)) return null;
+    if (!this.localKnown(block, definition) || !this.codeReadable(block, definition)) return null;
     const args: Record<string, IRExpression> = {};
     for (const [name, input] of Object.entries(definition.inputs)) {
       if (input.type === 'statement') continue;

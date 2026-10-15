@@ -12,9 +12,11 @@ import type {
   VariableData,
 } from '@blockwerk/project';
 import type { Quaternion } from 'three';
+import * as THREE from 'three';
 import { MathUtils, Plane, Raycaster, Vector2, Vector3 } from 'three';
 import { colliderRegistry } from '../components/colliders';
 import { errorLine } from '../scripts';
+import type { SceneApi } from './api';
 import { cloneValue, dictOps, valueToText, listOps } from './values';
 import type { CompiledScriptModule, ScriptEntry } from '../scripts';
 import { GameObject } from '../world/GameObject';
@@ -1088,6 +1090,33 @@ export class Game implements GameApi {
   warpTick(): boolean {
     this.warpCount += 1;
     return this.warpCount % WARP_SLICE === 0;
+  }
+
+  // ---------------------------------------------------------------- GameApi: code blocks
+
+  /** The 3D library for code blocks (`three`). */
+  get three(): typeof THREE {
+    return THREE;
+  }
+
+  /** Finding objects for code blocks (`scene`). */
+  get scene(): SceneApi {
+    const world = this.world;
+    return {
+      find: (name) => {
+        for (const object of world.allObjects()) {
+          if (object.name === name && !object.destroyed) return object;
+        }
+        return null;
+      },
+      findAll: (tag) => {
+        const found: GameObject[] = [];
+        for (const object of world.allObjects()) {
+          if (!object.destroyed && (tag === undefined || object.tag === tag)) found.push(object);
+        }
+        return found;
+      },
+    };
   }
 
   // ---------------------------------------------------------------- GameApi: lists, dictionaries

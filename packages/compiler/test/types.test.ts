@@ -99,4 +99,21 @@ describe('type check', () => {
     ]);
     expect(result.code).toContain('game.vars["varaaaaaaaaa"] = 1;');
   });
+
+  it('code that cannot be read is reported with the reason and the block is skipped', () => {
+    const result = compile(
+      workspace(
+        when(
+          start,
+          b('code.run', { code: 'self.position.y += ;' }),
+          b('code.run', { code: 'self.position.y += 1;' }),
+          set(A, b('code.value', { code: '1 +' })),
+        ),
+      ),
+    );
+    expect(result.diagnostics.map((item) => item.code)).toEqual(['codeSyntax', 'codeSyntax']);
+    expect(result.diagnostics[0]?.params['message']).toBeTruthy();
+    expect(result.code).toContain('self.position.y += 1;');
+    expect(result.code).not.toContain('+= ;');
+  });
 });

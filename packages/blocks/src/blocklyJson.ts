@@ -69,7 +69,11 @@ function argFor(name: string, input: BlockInput, locale: Locale): BlocklyArgJson
     case 'numberField':
       return { type: 'field_number', name, value: input.default };
     case 'textField':
-      return { type: 'field_input', name, text: input.default };
+      return {
+        type: input.multiline ? 'field_multilinetext' : 'field_input',
+        name,
+        text: input.default,
+      };
     case 'dropdown':
       return {
         type: 'field_dropdown',

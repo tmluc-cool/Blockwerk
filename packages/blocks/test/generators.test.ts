@@ -151,6 +151,7 @@ describe('buildToolbox', () => {
       'ui',
       'scenes',
       'data',
+      'code',
       'myBlocks',
     ]);
     const motion = toolbox.contents.find((category) => category.toolboxitemid === 'motion');

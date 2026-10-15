@@ -9,7 +9,8 @@ export type DiagnosticCode =
   | 'unknownParam'
   | 'unknownFunction'
   | 'returnOutside'
-  | 'typeMismatch';
+  | 'typeMismatch'
+  | 'codeSyntax';
 
 /** A problem found while compiling, pointing at the block that caused it. */
 export interface Diagnostic {

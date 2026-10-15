@@ -33,6 +33,7 @@ export const CATEGORIES: readonly CategoryDefinition[] = [
     name: { de: 'Listen und Wörterbücher', en: 'Lists and Dictionaries' },
     color: '#d9532b',
   },
+  { id: 'code', name: { de: 'Code', en: 'Code' }, color: '#5a6b78' },
   { id: 'myBlocks', name: { de: 'Meine Blöcke', en: 'My Blocks' }, color: '#d64b4b' },
   { id: 'debug', name: { de: 'Debug', en: 'Debug' }, color: '#7d7d7d' },
 ];

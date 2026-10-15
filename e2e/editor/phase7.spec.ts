@@ -329,4 +329,58 @@ test.describe('phase 7: large projects', () => {
     await expect.poll(async () => await scriptFile('Erstes')).toContain('"message": "los"');
     expect(await scriptFile('Zweites')).toContain('"message": "los"');
   });
+
+  test('the code view shows the JavaScript of the blocks, linked to the blocks, and code blocks run', async ({
+    editor: page,
+  }) => {
+    test.setTimeout(scaled(120_000));
+    await openExample(page);
+    const id = await newScript(page, 'Code');
+    const editor = blocks(page);
+    await expect(editor.locator('.blocklyMainBackground')).toBeVisible();
+    await page.evaluate(
+      (assetId) =>
+        window.__blockwerk?.setScriptWorkspace(assetId, {
+          blocks: {
+            languageVersion: 0,
+            blocks: [
+              {
+                type: 'events.whenGameStarts',
+                id: 'c-hat',
+                x: 40,
+                y: 40,
+                next: {
+                  block: {
+                    type: 'code.run',
+                    id: 'c-code',
+                    fields: { code: 'self.position.y += 1;' },
+                    next: {
+                      block: {
+                        type: 'control.wait',
+                        id: 'c-wait',
+                        inputs: {
+                          seconds: {
+                            shadow: { type: 'literal.number', id: 'c-n', fields: { NUM: 2 } },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        }),
+      id,
+    );
+    await page.getByTestId('code-view-toggle').click();
+    const view = page.getByTestId('code-view');
+    await expect(view).toContainText('self.position.y += 1;');
+    await expect(view).toContainText('yield* game.wait(2);');
+    // A line selects its block, and the selected block marks its lines.
+    await view.locator('.code-line', { hasText: 'game.wait(2)' }).click();
+    await expect(view.locator('.code-line[data-selected="true"]')).toContainText('game.wait(2)');
+    // The code view cannot be edited.
+    expect(await view.locator('[contenteditable], textarea, input').count()).toBe(0);
+  });
 });

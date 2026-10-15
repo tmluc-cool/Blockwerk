@@ -103,6 +103,8 @@ export interface BlockFrameOptions {
   readonly onEditBlock: (blockId: string, spec: CustomBlockSpec) => void;
   /** "Go to definition" on a call block (`library` is empty for the open script). */
   readonly onGoToDefinition: (library: string, fn: string) => void;
+  /** The selected block changed (`null`: nothing is selected). */
+  readonly onSelectBlock: (blockId: string | null) => void;
   /** "All usages" on a block: searches the project for the name it stands for. */
   readonly onFindUsages: (name: string) => void;
   /** Asks for the name of a new custom block (resolves to `null` when cancelled). */

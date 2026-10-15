@@ -10,9 +10,9 @@ import {
 import type { BlockScriptData, SceneData, VariableData } from '@blockwerk/project';
 import { BUILTIN_SOUNDS } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
-import { Plus, Trash2 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { workspaceSignatures } from '@blockwerk/compiler';
+import { Code2, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { compileProject, workspaceSignatures } from '@blockwerk/compiler';
 import type {
   BlockFrameController,
   CustomBlockSpec,
@@ -417,6 +417,64 @@ function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boo
 }
 
 /**
+ * The JavaScript the blocks of the open script turn into (SPEC 7.9), read-only. A line belongs to
+ * the block it came from: clicking a line selects the block, and selecting a block marks its lines.
+ */
+function CodeView({
+  entry,
+  selectedBlock,
+  onLine,
+}: {
+  entry: ScriptEntry;
+  selectedBlock: string | null;
+  onLine: (blockId: string) => void;
+}) {
+  const t = useT();
+  const assetsVersion = useDocument((state) => state.assetsVersion);
+  const generated = useMemo(() => {
+    const { project } = useDocument.getState();
+    const scripts = (project?.assetsOfType('blockScript') ?? []).map((script) => ({
+      assetId: script.id,
+      assetName: assetDisplayName(script.path),
+      workspace: script.data.workspace,
+      variables: script.data.variables,
+    }));
+    try {
+      return compileProject(scripts).get(entry.id) ?? null;
+    } catch {
+      return null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the data of the script changes with assetsVersion
+  }, [entry.id, assetsVersion]);
+  const lines = generated?.code.split('\n') ?? [];
+  return (
+    <aside className="code-view" data-testid="code-view">
+      <div className="variables-header">
+        <strong>{t('blockEditor.codeView')}</strong>
+        <span className="muted small">{t('blockEditor.codeViewReadOnly')}</span>
+      </div>
+      <pre className="code-lines">
+        {lines.map((line, index) => {
+          const blockId = generated?.lineToBlock[index] ?? null;
+          return (
+            <div
+              key={index}
+              className="code-line"
+              data-block={blockId ?? undefined}
+              data-selected={blockId !== null && blockId === selectedBlock}
+              onClick={() => blockId && onLine(blockId)}
+            >
+              <span className="code-number">{index + 1}</span>
+              {line || ' '}
+            </div>
+          );
+        })}
+      </pre>
+    </aside>
+  );
+}
+
+/**
  * Block editor window (SPEC 5.9). Blockly runs in its own page (`blocks.html`) inside an iframe,
  * so it keeps working when the window is floated or detached to a second screen. The header
  * names the edited block script and object; the variables list is on the right.
@@ -437,6 +495,8 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
   const openScript = useEditor((state) => state.openScript);
   const selectionActive = useEditor(activeObjectId);
   const revealBlock = useEditor((state) => state.revealBlock);
+  const [codeView, setCodeView] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
   const status = usePlay((state) => state.status);
   const playFrame = usePlay((state) => state.frame);
   const areaKind = useEditor((state) =>
@@ -502,6 +562,7 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
         },
         askName: () => prompt(translateNow('customBlock.askName')),
         onFindUsages: (name) => openSearch(name),
+        onSelectBlock: (blockId) => setSelectedBlock(blockId),
         onChange: (state) => {
           const target = openScriptEntry();
           if (!target || target.id !== shownRef.current.id) return;
@@ -645,6 +706,16 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
         >
           <Plus size={14} />
         </button>
+        <button
+          type="button"
+          className={`icon-button${codeView ? ' active' : ''}`}
+          title={t('blockEditor.codeView')}
+          data-testid="code-view-toggle"
+          aria-pressed={codeView}
+          onClick={() => setCodeView((value) => !value)}
+        >
+          <Code2 size={14} />
+        </button>
         <span className="toolbar-separator" />
         <span className="muted">{t('blockEditor.object')}:</span>
         <strong data-testid="block-editor-object">
@@ -661,6 +732,13 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
             title={t('panel.blockEditor')}
           />
         </div>
+        {entry && codeView && (
+          <CodeView
+            entry={entry}
+            selectedBlock={selectedBlock}
+            onLine={(blockId) => controllerRef.current?.reveal(blockId)}
+          />
+        )}
         {entry && <VariablesPanel entry={entry} disabled={false} />}
       </div>
     </div>
