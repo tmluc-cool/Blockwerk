@@ -66,7 +66,7 @@ describe('IR functions and local variables', () => {
   it('generates runnable code for calls, parameters, locals and return values', () => {
     const generated = generateCode(program, defaultRegistry, { assetName: 'ir-test' });
     expect(generated.code).toContain('function* f_');
-    expect(generated.code).toContain('return l_distance;');
+    expect(generated.code).toContain('return game.num(l_distance);');
     expect(generated.code).toMatch(
       /let l_gr__e_[0-9a-f]{4} = \(yield\* f_[0-9a-f]{8}\(self, game, 2\)\);/,
     );

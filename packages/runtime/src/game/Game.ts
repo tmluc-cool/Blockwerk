@@ -240,6 +240,9 @@ function isNumeric(value: unknown): boolean {
  * threads driven by a fixed 60 Hz scheduler, input, collisions and the services of
  * {@link GameApi}. Script errors stop only the failing thread and are reported via `log`.
  */
+/** Passes of loops without screen refresh before the loop waits for the next frame. */
+const WARP_SLICE = 20000;
+
 export class Game implements GameApi {
   readonly world: World;
   readonly input = new InputState();
@@ -249,6 +252,7 @@ export class Game implements GameApi {
   timeScale = 1;
   paused = false;
   readonly vars: Record<string, VariableValue> = {};
+  private warpCount = 0;
 
   private readonly options: GameOptions;
   private readonly random_: () => number;
@@ -1075,6 +1079,15 @@ export class Game implements GameApi {
 
   contains(text: string, part: string): boolean {
     return text.toLowerCase().includes(part.toLowerCase());
+  }
+
+  /**
+   * Called in the loops of custom blocks that run "without screen refresh": returns `true` once
+   * in a while so that such a loop is cut into slices and a runaway loop cannot freeze the game.
+   */
+  warpTick(): boolean {
+    this.warpCount += 1;
+    return this.warpCount % WARP_SLICE === 0;
   }
 
   // ---------------------------------------------------------------- GameApi: lists, dictionaries

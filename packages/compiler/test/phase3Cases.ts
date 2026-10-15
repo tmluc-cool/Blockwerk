@@ -25,7 +25,8 @@ import {
   VectorKeyframeTrack,
 } from 'three';
 import { expect } from 'vitest';
-import { compileBlockScript } from '../src';
+import { compileProject } from '../src';
+import type { CompileResult } from '../src';
 import { b, set, workspace } from './dsl';
 import type { TestBlock } from './dsl';
 
@@ -88,8 +89,7 @@ export const ground = object('Ground', [0, -0.5, 0], [component('boxCollider', {
   transform: { position: [0, -0.5, 0], rotation: [0, 0, 0], scale: [60, 1, 60] },
 });
 
-function script(id: string, source: unknown): ScriptAsset {
-  const result = compileBlockScript(source, { assetName: id, variables: VARIABLES });
+function toAsset(id: string, result: CompileResult): ScriptAsset {
   expect(result.diagnostics).toEqual([]);
   const sourceUrl = `blockwerk://test/${id}.js`;
   return {
@@ -131,9 +131,16 @@ export interface Scene {
 }
 
 export function launch(scene: Scene): Game {
-  const assets = new Map(
-    Object.entries(scene.scripts).map(([id, source]) => [id, script(id, source)]),
+  // All scripts are compiled together, so project-wide custom blocks are linked in.
+  const compiled = compileProject(
+    Object.entries(scene.scripts).map(([id, source]) => ({
+      assetId: id,
+      assetName: id,
+      workspace: source,
+      variables: VARIABLES,
+    })),
   );
+  const assets = new Map([...compiled].map(([id, result]) => [id, toAsset(id, result)] as const));
   return new Game(
     {
       formatVersion: 1,

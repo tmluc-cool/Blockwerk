@@ -48,6 +48,9 @@ export interface GameApi {
   letterOf(index: number, text: string): string;
   contains(text: string, part: string): boolean;
 
+  /** `true` once in a while inside loops that run without screen refresh (then they wait one frame). */
+  warpTick(): boolean;
+
   // Lists and dictionaries (SPEC 7.3). Lists count from 1; wrong kinds of values are ignored.
   split(text: string, separator: string): VariableValue[];
   listAdd(list: unknown, item: VariableValue): void;

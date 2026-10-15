@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { b, get, set, workspace } from './dsl';
+import { b, call, define, get, param, set, workspace } from './dsl';
 import { A, B, DICT, ground, hero, launch, LIST, run, when } from './phase3Cases';
 import type { RuntimeCase } from './phase3Cases';
 
@@ -225,6 +225,208 @@ export const phase7Cases: RuntimeCase[] = [
       });
       run(game, 0.1);
       expect(game.vars[A]).toBe(50);
+      game.dispose();
+    },
+  },
+  {
+    name: 'custom blocks: command, value and condition with typed inputs and "return"',
+    covers: [
+      'custom.defineCommand',
+      'custom.defineValue',
+      'custom.defineCondition',
+      'custom.callCommand',
+      'custom.callValue',
+      'custom.callCondition',
+      'custom.return',
+      'custom.param',
+    ],
+    run: () => {
+      const game = launch({
+        objects: { ground000001: ground, hero00000001: hero([], 'custom') },
+        scripts: {
+          custom: workspace(
+            when(
+              start,
+              call('Command', 'def-count', [3]),
+              set(B, call('Value', 'def-label', ['Ritter', 2])),
+              b(
+                'control.if',
+                {},
+                {
+                  condition: call('Condition', 'def-big', [get(A)]),
+                  then: [set(B, 'groß')],
+                },
+              ),
+            ),
+            [
+              define('Command', 'Zähle', 'def-count', { params: [{ name: 'n', type: 'number' }] }),
+              b(
+                'control.repeat',
+                {},
+                {
+                  times: param('n'),
+                  body: [b('variables.change', { variable: { id: A } }, { by: 1 })],
+                },
+              ),
+              b('custom.return'),
+              // never reached
+              b('variables.change', { variable: { id: A } }, { by: 100 }),
+            ],
+            [
+              define('Value', 'Beschriftung', 'def-label', {
+                params: [
+                  { name: 'name', type: 'string' },
+                  { name: 'mal', type: 'number' },
+                ],
+                returns: 'string',
+              }),
+              b(
+                'custom.return',
+                {},
+                {
+                  value: b(
+                    'operators.join',
+                    {},
+                    {
+                      a: param('name'),
+                      b: b('operators.multiply', {}, { a: param('mal'), b: 10 }),
+                    },
+                  ),
+                },
+              ),
+            ],
+            [
+              define('Condition', 'Gross', 'def-big', { params: [{ name: 'x', type: 'number' }] }),
+              b(
+                'control.if',
+                {},
+                {
+                  condition: b('operators.gt', {}, { a: param('x'), b: 2 }),
+                  then: [b('custom.return', {}, { value: b('operators.gt', {}, { a: 1, b: 0 }) })],
+                },
+              ),
+              b('custom.return', {}, { value: b('operators.gt', {}, { a: 0, b: 1 }) }),
+            ],
+          ),
+        },
+      });
+      run(game, 0.1);
+      expect(game.vars[A]).toBe(3);
+      expect(game.vars[B]).toBe('groß');
+      game.dispose();
+    },
+  },
+  {
+    name: 'project-wide custom blocks work in other scripts, including blocks that call blocks',
+    covers: [
+      'custom.defineCommand',
+      'custom.callCommand',
+      'custom.defineValue',
+      'custom.callValue',
+    ],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          hero00000001: hero([], 'user'),
+        },
+        scripts: {
+          // The library script holds the definitions; "dreimal" calls "plus" in the same script.
+          library: workspace(
+            [
+              define('Value', 'plus', 'def-plus', {
+                params: [
+                  { name: 'a', type: 'number' },
+                  { name: 'b', type: 'number' },
+                ],
+                returns: 'number',
+                scope: 'project',
+              }),
+              b(
+                'custom.return',
+                {},
+                { value: b('operators.add', {}, { a: param('a'), b: param('b') }) },
+              ),
+            ],
+            [
+              define('Command', 'dreimal', 'def-three', {
+                params: [{ name: 'v', type: 'number' }],
+                scope: 'project',
+              }),
+              b(
+                'variables.set',
+                { variable: { id: A } },
+                { value: call('Value', 'def-plus', [param('v'), 3]) },
+              ),
+            ],
+          ),
+          user: workspace(
+            when(start, call('Command', 'def-three', [4], 'library')),
+            when(
+              b('events.whenKey', { key: 'X', mode: 'pressed' }),
+              set(A, call('Value', 'def-plus', [20, 1], 'library')),
+            ),
+          ),
+        },
+      });
+      run(game, 0.1);
+      expect(game.vars[A]).toBe(7);
+      game.input.keyEvent('x', true, 'KeyX');
+      run(game, 0.1);
+      game.input.keyEvent('x', false, 'KeyX');
+      expect(game.vars[A]).toBe(21);
+      game.dispose();
+    },
+  },
+  {
+    name: 'a loop without screen refresh runs its passes in one tick and a runaway loop is cut up',
+    covers: ['custom.defineCommand', 'custom.callCommand'],
+    run: () => {
+      const game = launch({
+        objects: { ground000001: ground, hero00000001: hero([], 'warp') },
+        scripts: {
+          warp: workspace(
+            when(
+              start,
+              call('Command', 'def-warp', [50]),
+              set(B, 'fertig'),
+              call('Command', 'def-slow', [50]),
+            ),
+            [
+              define('Command', 'schnell', 'def-warp', {
+                params: [{ name: 'n', type: 'number' }],
+                warp: true,
+              }),
+              b(
+                'control.repeat',
+                {},
+                {
+                  times: param('n'),
+                  body: [b('variables.change', { variable: { id: A } }, { by: 1 })],
+                },
+              ),
+            ],
+            [
+              define('Command', 'langsam', 'def-slow', { params: [{ name: 'n', type: 'number' }] }),
+              b(
+                'control.repeat',
+                {},
+                {
+                  times: param('n'),
+                  body: [b('variables.change', { variable: { id: A } }, { by: 1 })],
+                },
+              ),
+            ],
+          ),
+        },
+      });
+      run(game, 1 / 60);
+      // The first call finished inside the first tick, the second one waits a frame per pass.
+      expect(game.vars[A]).toBeGreaterThanOrEqual(50);
+      expect(game.vars[A]).toBeLessThan(55);
+      expect(game.vars[B]).toBe('fertig');
+      run(game, 1.5);
+      expect(game.vars[A]).toBe(100);
       game.dispose();
     },
   },

@@ -29,6 +29,9 @@ export interface ToolboxCategoryJson {
 /** Flyout callback name of the variables category (the editor registers it). */
 export const VARIABLES_FLYOUT = 'BW_VARIABLES';
 
+/** Flyout callback name of the "My Blocks" category (custom blocks; the editor registers it). */
+export const MY_BLOCKS_FLYOUT = 'BW_MY_BLOCKS';
+
 /** A Blockly category toolbox. */
 export interface ToolboxJson {
   readonly kind: 'categoryToolbox';
@@ -86,13 +89,13 @@ export function buildToolbox(registry: BlockRegistry, options: ToolboxOptions): 
       : blocks;
     const category = CATEGORIES.find((candidate) => candidate.id === categoryId);
     if (!category) continue;
-    if (categoryId === 'variables') {
+    if (categoryId === 'variables' || categoryId === 'myBlocks') {
       contents.push({
         kind: 'category',
         name: category.name[options.locale],
         colour: category.color,
         toolboxitemid: categoryId,
-        custom: VARIABLES_FLYOUT,
+        custom: categoryId === 'variables' ? VARIABLES_FLYOUT : MY_BLOCKS_FLYOUT,
       });
       continue;
     }

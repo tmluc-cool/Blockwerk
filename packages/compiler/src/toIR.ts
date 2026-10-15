@@ -1,8 +1,16 @@
 import { isFieldType } from '@blockwerk/blocks';
-import type { BlockDefinition, BlockInput, BlockRegistry, FieldInput } from '@blockwerk/blocks';
+import type {
+  BlockDefinition,
+  BlockInput,
+  BlockRegistry,
+  FieldInput,
+  ValueType,
+} from '@blockwerk/blocks';
 import { CompileError } from './diagnostics';
 import type { Diagnostic } from './diagnostics';
-import type { IRExpression, IRProgram, IRScript, IRStatement } from './ir';
+import { CALL_KINDS, DEFINITION_KINDS, functionKey, signatureOf } from './functions';
+import type { CustomParam, CustomSignature } from './functions';
+import type { IRExpression, IRFunction, IRProgram, IRScript, IRStatement } from './ir';
 
 /** A block in Blockly's JSON serialization (`Blockly.serialization.workspaces.save`). */
 export interface SerializedBlock {
@@ -13,6 +21,8 @@ export interface SerializedBlock {
   readonly enabled?: boolean;
   readonly disabledReasons?: readonly string[];
   readonly fields?: Readonly<Record<string, unknown>>;
+  /** Extra state of blocks whose shape depends on data (custom blocks). */
+  readonly extraState?: unknown;
   readonly inputs?: Readonly<Record<string, SerializedConnection>>;
   readonly next?: SerializedConnection;
 }
@@ -36,6 +46,8 @@ export interface ScriptVariable {
   readonly id: string;
   readonly name: string;
   readonly scope: 'object' | 'game';
+  /** Type of the variable; used by the type check (missing means "anything"). */
+  readonly type?: 'number' | 'string' | 'boolean' | 'list' | 'dictionary';
 }
 
 /** Result of converting a workspace to IR. */
@@ -95,10 +107,75 @@ class IRBuilder {
   /** Local variables that exist at the block being read (SPEC 7.4). */
   private locals = new Set<string>();
 
+  /** The custom block whose body is being read (`null` inside a script). */
+  private fn: CustomSignature | null = null;
+
   constructor(
     private readonly registry: BlockRegistry,
     private readonly variables: ReadonlyMap<string, ScriptVariable>,
+    private readonly assetId: string,
+    private readonly signatures: ReadonlyMap<string, CustomSignature>,
   ) {}
+
+  /** Reads a custom block definition (`custom.define*`) and its body. */
+  definition(block: SerializedBlock): IRFunction | null {
+    const signature = signatureOf(block, this.assetId);
+    if (!signature) return null;
+    this.fn = signature;
+    this.locals = new Set();
+    const body = this.statements(block.next?.block);
+    this.fn = null;
+    return {
+      id: signature.key,
+      name: signature.name,
+      params: signature.params.map((param) => param.name),
+      paramTypes: signature.params.map((param) => param.type),
+      returns: signature.returns,
+      warp: signature.warp,
+      body,
+    };
+  }
+
+  /** The function and the argument values of a call block, or `null` if it cannot be resolved. */
+  private call(block: SerializedBlock): { functionId: string; args: IRExpression[] } | null {
+    const state = isRecord(block.extraState) ? block.extraState : {};
+    const fn = typeof state['fn'] === 'string' ? state['fn'] : '';
+    const library = typeof state['library'] === 'string' ? state['library'] : '';
+    const signature = this.signatures.get(functionKey(library || this.assetId, fn));
+    if (!signature || signature.kind !== CALL_KINDS[block.type]) {
+      const label = typeof state['name'] === 'string' ? state['name'] : '';
+      this.report('warning', 'unknownFunction', block.id, { name: label });
+      return null;
+    }
+    const args = signature.params.map((param, index) =>
+      this.callArgument(block, `ARG${index}`, param),
+    );
+    return { functionId: signature.key, args };
+  }
+
+  /** The value plugged into a parameter slot of a call, or the default of the parameter's type. */
+  private callArgument(block: SerializedBlock, name: string, param: CustomParam): IRExpression {
+    const connection = block.inputs?.[name];
+    const plugged = connection?.block ?? connection?.shadow;
+    const expression = plugged && !isDisabled(plugged) ? this.expression(plugged) : null;
+    if (expression) {
+      this.checkType(plugged?.id ?? block.id, param.type, expression);
+      return expression;
+    }
+    switch (param.type) {
+      case 'number':
+        return { kind: 'literal', value: 0 };
+      case 'boolean':
+        return { kind: 'literal', value: false };
+      case 'list':
+        return { kind: 'block', blockId: block.id, type: 'data.newList', args: {} };
+      case 'dictionary':
+        return { kind: 'block', blockId: block.id, type: 'data.newDictionary', args: {} };
+      case 'string':
+      case 'any':
+        return { kind: 'literal', value: '' };
+    }
+  }
 
   script(block: SerializedBlock): IRScript | null {
     const definition = this.definitionOf(block);
@@ -119,6 +196,50 @@ class IRBuilder {
     };
   }
 
+  /** Static type of a value, `any` if it is not known (SPEC 7.3). */
+  private typeOf(expression: IRExpression): ValueType {
+    switch (expression.kind) {
+      case 'literal':
+        return typeof expression.value === 'number'
+          ? 'number'
+          : typeof expression.value === 'string'
+            ? 'string'
+            : 'boolean';
+      case 'call':
+        return this.signatures.get(expression.functionId)?.returns ?? 'any';
+      case 'block': {
+        if (expression.type === 'custom.param') {
+          const name = expression.args['name'];
+          const wanted = name?.kind === 'literal' ? String(name.value) : '';
+          return this.fn?.params.find((param) => param.name === wanted)?.type ?? 'any';
+        }
+        if (expression.type === 'variables.get') {
+          const field = expression.args['variable'];
+          const id = field?.kind === 'literal' ? String(field.value) : '';
+          return this.variables.get(id)?.type ?? 'any';
+        }
+        const definition = this.registry.get(expression.type);
+        return definition && (definition.shape === 'reporter' || definition.shape === 'boolean')
+          ? definition.output
+          : 'any';
+      }
+      default:
+        return 'any';
+    }
+  }
+
+  /**
+   * Checks a value against the type of the slot it is plugged into (SPEC 7.3: numbers and text
+   * convert into each other, everything else has to fit). Only reports; the value still works.
+   */
+  private checkType(blockId: string, expected: ValueType, value: IRExpression): void {
+    const actual = this.typeOf(value);
+    if (expected === 'any' || actual === 'any' || actual === expected) return;
+    const text = (type: ValueType): boolean => type === 'number' || type === 'string';
+    if (text(expected) && text(actual)) return;
+    this.report('warning', 'typeMismatch', blockId, { expected, actual });
+  }
+
   /** The name a block with a local variable field refers to. */
   private localName(block: SerializedBlock, definition: BlockDefinition): string {
     const field = definition.local?.field;
@@ -128,6 +249,12 @@ class IRBuilder {
 
   /** Whether a block that reads or writes a local variable names one that exists here. */
   private localKnown(block: SerializedBlock, definition: BlockDefinition): boolean {
+    if (definition.local?.role === 'param') {
+      const name = this.localName(block, definition);
+      if (this.fn?.params.some((param) => param.name === name)) return true;
+      this.report('warning', 'unknownParam', block.id, { name });
+      return false;
+    }
     if (definition.local?.role !== 'use') return true;
     const name = this.localName(block, definition);
     if (this.locals.has(name)) return true;
@@ -142,6 +269,15 @@ class IRBuilder {
     this.locals = new Set(outer);
     for (let block = first; block; block = block.next?.block) {
       if (isDisabled(block)) continue;
+      if (block.type === 'custom.return') {
+        this.returnStatement(block, result);
+        continue;
+      }
+      if (CALL_KINDS[block.type] === 'command') {
+        const call = this.call(block);
+        if (call) result.push({ kind: 'call', ...call, blockId: block.id });
+        continue;
+      }
       const definition = this.definitionOf(block);
       if (!definition) continue;
       if (definition.shape !== 'stack' && definition.shape !== 'cap' && definition.shape !== 'c') {
@@ -176,7 +312,25 @@ class IRBuilder {
     return result;
   }
 
+  /** "return": ends a custom block; in value and condition blocks it carries the result. */
+  private returnStatement(block: SerializedBlock, into: IRStatement[]): void {
+    if (!this.fn) {
+      this.report('warning', 'returnOutside', block.id, {});
+      return;
+    }
+    const value =
+      this.fn.kind === 'command'
+        ? null
+        : this.argument(block, 'value', { type: 'any', default: '' });
+    if (value && this.fn.returns) this.checkType(block.id, this.fn.returns, value);
+    into.push({ kind: 'return', value, blockId: block.id });
+  }
+
   private expression(block: SerializedBlock): IRExpression | null {
+    if (CALL_KINDS[block.type] === 'value' || CALL_KINDS[block.type] === 'condition') {
+      const call = this.call(block);
+      return call ? { kind: 'call', ...call, blockId: block.id } : null;
+    }
     const definition = this.definitionOf(block);
     if (!definition) return null;
     if (definition.shape !== 'reporter' && definition.shape !== 'boolean') {
@@ -206,7 +360,10 @@ class IRBuilder {
     const connection = block.inputs?.[name];
     const plugged = connection?.block ?? connection?.shadow;
     const expression = plugged && !isDisabled(plugged) ? this.expression(plugged) : null;
-    if (expression) return expression;
+    if (expression) {
+      this.checkType(plugged?.id ?? block.id, input.type, expression);
+      return expression;
+    }
     switch (input.type) {
       case 'number':
         return { kind: 'literal', value: input.default };
@@ -299,26 +456,59 @@ function isField(input: BlockInput): input is FieldInput {
   return isFieldType(input.type);
 }
 
+/** Options of {@link workspaceToIR}. */
+export interface WorkspaceToIROptions {
+  /** ID of the block-script asset (part of the keys of its custom blocks). */
+  readonly assetId?: string;
+  /** Custom blocks this script may call, besides its own (project-wide ones of other scripts). */
+  readonly signatures?: ReadonlyMap<string, CustomSignature>;
+}
+
+/** Signatures of the custom blocks a workspace defines. */
+export function workspaceSignatures(workspace: unknown, assetId: string): CustomSignature[] {
+  const result: CustomSignature[] = [];
+  for (const block of parseWorkspace(workspace).blocks?.blocks ?? []) {
+    if (isDisabled(block)) continue;
+    const signature = signatureOf(block, assetId);
+    if (signature) result.push(signature);
+  }
+  return result;
+}
+
 /**
- * Converts a serialized Blockly workspace to IR. Every enabled hat block becomes a script;
- * loose blocks without a hat are ignored (as in Scratch). Unknown blocks and blocks that use
- * unknown variables are skipped and reported as diagnostics.
+ * Converts a serialized Blockly workspace to IR. Every enabled hat block becomes a script and
+ * every definition block a function; loose blocks without a hat are ignored (as in Scratch).
+ * Unknown blocks and blocks that use unknown variables are skipped and reported as diagnostics.
  */
 export function workspaceToIR(
   workspace: unknown,
   registry: BlockRegistry,
   variables: readonly ScriptVariable[] = [],
+  options: WorkspaceToIROptions = {},
 ): IRResult {
   const parsed = parseWorkspace(workspace);
+  const assetId = options.assetId ?? 'script';
+  const signatures = new Map(options.signatures ?? []);
+  for (const signature of workspaceSignatures(workspace, assetId)) {
+    signatures.set(signature.key, signature);
+  }
   const builder = new IRBuilder(
     registry,
     new Map(variables.map((variable) => [variable.id, variable])),
+    assetId,
+    signatures,
   );
   const scripts: IRScript[] = [];
+  const functions: IRFunction[] = [];
   for (const block of parsed.blocks?.blocks ?? []) {
     if (isDisabled(block)) continue;
+    if (DEFINITION_KINDS[block.type]) {
+      const fn = builder.definition(block);
+      if (fn) functions.push(fn);
+      continue;
+    }
     const script = builder.script(block);
     if (script) scripts.push(script);
   }
-  return { program: { scripts, functions: [] }, diagnostics: builder.diagnostics };
+  return { program: { scripts, functions }, diagnostics: builder.diagnostics };
 }
