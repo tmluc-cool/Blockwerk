@@ -2,7 +2,7 @@ import type { UiData } from '@blockwerk/project';
 import { MemorySaveStorage } from '@blockwerk/runtime';
 import { expect } from 'vitest';
 import { b, set, workspace } from './dsl';
-import { A, B, get, ground, hero, launch, run, when } from './phase3Cases';
+import { A, B, ground, hero, launch, run, when } from './phase3Cases';
 import type { RuntimeCase } from './phase3Cases';
 import { component, object } from './phase3Cases';
 

@@ -230,6 +230,11 @@ export class UiRenderer {
     this.relayout();
   }
 
+  /** The page the layer lives in (the host releases the pointer lock through it). */
+  parentDocument(): Document {
+    return this.doc;
+  }
+
   /** Whether a key is being rebound (the host should not treat keys as game input then). */
   get capturingKey(): boolean {
     return this.capturing !== null;
@@ -246,6 +251,8 @@ export class UiRenderer {
 
   private onKeyDown(event: KeyboardEvent): void {
     const game = this.game;
+    // Only keys pressed in the game view count (not typing in other windows of the editor).
+    if (!(event.target instanceof Node) || !this.parent.contains(event.target)) return;
     if (this.capturing) {
       event.preventDefault();
       event.stopPropagation();
@@ -552,6 +559,8 @@ export class UiRenderer {
   /** Runs a button's actions. */
   run(actions: readonly UiAction[] | undefined): void {
     for (const action of actions ?? []) this.game?.runUiAction(action);
+    // The click took the keyboard focus; the game gets it back.
+    this.parent.querySelector('canvas')?.focus();
   }
 
   private build(element: UiElement): UiNode {

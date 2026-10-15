@@ -178,11 +178,17 @@ describe('UiRenderer', () => {
   });
 
   it('Escape pauses and resumes, but not while someone talks', () => {
-    const { game, frame, renderer } = make();
+    const { parent, game, frame, renderer } = make();
     frame();
-    document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape' }));
+    const escape = (target: Node = parent): void => {
+      target.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', bubbles: true }));
+    };
+    escape();
     expect(game.gamePaused).toBe(true);
-    document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape' }));
+    escape();
+    expect(game.gamePaused).toBe(false);
+    // Typing somewhere else in the page (another window of the editor) does not pause.
+    escape(document.body);
     expect(game.gamePaused).toBe(false);
     renderer.dispose();
   });
@@ -211,7 +217,9 @@ describe('UiRenderer', () => {
     expect(renderer.capturingKey).toBe(true);
     frame();
     expect(parent.querySelector('[data-testid="ui-key-jump"]')?.textContent).toBe('keys.press');
-    document.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyJ', cancelable: true }));
+    parent.dispatchEvent(
+      new KeyboardEvent('keydown', { code: 'KeyJ', cancelable: true, bubbles: true }),
+    );
     expect(renderer.capturingKey).toBe(false);
     expect(settings.get('bindings')[1]?.jump).toEqual(['KeyJ']);
     frame();

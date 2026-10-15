@@ -1,6 +1,6 @@
 import { compileBlockScript, CompileError } from '@blockwerk/compiler';
 import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
-import type { BlockScriptData, SceneData } from '@blockwerk/project';
+import type { BlockScriptData, SaveData, SceneData } from '@blockwerk/project';
 import { Game, initPhysics, loadedRapier, loadScriptModule, setQuality } from '@blockwerk/runtime';
 import type { GamepadSnapshot } from '@blockwerk/runtime';
 import type {
@@ -14,6 +14,9 @@ import type {
 import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
+import { gameSettings } from '../game/settingsStore';
+import { LocalSaveStorage } from '../game/saveStorage';
+import { updateUiLayer } from '../game/uiLayer';
 import { focusPanel } from '../layout/layoutController';
 import { useMute } from '../audio/editorAudio';
 import { editorModels } from '../library/models';
@@ -247,6 +250,11 @@ function loop(time: number): void {
   if (request) beginSceneChange(request);
   updateLoading();
   game.renderInterpolated(alpha, renderViews);
+  updateUiLayer(game, usePlay.getState().loading);
+  if (game.quitRequested) {
+    stop();
+    return;
+  }
   frameTimes.push(time);
   frameWork.push(performance.now() - workStart);
   if (frameTimes.length > MEASURED_FRAMES) frameTimes.shift();
@@ -312,15 +320,22 @@ const MIN_LOADING_MS = 450;
 
 interface GameExtras {
   readonly sceneId?: string | undefined;
+  readonly sceneName?: string | undefined;
+  readonly save?: SaveData | undefined;
   readonly carry?: CarryState;
   readonly spawn?: string;
 }
 
 /** Builds a game for a scene with the project's scripts, prefabs, dialogs and physics settings. */
 function createGame(scene: SceneData, extras: GameExtras): Game {
+  const project = useDocument.getState().project;
   return new Game(scene, {
     scripts: (id) => compiled.get(id)?.asset ?? null,
-    dialogs: (id) => useDocument.getState().project?.assetOfType(id, 'dialog')?.data ?? null,
+    dialogs: (id) => project?.assetOfType(id, 'dialog')?.data ?? null,
+    uis: (id) => project?.assetOfType(id, 'ui')?.data ?? null,
+    settings: gameSettings,
+    saves: new LocalSaveStorage(project?.settings.name ?? 'project'),
+    savedVariables: savedVariableIds(),
     log: logGame,
     displayName: defaultObjectName,
     models: editorModels,
@@ -328,9 +343,22 @@ function createGame(scene: SceneData, extras: GameExtras): Game {
     prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
     physics: physicsSettings(),
     ...(extras.sceneId ? { sceneId: extras.sceneId } : {}),
+    ...(extras.sceneName ? { sceneName: extras.sceneName } : {}),
     ...(extras.carry ? { carry: extras.carry } : {}),
     ...(extras.spawn !== undefined ? { spawn: extras.spawn } : {}),
+    ...(extras.save ? { save: extras.save } : {}),
   });
+}
+
+/** IDs of the game variables (of all block scripts) that belong in a save. */
+function savedVariableIds(): Set<string> {
+  const ids = new Set<string>();
+  for (const entry of useDocument.getState().project?.assetsOfType('blockScript') ?? []) {
+    for (const variable of entry.data.variables) {
+      if (variable.scope === 'game' && variable.saved) ids.add(variable.id);
+    }
+  }
+  return ids;
 }
 
 let sceneChange: {
@@ -362,8 +390,11 @@ function beginSceneChange(request: SceneRequest): void {
     const data = entry.id === sceneId && scene ? scene : entry.data;
     const next = createGame(data, {
       sceneId: entry.id,
-      carry: old.exportCarry(),
-      spawn: change.request.spawn,
+      sceneName: title,
+      // Loading a save brings everything from the slot; a scene change carries the old state over.
+      ...(change.request.save
+        ? { save: change.request.save }
+        : { carry: old.exportCarry(), spawn: change.request.spawn }),
     });
     next.audio.setMuted(useMute.getState().muted);
     next.world.updateSun();
@@ -423,7 +454,12 @@ export function play(options: PlayOptions = {}): void {
     const asset = compileAsset(id, id, data);
     if (asset) compiled.set(id, { data, asset });
   }
-  game = createGame(scene, { sceneId: useDocument.getState().sceneId ?? undefined });
+  const openSceneId = useDocument.getState().sceneId;
+  const openScene = openSceneId ? useDocument.getState().project?.asset(openSceneId) : undefined;
+  game = createGame(scene, {
+    sceneId: openSceneId ?? undefined,
+    sceneName: openScene ? assetDisplayName(openScene.path) : undefined,
+  });
   game.audio.setMuted(useMute.getState().muted);
   // The Play click allows sound in the browser.
   game.audio.resume();
@@ -459,6 +495,7 @@ export function stop(): void {
   game = null;
   setPlayWorld(null);
   finished.dispose();
+  updateUiLayer(null, null);
   compiled = new Map();
   sceneChange = null;
   usePlay.setState({ status: 'stopped', changes: {}, monitors: [], tick: 0, loading: null });
@@ -486,6 +523,7 @@ export function step(): void {
   usePlay.setState({ status: 'paused' });
   game.stepTick();
   game.renderInterpolated(1, renderViews);
+  updateUiLayer(game, usePlay.getState().loading);
   updateUi(true);
 }
 
