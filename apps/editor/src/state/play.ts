@@ -307,7 +307,7 @@ function physicsSettings(): {
 
 /** Number of tips the loading screen rotates through. */
 const LOADING_TIPS = 3;
-/** The loading screen stays at least this long, so it can be read and never flashes. */
+/** The loading screen stays this long after the next scene is built, so it never flashes. */
 const MIN_LOADING_MS = 450;
 
 interface GameExtras {
@@ -336,7 +336,8 @@ function createGame(scene: SceneData, extras: GameExtras): Game {
 let sceneChange: {
   readonly request: SceneRequest;
   readonly started: number;
-  swapped: boolean;
+  /** When the next scene was built (`null` before). */
+  swappedAt: number | null;
 } | null = null;
 
 /** Shows the loading screen and, a moment later, replaces the game by the next scene's game. */
@@ -349,7 +350,7 @@ function beginSceneChange(request: SceneRequest): void {
     return;
   }
   const title = assetDisplayName(entry.path);
-  sceneChange = { request, started: performance.now(), swapped: false };
+  sceneChange = { request, started: performance.now(), swappedAt: null };
   usePlay.setState({
     loading: { title, progress: 0, tip: Math.floor(Math.random() * LOADING_TIPS) },
   });
@@ -369,7 +370,7 @@ function beginSceneChange(request: SceneRequest): void {
     game = next;
     setPlayWorld(next.world);
     old.dispose();
-    change.swapped = true;
+    change.swappedAt = performance.now();
     usePlay.setState({ monitors: [], tick: 0 });
   }, 80);
 }
@@ -378,17 +379,16 @@ function beginSceneChange(request: SceneRequest): void {
 function updateLoading(): void {
   const change = sceneChange;
   if (!change) return;
-  const elapsed = performance.now() - change.started;
-  if (change.swapped && elapsed >= MIN_LOADING_MS) {
+  const now = performance.now();
+  // The screen stays a moment after the (blocking) build, so it can be seen and read.
+  if (change.swappedAt !== null && now - change.swappedAt >= MIN_LOADING_MS) {
     sceneChange = null;
     usePlay.setState({ loading: null });
     return;
   }
-  usePlay.setState((state) =>
-    state.loading
-      ? { loading: { ...state.loading, progress: Math.min(0.95, elapsed / MIN_LOADING_MS) } }
-      : {},
-  );
+  const progress =
+    change.swappedAt === null ? Math.min(0.9, (now - change.started) / MIN_LOADING_MS) : 1;
+  usePlay.setState((state) => (state.loading ? { loading: { ...state.loading, progress } } : {}));
 }
 
 /**

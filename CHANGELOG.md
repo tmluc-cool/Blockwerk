@@ -5,6 +5,24 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 5: NPCs and game logic
+
+- Navigation: a mesh built with Recast from the static colliders of the scene, a Navigation window
+  (agent size, bake, display in the Scene view) and the Nav Agent and Nav Obstacle components.
+- NPC components Wander, Patrol, Follow, Flee, Guard (view cone and hearing) and Attack, driven by
+  a plain state name per NPC (shown above the NPC in play mode); blocks for walking, states and
+  "sees / hears".
+- Dialogs: new asset type `dialog`, a Dialog editor window (lines as cards, answers with conditions
+  and actions), the Talkable component, a dialog box in the Game view (mouse, number keys, arrows,
+  gamepad) and the blocks "start dialog" and "when dialog answer".
+- Items and combat: Inventory, Pickup, Usable, Door, Switch, Chest, Health, Destructible,
+  Checkpoint, Melee Hit and Projectile components, the Interact action (E, gamepad Y) with a hint,
+  and the item blocks (give, take, "has", count, open/close, pick up, damage, heal, health).
+- Messages, timers and "for each object" blocks.
+- Scene change with a loading screen: the blocks "load scene" and "restart scene" keep the game
+  variables and the player's items, health and stamina and put the player at a spawn point.
+- Example project `examples/05-quest`.
+
 ### Phase 4: environment and graphics
 
 - Graphics levels Low, Medium, High and Ultra (resolution, shadows, anti-aliasing, post-processing,

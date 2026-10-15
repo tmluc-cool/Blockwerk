@@ -161,6 +161,9 @@ interface TransformSnapshot {
 
 const ORIGIN = new Vector3();
 
+/** Components that make NPCs act; they pause while a dialog is open. */
+const NPC_BEHAVIORS = new Set(['patrol', 'wander', 'follow', 'guard', 'attack', 'navAgent']);
+
 /** Shapes count as touching up to this distance (physics keeps resting bodies apart). */
 const CONTACT_MARGIN = 0.02;
 
@@ -302,6 +305,11 @@ export class Game implements GameApi {
 
   // ---------------------------------------------------------------- scenes
 
+  /** Asset ID of the scene this game plays, if the host named it. */
+  get sceneId(): string | null {
+    return this.options.sceneId ?? null;
+  }
+
   /** Asks the host to change the scene; "load scene" blocks call this. */
   loadScene(_self: GameObject, scene: string, spawn = ''): void {
     const id = this.str(scene).replace(/^scene:/, '');
@@ -369,6 +377,7 @@ export class Game implements GameApi {
       if (object.destroyed || !object.activeInHierarchy) continue;
       for (const component of object.components) {
         if (component.enabled && component.behavior.tick) {
+          if (this.dialog && NPC_BEHAVIORS.has(component.definition.type)) continue;
           component.behavior.tick(stage, this.tickContext);
         }
       }
@@ -442,8 +451,11 @@ export class Game implements GameApi {
     this.deliverMessages();
     this.deliverObjectEvents();
     this.tickComponents('control');
-    this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
-    this.updateNpcStates();
+    // While someone talks, the NPCs wait (nothing sneaks up on the player in a dialog).
+    if (!this.dialog) {
+      this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
+      this.updateNpcStates();
+    }
     this.updateDialog();
     this.updateInteraction();
     if (this.tick === 0) this.fire('start', () => true, false);
@@ -463,7 +475,7 @@ export class Game implements GameApi {
     );
     this.stepThreads(this.threads);
     this.physics?.sync();
-    if (this.world.navigationInUse) this.world.navigation.update(TICK_SECONDS);
+    if (this.world.navigationInUse && !this.dialog) this.world.navigation.update(TICK_SECONDS);
     this.tickComponents('character');
     if (this.physics) {
       this.physics.sync();

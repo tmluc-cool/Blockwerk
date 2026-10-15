@@ -281,4 +281,33 @@ describe('examples/05-quest', { timeout: 180_000 }, () => {
     expect(peekHealth(hero)?.current ?? 100).toBeLessThan(100);
     game.dispose();
   });
+
+  it('zombies wait while a dialog is open and go on afterwards', async () => {
+    const project = await loadProject(new NodeFileSystem(folder));
+    const { game } = await launch(project, 'Dorf');
+    run(game, 0.3);
+    standAt(game, 'Mira');
+    const zombie = named(game, 'Zombie A');
+    const hero = named(game, 'Ritter');
+    // The zombie stands 7 m behind the player, looking at them: it notices and starts the chase.
+    zombie.setWorldPosition(
+      hero
+        .worldPosition()
+        .clone()
+        .add(new Vector3(0, 0, -7)),
+    );
+    zombie.object3d.rotation.y = 0;
+    run(game, 0.5);
+    expect(peekNpcState(zombie)?.current).toBe('chase');
+    interact(game);
+    expect(game.talking).toBe(true);
+    const frozen = zombie.worldPosition().clone();
+    run(game, 2);
+    expect(zombie.worldPosition().distanceTo(frozen)).toBeLessThan(0.01);
+    choose(game, 'tschuess');
+    expect(game.talking).toBe(false);
+    run(game, 1.5);
+    expect(zombie.worldPosition().distanceTo(frozen)).toBeGreaterThan(1);
+    game.dispose();
+  });
 });

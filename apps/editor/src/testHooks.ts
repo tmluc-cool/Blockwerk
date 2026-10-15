@@ -1,7 +1,14 @@
 import { assetDisplayName } from '@blockwerk/project';
-import { animatorRegistry, controlRegistry, terrainRegistry } from '@blockwerk/runtime';
+import {
+  animatorRegistry,
+  controlRegistry,
+  peekInventory,
+  peekNpcState,
+  terrainRegistry,
+} from '@blockwerk/runtime';
 import { compileBlockScript } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
+import { Vector3 } from 'three';
 import { lastGameViewStats } from './game/GameViewport';
 import { currentWorld } from './scene/worlds';
 import { currentStage } from './studio/StudioStage';
@@ -82,6 +89,17 @@ export interface BlockwerkDebugHooks {
     grounded: boolean;
     running: boolean;
   } | null;
+  /** Quest example probes: scene, NPC states, hint, dialog box, loading screen (play mode). */
+  questProbe(): {
+    scene: string | null;
+    npcStates: Record<string, string>;
+    hint: string | null;
+    talking: boolean;
+    loading: string | null;
+    items: Record<string, number>;
+  };
+  /** Puts a live object somewhere (play mode). */
+  teleportLive(name: string, position: [number, number, number]): void;
   /** Live inspector variable or game variable value by variable name (play mode). */
   liveVariable(objectName: string | null, variableName: string): unknown;
   /** Height in meters of a terrain object at a local position, and its grass clump count. */
@@ -220,6 +238,30 @@ export function installTestHooks(): void {
         layer0: state.data.weightAt(0, x, z),
         layer1: state.data.weightAt(1, x, z),
       };
+    },
+    questProbe: () => {
+      const game = currentGame();
+      const npcStates: Record<string, string> = {};
+      let items: Record<string, number> = {};
+      for (const object of game?.world.allObjects() ?? []) {
+        const state = peekNpcState(object);
+        if (state && !object.destroyed) npcStates[object.name] = state.current;
+        if (object.name === 'Ritter') items = peekInventory(object)?.snapshot() ?? {};
+      }
+      return {
+        scene: game?.sceneId ?? null,
+        npcStates,
+        hint: game?.interactionHint(1)?.kind ?? null,
+        talking: game?.talking ?? false,
+        loading: usePlay.getState().loading?.title ?? null,
+        items,
+      };
+    },
+    teleportLive: (name, position) => {
+      const object = [...(currentGame()?.world.allObjects() ?? [])].find(
+        (item) => item.name === name && !item.destroyed,
+      );
+      object?.setWorldPosition(new Vector3(...position));
     },
     liveVariable: (objectName, variableName) => {
       const project = useDocument.getState().project;
