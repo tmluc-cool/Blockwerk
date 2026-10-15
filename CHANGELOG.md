@@ -5,6 +5,26 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 6: UI, menus, saving
+
+- UI canvases as a new asset type (`*.ui.json`): elements with anchors and offsets like Unity's
+  RectTransform (panel, text, image, bar, button, slider, toggle, drop-down, hint, crosshair,
+  inventory, dialog box, key bindings), data bindings (variable, health, stamina, item count) and
+  button actions; the UI Canvas component shows a canvas in a scene, per player in split screen.
+- UI Editor window: element list, preview with dragging, properties, anchor presets, button
+  actions and menus from templates (main menu, pause menu, settings, victory, defeat, loading
+  screen, HUD).
+- The UI layer in the runtime: the interaction hint, the dialog box and the loading screen moved
+  from the editor into it, so exported games have them too; in-game pause with Esc, P or the
+  gamepad's Start button.
+- Settings (graphics level, four volumes, mouse sensitivity, full screen, key bindings per player)
+  that the game applies and the browser keeps.
+- Save slots (three per project): scene, variables marked "saved", and per player position,
+  inventory, health and stamina; blocks "show UI", "hide UI", "save game", "load game" and "slot is
+  used?"; variables get a "saved" flag.
+- `examples/05-quest` now starts in a main menu and has a pause menu, settings, a life bar, an
+  inventory display, interaction hints, a victory screen and the three save slots.
+
 ### Phase 5: NPCs and game logic
 
 - Navigation: a mesh built with Recast from the static colliders of the scene, a Navigation window
