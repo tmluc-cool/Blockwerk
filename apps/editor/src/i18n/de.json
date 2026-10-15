@@ -254,6 +254,7 @@
   "component.category.physics": "Physik",
   "component.category.logic": "Logik",
   "component.category.audio": "Klang",
+  "component.category.ui": "UI",
   "component.category.gameplay": "Spielmechanik",
   "component.group.material": "Material",
   "unit.meters": "m",

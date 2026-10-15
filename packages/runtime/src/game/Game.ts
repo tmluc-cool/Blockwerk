@@ -1,6 +1,11 @@
+import { FORMAT_VERSION } from '@blockwerk/project';
 import type {
   ComponentData,
   DialogData,
+  SaveData,
+  UiAction,
+  UiBinding,
+  UiData,
   JsonValue,
   SceneData,
   SceneObjectData,
@@ -43,10 +48,16 @@ import { NpcCommands } from './npcApi';
 import { npcOwners, npcStateOf } from '../npc/state';
 import * as itemsApi from './itemsApi';
 import { collectPlayers, restorePlayer } from './carry';
+import { uiCanvasRegistry } from '../components/uiCanvas';
+import { bindingsFor, GameSettings } from '../settings/settings';
+import { AUDIO_BUSES } from '../audio/AudioEngine';
+import type { SaveStorage } from '../saves/saves';
 import type { CarryState, SceneRequest } from './carry';
 import { DialogSession } from '../dialog/session';
 import type { DialogHost, DialogView } from '../dialog/session';
 import { inventoryOf, peekInventory } from '../gameplay/inventory';
+import { peekHealth } from '../gameplay/health';
+import { SAVE_SLOTS } from '../saves/saves';
 import { nearestWithTag } from '../npc/senses';
 import type { InteractionHint } from '../gameplay/interaction';
 import { playerObject } from '../components/cameraBehaviors';
@@ -110,8 +121,19 @@ export interface GameOptions extends WorldOptions {
   readonly scripts: (assetId: string) => ScriptAsset | null;
   /** Dialog assets by asset ID ("start dialog", Talkable). */
   readonly dialogs?: (assetId: string) => DialogData | null;
-  /** Asset ID of the scene this game plays (for "restart scene"). */
+  /** Asset ID of the scene this game plays (for "restart scene") and its name (for saves). */
   readonly sceneId?: string;
+  readonly sceneName?: string;
+  /** UI canvases by asset ID. */
+  readonly uis?: (assetId: string) => UiData | null;
+  /** The player's settings (volumes, sensitivity, keys); a default set if missing. */
+  readonly settings?: GameSettings;
+  /** Where save slots are written and read. */
+  readonly saves?: SaveStorage;
+  /** IDs of the game variables that belong in a save (the host reads them from all scripts). */
+  readonly savedVariables?: ReadonlySet<string>;
+  /** A save slot to continue from: variables, players, positions. */
+  readonly save?: SaveData;
   /** State from the previous scene (variables, players' items and health). */
   readonly carry?: CarryState;
   /** Name of the spawn point the players start at (an object tagged `Spawn`). */
@@ -249,6 +271,12 @@ export class Game implements GameApi {
   private readonly hints: Record<1 | 2, InteractionHint | null> = { 1: null, 2: null };
   private dialog: ActiveDialog | null = null;
   private sceneRequest: SceneRequest | null = null;
+  private gamePaused_ = false;
+  private quitRequested_ = false;
+  private readonly attachedSavedVars = new Set<string>();
+  private noticeState: { key: string; at: number } | null = null;
+  private unsubscribeSettings: (() => void) | null = null;
+  readonly settings: GameSettings;
   private readonly timers = new Map<GameObject, Map<string, number>>();
   private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
@@ -274,6 +302,7 @@ export class Game implements GameApi {
 
   constructor(scene: SceneData, options: GameOptions) {
     this.options = options;
+    this.settings = options.settings ?? new GameSettings();
     this.random_ = options.random ?? Math.random;
     this.world = new World(structuredClone(scene), options);
     this.audio = options.audio ?? new AudioEngine();
@@ -301,6 +330,221 @@ export class Game implements GameApi {
     };
     for (const object of this.world.allObjects()) this.attachScripts(object, null);
     if (options.carry) this.applyCarry(options.carry, options.spawn ?? '');
+    if (options.save) this.applySave(options.save);
+    this.applySettings();
+    this.unsubscribeSettings = this.settings.onChange(() => this.applySettings());
+  }
+
+  // ---------------------------------------------------------------- settings, pause, UI, saves
+
+  /** Puts the player's settings to work: mixer volumes, graphics level, mouse and keys. */
+  private applySettings(): void {
+    const values = this.settings.values;
+    this.audio.setVolume('master', values.masterVolume / 100);
+    const volumes = {
+      music: values.musicVolume,
+      effects: values.effectsVolume,
+      voices: values.voicesVolume,
+    } as const;
+    for (const bus of AUDIO_BUSES) this.audio.setVolume(bus, volumes[bus] / 100);
+    if (values.graphicsLevel) setQuality(values.graphicsLevel);
+    for (const player of [1, 2] as const) {
+      this.players[player].sensitivity = values.mouseSensitivity;
+      this.players[player].setBindings(bindingsFor(player, values.bindings[player]));
+    }
+  }
+
+  /** Whether the player paused the game (Esc, pause menu); the logic does not run meanwhile. */
+  get gamePaused(): boolean {
+    return this.gamePaused_;
+  }
+
+  /** Pauses or resumes the game for the player. */
+  setGamePaused(paused: boolean): void {
+    this.gamePaused_ = paused;
+  }
+
+  /** The player asked to quit (menu button); the host ends the game. */
+  get quitRequested(): boolean {
+    return this.quitRequested_;
+  }
+
+  /** A short message the UI shows for a moment ("saved", "no save in this slot"). */
+  get notice(): { readonly key: string; readonly at: number } | null {
+    return this.noticeState;
+  }
+
+  /** Item names and counts the player carries. */
+  playerItems(player: 1 | 2): [string, number][] {
+    const object = playerObject(this.world, player);
+    return object ? (peekInventory(object)?.entries() ?? []) : [];
+  }
+
+  /** The value a UI element is bound to: `value` of `max` (max is `null` for plain numbers). */
+  bindingValue(binding: UiBinding, player: 1 | 2): { value: number; max: number | null } {
+    const object = playerObject(this.world, player);
+    switch (binding.kind) {
+      case 'health': {
+        const health = object ? peekHealth(object) : undefined;
+        return { value: health?.current ?? 0, max: health?.max ?? 100 };
+      }
+      case 'stamina':
+        return { value: object ? gameplay.staminaPercent(object) : 0, max: 100 };
+      case 'item':
+        return { value: object ? (peekInventory(object)?.count(binding.item) ?? 0) : 0, max: null };
+      case 'variable': {
+        const raw = this.vars[binding.variable];
+        return { value: typeof raw === 'number' ? raw : Number(raw) || 0, max: null };
+      }
+      case 'loading':
+        return { value: 0, max: 1 };
+    }
+  }
+
+  /** The canvases to draw now, back to front. */
+  uiCanvases(): { key: string; ui: UiData; player: 'all' | '1' | '2'; order: number }[] {
+    const result: { key: string; ui: UiData; player: 'all' | '1' | '2'; order: number }[] = [];
+    for (const object of this.world.allObjects()) {
+      if (object.destroyed || !object.activeInHierarchy) continue;
+      const state = uiCanvasRegistry.get(object);
+      if (!state?.ui) continue;
+      const visible =
+        state.visibility === 'always' ||
+        (state.visibility === 'paused' && this.gamePaused_) ||
+        (state.visibility === 'manual' && state.shown);
+      if (!visible) continue;
+      const ui = this.options.uis?.(state.ui);
+      if (ui) result.push({ key: object.id, ui, player: state.player, order: state.order });
+    }
+    return result.sort((a, b) => a.order - b.order);
+  }
+
+  /** Shows the canvases that use a UI asset and are opened by hand. */
+  showUi(_self: GameObject | null, ui: string): void {
+    this.setUiShown(ui.replace(/^ui:/, ''), true);
+  }
+
+  /** Hides them again. */
+  hideUi(_self: GameObject | null, ui: string): void {
+    this.setUiShown(ui.replace(/^ui:/, ''), false);
+  }
+
+  private setUiShown(ui: string, shown: boolean): void {
+    for (const object of this.world.allObjects()) {
+      const state = uiCanvasRegistry.get(object);
+      if (state && state.ui === ui) state.shown = shown;
+    }
+  }
+
+  /** Does what a UI button asks for. */
+  runUiAction(action: UiAction): void {
+    switch (action.type) {
+      case 'sendMessage':
+        this.world.messages.send(action.message, { kind: 'all' }, null);
+        break;
+      case 'showUi':
+        this.setUiShown(action.ui, true);
+        break;
+      case 'hideUi':
+        this.setUiShown(action.ui, false);
+        break;
+      case 'loadScene':
+        if (action.scene) this.sceneRequest = { scene: action.scene, spawn: action.spawn };
+        break;
+      case 'resume':
+        this.gamePaused_ = false;
+        break;
+      case 'restart':
+        this.gamePaused_ = false;
+        this.restartScene();
+        break;
+      case 'saveGame':
+        this.saveGame(action.slot);
+        break;
+      case 'loadGame':
+        this.loadGame(action.slot);
+        break;
+      case 'quit':
+        this.quitRequested_ = true;
+        break;
+    }
+  }
+
+  /** IDs of the game variables that go into a save. */
+  private savedIds(): Set<string> {
+    return new Set([...(this.options.savedVariables ?? []), ...this.attachedSavedVars]);
+  }
+
+  /** Writes the game into a slot: scene, saved variables and the players. Returns false if it cannot. */
+  saveGame(slot: number): boolean {
+    const storage = this.options.saves;
+    const scene = this.options.sceneId;
+    if (!storage || !scene || !Number.isInteger(slot) || slot < 1 || slot > SAVE_SLOTS) {
+      this.noticeState = { key: 'saveFailed', at: this.tick };
+      return false;
+    }
+    const vars: Record<string, number | string | boolean> = {};
+    for (const id of this.savedIds()) {
+      const value = this.vars[id];
+      if (value !== undefined) vars[id] = value;
+    }
+    const players = this.playerObjects().map((object) => {
+      const health = peekHealth(object);
+      const stamina = controlRegistry.get(object)?.stamina;
+      return {
+        position: object.worldPosition().toArray() as [number, number, number],
+        yaw: MathUtils.radToDeg(object.object3d.rotation.y),
+        items: peekInventory(object)?.snapshot() ?? {},
+        health: health ? { current: health.current, max: health.max } : null,
+        stamina: stamina === null || stamina === undefined ? null : gameplay.staminaPercent(object),
+      };
+    });
+    storage.write(slot, {
+      formatVersion: FORMAT_VERSION,
+      slot,
+      scene,
+      sceneName: this.options.sceneName ?? '',
+      savedAt: new Date().toISOString(),
+      vars,
+      players,
+    });
+    this.noticeState = { key: 'saved', at: this.tick };
+    return true;
+  }
+
+  /** Asks the host to continue from a slot (the scene is built like after a scene change). */
+  loadGame(slot: number): boolean {
+    const data = this.options.saves?.read(slot) ?? null;
+    if (!data) {
+      this.noticeState = { key: 'noSave', at: this.tick };
+      return false;
+    }
+    this.gamePaused_ = false;
+    this.sceneRequest = { scene: data.scene, spawn: '', save: data };
+    return true;
+  }
+
+  /** Whether a slot holds a save. */
+  slotUsed(slot: number): boolean {
+    return (this.options.saves?.read(slot) ?? null) !== null;
+  }
+
+  /** Puts a save back: saved variables, and per player the position, items, health and stamina. */
+  private applySave(save: SaveData): void {
+    Object.assign(this.vars, save.vars);
+    const players = this.playerObjects();
+    players.forEach((object, index) => {
+      const kept = save.players[index];
+      if (!kept) return;
+      restorePlayer(
+        object,
+        { items: kept.items, health: kept.health, stamina: kept.stamina },
+        gameplay.setStamina,
+      );
+      object.setWorldPosition(new Vector3(...kept.position));
+      object.object3d.rotation.y = MathUtils.degToRad(kept.yaw);
+      this.physics?.setVelocity(object, new Vector3());
+    });
   }
 
   // ---------------------------------------------------------------- scenes
@@ -425,7 +669,7 @@ export class Game implements GameApi {
    * and returns the interpolation factor (0..1) for rendering between the last two ticks.
    */
   advance(realSeconds: number): number {
-    if (!this.paused) {
+    if (!this.paused && !this.gamePaused_) {
       this.accumulator += Math.min(Math.max(realSeconds, 0), 0.25) * this.timeScale;
       let ticks = 0;
       while (this.accumulator >= TICK_SECONDS - 1e-9 && ticks < MAX_TICKS_PER_FRAME) {
@@ -676,6 +920,7 @@ export class Game implements GameApi {
           object.vars[variable.id] = variable.default;
         if (variable.scope === 'game' && !(variable.id in this.vars))
           this.vars[variable.id] = variable.default;
+        if (variable.scope === 'game' && variable.saved) this.attachedSavedVars.add(variable.id);
       }
       for (const entry of asset.module.scripts) {
         const key = `${object.id}|${entry.id}`;
@@ -697,6 +942,8 @@ export class Game implements GameApi {
 
   /** Stops everything and frees the world. */
   dispose(): void {
+    this.unsubscribeSettings?.();
+    this.unsubscribeSettings = null;
     for (const thread of this.threads) thread.done = true;
     this.threads = [];
     this.running.clear();
@@ -1626,6 +1873,7 @@ export class Game implements GameApi {
       for (const variable of asset.variables) {
         if (variable.scope === 'game') {
           if (!(variable.id in this.vars)) this.vars[variable.id] = variable.default;
+          if (variable.saved) this.attachedSavedVars.add(variable.id);
           continue;
         }
         const value = values[variable.id];

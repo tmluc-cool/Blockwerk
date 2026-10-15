@@ -79,7 +79,7 @@ export interface EnumFieldDefinition extends FieldBase {
 }
 
 /** Asset kinds an asset field can point to. */
-export type AssetFieldType = 'blockScript' | 'dialog' | 'model' | 'terrain' | 'sound';
+export type AssetFieldType = 'blockScript' | 'dialog' | 'ui' | 'model' | 'terrain' | 'sound';
 
 /** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {
@@ -123,7 +123,7 @@ export type FieldValue<F extends FieldDefinition> = F extends NumberFieldDefinit
 export type FieldValues<F extends FieldDefinitions> = { [K in keyof F]: FieldValue<F[K]> };
 
 /** Categories of the "Add Component" menu (SPEC 8.15). */
-export type ComponentCategory = 'rendering' | 'physics' | 'logic' | 'audio' | 'gameplay';
+export type ComponentCategory = 'rendering' | 'physics' | 'logic' | 'audio' | 'gameplay' | 'ui';
 
 /** What a component instance can access when it is created. */
 export interface ComponentContext {

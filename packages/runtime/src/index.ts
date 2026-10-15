@@ -205,3 +205,16 @@ export {
   RecordedSource,
   RecordingAudioContext,
 } from './audio/RecordingAudioContext';
+
+export { uiCanvasRegistry } from './components/uiCanvas';
+export type { UiCanvasState, UiVisibility } from './components/uiCanvas';
+export { bindingsFor, DEFAULT_SETTINGS, GameSettings, sanitizeSettings } from './settings/settings';
+export type { BindingOverrides, SettingsStorage, SettingsValues } from './settings/settings';
+export { MemorySaveStorage, parseSave, SAVE_SLOTS } from './saves/saves';
+export type { SaveStorage } from './saves/saves';
+export { ANCHOR_PRESETS, applyAnchorPreset, canvasScale, layoutRect } from './ui/layout';
+export type { AnchorPreset, Rect, UiPlacement } from './ui/layout';
+export { formatValue, keyLabel, UiRenderer } from './ui/UiRenderer';
+export type { UiFrame, UiHost, UiLoading } from './ui/UiRenderer';
+export { UI_STRING_KEYS } from './ui/strings';
+export type { UiStringKey, UiStrings } from './ui/strings';

@@ -32,6 +32,7 @@ import { guard } from './guard';
 import { inventory } from './inventory';
 import { chest, door, pickup, switchComponent, usable } from './items';
 import { talkable } from './talkable';
+import { uiCanvas } from './uiCanvas';
 import { navAgent } from './navAgent';
 import { navObstacle } from './navObstacle';
 import { npc } from './npc';
@@ -88,6 +89,7 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   projectile,
   pickup,
   talkable,
+  uiCanvas,
   usable,
   door,
   switchComponent,

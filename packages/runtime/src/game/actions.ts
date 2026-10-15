@@ -133,6 +133,8 @@ export class PlayerInput {
   usingGamepad = false;
   /** Locked input (block "lock controls"): all actions read as idle. */
   locked = false;
+  /** Factor on the mouse look (the player's setting). */
+  sensitivity = 1;
 
   constructor(
     readonly player: 1 | 2,
@@ -157,8 +159,8 @@ export class PlayerInput {
     );
     this.zoomAxis = 0;
     if (b.mouse) {
-      this.lookAxis.x += raw.mouseDelta.x * MOUSE_SENSITIVITY;
-      this.lookAxis.y -= raw.mouseDelta.y * MOUSE_SENSITIVITY;
+      this.lookAxis.x += raw.mouseDelta.x * MOUSE_SENSITIVITY * this.sensitivity;
+      this.lookAxis.y -= raw.mouseDelta.y * MOUSE_SENSITIVITY * this.sensitivity;
       this.zoomAxis += raw.wheelDelta;
     }
     const next = new Set<ButtonAction>();

@@ -10,7 +10,7 @@ import {
   uiSchema,
   variableSchema,
 } from '../src';
-import type { UiData } from '../src';
+import type { UiAction, UiData } from '../src';
 
 const ui: UiData = {
   formatVersion: FORMAT_VERSION,
@@ -66,13 +66,19 @@ describe('ui assets', () => {
 
   it('accepts a canvas with nested elements and rejects unknown element types and actions', () => {
     expect(uiSchema.safeParse(ui).success).toBe(true);
-    const bad = structuredClone(ui) as unknown as { elements: { type: string }[] };
-    bad.elements[0]!.type = 'carousel';
+    const bad = structuredClone(ui);
+    bad.elements = bad.elements.map((item, index) =>
+      index === 0 ? ({ ...item, type: 'carousel' } as unknown as typeof item) : item,
+    );
     expect(uiSchema.safeParse(bad).success).toBe(false);
-    const badAction = structuredClone(ui) as unknown as {
-      elements: { children: { actions: { type: string }[] }[] }[];
-    };
-    badAction.elements[1]!.children[0]!.actions[0] = { type: 'format-disk' };
+    const badAction = structuredClone(ui);
+    badAction.elements = badAction.elements.map((item) => ({
+      ...item,
+      children: item.children?.map((child) => ({
+        ...child,
+        actions: [{ type: 'format-disk' } as unknown as UiAction],
+      })),
+    }));
     expect(uiSchema.safeParse(badAction).success).toBe(false);
   });
 
