@@ -117,7 +117,14 @@ export interface DropdownField {
  * - `sound`: the built-in sounds and the sound files of the project
  */
 export type ReferenceSource =
-  'object' | 'objectOrMouse' | 'touchTarget' | 'messageTarget' | 'prefab' | 'dialog' | 'sound';
+  | 'object'
+  | 'objectOrMouse'
+  | 'touchTarget'
+  | 'messageTarget'
+  | 'prefab'
+  | 'dialog'
+  | 'scene'
+  | 'sound';
 
 /**
  * Dropdown of objects or tags of the scene, or prefabs of the project. Values: `self`, `any`,

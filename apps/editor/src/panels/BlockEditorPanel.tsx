@@ -66,6 +66,10 @@ function references(scene: SceneData | null): FrameReferences {
     id: asset.id,
     name: assetDisplayName(asset.path),
   }));
+  const scenes = (project?.assetsOfType('scene') ?? []).map((asset) => ({
+    id: asset.id,
+    name: assetDisplayName(asset.path),
+  }));
   const sounds = [
     ...BUILTIN_SOUNDS.map((name) => ({
       value: `builtin:${name}`,
@@ -81,6 +85,7 @@ function references(scene: SceneData | null): FrameReferences {
     tags: [...tags].sort(),
     prefabs,
     dialogs,
+    scenes,
     sounds,
     labels: {
       self: t('reference.self'),
@@ -93,6 +98,7 @@ function references(scene: SceneData | null): FrameReferences {
       missing: t('reference.missing'),
       choosePrefab: t('reference.choosePrefab'),
       chooseDialog: t('reference.chooseDialog'),
+      chooseScene: t('reference.chooseScene'),
       createVariable: t('blockEditor.createVariable'),
       noVariables: t('blockEditor.noVariables'),
     },

@@ -28,6 +28,7 @@ export function GamePanel({ api }: IDockviewPanelProps) {
   const monitors = usePlay((state) => state.monitors);
   const status = usePlay((state) => state.status);
   const muted = useMute((state) => state.muted);
+  const loading = usePlay((state) => state.loading);
   const [liveHint, setHint] = useState<InteractionHint | null>(null);
   const [liveDialog, setDialog] = useState<DialogView | null>(null);
   // Hint and dialog box only show while a game runs.
@@ -134,6 +135,18 @@ export function GamePanel({ api }: IDockviewPanelProps) {
       </div>
       <div className="viewport-host game-host" ref={hostRef}>
         {!hasCamera && <div className="empty-hint overlay-hint">{t('game.noCamera')}</div>}
+        {loading && (
+          <div className="loading-screen" data-testid="loading-screen">
+            <h2 data-testid="loading-title">{t('loading.title', { name: loading.title })}</h2>
+            <div className="loading-bar">
+              <div
+                className="loading-fill"
+                style={{ width: `${Math.round(loading.progress * 100)}%` }}
+              />
+            </div>
+            <p className="muted">{t(`loading.tip${loading.tip}` as never)}</p>
+          </div>
+        )}
         {dialog && (
           <div className="dialog-box" data-testid="dialog-box">
             {dialog.speaker && <div className="dialog-speaker">{dialog.speaker}</div>}

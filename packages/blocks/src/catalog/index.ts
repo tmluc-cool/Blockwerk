@@ -69,6 +69,7 @@ import {
   whenThing,
 } from './items';
 import { startDialog, whenAnswer } from './dialog';
+import { loadScene, restartScene } from './scenes';
 import { numberLiteral, textLiteral } from './literals';
 import {
   currentState,
@@ -283,6 +284,8 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   spawnPrefab,
   destroy,
   stop,
+  loadScene,
+  restartScene,
   sendMessage,
   startTimer,
   forEachObject,

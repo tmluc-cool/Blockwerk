@@ -71,6 +71,7 @@ export { colliderRegistry } from './components/colliders';
 export { navAgentRegistry } from './components/navAgent';
 export { guardRegistry } from './components/guard';
 export { thingRegistry } from './components/items';
+export type { CarryState, PlayerCarry, SceneRequest } from './game/carry';
 export { DialogSession, conditionHolds } from './dialog/session';
 export type { DialogChoice, DialogHost, DialogView } from './dialog/session';
 export type { DialogAction } from '@blockwerk/project';

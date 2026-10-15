@@ -158,6 +158,11 @@ export interface GameApi {
   healObject(self: GameObject, target: ObjectRef, amount: number): void;
   healthOfObject(self: GameObject, target: ObjectRef): number;
 
+  // Scenes (SPEC 8.15)
+  /** Asks to change to another scene (`scene:<asset ID>`), appearing at a spawn point. */
+  loadScene(self: GameObject, scene: string, spawn?: string): void;
+  restartScene(): void;
+
   // Dialogs (SPEC 8.8)
   /** Talks with the player and waits until the conversation is over (use with `yield*`). */
   startDialog(self: GameObject, dialog: string): Generator<void, void, void>;

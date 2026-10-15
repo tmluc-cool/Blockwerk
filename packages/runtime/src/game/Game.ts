@@ -42,6 +42,8 @@ import * as npcApi from './npcApi';
 import { NpcCommands } from './npcApi';
 import { npcOwners, npcStateOf } from '../npc/state';
 import * as itemsApi from './itemsApi';
+import { collectPlayers, restorePlayer } from './carry';
+import type { CarryState, SceneRequest } from './carry';
 import { DialogSession } from '../dialog/session';
 import type { DialogHost, DialogView } from '../dialog/session';
 import { inventoryOf, peekInventory } from '../gameplay/inventory';
@@ -108,6 +110,12 @@ export interface GameOptions extends WorldOptions {
   readonly scripts: (assetId: string) => ScriptAsset | null;
   /** Dialog assets by asset ID ("start dialog", Talkable). */
   readonly dialogs?: (assetId: string) => DialogData | null;
+  /** Asset ID of the scene this game plays (for "restart scene"). */
+  readonly sceneId?: string;
+  /** State from the previous scene (variables, players' items and health). */
+  readonly carry?: CarryState;
+  /** Name of the spawn point the players start at (an object tagged `Spawn`). */
+  readonly spawn?: string;
   readonly log?: (entry: GameLogEntry) => void;
   /** Random source in [0, 1); defaults to `Math.random`. */
   readonly random?: () => number;
@@ -237,6 +245,7 @@ export class Game implements GameApi {
   private readonly npcCommands = new NpcCommands();
   private readonly hints: Record<1 | 2, InteractionHint | null> = { 1: null, 2: null };
   private dialog: ActiveDialog | null = null;
+  private sceneRequest: SceneRequest | null = null;
   private readonly timers = new Map<GameObject, Map<string, number>>();
   private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
@@ -288,6 +297,70 @@ export class Game implements GameApi {
       random: () => this.random_(),
     };
     for (const object of this.world.allObjects()) this.attachScripts(object, null);
+    if (options.carry) this.applyCarry(options.carry, options.spawn ?? '');
+  }
+
+  // ---------------------------------------------------------------- scenes
+
+  /** Asks the host to change the scene; "load scene" blocks call this. */
+  loadScene(_self: GameObject, scene: string, spawn = ''): void {
+    const id = this.str(scene).replace(/^scene:/, '');
+    if (id) this.sceneRequest = { scene: id, spawn: this.str(spawn) };
+  }
+
+  /** Asks the host to start the current scene again. */
+  restartScene(): void {
+    if (this.options.sceneId) this.sceneRequest = { scene: this.options.sceneId, spawn: '' };
+  }
+
+  /** The scene change the scripts asked for, once; the host then builds the next game. */
+  takeSceneRequest(): SceneRequest | null {
+    const request = this.sceneRequest;
+    this.sceneRequest = null;
+    return request;
+  }
+
+  /** What the next scene's game takes over: variables, items and health of the players. */
+  exportCarry(): CarryState {
+    return {
+      vars: { ...this.vars },
+      players: collectPlayers(this.playerObjects(), (object) => {
+        const percent = gameplay.staminaPercent(object);
+        return controlRegistry.get(object)?.stamina === null ? null : percent;
+      }),
+    };
+  }
+
+  /** The objects players control (player 1, player 2), then anything else tagged `Player`. */
+  private playerObjects(): GameObject[] {
+    const found: GameObject[] = [];
+    for (const player of [1, 2] as const) {
+      const object = playerObject(this.world, player);
+      if (object) found.push(object);
+    }
+    for (const object of this.world.allObjects()) {
+      if (object.tag === 'Player' && !object.destroyed && !found.includes(object)) {
+        found.push(object);
+      }
+    }
+    return found;
+  }
+
+  /** Takes over the state of the previous scene and puts the players at the spawn point. */
+  private applyCarry(carry: CarryState, spawn: string): void {
+    Object.assign(this.vars, carry.vars);
+    const players = this.playerObjects();
+    players.forEach((object, index) => {
+      const kept = carry.players[index];
+      if (kept) restorePlayer(object, kept, gameplay.setStamina);
+    });
+    const spawns = [...this.world.allObjects()].filter((object) => object.tag === 'Spawn');
+    const point = spawns.find((object) => object.name === spawn) ?? (spawn ? undefined : spawns[0]);
+    const first = players[0];
+    if (point && first) {
+      first.setWorldPosition(point.worldPosition());
+      this.physics?.setVelocity(first, new Vector3());
+    }
   }
 
   /** Runs the components' tick at a stage (SPEC 8.1). */

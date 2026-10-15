@@ -596,4 +596,62 @@ export const phase5Cases: RuntimeCase[] = [
       game.dispose();
     },
   },
+  {
+    name: 'load scene asks for the next scene; items, health and variables are carried over to the spawn point',
+    covers: ['scenes.load', 'scenes.restart'],
+    run: () => {
+      const village = launch({
+        sceneId: 'scene00000001',
+        objects: {
+          ground000001: ground,
+          hero00000001: hero(
+            [component('health', { max: 80, invulnerable: 0 }, 'healthcomp001')],
+            'villagehero',
+          ),
+        },
+        scripts: {
+          villagehero: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('items.add', { item: 'key', target: 'self' }, { count: 2 }),
+              b('items.damage', { target: 'self' }, { amount: 30 }),
+              set(A, 7),
+              b('scenes.load', { scene: 'scene:scene00000002', spawn: 'Eingang' }),
+            ),
+          ),
+        },
+      });
+      run(village, 0.2);
+      const request = village.takeSceneRequest();
+      expect(request).toEqual({ scene: 'scene00000002', spawn: 'Eingang' });
+      // Asked once only.
+      expect(village.takeSceneRequest()).toBeNull();
+      const carry = village.exportCarry();
+      village.dispose();
+
+      const cave = launch({
+        sceneId: 'scene00000002',
+        carry,
+        spawn: 'Eingang',
+        objects: {
+          ground000001: ground,
+          hero00000001: hero([], 'cavehero'),
+          other0000001: object('Anderer Eingang', [-9, 0, 0], [], { tag: 'Spawn' }),
+          entrance0001: object('Eingang', [12, 0, 5], [], { tag: 'Spawn' }),
+        },
+        scripts: {
+          cavehero: workspace(),
+        },
+      });
+      const player = get(cave, 'hero00000001');
+      expect(cave.vars[A]).toBe(7);
+      expect(cave.itemCount(player, 'self', 'key')).toBe(2);
+      expect(peekHealth(player)?.current).toBe(50);
+      expect(player.position.x).toBeCloseTo(12);
+      expect(player.position.z).toBeCloseTo(5);
+      cave.restartScene();
+      expect(cave.takeSceneRequest()).toEqual({ scene: 'scene00000002', spawn: '' });
+      cave.dispose();
+    },
+  },
 ];
