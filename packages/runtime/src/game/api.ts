@@ -135,6 +135,19 @@ export interface GameApi {
   setFieldOfView(self: GameObject, fov: number, seconds: number): void;
   playCameraPath(self: GameObject, ref: ObjectRef): void;
 
+  // NPCs and navigation (SPEC 8.8)
+  /** Walks to an object over the navigation mesh and waits until it arrived (use with `yield*`). */
+  navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void>;
+  followTarget(self: GameObject, target: ObjectRef, distance: number): void;
+  fleeFrom(self: GameObject, target: ObjectRef): void;
+  wanderAround(self: GameObject, radius: number): void;
+  patrolRoute(self: GameObject, route: ObjectRef): void;
+  stopWalking(self: GameObject): void;
+  npcState(self: GameObject): string;
+  setNpcState(self: GameObject, state: string): void;
+  sees(self: GameObject, target: ObjectRef): boolean;
+  hears(self: GameObject, target: ObjectRef): boolean;
+
   // Animation (SPEC 8.7)
   playAnimation(self: GameObject, name: string, mode: 'once' | 'loop', fade: number): void;
 

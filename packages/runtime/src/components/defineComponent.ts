@@ -149,6 +149,8 @@ export interface TickContext {
   readonly physics: Physics | null;
   /** Input actions of player 1 or 2. */
   input(player: 1 | 2): PlayerInput;
+  /** Random number in [0, 1) from the game's random source (seeded in tests). */
+  random(): number;
 }
 
 /** The live part of a component on an object. */

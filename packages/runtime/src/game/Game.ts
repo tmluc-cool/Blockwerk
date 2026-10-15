@@ -37,6 +37,9 @@ import { CameraTransitions } from '../camera/transitions';
 import { animatorRegistry } from '../components/animator';
 import { controlRegistry } from '../components/controls';
 import * as gameplay from './gameplayApi';
+import * as npcApi from './npcApi';
+import { NpcCommands } from './npcApi';
+import { npcOwners, npcStateOf } from '../npc/state';
 import { isWeatherType } from '../environment/Weather';
 import { emitterRegistry } from '../components/particleSystem';
 import { isParticlePreset } from '../effects/presets';
@@ -213,6 +216,7 @@ export class Game implements GameApi {
   private readonly templates = new Map<string, SceneObjectData>();
   private readonly logical = new Map<GameObject, TransformSnapshot>();
   private accumulator = 0;
+  private readonly npcCommands = new NpcCommands();
   private timerStart = 0;
   private current: Thread | null = null;
   private pointer: { ndc: Vector2 } | null = null;
@@ -240,6 +244,7 @@ export class Game implements GameApi {
     this.world = new World(structuredClone(scene), options);
     this.audio = options.audio ?? new AudioEngine();
     this.world.audio = this.audio;
+    this.world.showNpcStates = true;
     this.characterSounds = new CharacterSounds(this.world, this.audio, this.random_);
     const rapier = loadedRapier();
     this.physics = rapier
@@ -258,6 +263,7 @@ export class Game implements GameApi {
       world: this.world,
       physics: this.physics,
       input: (player) => this.players[player],
+      random: () => this.random_(),
     };
     for (const object of this.world.allObjects()) this.attachScripts(object, null);
   }
@@ -338,6 +344,8 @@ export class Game implements GameApi {
     this.players[2].update(this.input, pads[2], TICK_SECONDS);
     this.snapshotTransforms();
     this.tickComponents('control');
+    this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
+    this.updateNpcStates();
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
     this.fire(
@@ -707,6 +715,69 @@ export class Game implements GameApi {
       self.setWorldPosition(start.clone().lerp(end, easing(kind, i / ticks)));
       yield;
     }
+  }
+
+  // ---------------------------------------------------------------- GameApi: NPCs
+
+  private get npcContext(): npcApi.NpcContext {
+    return { world: this.world, find: (self, ref) => this.find(self, ref), random: this.random_ };
+  }
+
+  /** Lets time pass in the NPC states and starts "When state [x]" scripts for new states. */
+  private updateNpcStates(): void {
+    for (const object of npcOwners()) {
+      const state = npcStateOf(object);
+      state.advance(TICK_SECONDS);
+      for (const event of state.takeEvents()) {
+        if (event.type !== 'enter') continue;
+        this.fireFor(
+          object,
+          'state',
+          (params) => String(params['state'] ?? '') === event.state,
+          true,
+        );
+      }
+    }
+  }
+
+  *navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void> {
+    yield* npcApi.navigateTo(this.npcContext, this.npcCommands, self, target, TICK_SECONDS);
+  }
+
+  followTarget(self: GameObject, target: ObjectRef, distance: number): void {
+    npcApi.followObject(this.npcContext, this.npcCommands, self, target, distance);
+  }
+
+  fleeFrom(self: GameObject, target: ObjectRef): void {
+    npcApi.fleeFrom(this.npcContext, this.npcCommands, self, target);
+  }
+
+  wanderAround(self: GameObject, radius: number): void {
+    npcApi.wanderAround(this.npcCommands, self, radius);
+  }
+
+  patrolRoute(self: GameObject, route: ObjectRef): void {
+    npcApi.patrolRoute(this.npcContext, this.npcCommands, self, route);
+  }
+
+  stopWalking(self: GameObject): void {
+    npcApi.stopWalking(this.npcCommands, self);
+  }
+
+  npcState(self: GameObject): string {
+    return npcApi.stateOf(self);
+  }
+
+  setNpcState(self: GameObject, state: string): void {
+    npcApi.setState(self, state);
+  }
+
+  sees(self: GameObject, target: ObjectRef): boolean {
+    return npcApi.guardSees(this.npcContext, self, target);
+  }
+
+  hears(self: GameObject, target: ObjectRef): boolean {
+    return npcApi.guardHears(this.npcContext, self, target);
   }
 
   resetTimer(): void {

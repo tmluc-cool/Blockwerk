@@ -144,6 +144,7 @@ describe('buildToolbox', () => {
       'camera',
       'character',
       'physics',
+      'npc',
       'environment',
       'effects',
     ]);

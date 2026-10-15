@@ -51,6 +51,19 @@ import {
   whenTouching,
 } from './events';
 import { numberLiteral, textLiteral } from './literals';
+import {
+  currentState,
+  fleeFrom,
+  followTarget,
+  goToPath,
+  hearsTarget,
+  patrolRoute,
+  seesTarget,
+  setState,
+  standStill,
+  wanderAround,
+  whenState,
+} from './npc';
 import { hide, playAnimation, setActive, setColor, setSize, show } from './looks';
 import {
   setCameraDistance,
@@ -134,6 +147,7 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenAction,
   whenAnimation,
   whenAbility,
+  whenState,
   whenCreated,
   whenDestroyed,
   // Motion
@@ -176,6 +190,17 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   shakeCamera,
   playCameraPath,
   setFieldOfView,
+  // NPC and AI
+  goToPath,
+  followTarget,
+  fleeFrom,
+  wanderAround,
+  patrolRoute,
+  standStill,
+  setState,
+  currentState,
+  seesTarget,
+  hearsTarget,
   // Environment
   setTimeOfDay,
   setTimeSpeed,

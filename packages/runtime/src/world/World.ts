@@ -78,6 +78,8 @@ export class World {
   readonly waters = new Set<WaterBody>();
   private readonly pendingModels = new Set<Promise<unknown>>();
   private navigationInstance: Navigation | null = null;
+  /** Draw the state of NPCs above them (play mode; the editor's own world leaves it off). */
+  showNpcStates = false;
 
   constructor(data: SceneData, options: WorldOptions = {}) {
     this.options = options;

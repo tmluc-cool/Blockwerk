@@ -69,6 +69,10 @@ export {
 export type { ParticleParams, ParticlePresetName } from './effects/presets';
 export { colliderRegistry } from './components/colliders';
 export { navAgentRegistry } from './components/navAgent';
+export { guardRegistry } from './components/guard';
+export type { GuardHandle } from './components/guard';
+export { NpcState, npcStateOf, peekNpcState } from './npc/state';
+export type { NpcStateChange } from './npc/state';
 export type { NavAgentHandle } from './components/navAgent';
 export {
   collectNavigationGeometry,

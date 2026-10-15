@@ -1,0 +1,186 @@
+{
+  "variables": [
+    {
+      "id": "varstate0000",
+      "name": "Zustand",
+      "scope": "game"
+    },
+    {
+      "id": "varsight0000",
+      "name": "Sicht",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "t-1",
+          "next": {
+            "block": {
+              "type": "npc.goTo",
+              "id": "t-2",
+              "fields": {
+                "target": "tag:Player"
+              },
+              "next": {
+                "block": {
+                  "type": "npc.follow",
+                  "id": "t-3",
+                  "fields": {
+                    "target": "tag:Player"
+                  },
+                  "inputs": {
+                    "distance": {
+                      "shadow": {
+                        "type": "literal.number",
+                        "id": "t-4",
+                        "fields": {
+                          "NUM": 2.5
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "npc.flee",
+                      "id": "t-5",
+                      "fields": {
+                        "target": "object:zombie000001"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "npc.wander",
+                          "id": "t-6",
+                          "inputs": {
+                            "radius": {
+                              "shadow": {
+                                "type": "literal.number",
+                                "id": "t-7",
+                                "fields": {
+                                  "NUM": 6
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "npc.patrol",
+                              "id": "t-8",
+                              "fields": {
+                                "route": "object:route0000001"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "npc.stop",
+                                  "id": "t-9",
+                                  "next": {
+                                    "block": {
+                                      "type": "npc.setState",
+                                      "id": "t-10",
+                                      "fields": {
+                                        "state": "chase"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "npc.whenState",
+          "id": "t-11",
+          "fields": {
+            "state": "chase"
+          },
+          "next": {
+            "block": {
+              "type": "variables.set",
+              "id": "t-13",
+              "fields": {
+                "variable": {
+                  "id": "varstate0000"
+                }
+              },
+              "inputs": {
+                "value": {
+                  "block": {
+                    "type": "npc.state",
+                    "id": "t-12"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "control.if",
+                  "id": "t-19",
+                  "inputs": {
+                    "condition": {
+                      "block": {
+                        "type": "operators.and",
+                        "id": "t-16",
+                        "inputs": {
+                          "a": {
+                            "block": {
+                              "type": "npc.sees",
+                              "id": "t-14",
+                              "fields": {
+                                "target": "tag:Player"
+                              }
+                            }
+                          },
+                          "b": {
+                            "block": {
+                              "type": "npc.hears",
+                              "id": "t-15",
+                              "fields": {
+                                "target": "tag:Player"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "then": {
+                      "block": {
+                        "type": "variables.set",
+                        "id": "t-17",
+                        "fields": {
+                          "variable": {
+                            "id": "varsight0000"
+                          }
+                        },
+                        "inputs": {
+                          "value": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "t-18",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
