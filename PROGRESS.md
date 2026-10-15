@@ -83,7 +83,7 @@ Branch: `phase/05-gegner` (builds on `main` with Phase 4 merged).
 - [x] Block tests: golden fixtures and runtime cases for every new block (`npc`, `messages`, `items`, `dialog`, `scenes`); the "every block is covered" tests pass.
 - [x] Component tests: `navigation`, `npc`, `gameplay` (pickups, doors, chests, health, combat), `dialog` (session, Talkable) in `packages/runtime/test`.
 - [x] End-to-end: Navigation window, quest example with dialog and scene change, Dialog editor.
-- [x] `pnpm test` (378 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end E2E_PLACEHOLDER.
+- [x] `pnpm test` (378 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end 56/56.
 - [ ] CI on GitHub (Ubuntu and Windows): see pull request.
 
 **Open / not done**
