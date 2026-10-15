@@ -124,6 +124,19 @@ export const environmentSchema = z.object({
       sunAzimuth: z.number(),
     })
     .optional(),
+  /**
+   * Navigation mesh settings (Unity: Navigation window → Bake): the size of the agents the mesh
+   * is made for. `cellSize` 0 picks it automatically. Optional so existing scenes stay identical.
+   */
+  navigation: z
+    .object({
+      agentRadius: z.number().min(0.05),
+      agentHeight: z.number().min(0.5),
+      maxClimb: z.number().min(0),
+      maxSlope: z.number().min(0).max(80),
+      cellSize: z.number().min(0),
+    })
+    .optional(),
   /** Weather at the start of the scene. */
   weather: z
     .object({

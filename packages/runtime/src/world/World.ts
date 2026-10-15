@@ -1,3 +1,5 @@
+import { DEFAULT_NAVIGATION, Navigation } from '../navigation/Navigation';
+import type { NavigationSettings } from '../navigation/Navigation';
 import { postRegistry } from '../components/postProcessing';
 import type { PostSettings } from '../rendering/PostProcessing';
 import type { ComponentData, SceneData, SceneObjectData } from '@blockwerk/project';
@@ -75,6 +77,7 @@ export class World {
   /** Bodies of water that things can swim in (kept by the water components). */
   readonly waters = new Set<WaterBody>();
   private readonly pendingModels = new Set<Promise<unknown>>();
+  private navigationInstance: Navigation | null = null;
 
   constructor(data: SceneData, options: WorldOptions = {}) {
     this.options = options;
@@ -99,6 +102,21 @@ export class World {
       if (level !== null && (best === null || level > best)) best = level;
     }
     return best;
+  }
+
+  /** Navigation of the scene (SPEC 8.8): built on first use from the scene's colliders. */
+  get navigation(): Navigation {
+    this.navigationInstance ??= new Navigation(this, this.navigationSettings());
+    return this.navigationInstance;
+  }
+
+  /** Whether anything used navigation yet (agents, path queries). */
+  get navigationInUse(): boolean {
+    return this.navigationInstance !== null;
+  }
+
+  private navigationSettings(): NavigationSettings {
+    return { ...DEFAULT_NAVIGATION, ...this.data.environment.navigation };
   }
 
   /** The scene data the world currently shows. */
@@ -132,7 +150,13 @@ export class World {
     }
     this.data = next;
     if (hierarchyChanged) this.rebuildHierarchy();
-    if (previous.environment !== next.environment) this.applyEnvironment();
+    if (previous.environment !== next.environment) {
+      this.applyEnvironment();
+      if (this.navigationInstance) {
+        this.navigationInstance.settings = this.navigationSettings();
+        this.navigationInstance.invalidate();
+      }
+    }
     this.updateSun();
   }
 
@@ -286,6 +310,7 @@ export class World {
     }
     const pending = cache.load(ref).then((template) => {
       this.pendingModels.delete(pending);
+      this.navigationInstance?.invalidate();
       onLoaded(template);
       this.options.onModelLoaded?.();
     });
@@ -335,6 +360,8 @@ export class World {
   dispose(): void {
     for (const id of [...this.objects.keys()]) this.removeObject(id);
     this.effects.clear();
+    this.navigationInstance?.dispose();
+    this.navigationInstance = null;
     this.batcher.dispose();
     this.environment.dispose();
   }

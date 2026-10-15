@@ -355,6 +355,7 @@ export class Game implements GameApi {
     );
     this.stepThreads(this.threads);
     this.physics?.sync();
+    if (this.world.navigationInUse) this.world.navigation.update(TICK_SECONDS);
     this.tickComponents('character');
     if (this.physics) {
       this.physics.sync();

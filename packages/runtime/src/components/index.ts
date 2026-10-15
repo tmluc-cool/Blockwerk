@@ -26,6 +26,8 @@ import { rigidbody } from './rigidbody';
 import type { ComponentDefinition } from './defineComponent';
 import { light } from './light';
 import { meshRenderer } from './meshRenderer';
+import { navAgent } from './navAgent';
+import { navObstacle } from './navObstacle';
 import { particleSystem } from './particleSystem';
 import { postProcessing } from './postProcessing';
 import { terrain } from './terrain';
@@ -63,6 +65,8 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   particleSystem,
   terrain,
   water,
+  navAgent,
+  navObstacle,
   audioSource,
   audioListener,
   light,

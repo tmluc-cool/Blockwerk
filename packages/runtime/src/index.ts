@@ -68,6 +68,21 @@ export {
 } from './effects/presets';
 export type { ParticleParams, ParticlePresetName } from './effects/presets';
 export { colliderRegistry } from './components/colliders';
+export { navAgentRegistry } from './components/navAgent';
+export type { NavAgentHandle } from './components/navAgent';
+export {
+  collectNavigationGeometry,
+  DEFAULT_NAVIGATION,
+  initNavigation,
+  Navigation,
+  navigationLoaded,
+} from './navigation';
+export type {
+  NavigationAgent,
+  NavigationAgentParams,
+  NavigationGeometry,
+  NavigationSettings,
+} from './navigation';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';
 export { motorRegistry } from './components/characterController';

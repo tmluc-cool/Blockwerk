@@ -4,10 +4,13 @@ import type { TransformData } from '@blockwerk/project';
 import { ModelCache } from '@blockwerk/runtime';
 import {
   ArrowHelper,
+  BufferAttribute,
+  BufferGeometry,
   Box3,
   Box3Helper,
   CameraHelper,
   Color,
+  DoubleSide,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -33,6 +36,7 @@ import { SceneCamera } from './SceneCamera';
 import type { AxisView } from './SceneCamera';
 import { brushStamp } from '../library/brush';
 import type { GroundPoint } from '../library/brush';
+import { useNavigationView } from '../navigation/navigationView';
 import { SceneInput } from './SceneInput';
 import { currentEditWorld, currentWorld, onWorldChange, registerRenderView } from './worlds';
 import { isOnScreen } from './visibility';
@@ -143,6 +147,9 @@ export class SceneViewport {
   private shading: ShadingMode = 'shaded';
   private skyAndFog = true;
   private readonly unsubscribe: () => void;
+  /** The navigation mesh drawn over the scene (Navigation window → Show). */
+  private navigationMesh: Mesh | null = null;
+  private navigationDrawn: { world: World; revision: number } | null = null;
 
   constructor(
     private readonly container: HTMLElement,
@@ -195,8 +202,10 @@ export class SceneViewport {
     view?.addEventListener('keyup', this.onModifier);
     const unsubscribeWorld = onWorldChange(() => this.worldChanged());
     const unregister = registerRenderView(this);
+    const unsubscribeNavigation = useNavigationView.subscribe(() => this.requestRender());
     this.unsubscribe = () => {
       unsubscribeWorld();
+      unsubscribeNavigation();
       unregister();
     };
     this.worldChanged();
@@ -494,6 +503,10 @@ export class SceneViewport {
     }
     for (const icon of this.icons.values()) icon.dispose();
     for (const box of this.selectionBoxes.values()) box.dispose();
+    if (this.navigationMesh) {
+      this.navigationMesh.geometry.dispose();
+      (this.navigationMesh.material as MeshBasicMaterial).dispose();
+    }
     this.grid.dispose();
     this.wireframe.dispose();
     for (const world of new Set([this.world, currentEditWorld()])) {
@@ -873,8 +886,50 @@ export class SceneViewport {
       renderer.clear();
     }
     renderer.autoClear = false;
+    this.updateNavigationMesh();
     renderer.render(this.overlay, camera);
     renderer.autoClear = true;
+  }
+
+  /** Keeps the drawing of the navigation mesh in step with the world's mesh and the window. */
+  private updateNavigationMesh(): void {
+    const view = useNavigationView.getState();
+    const world = this.world;
+    const navigation = world?.navigationInUse ? world.navigation : null;
+    const visible = view.show && navigation?.built === true;
+    if (!visible || !world || !navigation) {
+      if (this.navigationMesh) this.navigationMesh.visible = false;
+      return;
+    }
+    const drawn = this.navigationDrawn;
+    if (!this.navigationMesh || drawn?.world !== world || drawn.revision !== navigation.revision) {
+      const data = navigation.debugMesh();
+      if (!data) return;
+      const geometry = new BufferGeometry();
+      geometry.setAttribute('position', new BufferAttribute(data.positions, 3));
+      geometry.setIndex(new BufferAttribute(data.indices, 1));
+      if (!this.navigationMesh) {
+        this.navigationMesh = new Mesh(
+          geometry,
+          new MeshBasicMaterial({
+            color: 0x2aa7c9,
+            transparent: true,
+            opacity: 0.4,
+            side: DoubleSide,
+            polygonOffset: true,
+            polygonOffsetFactor: -2,
+            polygonOffsetUnits: -2,
+          }),
+        );
+        this.navigationMesh.renderOrder = 5;
+        this.overlay.add(this.navigationMesh);
+      } else {
+        this.navigationMesh.geometry.dispose();
+        this.navigationMesh.geometry = geometry;
+      }
+      this.navigationDrawn = { world, revision: navigation.revision };
+    }
+    this.navigationMesh.visible = true;
   }
 }
 

@@ -14,8 +14,10 @@
     "@blockwerk/character": "workspace:*",
     "@blockwerk/project": "workspace:*",
     "@dimforge/rapier3d-compat": "0.21.0",
+    "@recast-navigation/three": "^0.43.1",
     "n8ao": "^2.0.1",
     "postprocessing": "^6.39.5",
+    "recast-navigation": "^0.43.1",
     "three": "^0.186.1"
   },
   "devDependencies": {
