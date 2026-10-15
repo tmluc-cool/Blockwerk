@@ -1,4 +1,5 @@
-import { MessageBus } from '../game/messages';
+import { MessageBus, ObjectEvents } from '../game/messages';
+import { Interactables } from '../gameplay/interaction';
 import { DEFAULT_NAVIGATION, Navigation } from '../navigation/Navigation';
 import type { NavigationSettings } from '../navigation/Navigation';
 import { postRegistry } from '../components/postProcessing';
@@ -81,6 +82,14 @@ export class World {
   private navigationInstance: Navigation | null = null;
   /** Messages between objects, delivered by the game once per tick. */
   readonly messages = new MessageBus();
+  /** Events that components raise for the scripts of their object (hurt, used, opened …). */
+  readonly objectEvents = new ObjectEvents();
+  /** Things the Interact action can use. */
+  readonly interactables = new Interactables();
+  /** Objects that components want removed (a dead monster); the game does it at the end of the tick. */
+  readonly destroyRequests = new Set<GameObject>();
+  /** Where players come back after dying: the last checkpoint they touched. */
+  checkpoint: Vector3 | null = null;
   /** Draw the state of NPCs above them (play mode; the editor's own world leaves it off). */
   showNpcStates = false;
 

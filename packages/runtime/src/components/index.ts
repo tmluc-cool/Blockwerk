@@ -14,6 +14,7 @@ import {
   topDownCamera,
 } from './cameraBehaviors';
 import { characterController } from './characterController';
+import { attack, meleeHit, projectile } from './combat';
 import {
   boxCollider,
   capsuleCollider,
@@ -26,7 +27,10 @@ import { rigidbody } from './rigidbody';
 import type { ComponentDefinition } from './defineComponent';
 import { light } from './light';
 import { meshRenderer } from './meshRenderer';
+import { checkpoint, destructible, health } from './health';
 import { guard } from './guard';
+import { inventory } from './inventory';
+import { chest, door, pickup, switchComponent, usable } from './items';
 import { navAgent } from './navAgent';
 import { navObstacle } from './navObstacle';
 import { npc } from './npc';
@@ -76,6 +80,18 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   follow,
   flee,
   guard,
+  attack,
+  inventory,
+  health,
+  meleeHit,
+  projectile,
+  pickup,
+  usable,
+  door,
+  switchComponent,
+  chest,
+  destructible,
+  checkpoint,
   audioSource,
   audioListener,
   light,

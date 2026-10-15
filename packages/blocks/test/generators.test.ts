@@ -146,6 +146,7 @@ describe('buildToolbox', () => {
       'physics',
       'npc',
       'environment',
+      'items',
       'effects',
     ]);
     const motion = toolbox.contents.find((category) => category.toolboxitemid === 'motion');

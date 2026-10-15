@@ -145,6 +145,19 @@ export interface GameApi {
   /** Makes `object` the one the reference `loop` names in the running script. */
   setLoopObject(object: GameObject): void;
 
+  // Items, inventory, health and combat (SPEC 8.13)
+  addItem(self: GameObject, target: ObjectRef, item: string, count: number): void;
+  removeItem(self: GameObject, target: ObjectRef, item: string, count: number): boolean;
+  hasItem(self: GameObject, target: ObjectRef, item: string): boolean;
+  itemCount(self: GameObject, target: ObjectRef, item: string): number;
+  /** Opens, closes or flips a door, chest or switch (blocks ignore keys). */
+  operateThing(self: GameObject, target: ObjectRef, action: 'open' | 'close' | 'toggle'): void;
+  /** Lets `self` pick up a pickup object. */
+  pickUp(self: GameObject, target: ObjectRef): void;
+  damageObject(self: GameObject, target: ObjectRef, amount: number): void;
+  healObject(self: GameObject, target: ObjectRef, amount: number): void;
+  healthOfObject(self: GameObject, target: ObjectRef): number;
+
   // NPCs and navigation (SPEC 8.8)
   /** Walks to an object over the navigation mesh and waits until it arrived (use with `yield*`). */
   navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void>;

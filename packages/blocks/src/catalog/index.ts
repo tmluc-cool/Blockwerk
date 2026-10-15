@@ -55,6 +55,19 @@ import {
   whenTimer,
   whenTouching,
 } from './events';
+import {
+  addItem,
+  countItem,
+  damage,
+  hasItem,
+  heal,
+  health,
+  pickUp,
+  removeItem,
+  setDoor,
+  whenHealth,
+  whenThing,
+} from './items';
 import { numberLiteral, textLiteral } from './literals';
 import {
   currentState,
@@ -153,6 +166,8 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenAnimation,
   whenAbility,
   whenState,
+  whenThing,
+  whenHealth,
   whenMessage,
   whenTimer,
   whenCreated,
@@ -208,6 +223,16 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   currentState,
   seesTarget,
   hearsTarget,
+  // Items
+  addItem,
+  removeItem,
+  hasItem,
+  countItem,
+  setDoor,
+  pickUp,
+  damage,
+  heal,
+  health,
   // Environment
   setTimeOfDay,
   setTimeSpeed,

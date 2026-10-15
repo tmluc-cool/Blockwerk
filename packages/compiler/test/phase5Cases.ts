@@ -1,4 +1,4 @@
-import { navAgentRegistry } from '@blockwerk/runtime';
+import { navAgentRegistry, peekHealth, peekInventory, thingRegistry } from '@blockwerk/runtime';
 import { expect } from 'vitest';
 import { b, set, workspace } from './dsl';
 import { A, B, get, ground, launch, object, run, when } from './phase3Cases';
@@ -354,6 +354,179 @@ export const phase5Cases: RuntimeCase[] = [
       run(game, 0.2);
       expect(game.vars[A]).toBe(3);
       expect([...game.world.allObjects()].filter((o) => o.tag === 'Coin')).toHaveLength(0);
+      game.dispose();
+    },
+  },
+  {
+    name: 'item blocks give, take, check and count items of an object',
+    covers: ['items.add', 'items.remove', 'items.has', 'items.count'],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          player000001: player([4, 0, 0]),
+          giver0000001: scripted('Geber', [0, 0, 0], 'giver'),
+        },
+        scripts: {
+          giver: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('items.add', { item: 'coin', target: 'tag:Player' }, { count: 5 }),
+              b('items.add', { item: 'key', target: 'tag:Player' }, { count: 1 }),
+              b('items.remove', { item: 'coin', target: 'tag:Player' }, { count: 2 }),
+              set(A, b('items.count', { item: 'coin', target: 'tag:Player' })),
+              b(
+                'control.if',
+                {},
+                {
+                  condition: b('items.has', { target: 'tag:Player', item: 'key' }),
+                  then: [set(B, 'yes')],
+                },
+              ),
+              // Taking more than there is changes nothing.
+              b('items.remove', { item: 'coin', target: 'tag:Player' }, { count: 10 }),
+            ),
+          ),
+        },
+      });
+      run(game, 0.2);
+      expect(game.vars[A]).toBe(3);
+      expect(game.vars[B]).toBe('yes');
+      const inventory = peekInventory(get(game, 'player000001'));
+      expect(inventory?.count('coin')).toBe(3);
+      expect(inventory?.count('key')).toBe(1);
+      game.dispose();
+    },
+  },
+  {
+    name: 'operate opens and closes doors and chests without a key, and the When-I-am hat reacts',
+    covers: ['items.operate', 'items.whenThing'],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          player000001: player([0, 0, 6]),
+          gate00000001: object(
+            'Tor',
+            [0, 1, 0],
+            [
+              component('door', { key: 'key' }, 'doorcomp0001'),
+              component('blockScript', { script: 'gate' }, 'gatescr00001'),
+            ],
+          ),
+          chest0000001: object(
+            'Truhe',
+            [3, 0, 0],
+            [component('chest', { contents: 'coin:4', key: 'key' }, 'chestcomp001')],
+          ),
+          opener000001: scripted('Hebel', [6, 0, 0], 'opener'),
+        },
+        scripts: {
+          gate: workspace(
+            when(b('items.whenThing', { what: 'opened' }), set(A, 1)),
+            when(b('items.whenThing', { what: 'closed' }), set(B, 'closed')),
+          ),
+          opener: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('items.operate', { action: 'open', target: 'object:gate00000001' }),
+              b('items.operate', { action: 'open', target: 'object:chest0000001' }),
+              b('control.wait', {}, { seconds: 1 }),
+              b('items.operate', { action: 'toggle', target: 'object:gate00000001' }),
+            ),
+          ),
+        },
+      });
+      run(game, 0.5);
+      // The blocks ignore the key requirement.
+      expect(thingRegistry.get(get(game, 'gate00000001'))?.isOpen).toBe(true);
+      expect(thingRegistry.get(get(game, 'chest0000001'))?.isOpen).toBe(true);
+      expect(game.vars[A]).toBe(1);
+      expect(peekInventory(get(game, 'player000001'))?.count('coin')).toBe(4);
+      run(game, 1);
+      expect(thingRegistry.get(get(game, 'gate00000001'))?.isOpen).toBe(false);
+      expect(game.vars[B]).toBe('closed');
+      game.dispose();
+    },
+  },
+  {
+    name: 'pick up takes a pickup object into the inventory and removes it',
+    covers: ['items.pickUp'],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          coin00000001: object(
+            'Muenze',
+            [20, 0, 0],
+            [
+              component(
+                'pickup',
+                { item: 'gem', count: 2, mode: 'interact', sound: '' },
+                'pickupcomp01',
+              ),
+            ],
+          ),
+          hero00000001: scripted('Held', [0, 0, 0], 'taker'),
+        },
+        scripts: {
+          taker: workspace(
+            when(b('events.whenGameStarts'), b('items.pickUp', { target: 'object:coin00000001' })),
+          ),
+        },
+      });
+      run(game, 0.3);
+      expect(peekInventory(get(game, 'hero00000001'))?.count('gem')).toBe(2);
+      expect(game.world.getObject('coin00000001')).toBeFalsy();
+      game.dispose();
+    },
+  },
+  {
+    name: 'damage and heal change the hit points, and the hat fires when hurt and when defeated',
+    covers: ['items.damage', 'items.heal', 'items.health', 'items.whenHealth'],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          dummy0000001: object(
+            'Puppe',
+            [0, 0, 0],
+            [
+              component(
+                'health',
+                { max: 100, invulnerable: 0, onDeath: 'nothing' },
+                'healthcomp01',
+              ),
+              component('blockScript', { script: 'dummy' }, 'dummyscr0001'),
+            ],
+          ),
+          hitter000001: scripted('Schlaeger', [4, 0, 0], 'hitter'),
+        },
+        scripts: {
+          dummy: workspace(
+            when(b('items.whenHealth', { phase: 'hurt' }), set(B, 'hurt')),
+            when(b('items.whenHealth', { phase: 'died' }), set(B, 'dead')),
+          ),
+          hitter: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('items.damage', { target: 'object:dummy0000001' }, { amount: 30 }),
+              b('items.heal', { target: 'object:dummy0000001' }, { amount: 10 }),
+              b('control.wait', {}, { seconds: 0.2 }),
+              set(A, b('items.health', { target: 'object:dummy0000001' })),
+              b('items.damage', { target: 'object:dummy0000001' }, { amount: 500 }),
+            ),
+          ),
+        },
+      });
+      run(game, 0.1);
+      expect(peekHealth(get(game, 'dummy0000001'))?.current).toBe(80);
+      expect(game.vars[B]).toBe('hurt');
+      run(game, 0.5);
+      // 80 hit points were read before the deadly hit.
+      expect(game.vars[A]).toBe(80);
+      expect(peekHealth(get(game, 'dummy0000001'))?.current).toBe(0);
+      expect(game.vars[B]).toBe('dead');
       game.dispose();
     },
   },

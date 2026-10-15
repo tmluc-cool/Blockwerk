@@ -1,0 +1,218 @@
+{
+  "variables": [
+    {
+      "id": "varcount0000",
+      "name": "Anzahl",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "t-1",
+          "next": {
+            "block": {
+              "type": "items.add",
+              "id": "t-2",
+              "fields": {
+                "item": "key",
+                "target": "tag:Player"
+              },
+              "inputs": {
+                "count": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "t-3",
+                    "fields": {
+                      "NUM": 1
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "items.remove",
+                  "id": "t-4",
+                  "fields": {
+                    "item": "coin",
+                    "target": "tag:Player"
+                  },
+                  "inputs": {
+                    "count": {
+                      "shadow": {
+                        "type": "literal.number",
+                        "id": "t-5",
+                        "fields": {
+                          "NUM": 2
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "items.operate",
+                      "id": "t-6",
+                      "fields": {
+                        "action": "open",
+                        "target": "object:gate00000001"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "items.pickUp",
+                          "id": "t-7",
+                          "fields": {
+                            "target": "any"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "items.damage",
+                              "id": "t-8",
+                              "fields": {
+                                "target": "tag:Wache"
+                              },
+                              "inputs": {
+                                "amount": {
+                                  "shadow": {
+                                    "type": "literal.number",
+                                    "id": "t-9",
+                                    "fields": {
+                                      "NUM": 25
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "items.heal",
+                                  "id": "t-10",
+                                  "fields": {
+                                    "target": "self"
+                                  },
+                                  "inputs": {
+                                    "amount": {
+                                      "shadow": {
+                                        "type": "literal.number",
+                                        "id": "t-11",
+                                        "fields": {
+                                          "NUM": 5
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "control.if",
+                                      "id": "t-15",
+                                      "inputs": {
+                                        "condition": {
+                                          "block": {
+                                            "type": "items.has",
+                                            "id": "t-12",
+                                            "fields": {
+                                              "target": "tag:Player",
+                                              "item": "key"
+                                            }
+                                          }
+                                        },
+                                        "then": {
+                                          "block": {
+                                            "type": "variables.set",
+                                            "id": "t-14",
+                                            "fields": {
+                                              "variable": {
+                                                "id": "varcount0000"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "value": {
+                                                "block": {
+                                                  "type": "items.count",
+                                                  "id": "t-13",
+                                                  "fields": {
+                                                    "item": "coin",
+                                                    "target": "tag:Player"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "variables.set",
+                                          "id": "t-17",
+                                          "fields": {
+                                            "variable": {
+                                              "id": "varcount0000"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "value": {
+                                              "block": {
+                                                "type": "items.health",
+                                                "id": "t-16",
+                                                "fields": {
+                                                  "target": "self"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "items.whenThing",
+          "id": "t-18",
+          "fields": {
+            "what": "opened"
+          },
+          "next": {
+            "block": {
+              "type": "items.operate",
+              "id": "t-19",
+              "fields": {
+                "action": "close",
+                "target": "self"
+              }
+            }
+          }
+        },
+        {
+          "type": "items.whenHealth",
+          "id": "t-20",
+          "fields": {
+            "phase": "died"
+          },
+          "next": {
+            "block": {
+              "type": "items.operate",
+              "id": "t-21",
+              "fields": {
+                "action": "toggle",
+                "target": "self"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -40,6 +40,9 @@ import * as gameplay from './gameplayApi';
 import * as npcApi from './npcApi';
 import { NpcCommands } from './npcApi';
 import { npcOwners, npcStateOf } from '../npc/state';
+import * as itemsApi from './itemsApi';
+import type { InteractionHint } from '../gameplay/interaction';
+import { playerObject } from '../components/cameraBehaviors';
 import { isWeatherType } from '../environment/Weather';
 import { emitterRegistry } from '../components/particleSystem';
 import { isParticlePreset } from '../effects/presets';
@@ -217,6 +220,7 @@ export class Game implements GameApi {
   private readonly logical = new Map<GameObject, TransformSnapshot>();
   private accumulator = 0;
   private readonly npcCommands = new NpcCommands();
+  private readonly hints: Record<1 | 2, InteractionHint | null> = { 1: null, 2: null };
   private readonly timers = new Map<GameObject, Map<string, number>>();
   private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
@@ -347,9 +351,11 @@ export class Game implements GameApi {
     this.snapshotTransforms();
     this.updateTimers();
     this.deliverMessages();
+    this.deliverObjectEvents();
     this.tickComponents('control');
     this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
     this.updateNpcStates();
+    this.updateInteraction();
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
     this.fire(
@@ -796,6 +802,82 @@ export class Game implements GameApi {
           true,
         );
       }
+    }
+  }
+
+  // ---------------------------------------------------------------- GameApi: items and combat
+
+  private get itemsContext(): itemsApi.ItemsContext {
+    return {
+      world: this.world,
+      resolve: (self, ref) => npcApi.resolveNearest(this.npcContext, self, ref),
+    };
+  }
+
+  addItem(self: GameObject, target: ObjectRef, item: string, count: number): void {
+    itemsApi.addItem(this.itemsContext, self, target, this.str(item), this.num(count));
+  }
+
+  removeItem(self: GameObject, target: ObjectRef, item: string, count: number): boolean {
+    return itemsApi.removeItem(this.itemsContext, self, target, this.str(item), this.num(count));
+  }
+
+  hasItem(self: GameObject, target: ObjectRef, item: string): boolean {
+    return itemsApi.hasItem(this.itemsContext, self, target, this.str(item));
+  }
+
+  itemCount(self: GameObject, target: ObjectRef, item: string): number {
+    return itemsApi.itemCount(this.itemsContext, self, target, this.str(item));
+  }
+
+  operateThing(self: GameObject, target: ObjectRef, action: 'open' | 'close' | 'toggle'): void {
+    itemsApi.operateThing(this.itemsContext, self, target, action);
+  }
+
+  pickUp(self: GameObject, target: ObjectRef): void {
+    itemsApi.pickUp(this.itemsContext, self, target);
+  }
+
+  damageObject(self: GameObject, target: ObjectRef, amount: number): void {
+    itemsApi.damage(this.itemsContext, self, target, this.num(amount));
+  }
+
+  healObject(self: GameObject, target: ObjectRef, amount: number): void {
+    itemsApi.heal(this.itemsContext, self, target, this.num(amount));
+  }
+
+  healthOfObject(self: GameObject, target: ObjectRef): number {
+    return itemsApi.healthPoints(this.itemsContext, self, target);
+  }
+
+  /** What the Interact action would do for a player now (for the hint in the Game view). */
+  interactionHint(player: 1 | 2): InteractionHint | null {
+    return this.hints[player];
+  }
+
+  /** Lets the players use what is in front of them and keeps the hints up to date. */
+  private updateInteraction(): void {
+    for (const player of [1, 2] as const) {
+      const user = playerObject(this.world, player);
+      const best = user ? this.world.interactables.best(user) : null;
+      this.hints[player] = user && best ? best.hint(user) : null;
+      if (user && best && this.players[player].wasPressed('interact')) best.use(user);
+    }
+  }
+
+  /** Starts the scripts waiting for events that components raised (hurt, used, opened …). */
+  private deliverObjectEvents(): void {
+    for (const event of this.world.objectEvents.take()) {
+      if (event.object.destroyed) continue;
+      this.fireFor(
+        event.object,
+        event.type,
+        (params) =>
+          Object.entries(event.params).every(
+            ([key, value]) => String(params[key]) === String(value),
+          ),
+        true,
+      );
     }
   }
 
@@ -1555,6 +1637,8 @@ export class Game implements GameApi {
   }
 
   private processDestroyQueue(): void {
+    for (const object of this.world.destroyRequests) this.destroyQueue.add(object);
+    this.world.destroyRequests.clear();
     if (this.destroyQueue.size === 0) return;
     const queue = [...this.destroyQueue];
     this.destroyQueue.clear();

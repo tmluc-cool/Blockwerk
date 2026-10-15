@@ -35,3 +35,31 @@ export class MessageBus {
     return taken;
   }
 }
+
+/** An event that happened to an object, for scripts ("When I am hurt", "When I am used" …). */
+export interface ObjectEvent {
+  readonly object: GameObject;
+  readonly type: string;
+  readonly params: Readonly<Record<string, string | number | boolean>>;
+}
+
+/** Events components raise for the scripts of their object; the game delivers them every tick. */
+export class ObjectEvents {
+  private queue: ObjectEvent[] = [];
+
+  /** Queues an event. */
+  emit(
+    object: GameObject,
+    type: string,
+    params: Readonly<Record<string, string | number | boolean>> = {},
+  ): void {
+    this.queue.push({ object, type, params });
+  }
+
+  /** Takes all queued events. */
+  take(): ObjectEvent[] {
+    const taken = this.queue;
+    this.queue = [];
+    return taken;
+  }
+}
