@@ -135,6 +135,16 @@ export interface GameApi {
   setFieldOfView(self: GameObject, fov: number, seconds: number): void;
   playCameraPath(self: GameObject, ref: ObjectRef): void;
 
+  // Messages, timers and loops over objects (Appendix A, phase 5)
+  /** Sends a message to `self`, `all`, `tag:<name>` or `object:<id>`; delivered next tick. */
+  sendMessage(self: GameObject, message: string, target: ObjectRef): void;
+  /** Starts (or restarts) a timer of this object; "When timer [x] runs out" fires after `seconds`. */
+  startTimer(self: GameObject, name: string, seconds: number): void;
+  /** The active objects a reference names (a tag: all with it; `all`/`any`: every object). */
+  objectsMatching(self: GameObject, ref: ObjectRef): GameObject[];
+  /** Makes `object` the one the reference `loop` names in the running script. */
+  setLoopObject(object: GameObject): void;
+
   // NPCs and navigation (SPEC 8.8)
   /** Walks to an object over the navigation mesh and waits until it arrived (use with `yield*`). */
   navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void>;

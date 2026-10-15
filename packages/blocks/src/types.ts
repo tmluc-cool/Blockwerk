@@ -116,11 +116,12 @@ export interface DropdownField {
  * - `prefab`: the prefabs of the project
  * - `sound`: the built-in sounds and the sound files of the project
  */
-export type ReferenceSource = 'object' | 'objectOrMouse' | 'touchTarget' | 'prefab' | 'sound';
+export type ReferenceSource =
+  'object' | 'objectOrMouse' | 'touchTarget' | 'messageTarget' | 'prefab' | 'sound';
 
 /**
  * Dropdown of objects or tags of the scene, or prefabs of the project. Values: `self`, `any`,
- * `mouse`, `object:<id>`, `tag:<name>`, `prefab:<asset ID>` (`prefab:` for none yet), `builtin:<sound>`, `audio:<asset ID>`.
+ * `all` (every object, for messages), `loop` (the object of the running "for each" loop), `mouse`, `object:<id>`, `tag:<name>`, `prefab:<asset ID>` (`prefab:` for none yet), `builtin:<sound>`, `audio:<asset ID>`.
  */
 export interface ReferenceField {
   readonly type: 'reference';

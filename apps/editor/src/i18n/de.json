@@ -266,6 +266,8 @@
   "reference.any": "irgendetwas",
   "reference.mouse": "Mauszeiger",
   "reference.origin": "Weltmitte",
+  "reference.all": "alle",
+  "reference.loop": "Schleifen-Objekt",
   "reference.tag": "Tag",
   "reference.missing": "(gelöschtes Objekt)",
   "blockEditor.createVariable": "Variable erstellen",

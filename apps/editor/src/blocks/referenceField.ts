@@ -3,7 +3,7 @@ import type { FrameReferences } from './frameApi';
 
 /** Values allowed in scene reference fields (same as the compiler accepts). */
 const REFERENCE =
-  /^(?:self|any|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
+  /^(?:self|any|all|loop|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
 
 let references: FrameReferences = {
   objects: [],
@@ -13,6 +13,8 @@ let references: FrameReferences = {
   labels: {
     self: 'self',
     any: 'anything',
+    all: 'everyone',
+    loop: 'loop object',
     mouse: 'mouse',
     origin: 'origin',
     tag: 'Tag',
@@ -36,6 +38,8 @@ export function currentReferences(): FrameReferences {
 function labelOf(value: string): string {
   if (value === 'self') return references.labels.self;
   if (value === 'any') return references.labels.any;
+  if (value === 'all') return references.labels.all;
+  if (value === 'loop') return references.labels.loop;
   if (value === 'mouse') return references.labels.mouse;
   if (value === 'origin') return references.labels.origin;
   if (value.startsWith('tag:')) return `${references.labels.tag}: ${value.slice(4)}`;
@@ -88,7 +92,11 @@ export class FieldReference extends Blockly.FieldDropdown {
       if (current && !values.includes(current)) values.push(current);
       return values.map((value) => [labelOf(value), value]);
     }
-    if (source === 'object') values.push('self');
+    if (source === 'object') values.push('self', 'loop');
+    if (source === 'messageTarget') {
+      values.push('self', 'all');
+      values.push(...references.tags.map((tag) => `tag:${tag}`));
+    }
     if (source === 'objectOrMouse') values.push('mouse');
     if (source === 'touchTarget') {
       values.push('any');

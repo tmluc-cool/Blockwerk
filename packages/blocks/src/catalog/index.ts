@@ -37,6 +37,9 @@ import {
   stop,
   wait,
   waitUntil,
+  sendMessage,
+  startTimer,
+  forEachObject,
 } from './control';
 import {
   everyFrame,
@@ -48,6 +51,8 @@ import {
   whenDestroyed,
   whenGameStarts,
   whenKey,
+  whenMessage,
+  whenTimer,
   whenTouching,
 } from './events';
 import { numberLiteral, textLiteral } from './literals';
@@ -148,6 +153,8 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenAnimation,
   whenAbility,
   whenState,
+  whenMessage,
+  whenTimer,
   whenCreated,
   whenDestroyed,
   // Motion
@@ -248,6 +255,9 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   spawnPrefab,
   destroy,
   stop,
+  sendMessage,
+  startTimer,
+  forEachObject,
   // Sensing
   keyPressed,
   touching,

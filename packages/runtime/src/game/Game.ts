@@ -217,6 +217,8 @@ export class Game implements GameApi {
   private readonly logical = new Map<GameObject, TransformSnapshot>();
   private accumulator = 0;
   private readonly npcCommands = new NpcCommands();
+  private readonly timers = new Map<GameObject, Map<string, number>>();
+  private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
   private current: Thread | null = null;
   private pointer: { ndc: Vector2 } | null = null;
@@ -343,6 +345,8 @@ export class Game implements GameApi {
     this.players[1].update(this.input, pads[1], TICK_SECONDS);
     this.players[2].update(this.input, pads[2], TICK_SECONDS);
     this.snapshotTransforms();
+    this.updateTimers();
+    this.deliverMessages();
     this.tickComponents('control');
     this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
     this.updateNpcStates();
@@ -717,6 +721,84 @@ export class Game implements GameApi {
     }
   }
 
+  // ---------------------------------------------------------------- GameApi: messages and timers
+
+  sendMessage(self: GameObject, message: string, target: ObjectRef): void {
+    const text = this.str(message);
+    if (target === 'all' || target === 'any') {
+      this.world.messages.send(text, { kind: 'all' }, self);
+    } else if (target.startsWith('tag:')) {
+      this.world.messages.send(text, { kind: 'tag', tag: target.slice(4) }, self);
+    } else {
+      const object = this.find(self, target);
+      if (object) this.world.messages.send(text, { kind: 'object', object }, self);
+    }
+  }
+
+  startTimer(self: GameObject, name: string, seconds: number): void {
+    const timers = this.timers.get(self) ?? new Map<string, number>();
+    timers.set(this.str(name), Math.max(0, this.num(seconds)));
+    this.timers.set(self, timers);
+  }
+
+  objectsMatching(self: GameObject, ref: ObjectRef): GameObject[] {
+    if (ref === 'all' || ref === 'any') {
+      return [...this.world.allObjects()].filter((object) => object.activeInHierarchy);
+    }
+    if (ref.startsWith('tag:')) {
+      const tag = ref.slice(4);
+      return [...this.world.allObjects()].filter(
+        (object) => object.tag === tag && object.activeInHierarchy,
+      );
+    }
+    const found = this.find(self, ref);
+    return found ? [found] : [];
+  }
+
+  setLoopObject(object: GameObject): void {
+    if (this.current) this.loopObjects.set(this.current, object);
+  }
+
+  /** Counts the timers down and starts "When timer [x] runs out" scripts (SPEC 8.1: after input). */
+  private updateTimers(): void {
+    for (const [object, timers] of this.timers) {
+      if (object.destroyed) {
+        this.timers.delete(object);
+        continue;
+      }
+      for (const [name, left] of [...timers]) {
+        const next = left - TICK_SECONDS;
+        if (next > 1e-9) {
+          timers.set(name, next);
+          continue;
+        }
+        timers.delete(name);
+        this.fireFor(object, 'timer', (params) => String(params['name'] ?? '') === name, true);
+      }
+      if (timers.size === 0) this.timers.delete(object);
+    }
+  }
+
+  /** Delivers the messages queued since the last tick. */
+  private deliverMessages(): void {
+    for (const { message, target } of this.world.messages.take()) {
+      const recipients =
+        target.kind === 'object'
+          ? [target.object]
+          : [...this.world.allObjects()].filter(
+              (object) => target.kind === 'all' || object.tag === target.tag,
+            );
+      for (const object of recipients) {
+        this.fireFor(
+          object,
+          'message',
+          (params) => String(params['message'] ?? '') === message,
+          true,
+        );
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- GameApi: NPCs
 
   private get npcContext(): npcApi.NpcContext {
@@ -792,6 +874,10 @@ export class Game implements GameApi {
 
   find(self: GameObject, ref: ObjectRef): GameObject | null {
     if (ref === 'self') return self;
+    if (ref === 'loop') {
+      const looped = this.current ? this.loopObjects.get(this.current) : undefined;
+      return looped && !looped.destroyed ? looped : null;
+    }
     if (ref.startsWith('object:')) {
       const object = this.world.getObject(ref.slice(7));
       return object && !object.destroyed ? object : null;

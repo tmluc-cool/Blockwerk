@@ -82,6 +82,8 @@ function references(scene: SceneData | null): FrameReferences {
       any: t('reference.any'),
       mouse: t('reference.mouse'),
       origin: t('reference.origin'),
+      all: t('reference.all'),
+      loop: t('reference.loop'),
       tag: t('reference.tag'),
       missing: t('reference.missing'),
       choosePrefab: t('reference.choosePrefab'),

@@ -1,3 +1,4 @@
+import { MessageBus } from '../game/messages';
 import { DEFAULT_NAVIGATION, Navigation } from '../navigation/Navigation';
 import type { NavigationSettings } from '../navigation/Navigation';
 import { postRegistry } from '../components/postProcessing';
@@ -78,6 +79,8 @@ export class World {
   readonly waters = new Set<WaterBody>();
   private readonly pendingModels = new Set<Promise<unknown>>();
   private navigationInstance: Navigation | null = null;
+  /** Messages between objects, delivered by the game once per tick. */
+  readonly messages = new MessageBus();
   /** Draw the state of NPCs above them (play mode; the editor's own world leaves it off). */
   showNpcStates = false;
 

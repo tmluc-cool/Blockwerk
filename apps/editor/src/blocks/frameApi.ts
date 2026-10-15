@@ -21,6 +21,8 @@ export interface FrameReferences {
   readonly labels: {
     readonly self: string;
     readonly any: string;
+    readonly all: string;
+    readonly loop: string;
     readonly mouse: string;
     readonly origin: string;
     readonly tag: string;

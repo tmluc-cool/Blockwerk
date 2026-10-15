@@ -26,6 +26,15 @@ function npc(
 /** A target the NPCs look for (tag Player). */
 const player = (position: Vec) => object('Spieler', position, [], { tag: 'Player' });
 
+/** A plain object with a block script. */
+const scripted = (name: string, position: Vec, asset: string, more = {}) =>
+  object(
+    name,
+    position,
+    [component('blockScript', { script: asset }, `${asset.slice(0, 6)}scr`)],
+    more,
+  );
+
 export const phase5Cases: RuntimeCase[] = [
   {
     name: 'goTo walks the path to an object, waits for the arrival and then goes on',
@@ -245,6 +254,106 @@ export const phase5Cases: RuntimeCase[] = [
       run(game, 0.5);
       // Sees the one ahead (1), not the one behind, not the one behind the wall; hears the near one only.
       expect(game.vars[A]).toBe(1001);
+      game.dispose();
+    },
+  },
+  {
+    name: 'messages reach tags, objects and everyone one tick later; timers run out and restart',
+    covers: ['control.sendMessage', 'events.whenMessage', 'control.startTimer', 'events.whenTimer'],
+    run: () => {
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          sender000001: scripted('Sender', [0, 0, 0], 'sender'),
+          tagged000001: scripted('A', [2, 0, 0], 'tagged', { tag: 'Listener' }),
+          direct000001: scripted('B', [4, 0, 0], 'direct'),
+          other0000001: scripted('C', [6, 0, 0], 'other'),
+        },
+        scripts: {
+          sender: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('control.sendMessage', { message: 'hello', target: 'tag:Listener' }),
+              b('control.sendMessage', { message: 'direct', target: 'object:direct000001' }),
+              b('control.sendMessage', { message: 'everyone', target: 'all' }),
+              b('control.startTimer', { name: 'boom' }, { seconds: 1.5 }),
+            ),
+            when(b('events.whenTimer', { name: 'boom' }), set(B, 'boom')),
+            when(
+              b('events.whenMessage', { message: 'everyone' }),
+              b('variables.change', { variable: { id: A } }, { by: 1 }),
+            ),
+          ),
+          tagged: workspace(
+            when(
+              b('events.whenMessage', { message: 'hello' }),
+              b('variables.change', { variable: { id: A } }, { by: 10 }),
+            ),
+          ),
+          direct: workspace(
+            when(
+              b('events.whenMessage', { message: 'direct' }),
+              b('variables.change', { variable: { id: A } }, { by: 100 }),
+            ),
+            when(
+              b('events.whenMessage', { message: 'hello' }),
+              b('variables.change', { variable: { id: A } }, { by: 5000 }),
+            ),
+          ),
+          other: workspace(
+            when(
+              b('events.whenMessage', { message: 'everyone' }),
+              b('variables.change', { variable: { id: A } }, { by: 1000 }),
+            ),
+          ),
+        },
+      });
+      game.stepTick();
+      // Sent in the first tick, delivered in the next one.
+      expect(game.vars[A] ?? 0).toBe(0);
+      run(game, 0.1);
+      // hello → tagged only (10); direct → B (100); everyone → sender and C (1 + 1000).
+      expect(game.vars[A]).toBe(1111);
+      expect(game.vars[B] ?? '').not.toBe('boom');
+      run(game, 1.5);
+      expect(game.vars[B]).toBe('boom');
+      game.dispose();
+    },
+  },
+  {
+    name: 'for each object in a tag visits every object, "loop object" names the current one',
+    covers: ['control.forEachObject'],
+    run: () => {
+      const coin = (x: number) => object('Coin', [x, 0, 0], [], { tag: 'Coin' });
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          counter00001: scripted('Zaehler', [0, 0, 5], 'counter'),
+          coin00000001: coin(1),
+          coin00000002: coin(2),
+          coin00000003: coin(3),
+        },
+        scripts: {
+          counter: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b(
+                'control.forEachObject',
+                { target: 'tag:Coin' },
+                {
+                  body: [
+                    b('variables.change', { variable: { id: A } }, { by: 1 }),
+                    b('control.destroy', { target: 'loop' }),
+                  ],
+                },
+              ),
+            ),
+          ),
+        },
+      });
+      run(game, 0.2);
+      expect(game.vars[A]).toBe(3);
+      expect([...game.world.allObjects()].filter((o) => o.tag === 'Coin')).toHaveLength(0);
       game.dispose();
     },
   },

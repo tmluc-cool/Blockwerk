@@ -266,6 +266,8 @@
   "reference.any": "anything",
   "reference.mouse": "mouse pointer",
   "reference.origin": "world origin",
+  "reference.all": "everyone",
+  "reference.loop": "loop object",
   "reference.tag": "Tag",
   "reference.missing": "(deleted object)",
   "blockEditor.createVariable": "Make a Variable",
