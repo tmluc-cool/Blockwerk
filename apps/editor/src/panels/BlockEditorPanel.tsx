@@ -12,12 +12,19 @@ import { BUILTIN_SOUNDS } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import type { BlockFrameController, FrameReferences, FrameVariable } from '../blocks/frameApi';
+import { workspaceSignatures } from '@blockwerk/compiler';
+import type {
+  BlockFrameController,
+  CustomBlockSpec,
+  FrameCustomBlock,
+  FrameReferences,
+  FrameVariable,
+} from '../blocks/frameApi';
 import { createAssetWithPrompt } from '../chrome/menus';
 import { hierarchyOrder } from '../document/sceneOps';
 import { objectName } from '../scene/worlds';
 import { handleShortcut } from '../shortcuts';
-import { prompt } from '../state/dialogs';
+import { editCustomBlock, prompt } from '../state/dialogs';
 import { BUILT_IN_TAGS, updateBlockScript, useDocument } from '../state/document';
 import { activeObjectId, paletteArea, useEditor } from '../state/editor';
 import { currentGame, usePlay } from '../state/play';
@@ -115,8 +122,44 @@ function references(scene: SceneData | null): FrameReferences {
       chooseUi: t('reference.chooseUi'),
       createVariable: t('blockEditor.createVariable'),
       noVariables: t('blockEditor.noVariables'),
+      makeBlock: t('blocks.makeBlock'),
+      editBlock: t('blocks.editBlock'),
+      goToDefinition: t('blocks.goToDefinition'),
+      extractBlock: t('blocks.extractBlock'),
+      missingBlock: t('blocks.missingBlock'),
+      noInput: t('blocks.noInput'),
     },
   };
+}
+
+/**
+ * The custom blocks the script can call: everything it defines itself and the blocks other
+ * scripts offer to the whole project (SPEC 7.6).
+ */
+function customBlocksFor(entry: ScriptEntry | null): FrameCustomBlock[] {
+  const { project } = useDocument.getState();
+  if (!entry || !project) return [];
+  const result: FrameCustomBlock[] = [];
+  for (const script of project.assetsOfType('blockScript')) {
+    const own = script.id === entry.id;
+    for (const signature of workspaceSignatures(script.data.workspace, script.id)) {
+      if (!own && signature.scope !== 'project') continue;
+      result.push({
+        fn: signature.blockId,
+        library: own ? '' : script.id,
+        name: signature.name,
+        kind: signature.kind,
+        params: signature.params.map((param) => ({ name: param.name, type: param.type })),
+        returns: signature.returns ?? 'any',
+      });
+    }
+  }
+  return result;
+}
+
+/** A blank spec for "Make a block". */
+function newBlockSpec(): CustomBlockSpec {
+  return { kind: 'command', name: '', params: [], returns: 'any', warp: false, scope: 'script' };
 }
 
 function activeAreaKind() {
@@ -437,6 +480,24 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
         state: workspaceJson(current),
         variables: frameVariables(current),
         references: references(useDocument.getState().scene),
+        customBlocks: customBlocksFor(current),
+        onMakeBlock: () => {
+          void editCustomBlock(newBlockSpec(), true).then((spec) => {
+            if (spec) controllerRef.current?.createDefinition(spec);
+          });
+        },
+        onEditBlock: (blockId, spec) => {
+          void editCustomBlock(spec, false).then((edited) => {
+            if (edited) controllerRef.current?.updateDefinition(blockId, edited);
+          });
+        },
+        onGoToDefinition: (library, fn) => {
+          const assetId = library || openScriptEntry()?.id;
+          if (!assetId) return;
+          if (library) useEditor.getState().openBlockScript({ assetId, objectId: null });
+          useEditor.getState().showBlock(assetId, fn);
+        },
+        askName: () => prompt(translateNow('customBlock.askName')),
         onChange: (state) => {
           const target = openScriptEntry();
           if (!target || target.id !== shownRef.current.id) return;
@@ -507,6 +568,12 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
       else controller.setVariables(frameVariables(entry));
     }
   });
+
+  // Calls of custom blocks follow their definitions, in this script and in other ones.
+  useEffect(
+    () => controllerRef.current?.setCustomBlocks(customBlocksFor(entry)),
+    [entry?.id, assetsVersion],
+  );
 
   useEffect(() => controllerRef.current?.setLocale(locale), [locale]);
   useEffect(() => controllerRef.current?.setTheme(theme), [theme]);

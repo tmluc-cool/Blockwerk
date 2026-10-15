@@ -28,6 +28,12 @@ let references: FrameReferences = {
     chooseUi: '?',
     createVariable: '+',
     noVariables: '',
+    makeBlock: '+',
+    editBlock: '',
+    goToDefinition: '',
+    extractBlock: '',
+    missingBlock: '?',
+    noInput: '',
   },
 };
 

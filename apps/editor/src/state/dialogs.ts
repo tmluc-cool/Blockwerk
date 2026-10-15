@@ -1,8 +1,15 @@
 import { create } from 'zustand';
+import type { CustomBlockSpec } from '../blocks/frameApi';
 
 /** A modal dialog request. */
 export type DialogRequest =
   | { kind: 'physics' }
+  | {
+      kind: 'customBlock';
+      spec: CustomBlockSpec;
+      creating: boolean;
+      resolve: (spec: CustomBlockSpec | null) => void;
+    }
   | { kind: 'prompt'; title: string; defaultValue: string; resolve: (value: string | null) => void }
   | { kind: 'message'; title: string; message: string }
   | {
@@ -48,4 +55,14 @@ export function choose(
 /** Opens the physics settings: scene gravity and the layer collision matrix. */
 export function showPhysicsSettings(): void {
   useDialogs.setState({ dialog: { kind: 'physics' } });
+}
+
+/** Opens the "Make a block" / "Edit custom block" dialog. Resolves to `null` when cancelled. */
+export function editCustomBlock(
+  spec: CustomBlockSpec,
+  creating: boolean,
+): Promise<CustomBlockSpec | null> {
+  return new Promise((resolve) => {
+    useDialogs.setState({ dialog: { kind: 'customBlock', spec, creating, resolve } });
+  });
 }

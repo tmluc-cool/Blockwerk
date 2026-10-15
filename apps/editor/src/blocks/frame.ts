@@ -4,6 +4,14 @@ import type { AreaKind, Locale } from '@blockwerk/blocks';
 import { registerFieldColour } from '@blockly/field-colour';
 import * as Blockly from 'blockly/core';
 import type { Theme } from '../state/settings';
+import {
+  createDefinitionBlock,
+  refreshCalls,
+  registerMyBlocksCategory,
+  setCustomHooks,
+  updateDefinitionBlock,
+} from './customBlocks';
+import { registerScopedNameField } from './scopedNameField';
 import { blocklyTheme, defineBlocks, toolboxFor } from './blocklySetup';
 import type { BlockFrameController, BlockFrameOptions, FrameVariable } from './frameApi';
 import {
@@ -19,6 +27,7 @@ const VARIABLE_BLOCKS = ['variables.set', 'variables.change', 'variables.show', 
 
 registerFieldColour();
 registerReferenceField();
+registerScopedNameField();
 
 /** Creates the Blockly workspace in this page and connects it to the editor. */
 function mount(options: BlockFrameOptions): BlockFrameController {
@@ -31,8 +40,15 @@ function mount(options: BlockFrameOptions): BlockFrameController {
   let variables: readonly FrameVariable[] = options.variables;
   let workspace: Blockly.WorkspaceSvg | null = null;
   let loading = false;
+  let customJson = JSON.stringify(options.customBlocks);
   let running: Blockly.BlockSvg[] = [];
   setReferences(options.references);
+  setCustomHooks({
+    customBlocks: options.customBlocks,
+    onEditBlock: options.onEditBlock,
+    onGoToDefinition: options.onGoToDefinition,
+    askName: options.askName,
+  });
 
   const save = (): void => {
     if (!workspace || loading || state === null) return;
@@ -118,6 +134,8 @@ function mount(options: BlockFrameOptions): BlockFrameController {
       loading = false;
     }
     document.body.dataset['empty'] = state === null ? 'true' : 'false';
+    // Calls follow the definitions as they are now (they may have changed in another script).
+    if (refreshCalls(workspace)) save();
   };
 
   const create = (): void => {
@@ -138,6 +156,7 @@ function mount(options: BlockFrameOptions): BlockFrameController {
     });
     created.registerToolboxCategoryCallback(VARIABLES_FLYOUT, variablesFlyout);
     created.registerButtonCallback(CREATE_VARIABLE, () => options.onCreateVariable());
+    registerMyBlocksCategory(created, () => options.onMakeBlock());
     workspace = created;
     loadState();
     created.addChangeListener((event: Blockly.Events.Abstract) => {
@@ -202,6 +221,22 @@ function mount(options: BlockFrameOptions): BlockFrameController {
         }
       }
       workspace?.refreshToolboxSelection();
+    },
+    setCustomBlocks(blocks) {
+      const json = JSON.stringify(blocks);
+      if (json === customJson) return;
+      customJson = json;
+      setCustomHooks({ customBlocks: blocks });
+      if (workspace && refreshCalls(workspace)) save();
+      workspace?.refreshToolboxSelection();
+    },
+    createDefinition(spec) {
+      if (workspace) createDefinitionBlock(workspace, spec);
+    },
+    updateDefinition(blockId, spec) {
+      if (!workspace) return;
+      updateDefinitionBlock(workspace, blockId, spec);
+      save();
     },
     setRunning(hatIds) {
       for (const block of running) block.removeClass('bw-running');

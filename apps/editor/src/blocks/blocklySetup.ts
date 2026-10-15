@@ -4,6 +4,7 @@ import * as Blockly from 'blockly/core';
 import * as BlocklyDe from 'blockly/msg/de';
 import * as BlocklyEn from 'blockly/msg/en';
 import type { Theme } from '../state/settings';
+import { registerCustomBlocks } from './customBlocks';
 
 const BLOCKLY_MESSAGES: Readonly<Record<Locale, Record<string, string>>> = {
   de: BlocklyDe as unknown as Record<string, string>,
@@ -20,6 +21,8 @@ export function defineBlocks(locale: Locale): void {
     Reflect.deleteProperty(Blockly.Blocks, definition.id);
     Blockly.common.defineBlocksWithJsonArray([toBlocklyJson(definition, locale)]);
   }
+  // Definitions and calls of custom blocks follow their own data, not the catalog's text.
+  registerCustomBlocks(locale);
 }
 
 /** The block palette for an area in a language. */

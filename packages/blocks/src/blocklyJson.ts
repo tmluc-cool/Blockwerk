@@ -13,6 +13,8 @@ export interface BlocklyArgJson {
   readonly source?: string;
   readonly variable?: null;
   readonly colour?: string;
+  /** `field_bw_local`: whether the name is picked from locals (`use`) or parameters (`param`). */
+  readonly role?: string;
 }
 
 /** A block definition in Blockly's JSON format (`Blockly.defineBlocksWithJsonArray`). */
@@ -133,6 +135,11 @@ export function toBlocklyJson(definition: BlockDefinition, locale: Locale): Bloc
     args0: inline.map((name) => {
       const input = definition.inputs[name];
       if (!input) throw new Error(`Block "${definition.id}" has no input "${name}".`);
+      const local = definition.local;
+      if (input.type === 'textField' && local && local.field === name && local.role !== 'declare') {
+        // Names of local variables and parameters are picked from what exists at the block.
+        return { type: 'field_bw_local', name, text: input.default, role: local.role };
+      }
       return argFor(name, input, locale);
     }),
     ...rows,
