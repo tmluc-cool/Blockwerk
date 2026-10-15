@@ -11,6 +11,7 @@ import {
   Package,
   Boxes,
   Image as ImageIcon,
+  MessagesSquare,
   Mountain,
   Volume2,
 } from 'lucide-react';
@@ -28,7 +29,7 @@ import {
   OBJECTS_DRAG_TYPE,
   startAssetDrag,
 } from '../library/projectDrag';
-import { openScriptEditor } from '../navigation';
+import { openDialogEditor, openScriptEditor } from '../navigation';
 import { prompt } from '../state/dialogs';
 import {
   createFolder,
@@ -55,6 +56,7 @@ function openAsset(asset: AnyAsset): void {
   if (asset.type === 'scene') openScene(asset.id);
   else if (asset.type === 'prefab') openPrefab(asset.id);
   else if (asset.type === 'blockScript') openScriptEditor(asset.id);
+  else if (asset.type === 'dialog') openDialogEditor(asset.id);
 }
 
 /** Icon of an asset tile. */
@@ -64,6 +66,8 @@ function assetIcon(asset: AnyAsset) {
       return <Clapperboard size={30} />;
     case 'blockScript':
       return <FileCode2 size={30} />;
+    case 'dialog':
+      return <MessagesSquare size={30} />;
     case 'model':
       return <Box size={30} />;
     case 'image':
@@ -137,6 +141,12 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
       testId: 'project-create-block-script',
       disabled: playing,
       action: () => createAssetWithPrompt(t, 'blockScript', target),
+    },
+    {
+      label: t('asset.type.dialog'),
+      testId: 'project-create-dialog',
+      disabled: playing,
+      action: () => createAssetWithPrompt(t, 'dialog', target),
     },
     {
       label: t('asset.type.scene'),

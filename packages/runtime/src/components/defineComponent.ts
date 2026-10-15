@@ -79,7 +79,7 @@ export interface EnumFieldDefinition extends FieldBase {
 }
 
 /** Asset kinds an asset field can point to. */
-export type AssetFieldType = 'blockScript' | 'model' | 'terrain' | 'sound';
+export type AssetFieldType = 'blockScript' | 'dialog' | 'model' | 'terrain' | 'sound';
 
 /** Reference to an asset by its stable ID (models also by `library:<id>`). */
 export interface AssetFieldDefinition extends FieldBase {

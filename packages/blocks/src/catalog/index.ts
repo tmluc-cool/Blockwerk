@@ -68,6 +68,7 @@ import {
   whenHealth,
   whenThing,
 } from './items';
+import { startDialog, whenAnswer } from './dialog';
 import { numberLiteral, textLiteral } from './literals';
 import {
   currentState,
@@ -166,6 +167,7 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   whenAnimation,
   whenAbility,
   whenState,
+  whenAnswer,
   whenThing,
   whenHealth,
   whenMessage,
@@ -220,6 +222,7 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   patrolRoute,
   standStill,
   setState,
+  startDialog,
   currentState,
   seesTarget,
   hearsTarget,

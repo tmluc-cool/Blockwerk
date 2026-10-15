@@ -326,6 +326,7 @@ export function play(options: PlayOptions = {}): void {
   }
   game = new Game(scene, {
     scripts: (id) => compiled.get(id)?.asset ?? null,
+    dialogs: (id) => useDocument.getState().project?.assetOfType(id, 'dialog')?.data ?? null,
     log: logGame,
     displayName: defaultObjectName,
     models: editorModels,

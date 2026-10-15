@@ -31,6 +31,7 @@ import { checkpoint, destructible, health } from './health';
 import { guard } from './guard';
 import { inventory } from './inventory';
 import { chest, door, pickup, switchComponent, usable } from './items';
+import { talkable } from './talkable';
 import { navAgent } from './navAgent';
 import { navObstacle } from './navObstacle';
 import { npc } from './npc';
@@ -86,6 +87,7 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   meleeHit,
   projectile,
   pickup,
+  talkable,
   usable,
   door,
   switchComponent,

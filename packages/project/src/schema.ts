@@ -199,6 +199,72 @@ export const prefabSchema = z.object({
 /** Contents of a `*.prefab.json` file. */
 export type PrefabData = z.infer<typeof prefabSchema>;
 
+/** A condition on a dialog answer. */
+export const dialogConditionSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('hasItem'), item: z.string(), count: z.number().int().min(1) }),
+  z.object({
+    type: z.literal('variable'),
+    /** ID of a game variable. */
+    variable: z.string(),
+    op: z.enum(['==', '!=', '>', '<', '>=', '<=']),
+    value: z.union([z.number(), z.string(), z.boolean()]),
+  }),
+]);
+/** A condition on a dialog answer: it only appears if this holds. */
+export type DialogCondition = z.infer<typeof dialogConditionSchema>;
+
+/** Something a dialog does when a line is shown or an answer is chosen. */
+export const dialogActionSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('setVariable'),
+    variable: z.string(),
+    value: z.union([z.number(), z.string(), z.boolean()]),
+  }),
+  z.object({ type: z.literal('addItem'), item: z.string(), count: z.number().int().min(1) }),
+  z.object({ type: z.literal('removeItem'), item: z.string(), count: z.number().int().min(1) }),
+  z.object({ type: z.literal('sendMessage'), message: z.string(), target: z.string() }),
+  z.object({ type: z.literal('startTimer'), name: z.string(), seconds: z.number().min(0) }),
+  z.object({ type: z.literal('changeState'), target: z.string(), state: z.string() }),
+]);
+/** An action of a dialog. */
+export type DialogAction = z.infer<typeof dialogActionSchema>;
+
+export const dialogAnswerSchema = z.object({
+  id: z.string().min(1),
+  text: z.string(),
+  /** The node the answer leads to; `null` ends the dialog. */
+  next: z.string().nullable(),
+  condition: dialogConditionSchema.optional(),
+  actions: z.array(dialogActionSchema).optional(),
+});
+/** An answer of a dialog line. */
+export type DialogAnswer = z.infer<typeof dialogAnswerSchema>;
+
+export const dialogNodeSchema = z.object({
+  speaker: z.string(),
+  text: z.string(),
+  /** Without answers the line ends the dialog (or continues with `next`). */
+  answers: z.array(dialogAnswerSchema),
+  /** For lines without answers: the line that follows. */
+  next: z.string().nullable().optional(),
+  /** Done when the line is shown. */
+  actions: z.array(dialogActionSchema).optional(),
+  /** Position of the card in the Dialog editor. */
+  x: z.number().optional(),
+  y: z.number().optional(),
+});
+/** One line of a dialog: who says what, with answers. */
+export type DialogNode = z.infer<typeof dialogNodeSchema>;
+
+export const dialogSchema = z.object({
+  formatVersion: z.literal(FORMAT_VERSION),
+  /** The node the dialog starts with. */
+  start: z.string(),
+  nodes: z.record(z.string(), dialogNodeSchema),
+});
+/** Contents of a `*.dialog.json` file (SPEC 8.8: Dialog editor). */
+export type DialogData = z.infer<typeof dialogSchema>;
+
 /** Settings of an imported model (SPEC 6.3), stored in its meta file. */
 export const modelImportSettingsSchema = z.object({
   /** Uniform scale to meters. */
@@ -229,6 +295,7 @@ export const ASSET_TYPES = [
   'scene',
   'blockScript',
   'prefab',
+  'dialog',
   'model',
   'image',
   'terrain',

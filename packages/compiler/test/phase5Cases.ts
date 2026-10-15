@@ -1,7 +1,8 @@
+import type { DialogData } from '@blockwerk/project';
 import { navAgentRegistry, peekHealth, peekInventory, thingRegistry } from '@blockwerk/runtime';
 import { expect } from 'vitest';
 import { b, set, workspace } from './dsl';
-import { A, B, get, ground, launch, object, run, when } from './phase3Cases';
+import { A, B, get, ground, hero, launch, object, run, when } from './phase3Cases';
 import type { RuntimeCase } from './phase3Cases';
 import { component } from './phase3Cases';
 
@@ -527,6 +528,71 @@ export const phase5Cases: RuntimeCase[] = [
       expect(game.vars[A]).toBe(80);
       expect(peekHealth(get(game, 'dummy0000001'))?.current).toBe(0);
       expect(game.vars[B]).toBe('dead');
+      game.dispose();
+    },
+  },
+  {
+    name: 'start dialog talks until the conversation ends; answers run their actions and the hat fires',
+    covers: ['dialog.start', 'dialog.whenAnswer'],
+    run: () => {
+      const dialog = {
+        formatVersion: 1,
+        start: 'a',
+        nodes: {
+          a: {
+            speaker: 'Wache',
+            text: 'Bringst du mir den Schluessel?',
+            actions: [],
+            answers: [
+              {
+                id: 'ja',
+                text: 'Hier',
+                next: 'b',
+                condition: { type: 'hasItem' as const, item: 'key', count: 1 },
+                actions: [{ type: 'removeItem' as const, item: 'key', count: 1 }],
+              },
+              { id: 'nein', text: 'Noch nicht', next: null },
+            ],
+          },
+          b: { speaker: 'Wache', text: 'Danke!', answers: [], next: null },
+        },
+      } satisfies DialogData;
+      const game = launch({
+        objects: {
+          ground000001: ground,
+          hero00000001: hero(),
+          guard0000001: scripted('Wache', [3, 0, 0], 'guard'),
+        },
+        dialogs: { dialog000001: dialog },
+        scripts: {
+          hero: workspace(),
+          guard: workspace(
+            when(
+              b('events.whenGameStarts'),
+              b('dialog.start', { dialog: 'dialog:dialog000001' }),
+              set(A, 1),
+            ),
+            when(b('dialog.whenAnswer', { answer: 'ja' }), set(B, 'ja')),
+          ),
+        },
+      });
+      const player = get(game, 'hero00000001');
+      game.addItem(player, 'self', 'key', 1);
+      run(game, 0.2);
+      // The script waits inside "start dialog" while the dialog box is open.
+      expect(game.talking).toBe(true);
+      expect(game.dialogView()?.speaker).toBe('Wache');
+      expect(game.dialogView()?.choices.map((choice) => choice.id)).toEqual(['ja', 'nein']);
+      expect(game.vars[A] ?? 0).toBe(0);
+      game.chooseDialogAnswer(0);
+      run(game, 0.1);
+      expect(game.vars[B]).toBe('ja');
+      expect(game.itemCount(player, 'self', 'key')).toBe(0);
+      expect(game.dialogView()?.text).toBe('Danke!');
+      game.confirmDialog();
+      run(game, 0.1);
+      expect(game.talking).toBe(false);
+      expect(game.vars[A]).toBe(1);
       game.dispose();
     },
   },

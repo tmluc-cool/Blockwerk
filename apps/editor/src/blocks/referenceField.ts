@@ -3,12 +3,13 @@ import type { FrameReferences } from './frameApi';
 
 /** Values allowed in scene reference fields (same as the compiler accepts). */
 const REFERENCE =
-  /^(?:self|any|all|loop|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
+  /^(?:self|any|all|loop|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|dialog:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
 
 let references: FrameReferences = {
   objects: [],
   tags: [],
   prefabs: [],
+  dialogs: [],
   sounds: [],
   labels: {
     self: 'self',
@@ -20,6 +21,7 @@ let references: FrameReferences = {
     tag: 'Tag',
     missing: '?',
     choosePrefab: '?',
+    chooseDialog: '?',
     createVariable: '+',
     noVariables: '',
   },
@@ -43,6 +45,11 @@ function labelOf(value: string): string {
   if (value === 'mouse') return references.labels.mouse;
   if (value === 'origin') return references.labels.origin;
   if (value.startsWith('tag:')) return `${references.labels.tag}: ${value.slice(4)}`;
+  if (value === 'dialog:') return references.labels.chooseDialog;
+  if (value.startsWith('dialog:')) {
+    const id = value.slice(7);
+    return references.dialogs.find((dialog) => dialog.id === id)?.name ?? references.labels.missing;
+  }
   if (value === 'prefab:') return references.labels.choosePrefab;
   if (value.startsWith('prefab:')) {
     const id = value.slice(7);
@@ -84,6 +91,13 @@ export class FieldReference extends Blockly.FieldDropdown {
       const current = this.getValue();
       if (current && !values.includes(current)) values.push(current);
       if (values.length === 0) values.push('prefab:');
+      return values.map((value) => [labelOf(value), value]);
+    }
+    if (source === 'dialog') {
+      values.push(...references.dialogs.map((dialog) => `dialog:${dialog.id}`));
+      const current = this.getValue();
+      if (current && !values.includes(current)) values.push(current);
+      if (values.length === 0) values.push('dialog:');
       return values.map((value) => [labelOf(value), value]);
     }
     if (source === 'sound') {

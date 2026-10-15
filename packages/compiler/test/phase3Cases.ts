@@ -1,4 +1,4 @@
-import type { SceneObjectData, VariableData } from '@blockwerk/project';
+import type { DialogData, SceneObjectData, VariableData } from '@blockwerk/project';
 import {
   animatorRegistry,
   cameraRegistry,
@@ -105,6 +105,7 @@ export interface Scene {
   readonly scripts: Record<string, unknown>;
   readonly models?: ModelCache;
   readonly audio?: AudioEngine;
+  readonly dialogs?: Record<string, DialogData>;
 }
 
 export function launch(scene: Scene): Game {
@@ -121,6 +122,7 @@ export function launch(scene: Scene): Game {
       scripts: (id) => assets.get(id) ?? null,
       models: scene.models,
       audio: scene.audio,
+      dialogs: (id) => scene.dialogs?.[id] ?? null,
       random: () => 0.5,
     },
   );

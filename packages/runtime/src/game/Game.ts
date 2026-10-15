@@ -1,5 +1,6 @@
 import type {
   ComponentData,
+  DialogData,
   JsonValue,
   SceneData,
   SceneObjectData,
@@ -41,6 +42,10 @@ import * as npcApi from './npcApi';
 import { NpcCommands } from './npcApi';
 import { npcOwners, npcStateOf } from '../npc/state';
 import * as itemsApi from './itemsApi';
+import { DialogSession } from '../dialog/session';
+import type { DialogHost, DialogView } from '../dialog/session';
+import { inventoryOf, peekInventory } from '../gameplay/inventory';
+import { nearestWithTag } from '../npc/senses';
 import type { InteractionHint } from '../gameplay/interaction';
 import { playerObject } from '../components/cameraBehaviors';
 import { isWeatherType } from '../environment/Weather';
@@ -101,6 +106,8 @@ export interface VariableMonitor {
 export interface GameOptions extends WorldOptions {
   /** Compiled block-script assets by asset ID. */
   readonly scripts: (assetId: string) => ScriptAsset | null;
+  /** Dialog assets by asset ID ("start dialog", Talkable). */
+  readonly dialogs?: (assetId: string) => DialogData | null;
   readonly log?: (entry: GameLogEntry) => void;
   /** Random source in [0, 1); defaults to `Math.random`. */
   readonly random?: () => number;
@@ -128,6 +135,14 @@ interface Thread {
   readonly asset: ScriptAsset;
   readonly iterator: Generator<void, void, void>;
   done: boolean;
+}
+
+interface ActiveDialog {
+  readonly session: DialogSession;
+  readonly speaker: GameObject;
+  readonly player: 1 | 2;
+  /** Highlight keys of the last tick, so holding a key moves only once. */
+  readonly wasLocked: boolean;
 }
 
 interface TransformSnapshot {
@@ -221,6 +236,7 @@ export class Game implements GameApi {
   private accumulator = 0;
   private readonly npcCommands = new NpcCommands();
   private readonly hints: Record<1 | 2, InteractionHint | null> = { 1: null, 2: null };
+  private dialog: ActiveDialog | null = null;
   private readonly timers = new Map<GameObject, Map<string, number>>();
   private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
@@ -355,6 +371,7 @@ export class Game implements GameApi {
     this.tickComponents('control');
     this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
     this.updateNpcStates();
+    this.updateDialog();
     this.updateInteraction();
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
@@ -857,6 +874,11 @@ export class Game implements GameApi {
 
   /** Lets the players use what is in front of them and keeps the hints up to date. */
   private updateInteraction(): void {
+    if (this.dialog) {
+      this.hints[1] = null;
+      this.hints[2] = null;
+      return;
+    }
     for (const player of [1, 2] as const) {
       const user = playerObject(this.world, player);
       const best = user ? this.world.interactables.best(user) : null;
@@ -879,6 +901,143 @@ export class Game implements GameApi {
         true,
       );
     }
+  }
+
+  // ---------------------------------------------------------------- GameApi: dialogs
+
+  /** The dialog box content now, or `null` while nobody talks. */
+  dialogView(): DialogView | null {
+    return this.dialog?.session.view() ?? null;
+  }
+
+  /** Whether a conversation is running. */
+  get talking(): boolean {
+    return this.dialog !== null;
+  }
+
+  /** Picks an answer by its position (mouse click on the dialog box). */
+  chooseDialogAnswer(index: number): void {
+    this.dialog?.session.choose(index);
+    this.finishDialogIfDone();
+  }
+
+  /** Highlights the next or previous answer. */
+  moveDialogSelection(delta: number): void {
+    this.dialog?.session.move(delta);
+  }
+
+  /** Confirms the highlighted answer (or continues a line). */
+  confirmDialog(): void {
+    this.dialog?.session.confirm();
+    this.finishDialogIfDone();
+  }
+
+  /** Starts a conversation; false if the asset does not exist or another one runs. */
+  openDialog(speaker: GameObject, user: GameObject, assetId: string): boolean {
+    const data = this.options.dialogs?.(assetId);
+    if (!data || this.dialog) return false;
+    const player: 1 | 2 = playerObject(this.world, 2) === user ? 2 : 1;
+    const session = new DialogSession(data, this.dialogHost(speaker, user));
+    const wasLocked = this.players[player].locked;
+    this.players[player].locked = true;
+    this.dialog = { session, speaker, player, wasLocked };
+    this.finishDialogIfDone();
+    return true;
+  }
+
+  /** "start dialog [x]": talks and waits until the conversation is over (use with `yield*`). */
+  *startDialog(self: GameObject, ref: string): Generator<void, void, void> {
+    const assetId = this.str(ref).replace(/^dialog:/, '');
+    const user =
+      playerObject(this.world, 1) ?? nearestWithTag(this.world, 'Player', self.worldPosition());
+    if (!user) return;
+    while (this.dialog) yield;
+    if (!this.openDialog(self, user, assetId)) return;
+    const mine = this.dialog;
+    while (this.dialog && this.dialog === mine) yield;
+  }
+
+  private dialogHost(speaker: GameObject, user: GameObject): DialogHost {
+    return {
+      hasItem: (item, count) => (peekInventory(user)?.count(item) ?? 0) >= count,
+      variable: (id) => this.vars[id],
+      answered: (answerId) => {
+        for (const object of this.world.allObjects()) {
+          if (!object.activeInHierarchy) continue;
+          this.fireFor(
+            object,
+            'dialogAnswer',
+            (params) => String(params['answer']) === answerId,
+            true,
+          );
+        }
+      },
+      perform: (action) => {
+        switch (action.type) {
+          case 'setVariable':
+            this.vars[action.variable] = action.value;
+            break;
+          case 'addItem':
+            inventoryOf(user).add(action.item, action.count);
+            break;
+          case 'removeItem':
+            inventoryOf(user).remove(action.item, action.count);
+            break;
+          case 'sendMessage':
+            this.sendMessage(speaker, action.message, action.target);
+            break;
+          case 'startTimer':
+            this.startTimer(speaker, action.name, action.seconds);
+            break;
+          case 'changeState': {
+            const target = npcApi.resolveNearest(this.npcContext, speaker, action.target);
+            if (target) npcApi.setState(target, action.state);
+            break;
+          }
+        }
+      },
+    };
+  }
+
+  /** Ends the conversation once its session is over and gives the player control back. */
+  private finishDialogIfDone(): void {
+    const active = this.dialog;
+    if (!active?.session.done) return;
+    this.players[active.player].locked = active.wasLocked;
+    this.dialog = null;
+  }
+
+  /** Starts requested conversations and reads the keys that drive the dialog box. */
+  private updateDialog(): void {
+    const requests = this.world.dialogRequests.splice(0);
+    if (!this.dialog) {
+      for (const request of requests) {
+        if (this.openDialog(request.speaker, request.user, request.dialog)) break;
+      }
+      return;
+    }
+    const input = this.input;
+    const padIndex = this.gamepadIndices()[this.dialog.player];
+    const pad = padIndex === null ? null : input.gamepad(padIndex);
+    const padPressed = (index: number): boolean => !!pad?.buttons[index]?.pressed;
+    const pressed = (...keys: string[]): boolean => keys.some((key) => input.wasPressed(key));
+    if (pressed('ArrowDown', 'S') || this.padEdge(12, padPressed(13))) this.moveDialogSelection(1);
+    if (pressed('ArrowUp', 'W') || this.padEdge(13, padPressed(12))) this.moveDialogSelection(-1);
+    for (let digit = 1; digit <= 9; digit++) {
+      if (input.wasPressed(String(digit))) this.chooseDialogAnswer(digit - 1);
+    }
+    if (pressed('Enter', 'Space', 'E') || this.padEdge(14, padPressed(0) || padPressed(3))) {
+      this.confirmDialog();
+    }
+  }
+
+  private readonly padBefore = new Map<number, boolean>();
+
+  /** Rising edge of a gamepad button (`key` identifies it). */
+  private padEdge(key: number, now: boolean): boolean {
+    const before = this.padBefore.get(key) ?? false;
+    this.padBefore.set(key, now);
+    return now && !before;
   }
 
   // ---------------------------------------------------------------- GameApi: NPCs

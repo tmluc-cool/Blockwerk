@@ -88,6 +88,8 @@ export class World {
   readonly interactables = new Interactables();
   /** Objects that components want removed (a dead monster); the game does it at the end of the tick. */
   readonly destroyRequests = new Set<GameObject>();
+  /** Conversations that components ask for (a Talkable used by a player); the game starts them. */
+  readonly dialogRequests: { dialog: string; speaker: GameObject; user: GameObject }[] = [];
   /** Where players come back after dying: the last checkpoint they touched. */
   checkpoint: Vector3 | null = null;
   /** Draw the state of NPCs above them (play mode; the editor's own world leaves it off). */

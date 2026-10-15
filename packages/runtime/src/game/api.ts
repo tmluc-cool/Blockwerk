@@ -158,6 +158,10 @@ export interface GameApi {
   healObject(self: GameObject, target: ObjectRef, amount: number): void;
   healthOfObject(self: GameObject, target: ObjectRef): number;
 
+  // Dialogs (SPEC 8.8)
+  /** Talks with the player and waits until the conversation is over (use with `yield*`). */
+  startDialog(self: GameObject, dialog: string): Generator<void, void, void>;
+
   // NPCs and navigation (SPEC 8.8)
   /** Walks to an object over the navigation mesh and waits until it arrived (use with `yield*`). */
   navigateTo(self: GameObject, target: ObjectRef): Generator<void, void, void>;

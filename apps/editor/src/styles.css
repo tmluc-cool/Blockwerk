@@ -1961,3 +1961,117 @@ button.small {
   width: 100%;
   border-radius: 4px;
 }
+
+.interaction-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  z-index: 5;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: rgba(10, 12, 16, 0.78);
+  color: #fff;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.dialog-editor {
+  overflow: auto;
+}
+
+.dialog-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.dialog-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--border, #3a3f4a);
+  border-radius: 6px;
+}
+
+.dialog-card.start {
+  border-color: var(--accent, #4a8cff);
+}
+
+.dialog-card header,
+.dialog-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dialog-answer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dialog-grow {
+  flex: 1;
+  min-width: 120px;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dialog-badge {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--accent, #4a8cff);
+  color: #fff;
+  font-size: 11px;
+}
+
+.dialog-box {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  z-index: 6;
+  width: min(640px, 90%);
+  transform: translateX(-50%);
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(10, 12, 16, 0.88);
+  color: #fff;
+}
+
+.dialog-box .dialog-speaker {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.dialog-box .dialog-text {
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+
+.dialog-box button {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  text-align: left;
+}
+
+.dialog-box button.selected {
+  outline: 2px solid var(--accent, #4a8cff);
+}
