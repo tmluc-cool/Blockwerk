@@ -271,6 +271,16 @@ function VariablesPanel({ entry, disabled }: { entry: ScriptEntry; disabled: boo
             />
             {t('blockEditor.showInInspector')}
           </label>
+          <label className="variable-row inspector-toggle" title={t('variable.savedHelp')}>
+            <input
+              type="checkbox"
+              checked={variable.saved === true}
+              disabled={variable.scope !== 'game'}
+              data-testid="variable-saved"
+              onChange={(event) => update(variable.id, { saved: event.target.checked })}
+            />
+            {t('variable.saved')}
+          </label>
         </div>
       ))}
     </aside>

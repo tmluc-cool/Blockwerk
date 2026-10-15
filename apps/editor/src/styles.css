@@ -2104,3 +2104,143 @@ button.small {
   background: var(--accent, #4a8cff);
   transition: width 0.1s linear;
 }
+
+.ui-editor {
+  overflow: auto;
+}
+
+.ui-help {
+  margin: 4px 12px;
+  font-size: 12px;
+}
+
+.ui-ref {
+  width: 64px;
+}
+
+.ui-editor-body {
+  display: grid;
+  grid-template-columns: 200px minmax(280px, 1fr) 280px;
+  gap: 12px;
+  padding: 0 12px 12px;
+  align-items: start;
+}
+
+.ui-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.ui-list-tools {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.ui-list-item {
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ui-list-item.selected {
+  border-color: var(--accent, #4a8cff);
+  background: rgba(74, 140, 255, 0.15);
+}
+
+.ui-preview-wrap {
+  overflow: hidden;
+}
+
+.ui-preview {
+  position: relative;
+  width: 100%;
+  background: #1b1f2a;
+  border: 1px solid var(--border, #3a3f4a);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.ui-preview-el {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  color: #fff;
+  cursor: move;
+  user-select: none;
+  white-space: pre-wrap;
+}
+
+.ui-preview-el.hidden {
+  opacity: 0.35;
+}
+
+.ui-preview-el.selected {
+  border: 2px solid var(--accent, #4a8cff);
+  z-index: 1;
+}
+
+.ui-preview-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 70%;
+  pointer-events: none;
+}
+
+.ui-preview-tag {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.ui-side {
+  max-height: 560px;
+  overflow: auto;
+}
+
+.ui-props {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ui-prop {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-pair {
+  display: flex;
+  gap: 4px;
+}
+
+.ui-pair input {
+  width: 100%;
+  min-width: 0;
+}
+
+.ui-actions,
+.ui-action {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ui-actions {
+  flex-direction: column;
+  align-items: stretch;
+}

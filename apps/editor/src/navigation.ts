@@ -19,6 +19,13 @@ export function openDialogEditor(assetId: string): void {
   focusPanel('dialogEditor');
 }
 
+/** Opens a UI canvas in the UI Editor (double-click on a UI asset). */
+export function openUiEditor(assetId: string): void {
+  useEditor.getState().openUiAsset(assetId);
+  openPanel('uiEditor');
+  focusPanel('uiEditor');
+}
+
 /** Follows a console entry: selects the object and shows the block. */
 export function revealLink(link: ConsoleLink): void {
   const editor = useEditor.getState();

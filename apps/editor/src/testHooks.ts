@@ -15,7 +15,13 @@ import { currentStage } from './studio/StudioStage';
 import { useLayout } from './layout/layoutController';
 import { activeSceneView } from './scene/sceneViews';
 import type { SceneCameraSnapshot } from './scene/SceneViewport';
-import { hasUnsavedChanges, importProject, saveProject, useDocument } from './state/document';
+import {
+  hasUnsavedChanges,
+  importProject,
+  openScene,
+  saveProject,
+  useDocument,
+} from './state/document';
 import { useEditor } from './state/editor';
 import { currentGame, playPerformance, usePlay } from './state/play';
 import { useSettings } from './state/settings';
@@ -98,6 +104,8 @@ export interface BlockwerkDebugHooks {
     loading: string | null;
     items: Record<string, number>;
   };
+  /** Opens a scene of the project by its name (edit mode). */
+  openSceneByName(name: string): boolean;
   /** Puts a live object somewhere (play mode). */
   teleportLive(name: string, position: [number, number, number]): void;
   /** Live inspector variable or game variable value by variable name (play mode). */
@@ -256,6 +264,15 @@ export function installTestHooks(): void {
         loading: usePlay.getState().loading?.title ?? null,
         items,
       };
+    },
+    openSceneByName: (name) => {
+      const entry = useDocument
+        .getState()
+        .project?.assetsOfType('scene')
+        .find((asset) => assetDisplayName(asset.path) === name);
+      if (!entry) return false;
+      openScene(entry.id);
+      return true;
     },
     teleportLive: (name, position) => {
       const object = [...(currentGame()?.world.allObjects() ?? [])].find(

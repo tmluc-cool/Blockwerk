@@ -61,6 +61,8 @@ interface EditorState {
   openScript: OpenScript | null;
   /** Dialog open in the Dialog editor (asset ID). */
   openDialog: string | null;
+  /** UI canvas open in the UI Editor (asset ID). */
+  openUi: string | null;
   /** Block the block editor should scroll to and select (console jump). */
   revealBlock: {
     readonly assetId: string;
@@ -79,6 +81,7 @@ interface EditorState {
   setRenaming: (id: string | null) => void;
   openBlockScript: (script: OpenScript | null) => void;
   openDialogAsset: (assetId: string | null) => void;
+  openUiAsset: (assetId: string | null) => void;
   showBlock: (assetId: string, blockId: string) => void;
   setFlying: (flying: boolean) => void;
   /** Clears selection and area after another scene or project was opened. */
@@ -96,6 +99,7 @@ export const useEditor = create<EditorState>()((set) => ({
   renamingId: null,
   openScript: null,
   openDialog: null,
+  openUi: null,
   revealBlock: null,
   flying: false,
   setTool: (tool) => set({ tool }),
@@ -121,6 +125,7 @@ export const useEditor = create<EditorState>()((set) => ({
   setRenaming: (id) => set({ renamingId: id }),
   openBlockScript: (script) => set({ openScript: script }),
   openDialogAsset: (assetId) => set({ openDialog: assetId }),
+  openUiAsset: (assetId) => set({ openUi: assetId }),
   showBlock: (assetId, blockId) =>
     set((state) => ({
       revealBlock: { assetId, blockId, nonce: (state.revealBlock?.nonce ?? 0) + 1 },

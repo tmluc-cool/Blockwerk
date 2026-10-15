@@ -30,6 +30,7 @@ import {
   createBlockScript,
   createNewProject,
   createDialog,
+  createUiAsset,
   createSceneAsset,
   defaultFolder,
   importProject,
@@ -396,7 +397,7 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
 /** Asks for a name and creates an asset in the default folder. */
 export function createAssetWithPrompt(
   t: Translate,
-  type: 'blockScript' | 'scene' | 'dialog',
+  type: 'blockScript' | 'scene' | 'dialog' | 'ui',
   folder?: string,
 ): void {
   const defaultName =
@@ -404,7 +405,9 @@ export function createAssetWithPrompt(
       ? t('asset.newBlockScript')
       : type === 'dialog'
         ? t('asset.newDialog')
-        : t('project.defaultSceneName');
+        : type === 'ui'
+          ? t('asset.newUi')
+          : t('project.defaultSceneName');
   void prompt(t(`asset.type.${type}`), defaultName).then((name) => {
     if (!name?.trim()) return;
     const target = folder ?? defaultFolder(type);
@@ -413,7 +416,9 @@ export function createAssetWithPrompt(
         ? createBlockScript(target, name.trim())
         : type === 'dialog'
           ? createDialog(target, name.trim())
-          : createSceneAsset(target, name.trim());
+          : type === 'ui'
+            ? createUiAsset(target, name.trim())
+            : createSceneAsset(target, name.trim());
     if (entry) useEditor.getState().selectAsset(entry.id);
   });
 }

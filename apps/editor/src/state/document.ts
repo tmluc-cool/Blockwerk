@@ -24,6 +24,7 @@ import type {
   AssetType,
   BlockScriptData,
   DialogData,
+  UiData,
   MetaData,
   ModelImportSettings,
   NewProjectFolders,
@@ -54,6 +55,7 @@ function newProjectFolders(): NewProjectFolders {
     terrains: t('project.folder.terrains'),
     sounds: t('project.folder.sounds'),
     dialogs: t('project.folder.dialogs'),
+    uis: t('project.folder.uis'),
   };
 }
 
@@ -571,6 +573,29 @@ export function createDialog(folder: string, name: string): AnyAsset | null {
   );
   assetsChanged();
   return entry as AnyAsset;
+}
+
+/** Creates an empty UI canvas. */
+export function createUiAsset(folder: string, name: string, data?: UiData): AnyAsset | null {
+  const { project } = useDocument.getState();
+  if (!project) return null;
+  const content: UiData = data ?? {
+    formatVersion: FORMAT_VERSION,
+    referenceWidth: 1280,
+    referenceHeight: 720,
+    elements: [],
+  };
+  const entry = project.createAsset('ui', project.uniqueAssetPath(folder, name, 'ui'), content);
+  assetsChanged();
+  return entry as AnyAsset;
+}
+
+/** Replaces the data of a UI canvas (UI Editor). */
+export function updateUi(id: string, data: UiData): void {
+  const { project } = useDocument.getState();
+  if (!project?.assetOfType(id, 'ui')) return;
+  project.updateAsset(id, 'ui', data);
+  assetsChanged();
 }
 
 /** Replaces the data of a dialog (Dialog editor). */
