@@ -1,0 +1,104 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": {
+        "Apfel": 2,
+        "Brot": 3,
+        "Fackel": 6,
+        "Helm": 30,
+        "Karte": 25,
+        "Laterne": 9,
+        "Pfeil": 1,
+        "Schild": 28,
+        "Schwert": 40,
+        "Seil": 4,
+        "Trank": 12,
+        "Zelt": 18
+      },
+      "id": "grossvpreis1",
+      "inspector": false,
+      "name": "Preise",
+      "scope": "game",
+      "type": "dictionary"
+    },
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "P",
+            "mode": "pressed"
+          },
+          "id": "t-387",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-392",
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "id": "t-390",
+                    "inputs": {
+                      "list": {
+                        "block": {
+                          "id": "t-389",
+                          "inputs": {
+                            "dictionary": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvpreis1"
+                                  }
+                                },
+                                "id": "t-388",
+                                "type": "variables.get"
+                              }
+                            }
+                          },
+                          "type": "data.dictKeys"
+                        }
+                      },
+                      "separator": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": ", "
+                          },
+                          "id": "t-391",
+                          "type": "literal.text"
+                        }
+                      }
+                    },
+                    "type": "data.listJoin"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

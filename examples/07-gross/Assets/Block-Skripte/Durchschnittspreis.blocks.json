@@ -1,0 +1,117 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "D",
+            "mode": "pressed"
+          },
+          "id": "t-413",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-421",
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "id": "t-419",
+                    "inputs": {
+                      "a": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": "Durchschnitt: "
+                          },
+                          "id": "t-420",
+                          "type": "literal.text"
+                        }
+                      },
+                      "b": {
+                        "block": {
+                          "id": "t-418",
+                          "inputs": {
+                            "value": {
+                              "block": {
+                                "extraState": {
+                                  "fn": "def-average",
+                                  "library": "grosslib0001",
+                                  "name": "Durchschnitt",
+                                  "params": [
+                                    {
+                                      "name": "liste",
+                                      "type": "list"
+                                    }
+                                  ]
+                                },
+                                "id": "t-417",
+                                "inputs": {
+                                  "ARG0": {
+                                    "block": {
+                                      "id": "t-414",
+                                      "inputs": {
+                                        "separator": {
+                                          "shadow": {
+                                            "fields": {
+                                              "TEXT": ","
+                                            },
+                                            "id": "t-416",
+                                            "type": "literal.text"
+                                          }
+                                        },
+                                        "text": {
+                                          "shadow": {
+                                            "fields": {
+                                              "TEXT": "2,3,40,12,25"
+                                            },
+                                            "id": "t-415",
+                                            "type": "literal.text"
+                                          }
+                                        }
+                                      },
+                                      "type": "data.split"
+                                    }
+                                  }
+                                },
+                                "type": "custom.callValue"
+                              }
+                            }
+                          },
+                          "type": "operators.round"
+                        }
+                      }
+                    },
+                    "type": "operators.join"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

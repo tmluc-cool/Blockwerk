@@ -1,0 +1,186 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 50,
+      "id": "grossvmuenz1",
+      "inspector": false,
+      "name": "Münzen",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    },
+    {
+      "default": {
+        "Apfel": 2,
+        "Brot": 3,
+        "Fackel": 6,
+        "Helm": 30,
+        "Karte": 25,
+        "Laterne": 9,
+        "Pfeil": 1,
+        "Schild": 28,
+        "Schwert": 40,
+        "Seil": 4,
+        "Trank": 12,
+        "Zelt": 18
+      },
+      "id": "grossvpreis1",
+      "inspector": false,
+      "name": "Preise",
+      "scope": "game",
+      "type": "dictionary"
+    },
+    {
+      "default": [],
+      "id": "grossvsack01",
+      "inspector": false,
+      "name": "Rucksack",
+      "saved": true,
+      "scope": "game",
+      "type": "list"
+    },
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-490",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-496",
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "id": "t-494",
+                    "inputs": {
+                      "a": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": "Fackel-Frieda: Fackel für "
+                          },
+                          "id": "t-495",
+                          "type": "literal.text"
+                        }
+                      },
+                      "b": {
+                        "block": {
+                          "id": "t-492",
+                          "inputs": {
+                            "dictionary": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvpreis1"
+                                  }
+                                },
+                                "id": "t-491",
+                                "type": "variables.get"
+                              }
+                            },
+                            "key": {
+                              "shadow": {
+                                "fields": {
+                                  "TEXT": "Fackel"
+                                },
+                                "id": "t-493",
+                                "type": "literal.text"
+                              }
+                            }
+                          },
+                          "type": "data.dictGet"
+                        }
+                      }
+                    },
+                    "type": "operators.join"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "id": "t-497",
+                  "inputs": {
+                    "seconds": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 1
+                        },
+                        "id": "t-498",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "extraState": {
+                        "fn": "def-buy",
+                        "library": "grosslib0001",
+                        "name": "Kaufen",
+                        "params": [
+                          {
+                            "name": "ware",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "id": "t-499",
+                      "inputs": {
+                        "ARG0": {
+                          "shadow": {
+                            "fields": {
+                              "TEXT": "Fackel"
+                            },
+                            "id": "t-500",
+                            "type": "literal.text"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "fields": {
+                            "message": "gekauft",
+                            "target": "all"
+                          },
+                          "id": "t-501",
+                          "type": "control.sendMessage"
+                        }
+                      },
+                      "type": "custom.callCommand"
+                    }
+                  },
+                  "type": "control.wait"
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

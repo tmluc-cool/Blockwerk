@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "action": "jump",
+            "phase": "pressed",
+            "player": "any"
+          },
+          "id": "t-381",
+          "next": {
+            "block": {
+              "fields": {
+                "effect": "dust"
+              },
+              "id": "t-382",
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:whoosh",
+                    "where": "everywhere"
+                  },
+                  "id": "t-383",
+                  "type": "sound.play"
+                }
+              },
+              "type": "effects.spawn"
+            }
+          },
+          "type": "events.whenAction"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

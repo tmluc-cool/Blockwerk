@@ -1,0 +1,101 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 50,
+      "id": "grossvmuenz1",
+      "inspector": false,
+      "name": "Münzen",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    },
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "what": "opened"
+          },
+          "id": "t-690",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-earn",
+                "library": "grosslib0001",
+                "name": "Münzen ändern",
+                "params": [
+                  {
+                    "name": "menge",
+                    "type": "number"
+                  }
+                ]
+              },
+              "id": "t-691",
+              "inputs": {
+                "ARG0": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 35
+                    },
+                    "id": "t-692",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "effect": "sparkle"
+                  },
+                  "id": "t-693",
+                  "next": {
+                    "block": {
+                      "extraState": {
+                        "fn": "def-say",
+                        "library": "grosslib0001",
+                        "name": "Meldung zeigen",
+                        "params": [
+                          {
+                            "name": "text",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "id": "t-694",
+                      "inputs": {
+                        "ARG0": {
+                          "shadow": {
+                            "fields": {
+                              "TEXT": "Truhe 7: 35 Münzen!"
+                            },
+                            "id": "t-695",
+                            "type": "literal.text"
+                          }
+                        }
+                      },
+                      "type": "custom.callCommand"
+                    }
+                  },
+                  "type": "effects.spawn"
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "items.whenThing"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

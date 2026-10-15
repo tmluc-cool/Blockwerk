@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "state": "chase"
+          },
+          "id": "t-616",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:whoosh",
+                "where": "everywhere"
+              },
+              "id": "t-617",
+              "next": {
+                "block": {
+                  "fields": {
+                    "message": "alarm",
+                    "target": "all"
+                  },
+                  "id": "t-618",
+                  "next": {
+                    "block": {
+                      "id": "t-619",
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 10
+                            },
+                            "id": "t-620",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "fields": {
+                            "state": "wander"
+                          },
+                          "id": "t-621",
+                          "type": "npc.setState"
+                        }
+                      },
+                      "type": "control.wait"
+                    }
+                  },
+                  "type": "control.sendMessage"
+                }
+              },
+              "type": "sound.play"
+            }
+          },
+          "type": "npc.whenState"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

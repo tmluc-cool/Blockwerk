@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "N",
+            "mode": "pressed"
+          },
+          "id": "t-769",
+          "next": {
+            "block": {
+              "fields": {
+                "ui": "ui:grossuishop1"
+              },
+              "id": "t-770",
+              "type": "ui.hide"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

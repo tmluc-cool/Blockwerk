@@ -1,0 +1,100 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-98",
+          "next": {
+            "block": {
+              "id": "t-108",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-105",
+                    "inputs": {
+                      "direction": {
+                        "block": {
+                          "id": "t-102",
+                          "inputs": {
+                            "from": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 0
+                                },
+                                "id": "t-103",
+                                "type": "literal.number"
+                              }
+                            },
+                            "to": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 360
+                                },
+                                "id": "t-104",
+                                "type": "literal.number"
+                              }
+                            }
+                          },
+                          "type": "sensing.random"
+                        }
+                      },
+                      "speed": {
+                        "block": {
+                          "id": "t-99",
+                          "inputs": {
+                            "from": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 1
+                                },
+                                "id": "t-100",
+                                "type": "literal.number"
+                              }
+                            },
+                            "to": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 8
+                                },
+                                "id": "t-101",
+                                "type": "literal.number"
+                              }
+                            }
+                          },
+                          "type": "sensing.random"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "id": "t-106",
+                        "inputs": {
+                          "seconds": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 10
+                              },
+                              "id": "t-107",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "type": "control.wait"
+                      }
+                    },
+                    "type": "environment.setWind"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

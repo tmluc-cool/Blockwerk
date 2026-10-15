@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "O",
+            "mode": "pressed"
+          },
+          "id": "t-771",
+          "next": {
+            "block": {
+              "fields": {
+                "ui": "ui:grossuiset01"
+              },
+              "id": "t-772",
+              "type": "ui.show"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-92",
+          "next": {
+            "block": {
+              "id": "t-97",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-93",
+                    "inputs": {
+                      "seconds": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 30
+                          },
+                          "id": "t-94",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "fields": {
+                          "sound": "builtin:whoosh",
+                          "where": "everywhere"
+                        },
+                        "id": "t-95",
+                        "next": {
+                          "block": {
+                            "fields": {
+                              "sound": "builtin:click",
+                              "where": "everywhere"
+                            },
+                            "id": "t-96",
+                            "type": "sound.play"
+                          }
+                        },
+                        "type": "sound.play"
+                      }
+                    },
+                    "type": "control.wait"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

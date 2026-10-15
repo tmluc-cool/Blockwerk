@@ -1,0 +1,71 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-776",
+          "next": {
+            "block": {
+              "id": "t-781",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-777",
+                    "inputs": {
+                      "seconds": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 8
+                          },
+                          "id": "t-778",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "fields": {
+                          "variable": {
+                            "id": "grossvmeld01"
+                          }
+                        },
+                        "id": "t-779",
+                        "inputs": {
+                          "value": {
+                            "shadow": {
+                              "fields": {
+                                "TEXT": ""
+                              },
+                              "id": "t-780",
+                              "type": "literal.text"
+                            }
+                          }
+                        },
+                        "type": "variables.set"
+                      }
+                    },
+                    "type": "control.wait"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

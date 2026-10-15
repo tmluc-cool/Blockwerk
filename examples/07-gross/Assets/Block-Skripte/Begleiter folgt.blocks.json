@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-422",
+          "next": {
+            "block": {
+              "fields": {
+                "target": "tag:Player"
+              },
+              "id": "t-423",
+              "inputs": {
+                "distance": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 2.5
+                    },
+                    "id": "t-424",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "npc.follow"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

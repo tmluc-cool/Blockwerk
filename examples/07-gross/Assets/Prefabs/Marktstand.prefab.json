@@ -1,0 +1,70 @@
+{
+  "base": null,
+  "formatVersion": 1,
+  "objects": {
+    "go0000000121": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "gc0000000312",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-market-red"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "gc0000000313",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1,
+              0
+            ],
+            "isTrigger": true,
+            "size": [
+              4,
+              2,
+              4
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "gc0000000314",
+          "type": "blockScript",
+          "values": {
+            "script": "grossscr0079"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Marktstand",
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "overrides": [],
+  "root": "go0000000121"
+}

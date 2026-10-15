@@ -1,0 +1,92 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "T",
+            "mode": "pressed"
+          },
+          "id": "t-407",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-412",
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "id": "t-410",
+                    "inputs": {
+                      "a": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": "Würfel: "
+                          },
+                          "id": "t-411",
+                          "type": "literal.text"
+                        }
+                      },
+                      "b": {
+                        "block": {
+                          "extraState": {
+                            "fn": "def-dice",
+                            "library": "grosslib0001",
+                            "name": "Würfel-Summe",
+                            "params": [
+                              {
+                                "name": "anzahl",
+                                "type": "number"
+                              }
+                            ]
+                          },
+                          "id": "t-408",
+                          "inputs": {
+                            "ARG0": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 10
+                                },
+                                "id": "t-409",
+                                "type": "literal.number"
+                              }
+                            }
+                          },
+                          "type": "custom.callValue"
+                        }
+                      }
+                    },
+                    "type": "operators.join"
+                  }
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 50,
+      "id": "grossvmuenz1",
+      "inspector": false,
+      "name": "Münzen",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-306",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-say",
+                "library": "grosslib0001",
+                "name": "Meldung zeigen",
+                "params": [
+                  {
+                    "name": "text",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": "t-307",
+              "inputs": {
+                "ARG0": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Haus 7: Willkommen!"
+                    },
+                    "id": "t-308",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:click",
+                    "where": "everywhere"
+                  },
+                  "id": "t-309",
+                  "next": {
+                    "block": {
+                      "id": "t-317",
+                      "inputs": {
+                        "condition": {
+                          "block": {
+                            "id": "t-313",
+                            "inputs": {
+                              "a": {
+                                "block": {
+                                  "id": "t-310",
+                                  "inputs": {
+                                    "a": {
+                                      "shadow": {
+                                        "fields": {
+                                          "NUM": 7
+                                        },
+                                        "id": "t-311",
+                                        "type": "literal.number"
+                                      }
+                                    },
+                                    "b": {
+                                      "shadow": {
+                                        "fields": {
+                                          "NUM": 4
+                                        },
+                                        "id": "t-312",
+                                        "type": "literal.number"
+                                      }
+                                    }
+                                  },
+                                  "type": "operators.mod"
+                                }
+                              },
+                              "b": {
+                                "shadow": {
+                                  "fields": {
+                                    "NUM": 0
+                                  },
+                                  "id": "t-314",
+                                  "type": "literal.number"
+                                }
+                              }
+                            },
+                            "type": "operators.eq"
+                          }
+                        },
+                        "then": {
+                          "block": {
+                            "extraState": {
+                              "fn": "def-earn",
+                              "library": "grosslib0001",
+                              "name": "Münzen ändern",
+                              "params": [
+                                {
+                                  "name": "menge",
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            "id": "t-315",
+                            "inputs": {
+                              "ARG0": {
+                                "shadow": {
+                                  "fields": {
+                                    "NUM": 1
+                                  },
+                                  "id": "t-316",
+                                  "type": "literal.number"
+                                }
+                              }
+                            },
+                            "type": "custom.callCommand"
+                          }
+                        }
+                      },
+                      "type": "control.if"
+                    }
+                  },
+                  "type": "sound.play"
+                }
+              },
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

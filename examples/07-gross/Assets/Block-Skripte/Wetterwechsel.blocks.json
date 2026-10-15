@@ -1,0 +1,97 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-82",
+          "next": {
+            "block": {
+              "id": "t-91",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-83",
+                    "inputs": {
+                      "seconds": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 45
+                          },
+                          "id": "t-84",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "fields": {
+                          "weather": "rain"
+                        },
+                        "id": "t-85",
+                        "inputs": {
+                          "seconds": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 5
+                              },
+                              "id": "t-86",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "id": "t-87",
+                            "inputs": {
+                              "seconds": {
+                                "shadow": {
+                                  "fields": {
+                                    "NUM": 25
+                                  },
+                                  "id": "t-88",
+                                  "type": "literal.number"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "fields": {
+                                  "weather": "clear"
+                                },
+                                "id": "t-89",
+                                "inputs": {
+                                  "seconds": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 5
+                                      },
+                                      "id": "t-90",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "environment.setWeather"
+                              }
+                            },
+                            "type": "control.wait"
+                          }
+                        },
+                        "type": "environment.setWeather"
+                      }
+                    },
+                    "type": "control.wait"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-116",
+          "next": {
+            "block": {
+              "id": "t-131",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "id": "t-128",
+                    "inputs": {
+                      "condition": {
+                        "block": {
+                          "id": "t-123",
+                          "inputs": {
+                            "a": {
+                              "block": {
+                                "id": "t-118",
+                                "inputs": {
+                                  "a": {
+                                    "block": {
+                                      "id": "t-117",
+                                      "type": "environment.timeOfDay"
+                                    }
+                                  },
+                                  "b": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 6
+                                      },
+                                      "id": "t-119",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "operators.lt"
+                              }
+                            },
+                            "b": {
+                              "block": {
+                                "id": "t-121",
+                                "inputs": {
+                                  "a": {
+                                    "block": {
+                                      "id": "t-120",
+                                      "type": "environment.timeOfDay"
+                                    }
+                                  },
+                                  "b": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 20
+                                      },
+                                      "id": "t-122",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "operators.gt"
+                              }
+                            }
+                          },
+                          "type": "operators.or"
+                        }
+                      },
+                      "else": {
+                        "block": {
+                          "id": "t-126",
+                          "inputs": {
+                            "percent": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 100
+                                },
+                                "id": "t-127",
+                                "type": "literal.number"
+                              }
+                            }
+                          },
+                          "type": "environment.setSunBrightness"
+                        }
+                      },
+                      "then": {
+                        "block": {
+                          "id": "t-124",
+                          "inputs": {
+                            "percent": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 20
+                                },
+                                "id": "t-125",
+                                "type": "literal.number"
+                              }
+                            }
+                          },
+                          "type": "environment.setSunBrightness"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "id": "t-129",
+                        "inputs": {
+                          "seconds": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 5
+                              },
+                              "id": "t-130",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "type": "control.wait"
+                      }
+                    },
+                    "type": "control.ifElse"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

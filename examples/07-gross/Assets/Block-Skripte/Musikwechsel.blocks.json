@@ -1,0 +1,106 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-223",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:music-calm"
+              },
+              "id": "t-224",
+              "next": {
+                "block": {
+                  "id": "t-233",
+                  "inputs": {
+                    "body": {
+                      "block": {
+                        "id": "t-225",
+                        "inputs": {
+                          "seconds": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 60
+                              },
+                              "id": "t-226",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "fields": {
+                              "sound": "builtin:music-adventure"
+                            },
+                            "id": "t-227",
+                            "inputs": {
+                              "seconds": {
+                                "shadow": {
+                                  "fields": {
+                                    "NUM": 4
+                                  },
+                                  "id": "t-228",
+                                  "type": "literal.number"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "id": "t-229",
+                                "inputs": {
+                                  "seconds": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 60
+                                      },
+                                      "id": "t-230",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "fields": {
+                                      "sound": "builtin:music-calm"
+                                    },
+                                    "id": "t-231",
+                                    "inputs": {
+                                      "seconds": {
+                                        "shadow": {
+                                          "fields": {
+                                            "NUM": 4
+                                          },
+                                          "id": "t-232",
+                                          "type": "literal.number"
+                                        }
+                                      }
+                                    },
+                                    "type": "sound.crossfadeMusic"
+                                  }
+                                },
+                                "type": "control.wait"
+                              }
+                            },
+                            "type": "sound.crossfadeMusic"
+                          }
+                        },
+                        "type": "control.wait"
+                      }
+                    }
+                  },
+                  "type": "control.forever"
+                }
+              },
+              "type": "sound.playMusic"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

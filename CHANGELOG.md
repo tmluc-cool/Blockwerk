@@ -5,6 +5,27 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 7: Large projects
+
+- Lists and dictionaries as variable types and values (also in saves), with blocks to create, add,
+  insert, remove, read, set, count, search and loop over them; game variables are shared by ID
+  across all scripts of a project.
+- Custom blocks (command, value and condition) with typed parameters, "return", and "without screen
+  refresh"; visible in one script or project-wide (a script library); local variables; a "My Blocks"
+  palette category; calls follow their definition.
+- Advisory type check ("expects a number, got text") shown on the block and in the console.
+- Typing instead of dragging: type on the workspace to find a block, Enter inserts it, Tab jumps to
+  the next field; an expression such as `x/2 + 10` in a number slot builds operator blocks.
+- "Extract as custom block" for selected blocks; collapse, comments and clean-up from Blockly.
+- Search window (Ctrl+Shift+F) across block scripts, scenes, dialogs and UI canvases; "Go to
+  definition", "All usages" and "Rename everywhere" for variables, messages, tags and custom blocks
+  as one undo step.
+- Code view (generated JavaScript, read-only, block and line linked) and a Code block with a
+  documented API (`self`, `game`, `scene`, `three`); syntax errors are reported before play.
+- Prefabs carry their block scripts, script libraries and custom blocks into other projects.
+- `examples/07-gross` ("Handelsstadt"): 86 block scripts over all areas, a script library with
+  custom blocks, lists and dictionaries; opens in under 3 seconds.
+
 ### Phase 6: UI, menus, saving
 
 - UI canvases as a new asset type (`*.ui.json`): elements with anchors and offsets like Unity's

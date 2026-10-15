@@ -1,0 +1,843 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 50,
+      "id": "grossvmuenz1",
+      "inspector": false,
+      "name": "Münzen",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    },
+    {
+      "default": {
+        "Apfel": 2,
+        "Brot": 3,
+        "Fackel": 6,
+        "Helm": 30,
+        "Karte": 25,
+        "Laterne": 9,
+        "Pfeil": 1,
+        "Schild": 28,
+        "Schwert": 40,
+        "Seil": 4,
+        "Trank": 12,
+        "Zelt": 18
+      },
+      "id": "grossvpreis1",
+      "inspector": false,
+      "name": "Preise",
+      "scope": "game",
+      "type": "dictionary"
+    },
+    {
+      "default": [],
+      "id": "grossvsack01",
+      "inspector": false,
+      "name": "Rucksack",
+      "saved": true,
+      "scope": "game",
+      "type": "list"
+    },
+    {
+      "default": "",
+      "id": "grossvmeld01",
+      "inspector": false,
+      "name": "Meldung",
+      "scope": "game",
+      "type": "string"
+    },
+    {
+      "default": 1,
+      "id": "grossvtag001",
+      "inspector": false,
+      "name": "Tag",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "extraState": {
+            "params": [
+              {
+                "name": "text",
+                "type": "string"
+              }
+            ],
+            "scope": "project"
+          },
+          "fields": {
+            "name": "Meldung zeigen"
+          },
+          "id": "def-say",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "grossvmeld01"
+                }
+              },
+              "id": "t-2",
+              "inputs": {
+                "value": {
+                  "block": {
+                    "fields": {
+                      "name": "text"
+                    },
+                    "id": "t-1",
+                    "type": "custom.param"
+                  }
+                }
+              },
+              "type": "variables.set"
+            }
+          },
+          "type": "custom.defineCommand"
+        },
+        {
+          "extraState": {
+            "params": [
+              {
+                "name": "menge",
+                "type": "number"
+              }
+            ],
+            "scope": "project"
+          },
+          "fields": {
+            "name": "Münzen ändern"
+          },
+          "id": "def-earn",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "grossvmuenz1"
+                }
+              },
+              "id": "t-4",
+              "inputs": {
+                "by": {
+                  "block": {
+                    "fields": {
+                      "name": "menge"
+                    },
+                    "id": "t-3",
+                    "type": "custom.param"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:coin",
+                    "where": "everywhere"
+                  },
+                  "id": "t-5",
+                  "type": "sound.play"
+                }
+              },
+              "type": "variables.change"
+            }
+          },
+          "type": "custom.defineCommand"
+        },
+        {
+          "extraState": {
+            "params": [
+              {
+                "name": "ware",
+                "type": "string"
+              }
+            ],
+            "returns": "number",
+            "scope": "project"
+          },
+          "fields": {
+            "name": "Preis von"
+          },
+          "id": "def-price",
+          "next": {
+            "block": {
+              "id": "t-9",
+              "inputs": {
+                "value": {
+                  "block": {
+                    "id": "t-8",
+                    "inputs": {
+                      "dictionary": {
+                        "block": {
+                          "fields": {
+                            "variable": {
+                              "id": "grossvpreis1"
+                            }
+                          },
+                          "id": "t-7",
+                          "type": "variables.get"
+                        }
+                      },
+                      "key": {
+                        "block": {
+                          "fields": {
+                            "name": "ware"
+                          },
+                          "id": "t-6",
+                          "type": "custom.param"
+                        }
+                      }
+                    },
+                    "type": "data.dictGet"
+                  }
+                }
+              },
+              "type": "custom.return"
+            }
+          },
+          "type": "custom.defineValue"
+        },
+        {
+          "extraState": {
+            "params": [
+              {
+                "name": "ware",
+                "type": "string"
+              }
+            ],
+            "scope": "project"
+          },
+          "fields": {
+            "name": "Kaufen"
+          },
+          "id": "def-buy",
+          "next": {
+            "block": {
+              "id": "t-32",
+              "inputs": {
+                "condition": {
+                  "block": {
+                    "id": "t-14",
+                    "inputs": {
+                      "value": {
+                        "block": {
+                          "id": "t-13",
+                          "inputs": {
+                            "a": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvmuenz1"
+                                  }
+                                },
+                                "id": "t-10",
+                                "type": "variables.get"
+                              }
+                            },
+                            "b": {
+                              "block": {
+                                "extraState": {
+                                  "fn": "def-price",
+                                  "library": "grosslib0001",
+                                  "name": "Preis von",
+                                  "params": [
+                                    {
+                                      "name": "ware",
+                                      "type": "string"
+                                    }
+                                  ]
+                                },
+                                "id": "t-12",
+                                "inputs": {
+                                  "ARG0": {
+                                    "block": {
+                                      "fields": {
+                                        "name": "ware"
+                                      },
+                                      "id": "t-11",
+                                      "type": "custom.param"
+                                    }
+                                  }
+                                },
+                                "type": "custom.callValue"
+                              }
+                            }
+                          },
+                          "type": "operators.lt"
+                        }
+                      }
+                    },
+                    "type": "operators.not"
+                  }
+                },
+                "else": {
+                  "block": {
+                    "extraState": {
+                      "fn": "def-say",
+                      "library": "grosslib0001",
+                      "name": "Meldung zeigen",
+                      "params": [
+                        {
+                          "name": "text",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "id": "t-30",
+                    "inputs": {
+                      "ARG0": {
+                        "block": {
+                          "id": "t-28",
+                          "inputs": {
+                            "a": {
+                              "shadow": {
+                                "fields": {
+                                  "TEXT": "Zu wenig Münzen für "
+                                },
+                                "id": "t-29",
+                                "type": "literal.text"
+                              }
+                            },
+                            "b": {
+                              "block": {
+                                "fields": {
+                                  "name": "ware"
+                                },
+                                "id": "t-27",
+                                "type": "custom.param"
+                              }
+                            }
+                          },
+                          "type": "operators.join"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "fields": {
+                          "sound": "builtin:hurt",
+                          "where": "everywhere"
+                        },
+                        "id": "t-31",
+                        "type": "sound.play"
+                      }
+                    },
+                    "type": "custom.callCommand"
+                  }
+                },
+                "then": {
+                  "block": {
+                    "extraState": {
+                      "fn": "def-earn",
+                      "library": "grosslib0001",
+                      "name": "Münzen ändern",
+                      "params": [
+                        {
+                          "name": "menge",
+                          "type": "number"
+                        }
+                      ]
+                    },
+                    "id": "t-19",
+                    "inputs": {
+                      "ARG0": {
+                        "block": {
+                          "id": "t-17",
+                          "inputs": {
+                            "a": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 0
+                                },
+                                "id": "t-18",
+                                "type": "literal.number"
+                              }
+                            },
+                            "b": {
+                              "block": {
+                                "extraState": {
+                                  "fn": "def-price",
+                                  "library": "grosslib0001",
+                                  "name": "Preis von",
+                                  "params": [
+                                    {
+                                      "name": "ware",
+                                      "type": "string"
+                                    }
+                                  ]
+                                },
+                                "id": "t-16",
+                                "inputs": {
+                                  "ARG0": {
+                                    "block": {
+                                      "fields": {
+                                        "name": "ware"
+                                      },
+                                      "id": "t-15",
+                                      "type": "custom.param"
+                                    }
+                                  }
+                                },
+                                "type": "custom.callValue"
+                              }
+                            }
+                          },
+                          "type": "operators.subtract"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "id": "t-22",
+                        "inputs": {
+                          "item": {
+                            "block": {
+                              "fields": {
+                                "name": "ware"
+                              },
+                              "id": "t-20",
+                              "type": "custom.param"
+                            }
+                          },
+                          "list": {
+                            "block": {
+                              "fields": {
+                                "variable": {
+                                  "id": "grossvsack01"
+                                }
+                              },
+                              "id": "t-21",
+                              "type": "variables.get"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "extraState": {
+                              "fn": "def-say",
+                              "library": "grosslib0001",
+                              "name": "Meldung zeigen",
+                              "params": [
+                                {
+                                  "name": "text",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "id": "t-26",
+                            "inputs": {
+                              "ARG0": {
+                                "block": {
+                                  "id": "t-24",
+                                  "inputs": {
+                                    "a": {
+                                      "shadow": {
+                                        "fields": {
+                                          "TEXT": "Gekauft: "
+                                        },
+                                        "id": "t-25",
+                                        "type": "literal.text"
+                                      }
+                                    },
+                                    "b": {
+                                      "block": {
+                                        "fields": {
+                                          "name": "ware"
+                                        },
+                                        "id": "t-23",
+                                        "type": "custom.param"
+                                      }
+                                    }
+                                  },
+                                  "type": "operators.join"
+                                }
+                              }
+                            },
+                            "type": "custom.callCommand"
+                          }
+                        },
+                        "type": "data.listAdd"
+                      }
+                    },
+                    "type": "custom.callCommand"
+                  }
+                }
+              },
+              "type": "control.ifElse"
+            }
+          },
+          "type": "custom.defineCommand"
+        },
+        {
+          "extraState": {
+            "scope": "project"
+          },
+          "fields": {
+            "name": "Reich?"
+          },
+          "id": "def-rich",
+          "next": {
+            "block": {
+              "id": "t-37",
+              "inputs": {
+                "value": {
+                  "block": {
+                    "id": "t-36",
+                    "inputs": {
+                      "value": {
+                        "block": {
+                          "id": "t-34",
+                          "inputs": {
+                            "a": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvmuenz1"
+                                  }
+                                },
+                                "id": "t-33",
+                                "type": "variables.get"
+                              }
+                            },
+                            "b": {
+                              "shadow": {
+                                "fields": {
+                                  "NUM": 100
+                                },
+                                "id": "t-35",
+                                "type": "literal.number"
+                              }
+                            }
+                          },
+                          "type": "operators.lt"
+                        }
+                      }
+                    },
+                    "type": "operators.not"
+                  }
+                }
+              },
+              "type": "custom.return"
+            }
+          },
+          "type": "custom.defineCondition"
+        },
+        {
+          "extraState": {
+            "params": [
+              {
+                "name": "liste",
+                "type": "list"
+              }
+            ],
+            "returns": "number",
+            "scope": "project"
+          },
+          "fields": {
+            "name": "Durchschnitt"
+          },
+          "id": "def-average",
+          "next": {
+            "block": {
+              "fields": {
+                "name": "summe"
+              },
+              "id": "t-38",
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 0
+                    },
+                    "id": "t-39",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "name": "anzahl"
+                  },
+                  "id": "t-40",
+                  "inputs": {
+                    "value": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 0
+                        },
+                        "id": "t-41",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "fields": {
+                        "name": "eintrag"
+                      },
+                      "id": "t-47",
+                      "inputs": {
+                        "body": {
+                          "block": {
+                            "fields": {
+                              "name": "summe"
+                            },
+                            "id": "t-44",
+                            "inputs": {
+                              "by": {
+                                "block": {
+                                  "fields": {
+                                    "name": "eintrag"
+                                  },
+                                  "id": "t-43",
+                                  "type": "locals.get"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "fields": {
+                                  "name": "anzahl"
+                                },
+                                "id": "t-45",
+                                "inputs": {
+                                  "by": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 1
+                                      },
+                                      "id": "t-46",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "locals.change"
+                              }
+                            },
+                            "type": "locals.change"
+                          }
+                        },
+                        "list": {
+                          "block": {
+                            "fields": {
+                              "name": "liste"
+                            },
+                            "id": "t-42",
+                            "type": "custom.param"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "id": "t-57",
+                          "inputs": {
+                            "condition": {
+                              "block": {
+                                "id": "t-49",
+                                "inputs": {
+                                  "a": {
+                                    "block": {
+                                      "fields": {
+                                        "name": "anzahl"
+                                      },
+                                      "id": "t-48",
+                                      "type": "locals.get"
+                                    }
+                                  },
+                                  "b": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 0
+                                      },
+                                      "id": "t-50",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "operators.eq"
+                              }
+                            },
+                            "else": {
+                              "block": {
+                                "id": "t-56",
+                                "inputs": {
+                                  "value": {
+                                    "block": {
+                                      "id": "t-55",
+                                      "inputs": {
+                                        "a": {
+                                          "block": {
+                                            "fields": {
+                                              "name": "summe"
+                                            },
+                                            "id": "t-53",
+                                            "type": "locals.get"
+                                          }
+                                        },
+                                        "b": {
+                                          "block": {
+                                            "fields": {
+                                              "name": "anzahl"
+                                            },
+                                            "id": "t-54",
+                                            "type": "locals.get"
+                                          }
+                                        }
+                                      },
+                                      "type": "operators.divide"
+                                    }
+                                  }
+                                },
+                                "type": "custom.return"
+                              }
+                            },
+                            "then": {
+                              "block": {
+                                "id": "t-51",
+                                "inputs": {
+                                  "value": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 0
+                                      },
+                                      "id": "t-52",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "type": "custom.return"
+                              }
+                            }
+                          },
+                          "type": "control.ifElse"
+                        }
+                      },
+                      "type": "data.forEachItem"
+                    }
+                  },
+                  "type": "locals.declare"
+                }
+              },
+              "type": "locals.declare"
+            }
+          },
+          "type": "custom.defineValue"
+        },
+        {
+          "extraState": {
+            "params": [
+              {
+                "name": "anzahl",
+                "type": "number"
+              }
+            ],
+            "returns": "number",
+            "scope": "project",
+            "warp": true
+          },
+          "fields": {
+            "name": "Würfel-Summe"
+          },
+          "id": "def-dice",
+          "next": {
+            "block": {
+              "fields": {
+                "name": "summe"
+              },
+              "id": "t-58",
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 0
+                    },
+                    "id": "t-59",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "id": "t-65",
+                  "inputs": {
+                    "body": {
+                      "block": {
+                        "fields": {
+                          "name": "summe"
+                        },
+                        "id": "t-64",
+                        "inputs": {
+                          "by": {
+                            "block": {
+                              "id": "t-61",
+                              "inputs": {
+                                "from": {
+                                  "shadow": {
+                                    "fields": {
+                                      "NUM": 1
+                                    },
+                                    "id": "t-62",
+                                    "type": "literal.number"
+                                  }
+                                },
+                                "to": {
+                                  "shadow": {
+                                    "fields": {
+                                      "NUM": 6
+                                    },
+                                    "id": "t-63",
+                                    "type": "literal.number"
+                                  }
+                                }
+                              },
+                              "type": "sensing.random"
+                            }
+                          }
+                        },
+                        "type": "locals.change"
+                      }
+                    },
+                    "times": {
+                      "block": {
+                        "fields": {
+                          "name": "anzahl"
+                        },
+                        "id": "t-60",
+                        "type": "custom.param"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "id": "t-67",
+                      "inputs": {
+                        "value": {
+                          "block": {
+                            "fields": {
+                              "name": "summe"
+                            },
+                            "id": "t-66",
+                            "type": "locals.get"
+                          }
+                        }
+                      },
+                      "type": "custom.return"
+                    }
+                  },
+                  "type": "control.repeat"
+                }
+              },
+              "type": "locals.declare"
+            }
+          },
+          "type": "custom.defineValue"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -383,4 +383,40 @@ test.describe('phase 7: large projects', () => {
     // The code view cannot be edited.
     expect(await view.locator('[contenteditable], textarea, input').count()).toBe(0);
   });
+
+  test('the large example opens quickly, plays and its library blocks work', async ({
+    editor: page,
+  }) => {
+    test.setTimeout(scaled(180_000));
+    const started = Date.now();
+    await page.getByTestId('menu-file').click();
+    await page.getByTestId('menu-open-example').click();
+    await page.getByTestId('choice-dialog').getByText('Handelsstadt', { exact: true }).click();
+    await expect
+      .poll(() => page.evaluate(() => window.__blockwerk?.project().name))
+      .toBe('Handelsstadt');
+    const seconds = (Date.now() - started) / 1000;
+    console.log(`Handelsstadt opened in ${seconds.toFixed(1)} s`);
+    expect(seconds).toBeLessThan(scaled(10));
+    const scripts = await page.evaluate(
+      () => window.__blockwerk?.assets().filter((asset) => asset.type === 'blockScript').length,
+    );
+    expect(scripts).toBeGreaterThanOrEqual(80);
+    await page.getByTestId('play').click();
+    await expect.poll(() => page.evaluate(() => window.__blockwerk?.playStatus())).toBe('playing');
+    await tab(page, 'Spiel').click();
+    await page.getByTestId('game-canvas').focus();
+    const frames = (): Promise<number> =>
+      page.evaluate(() => window.__blockwerk?.playPerformance().frames ?? 0);
+    await expect.poll(frames, { timeout: scaled(120_000) }).toBeGreaterThan(4);
+    const before = await frames();
+    await page.evaluate(() => window.__blockwerk?.pressKey('KeyB', true));
+    await expect.poll(frames, { timeout: scaled(60_000) }).toBeGreaterThan(before + 2);
+    await page.evaluate(() => window.__blockwerk?.pressKey('KeyB', false));
+    await expect
+      .poll(() => page.evaluate(() => window.__blockwerk?.gameVars()['grossvmuenz1']), {
+        timeout: scaled(60_000),
+      })
+      .toBe(47);
+  });
 });

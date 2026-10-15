@@ -1,0 +1,137 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 1,
+      "id": "grossvtag001",
+      "inspector": false,
+      "name": "Tag",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-68",
+          "next": {
+            "block": {
+              "id": "t-69",
+              "inputs": {
+                "hours": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 8
+                    },
+                    "id": "t-70",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "id": "t-71",
+                  "inputs": {
+                    "factor": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 240
+                        },
+                        "id": "t-72",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "id": "t-81",
+                      "inputs": {
+                        "body": {
+                          "block": {
+                            "id": "t-76",
+                            "inputs": {
+                              "condition": {
+                                "block": {
+                                  "id": "t-74",
+                                  "inputs": {
+                                    "a": {
+                                      "block": {
+                                        "id": "t-73",
+                                        "type": "environment.timeOfDay"
+                                      }
+                                    },
+                                    "b": {
+                                      "shadow": {
+                                        "fields": {
+                                          "NUM": 1
+                                        },
+                                        "id": "t-75",
+                                        "type": "literal.number"
+                                      }
+                                    }
+                                  },
+                                  "type": "operators.lt"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "fields": {
+                                  "variable": {
+                                    "id": "grossvtag001"
+                                  }
+                                },
+                                "id": "t-77",
+                                "inputs": {
+                                  "by": {
+                                    "shadow": {
+                                      "fields": {
+                                        "NUM": 1
+                                      },
+                                      "id": "t-78",
+                                      "type": "literal.number"
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "id": "t-79",
+                                    "inputs": {
+                                      "seconds": {
+                                        "shadow": {
+                                          "fields": {
+                                            "NUM": 5
+                                          },
+                                          "id": "t-80",
+                                          "type": "literal.number"
+                                        }
+                                      }
+                                    },
+                                    "type": "control.wait"
+                                  }
+                                },
+                                "type": "variables.change"
+                              }
+                            },
+                            "type": "control.waitUntil"
+                          }
+                        }
+                      },
+                      "type": "control.forever"
+                    }
+                  },
+                  "type": "environment.setTimeSpeed"
+                }
+              },
+              "type": "environment.setTimeOfDay"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}
