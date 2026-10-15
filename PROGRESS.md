@@ -10,8 +10,8 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 3 | Player, physics, animation | done |
 | 3b | Character Studio | done |
 | 4 | Environment and graphics | done |
-| 5 | NPCs and game logic | in review |
-| 6 | UI, menus, saving | open |
+| 5 | NPCs and game logic | done (merged; Windows CI result of the PR was not seen) |
+| 6 | UI, menus, saving | in progress |
 | 7 | Large projects | open |
 | 8 | Debugging | open |
 | 9 | Build and export | open |
@@ -19,6 +19,41 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 6: UI, menus, saving
+
+Branch: `phase/06-oberflaeche` (builds on `main` with Phase 5 merged).
+
+### Plan
+
+**Subtasks** (SPEC 8.12, 8.14, 7.4, 5.11, 1.1 items 8 and 9, 10)
+
+1. **UI asset and layout** (`packages/project`, `packages/runtime/src/ui`): new asset type `ui` (`*.ui.json`) = one UI canvas: reference size, scale mode and a tree of elements. Every element has a rect like Unity's RectTransform (anchor min/max in 0..1, pivot, offset min/max in reference pixels) and a type: `panel`, `text`, `image`, `bar`, `button`, `slider`, `toggle`, `dropdown`, `hint` ("[E] Talk"), `crosshair`, plus the composites `inventory`, `dialog` and `keybindings`. Elements can be **bound** to data (game variable, health, stamina, item count, loading progress) and buttons run **actions** (send message, show / hide a canvas, load scene, resume, restart, save to slot, load from slot). The layout is a pure function (`layoutRect`) with unit tests.
+2. **UI renderer** (`packages/runtime/src/ui`): a DOM layer on top of the game canvas, owned by the host (editor Game view, later the exported game), driven by the current `Game`: it draws the canvases of `UI Canvas` components, one set per player in split screen (own HUD per player), handles mouse, number keys and the gamepad for buttons, and the built-in layers for the **interaction hint**, the **dialog box** and the **loading screen** (these move from the editor panel into the runtime, so exported games have them too). Built-in strings come from a translate callback of the host, so the runtime has no UI text of its own.
+3. **Settings** (`packages/runtime/src/settings`): graphics level, music / effects / voices volume, mouse sensitivity, key bindings per player and full screen; stored by the host (browser: local storage), applied to quality, audio mixer, input and the window. Menus change them through slider / toggle / dropdown / keybindings elements.
+4. **In-game pause:** the Pause action (Esc, P, gamepad Start) toggles a paused game; canvases with "visible: while paused" appear. The editor's own Pause button stays separate.
+5. **Menu prefabs** (`packages/project/src/uiTemplates.ts`): main menu, pause menu, settings, victory, defeat, loading screen with progress, and a HUD (life bar, inventory, hint). They are ordinary `ui` assets made from templates, so they can be edited afterwards; the UI editor offers "Add menu from template".
+6. **Saving** (`packages/runtime/src/saves`): a variable can be marked "saved" (optional field in the variable format, checkbox in the inspector's variable list); a save slot stores the scene, the saved game variables and, per player, position, rotation, inventory, health and stamina. `SaveStorage` is an interface (browser: local storage per project; the desktop export writes files in Phase 9). Blocks "save game to slot", "load game from slot", "slot [n] is used"; buttons do the same. Loading builds the game of the saved scene like a scene change (loading screen) and puts the players back.
+7. **UI editor window** (`apps/editor`, Window → UI Editor): preview of the canvas with the elements as selectable and draggable rectangles, element list, inspector of the selected element (anchor presets, offsets, colors, text, bindings, actions), add / delete / duplicate, "add from template". Edits are saved into the project at once.
+8. **Blocks** "show UI [x]", "hide UI [x]", "save game", "load game", "slot used?" with golden and runtime tests.
+9. **Example** `examples/05-quest` grows a main menu scene (start scene), a pause menu, settings (graphics level, volumes, mouse sensitivity, key bindings), a life bar, an inventory display and interaction hints; saved variables Quest and Aufgabe. Acceptance tests (unit tests on the real project, end-to-end), screenshot, PR.
+
+**Affected packages:** `project` (ui asset type, `saved` flag, save data, templates), `runtime` (ui, settings, saves, pause), `blocks`, `compiler`, `apps/editor` (UI editor, settings and save storage, Game view), `examples/05-quest`.
+
+**Risks**
+
+- This phase touches everything players see. The DOM layer must work in the editor's Game view (focus, pointer lock, split screen) without breaking the existing keyboard handling; menus release the pointer lock while they are open.
+- Phase 5's end-to-end tests start the quest example in the village. With a main menu as the start scene they have to open the village scene first (a test hook), not to click through the menu every time; one test plays through the menu.
+- Software rendering makes end-to-end tests slow; the new browser tests stay few (menu → game → pause → settings → save/load in one test) and the layout and save logic are covered by unit tests.
+- Key rebinding needs a capture mode that must not trigger game actions while it is active.
+
+### Assumptions
+
+- **UI canvases are assets, not scene objects.** A scene shows them through a `UI Canvas` component (asset, player, sort order, visibility: always / while paused / manual). This keeps scenes small and makes the menu prefabs ordinary assets. Unity's Canvas + RectTransform children map to this (documented in the UI editor's help text).
+- **Reference size 1280 × 720**, scale mode "scale with screen" (factor = min of the two ratios); element offsets are in reference pixels, text sizes too.
+- **Saved variables:** game-scoped variables only (object variables belong to scenes that are rebuilt). NPCs, doors and chests are not saved (a save restores the quest progress, the player and the inventory, not the whole world state); this is written into the save dialog's tooltip and the docs.
+- **Slots:** three slots per project (`slot 1..3`), each with the scene name and a time stamp; the browser keeps them in local storage under `blockwerk.saves.<project name>`. Loading a slot replaces the running game.
+- **Pause:** the in-game pause freezes the logic tick but not the UI, the music or the camera blend; Esc also releases the pointer lock in the browser, which is why the game view re-captures on the next click.
 
 ## Phase 5: NPCs and game logic
 
