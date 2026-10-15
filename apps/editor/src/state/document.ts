@@ -817,6 +817,17 @@ export function setEnvironment(
   );
 }
 
+/** Changes the navigation mesh settings of the open scene with undo (Navigation window). */
+export function setNavigationSettings(
+  navigation: NonNullable<SceneData['environment']['navigation']>,
+): void {
+  editScene(
+    'undo.navigation',
+    (scene) => ({ ...scene, environment: { ...scene.environment, navigation } }),
+    'navigation',
+  );
+}
+
 /** Sets the graphics level new games of the project start with (`null` = none chosen). */
 export function setProjectGraphicsLevel(level: 'low' | 'medium' | 'high' | 'ultra' | null): void {
   const { project } = useDocument.getState();

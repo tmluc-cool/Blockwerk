@@ -9,6 +9,7 @@ export type PanelId =
   | 'blockEditor'
   | 'inspector'
   | 'lighting'
+  | 'navigation'
   | 'project'
   | 'assetLibrary'
   | 'console';
@@ -31,6 +32,7 @@ export const PANELS: readonly PanelDefinition[] = [
   { id: 'blockEditor', titleKey: 'panel.blockEditor' },
   { id: 'figure', titleKey: 'panel.figure' },
   { id: 'lighting', titleKey: 'panel.lighting' },
+  { id: 'navigation', titleKey: 'panel.navigation' },
   { id: 'assetLibrary', titleKey: 'panel.assetLibrary' },
   { id: 'console', titleKey: 'panel.console' },
 ];
