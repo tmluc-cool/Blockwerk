@@ -3,7 +3,7 @@ import type { FrameReferences } from './frameApi';
 
 /** Values allowed in scene reference fields (same as the compiler accepts). */
 const REFERENCE =
-  /^(?:self|any|all|loop|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|dialog:[a-z0-9]*|scene:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
+  /^(?:self|any|all|loop|mouse|origin|object:.+|tag:.*|prefab:[a-z0-9]*|dialog:[a-z0-9]*|scene:[a-z0-9]*|ui:[a-z0-9]*|builtin:[a-z-]+|audio:[a-z0-9]*)$/;
 
 let references: FrameReferences = {
   objects: [],
@@ -11,6 +11,7 @@ let references: FrameReferences = {
   prefabs: [],
   dialogs: [],
   scenes: [],
+  uis: [],
   sounds: [],
   labels: {
     self: 'self',
@@ -24,6 +25,7 @@ let references: FrameReferences = {
     choosePrefab: '?',
     chooseDialog: '?',
     chooseScene: '?',
+    chooseUi: '?',
     createVariable: '+',
     noVariables: '',
   },
@@ -47,6 +49,11 @@ function labelOf(value: string): string {
   if (value === 'mouse') return references.labels.mouse;
   if (value === 'origin') return references.labels.origin;
   if (value.startsWith('tag:')) return `${references.labels.tag}: ${value.slice(4)}`;
+  if (value === 'ui:') return references.labels.chooseUi;
+  if (value.startsWith('ui:')) {
+    const id = value.slice(3);
+    return references.uis.find((ui) => ui.id === id)?.name ?? references.labels.missing;
+  }
   if (value === 'scene:') return references.labels.chooseScene;
   if (value.startsWith('scene:')) {
     const id = value.slice(6);
@@ -98,6 +105,13 @@ export class FieldReference extends Blockly.FieldDropdown {
       const current = this.getValue();
       if (current && !values.includes(current)) values.push(current);
       if (values.length === 0) values.push('prefab:');
+      return values.map((value) => [labelOf(value), value]);
+    }
+    if (source === 'ui') {
+      values.push(...references.uis.map((ui) => `ui:${ui.id}`));
+      const current = this.getValue();
+      if (current && !values.includes(current)) values.push(current);
+      if (values.length === 0) values.push('ui:');
       return values.map((value) => [labelOf(value), value]);
     }
     if (source === 'scene') {

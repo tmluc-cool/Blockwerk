@@ -124,6 +124,7 @@ export type ReferenceSource =
   | 'prefab'
   | 'dialog'
   | 'scene'
+  | 'ui'
   | 'sound';
 
 /**

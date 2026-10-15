@@ -400,6 +400,7 @@
   "myPrefabs.files": "{n} files",
   "reference.chooseDialog": "(choose dialog)",
   "reference.chooseScene": "(choose scene)",
+  "reference.chooseUi": "(choose UI)",
   "reference.choosePrefab": "(choose prefab)",
   "console.game.missingPrefab": "“{object}”: prefab is missing ({asset}).",
   "game.fps": "FPS",

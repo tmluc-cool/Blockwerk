@@ -16,6 +16,7 @@ import { loadFixture } from './fixtures';
 import { phase3Cases } from './phase3Cases';
 import { phase4Cases } from './phase4Cases';
 import { phase5Cases } from './phase5Cases';
+import { phase6Cases } from './phase6Cases';
 
 /**
  * Runtime tests: compiled blocks run in a real {@link Game}. Every catalog block must be
@@ -760,7 +761,7 @@ const cases: RuntimeCase[] = [
   },
 ];
 
-const allCases = [...cases, ...phase3Cases, ...phase4Cases, ...phase5Cases];
+const allCases = [...cases, ...phase3Cases, ...phase4Cases, ...phase5Cases, ...phase6Cases];
 
 beforeAll(async () => {
   await initPhysics();
