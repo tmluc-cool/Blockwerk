@@ -11,6 +11,11 @@ import {
   setCustomHooks,
   updateDefinitionBlock,
 } from './customBlocks';
+import {
+  FieldExpressionNumber,
+  installQuickInsert,
+  registerExpressionNumberField,
+} from './quickInsert';
 import { registerScopedNameField } from './scopedNameField';
 import { blocklyTheme, defineBlocks, toolboxFor } from './blocklySetup';
 import type { BlockFrameController, BlockFrameOptions, FrameVariable } from './frameApi';
@@ -28,6 +33,7 @@ const VARIABLE_BLOCKS = ['variables.set', 'variables.change', 'variables.show', 
 registerFieldColour();
 registerReferenceField();
 registerScopedNameField();
+registerExpressionNumberField();
 
 /** Creates the Blockly workspace in this page and connects it to the editor. */
 function mount(options: BlockFrameOptions): BlockFrameController {
@@ -42,6 +48,8 @@ function mount(options: BlockFrameOptions): BlockFrameController {
   let loading = false;
   let customJson = JSON.stringify(options.customBlocks);
   let running: Blockly.BlockSvg[] = [];
+  let removeQuickInsert: (() => void) | null = null;
+  FieldExpressionNumber.setVariableProvider(() => variables);
   setReferences(options.references);
   setCustomHooks({
     customBlocks: options.customBlocks,
@@ -158,6 +166,11 @@ function mount(options: BlockFrameOptions): BlockFrameController {
     created.registerButtonCallback(CREATE_VARIABLE, () => options.onCreateVariable());
     registerMyBlocksCategory(created, () => options.onMakeBlock());
     workspace = created;
+    removeQuickInsert = installQuickInsert({
+      workspace: created,
+      locale: () => locale,
+      variables: () => variables,
+    });
     loadState();
     created.addChangeListener((event: Blockly.Events.Abstract) => {
       if (loading) return;
@@ -173,6 +186,8 @@ function mount(options: BlockFrameOptions): BlockFrameController {
   };
 
   const destroy = (): void => {
+    removeQuickInsert?.();
+    removeQuickInsert = null;
     if (!workspace) return;
     workspace.dispose();
     workspace = null;

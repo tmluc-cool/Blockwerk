@@ -45,6 +45,7 @@ export interface FrameReferences {
     readonly extractBlock: string;
     readonly missingBlock: string;
     readonly noInput: string;
+    readonly quickInsert: string;
   };
 }
 

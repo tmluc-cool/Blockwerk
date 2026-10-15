@@ -128,6 +128,7 @@ function references(scene: SceneData | null): FrameReferences {
       extractBlock: t('blocks.extractBlock'),
       missingBlock: t('blocks.missingBlock'),
       noInput: t('blocks.noInput'),
+      quickInsert: t('blocks.quickInsert'),
     },
   };
 }
@@ -572,6 +573,7 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
   // Calls of custom blocks follow their definitions, in this script and in other ones.
   useEffect(
     () => controllerRef.current?.setCustomBlocks(customBlocksFor(entry)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the open script's data changes with assetsVersion
     [entry?.id, assetsVersion],
   );
 

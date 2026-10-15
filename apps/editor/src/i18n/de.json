@@ -932,5 +932,6 @@
   "blocks.goToDefinition": "Gehe zu Definition",
   "blocks.extractBlock": "Als eigenen Block auslagern …",
   "blocks.missingBlock": "Diesen eigenen Block gibt es nicht (mehr).",
-  "blocks.noInput": "?"
+  "blocks.noInput": "?",
+  "blocks.quickInsert": "Blockname oder Ausdruck wie x/2 + 10 tippen"
 }

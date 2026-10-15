@@ -932,5 +932,6 @@
   "blocks.goToDefinition": "Go to definition",
   "blocks.extractBlock": "Extract as custom block…",
   "blocks.missingBlock": "This custom block does not exist (any more).",
-  "blocks.noInput": "?"
+  "blocks.noInput": "?",
+  "blocks.quickInsert": "Type a block name or an expression like x/2 + 10"
 }

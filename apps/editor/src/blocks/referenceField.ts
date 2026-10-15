@@ -34,6 +34,7 @@ let references: FrameReferences = {
     extractBlock: '',
     missingBlock: '?',
     noInput: '',
+    quickInsert: 'Search',
   },
 };
 

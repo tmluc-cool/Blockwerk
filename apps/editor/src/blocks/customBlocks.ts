@@ -299,6 +299,23 @@ export function registerCustomBlocks(locale: Locale): void {
   registerContextMenu();
 }
 
+/** Block JSON of a call of a custom block, with a default value in every slot. */
+export function callState(custom: FrameCustomBlock): {
+  type: string;
+  extraState: CallState;
+  inputs: Record<string, { shadow: { type: string; fields: Record<string, unknown> } }>;
+} {
+  const inputs: Record<string, { shadow: { type: string; fields: Record<string, unknown> } }> = {};
+  custom.params.forEach((param, index) => {
+    if (param.type === 'number') {
+      inputs[`ARG${index}`] = { shadow: { type: 'literal.number', fields: { NUM: 0 } } };
+    } else if (param.type === 'string') {
+      inputs[`ARG${index}`] = { shadow: { type: 'literal.text', fields: { TEXT: '' } } };
+    }
+  });
+  return { type: CALL_TYPES[custom.kind], extraState: stateOf(custom), inputs };
+}
+
 /** Block info for the palette: a call of a custom block with a default value in every slot. */
 function callInfo(custom: FrameCustomBlock): Blockly.utils.toolbox.BlockInfo {
   const inputs: Record<string, unknown> = {};

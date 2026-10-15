@@ -125,4 +125,131 @@ test.describe('phase 7: large projects', () => {
     await expect(editor.getByText('Springen').first()).toBeVisible();
     expect(await compiled(page, user)).toContain('// custom block: Springen');
   });
+
+  test('typing finds blocks, and an expression in a number slot builds operator blocks', async ({
+    editor: page,
+  }) => {
+    test.setTimeout(scaled(120_000));
+    await openExample(page);
+    const id = await newScript(page, 'Tippen');
+    const editor = blocks(page);
+    await expect(editor.locator('.blocklyMainBackground')).toBeVisible();
+    // A variable "x" to use in the expression.
+    await page.getByTestId('add-variable').click();
+    await page.getByTestId('prompt-input').fill('x');
+    await page.getByTestId('prompt-ok').click();
+    await expect(page.getByTestId('variable-card-x')).toBeVisible();
+
+    const types = (): Promise<string[]> =>
+      page.evaluate((assetId) => {
+        const workspace = window.__blockwerk?.scriptWorkspace(assetId) as {
+          blocks?: { blocks?: unknown[] };
+        };
+        const found: string[] = [];
+        const walk = (value: unknown): void => {
+          if (Array.isArray(value)) value.forEach(walk);
+          else if (typeof value === 'object' && value !== null) {
+            const record = value as Record<string, unknown>;
+            if (typeof record['type'] === 'string') found.push(record['type']);
+            Object.values(record).forEach(walk);
+          }
+        };
+        walk(workspace?.blocks?.blocks);
+        return found;
+      }, id);
+
+    // "wenn taste" + Enter inserts the event block.
+    await editor.locator('.blocklyMainBackground').click({ position: { x: 300, y: 200 } });
+    await page.keyboard.type('wenn taste');
+    await expect(editor.getByTestId('quick-insert')).toBeVisible();
+    await page.keyboard.press('Enter');
+    await expect.poll(types).toContain('events.whenKey');
+
+    // The event block is selected, so the next block goes below it; its number field is open.
+    await page.keyboard.type('gehe');
+    await page.keyboard.press('Enter');
+    await expect.poll(types).toContain('motion.move');
+    await page.keyboard.type('x/2 + 10');
+    await page.keyboard.press('Enter');
+    await expect
+      .poll(types)
+      .toEqual(expect.arrayContaining(['operators.add', 'operators.divide', 'variables.get']));
+    const code = await compiled(page, id);
+    expect(code).toContain('/ 2');
+    expect(code).toContain('+ 10');
+  });
+
+  test('"Extract as custom block" turns the selected blocks into a block with an input', async ({
+    editor: page,
+  }) => {
+    test.setTimeout(scaled(120_000));
+    await openExample(page);
+    const id = await newScript(page, 'Auslagern');
+    const editor = blocks(page);
+    await expect(editor.locator('.blocklyMainBackground')).toBeVisible();
+    await page.evaluate(
+      (assetId) =>
+        window.__blockwerk?.setScriptWorkspace(assetId, {
+          blocks: {
+            languageVersion: 0,
+            blocks: [
+              {
+                type: 'events.whenGameStarts',
+                id: 'x-hat',
+                x: 40,
+                y: 40,
+                next: {
+                  block: {
+                    type: 'locals.declare',
+                    id: 'x-decl',
+                    fields: { name: 'n' },
+                    inputs: {
+                      value: { shadow: { type: 'literal.number', id: 'x-1', fields: { NUM: 4 } } },
+                    },
+                    next: {
+                      block: {
+                        type: 'motion.move',
+                        id: 'x-move',
+                        fields: { direction: 'forward' },
+                        inputs: {
+                          meters: {
+                            block: { type: 'locals.get', id: 'x-get', fields: { name: 'n' } },
+                          },
+                        },
+                        next: {
+                          block: {
+                            type: 'control.wait',
+                            id: 'x-wait',
+                            inputs: {
+                              seconds: {
+                                shadow: { type: 'literal.number', id: 'x-2', fields: { NUM: 1 } },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        }),
+      id,
+    );
+    await editor.getByText('gehe').first().click({ button: 'right' });
+    await editor.getByText('Als eigenen Block auslagern').click();
+    await page.getByTestId('prompt-input').fill('Gehen und warten');
+    await page.getByTestId('prompt-ok').click();
+    await expect
+      .poll(async () => (await compiled(page, id)).includes('// custom block: Gehen und warten'))
+      .toBe(true);
+    const code = await compiled(page, id);
+    // The call passes the local variable; the body reads its input instead of the local.
+    expect(code).toMatch(/yield\* f_[0-9a-f]{8}\(self, game, l_n\);/);
+    expect(code).toMatch(
+      /function\* f_[0-9a-f]{8}\(self, game, p_n\) \{\n {2}self\.move\("forward", game\.num\(p_n\)\);/,
+    );
+    expect(code).toContain('yield* game.wait(1);');
+  });
 });
