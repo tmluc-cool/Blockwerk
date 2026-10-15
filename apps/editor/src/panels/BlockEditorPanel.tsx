@@ -23,6 +23,7 @@ import type {
 import { createAssetWithPrompt } from '../chrome/menus';
 import { hierarchyOrder } from '../document/sceneOps';
 import { objectName } from '../scene/worlds';
+import { openSearch } from '../navigation';
 import { handleShortcut } from '../shortcuts';
 import { editCustomBlock, prompt } from '../state/dialogs';
 import { BUILT_IN_TAGS, updateBlockScript, useDocument } from '../state/document';
@@ -125,6 +126,7 @@ function references(scene: SceneData | null): FrameReferences {
       makeBlock: t('blocks.makeBlock'),
       editBlock: t('blocks.editBlock'),
       goToDefinition: t('blocks.goToDefinition'),
+      findUsages: t('blocks.findUsages'),
       extractBlock: t('blocks.extractBlock'),
       missingBlock: t('blocks.missingBlock'),
       noInput: t('blocks.noInput'),
@@ -499,6 +501,7 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
           useEditor.getState().showBlock(assetId, fn);
         },
         askName: () => prompt(translateNow('customBlock.askName')),
+        onFindUsages: (name) => openSearch(name),
         onChange: (state) => {
           const target = openScriptEntry();
           if (!target || target.id !== shownRef.current.id) return;

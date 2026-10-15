@@ -41,6 +41,7 @@ interface Hooks {
   onEditBlock: BlockFrameOptions['onEditBlock'];
   onGoToDefinition: BlockFrameOptions['onGoToDefinition'];
   askName: BlockFrameOptions['askName'];
+  onFindUsages: BlockFrameOptions['onFindUsages'];
 }
 
 let hooks: Hooks = {
@@ -48,6 +49,7 @@ let hooks: Hooks = {
   onEditBlock: () => undefined,
   onGoToDefinition: () => undefined,
   askName: () => Promise.resolve(null),
+  onFindUsages: () => undefined,
 };
 
 /** Connects the custom block code to the editor (called once per mount). */
@@ -442,6 +444,17 @@ function registerContextMenu(): void {
     },
   });
   registry.register({
+    id: 'bw_find_usages',
+    scopeType,
+    weight: 2.5,
+    displayText: () => currentReferences().labels.findUsages,
+    preconditionFn: (scope) => (scope.block && usageName(scope.block) ? 'enabled' : 'hidden'),
+    callback: (scope) => {
+      const name = scope.block ? usageName(scope.block) : null;
+      if (name) hooks.onFindUsages(name);
+    },
+  });
+  registry.register({
     id: 'bw_extract_custom_block',
     scopeType,
     weight: 3,
@@ -457,6 +470,18 @@ function registerContextMenu(): void {
       if (scope.block) void extractAsCustomBlock(scope.block as Blockly.BlockSvg);
     },
   });
+}
+
+/** The name a block stands for that the project search can look up: variable, block, message. */
+function usageName(block: Blockly.Block): string | null {
+  if (KIND_OF_DEFINITION[block.type]) return String(block.getFieldValue('name') ?? '') || null;
+  if (KIND_OF_CALL[block.type]) return (block as CallBlock).bwState?.name || null;
+  if (block.type === 'events.whenMessage' || block.type === 'control.sendMessage') {
+    return String(block.getFieldValue('message') ?? '') || null;
+  }
+  const variable = block.getField('variable');
+  if (variable) return variable.getText() || null;
+  return null;
 }
 
 // ------------------------------------------------------------------- extract

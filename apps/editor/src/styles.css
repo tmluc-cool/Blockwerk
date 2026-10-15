@@ -2280,3 +2280,62 @@ button.small {
   width: auto;
   height: auto;
 }
+
+/* Search window */
+
+.search-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-results {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 6px;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  border: 0;
+  background: transparent;
+}
+
+.search-kind {
+  min-width: 90px;
+  color: var(--bw-muted, #8b919c);
+  font-size: 11px;
+}
+
+.search-usage {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 2px 4px 2px 34px;
+  text-align: left;
+  border: 0;
+  background: transparent;
+}
+
+.search-usage:hover {
+  background: var(--bw-hover, rgba(255, 255, 255, 0.06));
+}
+
+.search-asset {
+  min-width: 120px;
+}

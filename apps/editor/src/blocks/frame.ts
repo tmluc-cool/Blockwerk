@@ -56,6 +56,7 @@ function mount(options: BlockFrameOptions): BlockFrameController {
     onEditBlock: options.onEditBlock,
     onGoToDefinition: options.onGoToDefinition,
     askName: options.askName,
+    onFindUsages: options.onFindUsages,
   });
 
   const save = (): void => {

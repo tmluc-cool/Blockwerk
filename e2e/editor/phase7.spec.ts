@@ -252,4 +252,81 @@ test.describe('phase 7: large projects', () => {
     );
     expect(code).toContain('yield* game.wait(1);');
   });
+
+  test('renaming a variable or a message changes every script, and can be undone', async ({
+    editor: page,
+  }) => {
+    test.setTimeout(scaled(120_000));
+    await openExample(page);
+    const first = await newScript(page, 'Erstes');
+    const editor = blocks(page);
+    await expect(editor.locator('.blocklyMainBackground')).toBeVisible();
+    // A game variable in the first script, shared with the second one.
+    await page.getByTestId('add-variable').click();
+    await page.getByTestId('prompt-input').fill('Münzen');
+    await page.getByTestId('prompt-ok').click();
+    await page
+      .getByTestId('variable-card-Münzen')
+      .getByTestId('variable-scope')
+      .selectOption('game');
+    const second = await newScript(page, 'Zweites');
+    await page.getByTestId('use-variable-Münzen').click();
+    await expect(page.getByTestId('variable-card-Münzen')).toBeVisible();
+    // Both scripts also talk about the message "los".
+    for (const [id, type] of [
+      [first, 'events.whenMessage'],
+      [second, 'control.sendMessage'],
+    ] as const) {
+      await page.evaluate(
+        ([assetId, blockType]) => {
+          const workspace = window.__blockwerk?.scriptWorkspace(assetId ?? '') as {
+            blocks?: { blocks?: unknown[] };
+          };
+          window.__blockwerk?.setScriptWorkspace(assetId ?? '', {
+            blocks: {
+              languageVersion: 0,
+              blocks: [
+                ...(workspace?.blocks?.blocks ?? []),
+                {
+                  type: blockType,
+                  id: `msg-${blockType}`,
+                  x: 40,
+                  y: 40,
+                  fields: { message: 'los' },
+                },
+              ],
+            },
+          });
+        },
+        [id, type],
+      );
+    }
+    const files = (): Promise<Record<string, string>> =>
+      page.evaluate(() => window.__blockwerk?.files() ?? {});
+    const scriptFile = async (name: string): Promise<string> =>
+      (await files())[`Assets/Block-Skripte/${name}.blocks.json`] ?? '';
+
+    // Rename the game variable in the second script: the first one follows.
+    await page.getByTestId('variable-card-Münzen').getByLabel('Name der Variable').fill('Gold');
+    await page.getByTestId('variable-card-Münzen').getByLabel('Name der Variable').press('Enter');
+    await expect.poll(async () => await scriptFile('Erstes')).toContain('"name": "Gold"');
+    expect(await scriptFile('Zweites')).toContain('"name": "Gold"');
+    expect(await scriptFile('Erstes')).not.toContain('Münzen');
+
+    // Rename the message through the Search window.
+    await page.keyboard.press('Control+Shift+F');
+    await page.getByTestId('search-input').fill('los');
+    await expect(page.getByTestId('search-thing-los')).toBeVisible();
+    await page.getByTestId('search-thing-los').getByTestId('search-rename').click();
+    await page.getByTestId('prompt-input').fill('start');
+    await page.getByTestId('prompt-ok').click();
+    await expect.poll(async () => await scriptFile('Erstes')).toContain('"message": "start"');
+    expect(await scriptFile('Zweites')).toContain('"message": "start"');
+
+    // One undo step takes the message back everywhere.
+    await page.getByTestId('menu-edit').click();
+    await page.getByTestId('menu-undo').click();
+    await expect.poll(async () => await scriptFile('Erstes')).toContain('"message": "los"');
+    expect(await scriptFile('Zweites')).toContain('"message": "los"');
+  });
 });

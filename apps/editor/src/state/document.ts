@@ -133,8 +133,35 @@ export const useDocument = create<DocumentState>()(() => ({
 
 const history = new History<SceneData>();
 
+/**
+ * Changes that reach several assets at once (rename everywhere) are undone as one step, but
+ * they are not part of the scene's history; `seq` tells which came last.
+ */
+interface RefactorStep {
+  readonly label: TranslationKey;
+  readonly seq: number;
+  readonly undo: () => void;
+  readonly redo: () => void;
+}
+
+const refactorUndo: RefactorStep[] = [];
+const refactorRedo: RefactorStep[] = [];
+let actionSeq = 0;
+let lastSceneSeq = 0;
+
+/** Whether the next undo is a refactoring rather than a scene edit. */
+function refactorIsNext(): boolean {
+  const top = refactorUndo[refactorUndo.length - 1];
+  return top !== undefined && top.seq > lastSceneSeq;
+}
+
 function syncHistoryLabels(): void {
-  useDocument.setState({ undoLabel: history.undoLabel, redoLabel: history.redoLabel });
+  const top = refactorUndo[refactorUndo.length - 1];
+  const redoTop = refactorRedo[refactorRedo.length - 1];
+  useDocument.setState({
+    undoLabel: refactorIsNext() && top ? top.label : history.undoLabel,
+    redoLabel: redoTop && !history.redoLabel ? redoTop.label : history.redoLabel,
+  });
 }
 
 function touch(assets = false): void {
@@ -167,6 +194,8 @@ export function editScene(
   if (edited === scene) return;
   const next = trackOverrides(scene, edited);
   history.record(scene, label, mergeKey, untilSealed);
+  lastSceneSeq = ++actionSeq;
+  refactorRedo.length = 0;
   useDocument.setState({ scene: next });
   syncHistoryLabels();
   touch();
@@ -212,14 +241,104 @@ function restore(step: { state: SceneData } | null): void {
 
 /** Undo (Ctrl+Z). */
 export function undo(): void {
+  if (refactorIsNext()) {
+    const step = refactorUndo.pop();
+    if (step) {
+      step.undo();
+      refactorRedo.push(step);
+      syncHistoryLabels();
+      return;
+    }
+  }
   const { scene } = useDocument.getState();
-  if (scene) restore(history.undo(scene));
+  const step = scene ? history.undo(scene) : null;
+  if (step) {
+    restore(step);
+    return;
+  }
+  // The scene has nothing left to undo; older refactorings still can be.
+  const older = refactorUndo.pop();
+  if (older) {
+    older.undo();
+    refactorRedo.push(older);
+    syncHistoryLabels();
+  }
 }
 
 /** Redo (Ctrl+Y, Ctrl+Shift+Z). */
 export function redo(): void {
   const { scene } = useDocument.getState();
-  if (scene) restore(history.redo(scene));
+  const step = scene ? history.redo(scene) : null;
+  if (step) {
+    restore(step);
+    return;
+  }
+  const again = refactorRedo.pop();
+  if (again) {
+    again.redo();
+    refactorUndo.push(again);
+    syncHistoryLabels();
+  }
+}
+
+/** New data for assets of several kinds (see {@link applyAssetChanges}). */
+type AssetData = {
+  id: string;
+  type: 'scene' | 'blockScript' | 'dialog' | 'ui' | 'prefab';
+  data: unknown;
+};
+
+function writeAssets(items: readonly AssetData[]): void {
+  const { project, sceneId } = useDocument.getState();
+  if (!project) return;
+  for (const item of items) {
+    if (item.type === 'scene' && item.id === sceneId) {
+      useDocument.setState({ scene: item.data as SceneData });
+    } else if (project.asset(item.id)) {
+      project.updateAsset(item.id, item.type, item.data as never);
+    }
+  }
+  touch(true);
+}
+
+/**
+ * Applies changes to several assets as one undo step ("Rename everywhere", SPEC 7.8). The open
+ * scene is changed in memory like any scene edit; the other assets are written to the project.
+ */
+export function applyAssetChanges(
+  label: TranslationKey,
+  changes: ReadonlyMap<string, unknown>,
+): void {
+  const { project, sceneId, scene } = useDocument.getState();
+  if (!project || changes.size === 0) return;
+  const before: AssetData[] = [];
+  const after: AssetData[] = [];
+  for (const [id, data] of changes) {
+    const entry = project.asset(id);
+    if (
+      !entry ||
+      !(
+        entry.type === 'scene' ||
+        entry.type === 'blockScript' ||
+        entry.type === 'dialog' ||
+        entry.type === 'ui' ||
+        entry.type === 'prefab'
+      )
+    )
+      continue;
+    after.push({ id, type: entry.type, data });
+    before.push({ id, type: entry.type, data: id === sceneId && scene ? scene : entry.data });
+  }
+  if (after.length === 0) return;
+  writeAssets(after);
+  refactorUndo.push({
+    label,
+    seq: ++actionSeq,
+    undo: () => writeAssets(before),
+    redo: () => writeAssets(after),
+  });
+  refactorRedo.length = 0;
+  syncHistoryLabels();
 }
 
 /** Writes the working scene (or the prefab in prefab mode) into the project. */
@@ -304,6 +423,8 @@ export function openPrefab(prefabId: string): void {
   const stage = prefabStageScene(prefabId);
   if (!stage) return;
   history.clear();
+  refactorUndo.length = 0;
+  refactorRedo.length = 0;
   useDocument.setState({
     prefabStage: { prefabId, returnSceneId: prefabStage?.returnSceneId ?? sceneId },
     sceneId: null,
@@ -322,6 +443,8 @@ export function closePrefab(): void {
   const returnId = prefabStage.returnSceneId;
   const entry = returnId ? project.assetOfType(returnId, 'scene') : undefined;
   history.clear();
+  refactorUndo.length = 0;
+  refactorRedo.length = 0;
   useDocument.setState({
     prefabStage: null,
     sceneId: entry?.id ?? null,
@@ -388,6 +511,8 @@ function activate(
   fs: ProjectFileSystem,
 ): void {
   history.clear();
+  refactorUndo.length = 0;
+  refactorRedo.length = 0;
   const sceneId =
     (project.settings.startScene && project.assetOfType(project.settings.startScene, 'scene')
       ? project.settings.startScene
@@ -522,6 +647,8 @@ export function openScene(id: string): void {
   if (!project || !entry || id === sceneId) return;
   flushScene();
   history.clear();
+  refactorUndo.length = 0;
+  refactorRedo.length = 0;
   useDocument.setState({
     sceneId: id,
     scene: entry.data,

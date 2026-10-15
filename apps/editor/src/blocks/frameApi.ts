@@ -42,6 +42,7 @@ export interface FrameReferences {
     readonly makeBlock: string;
     readonly editBlock: string;
     readonly goToDefinition: string;
+    readonly findUsages: string;
     readonly extractBlock: string;
     readonly missingBlock: string;
     readonly noInput: string;
@@ -102,6 +103,8 @@ export interface BlockFrameOptions {
   readonly onEditBlock: (blockId: string, spec: CustomBlockSpec) => void;
   /** "Go to definition" on a call block (`library` is empty for the open script). */
   readonly onGoToDefinition: (library: string, fn: string) => void;
+  /** "All usages" on a block: searches the project for the name it stands for. */
+  readonly onFindUsages: (name: string) => void;
   /** Asks for the name of a new custom block (resolves to `null` when cancelled). */
   readonly askName: () => Promise<string | null>;
   /** Called with the serialized workspace (JSON) after every change. */

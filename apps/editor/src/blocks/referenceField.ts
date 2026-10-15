@@ -31,6 +31,7 @@ let references: FrameReferences = {
     makeBlock: '+',
     editBlock: '',
     goToDefinition: '',
+    findUsages: '',
     extractBlock: '',
     missingBlock: '?',
     noInput: '',
