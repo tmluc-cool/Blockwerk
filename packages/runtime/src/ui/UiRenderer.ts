@@ -265,7 +265,8 @@ export class UiRenderer {
     if (!game) return;
     const pause = this.settings.values.bindings[1]?.pause ?? ['KeyP'];
     if (event.code === 'Escape' || pause.includes(event.code)) {
-      if (game.talking || event.repeat) return;
+      // Ctrl/Alt/Meta combinations belong to the host (the editor's Ctrl+P is Play).
+      if (game.talking || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
       event.preventDefault();
       game.setGamePaused(!game.gamePaused);
     }

@@ -11,7 +11,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 3b | Character Studio | done |
 | 4 | Environment and graphics | done |
 | 5 | NPCs and game logic | done (merged; Windows CI result of the PR was not seen) |
-| 6 | UI, menus, saving | in progress |
+| 6 | UI, menus, saving | in review |
 | 7 | Large projects | open |
 | 8 | Debugging | open |
 | 9 | Build and export | open |
@@ -54,6 +54,40 @@ Branch: `phase/06-oberflaeche` (builds on `main` with Phase 5 merged).
 - **Saved variables:** game-scoped variables only (object variables belong to scenes that are rebuilt). NPCs, doors and chests are not saved (a save restores the quest progress, the player and the inventory, not the whole world state); this is written into the save dialog's tooltip and the docs.
 - **Slots:** three slots per project (`slot 1..3`), each with the scene name and a time stamp; the browser keeps them in local storage under `blockwerk.saves.<project name>`. Loading a slot replaces the running game.
 - **Pause:** the in-game pause freezes the logic tick but not the UI, the music or the camera blend; Esc also releases the pointer lock in the browser, which is why the game view re-captures on the next click.
+
+### Result
+
+**Implemented**
+
+- **UI canvases as assets** (`*.ui.json`, asset type `ui`): elements with Unity-style rects (anchors, pivot, offsets in reference pixels, 1280 × 720 scaled with the screen), types panel, text, image, bar, button, slider, toggle, dropdown, hint, crosshair, inventory, dialog, keybindings; bindings (variable, health, stamina, item count, loading progress); button actions (message, show / hide canvas, load scene, resume, restart, save, load, quit). A **UI Canvas** component shows an asset (player, sort order, visible always / while paused / manual).
+- **UI renderer in the runtime** (DOM layer owned by the host): one HUD per player in split screen, mouse and keyboard handling, key rebinding capture, built-in hint, dialog box, loading screen and notices (moved out of the editor, exported games get them too). Strings come from a callback of the host.
+- **Settings:** graphics level, master / music / effects / voices volume, mouse sensitivity, full screen, key bindings per player; stored in the browser, applied to quality, audio buses and input.
+- **In-game pause** (Esc, P, gamepad Start; Ctrl/Alt/Meta combinations stay with the editor): freezes the logic tick, shows canvases "while paused".
+- **Saving:** variables can be marked "saved"; three slots store scene, saved variables and per player position, rotation, items, health and stamina; blocks and buttons save and load; loading builds the saved scene with the loading screen.
+- **Menu templates:** main menu, pause menu, settings, victory, defeat, loading and HUD as ordinary assets (UI Editor: "Add menu from template").
+- **UI Editor window** (Window → UI Editor): preview with selectable, draggable elements, element list, inspector with anchor presets, bindings and actions.
+- **Blocks:** show UI, hide UI, save game, load game, slot used (golden and runtime tests).
+- **Example** `examples/05-quest` now starts in a main menu scene (Play, Settings, Quit, Load 1–3), has a HUD (life bar, stamina, coins, task, inventory, interaction hint), a pause menu, a settings menu, victory and defeat screens; Quest and Aufgabe are saved variables.
+
+**Acceptance**
+
+- [x] (a) *`examples/05-quest` has main menu, pause menu, settings (graphics level, volume, mouse sensitivity, key bindings), life bar, inventory display, interaction hints.* Unit test on the real project (`apps/editor/test/example05.test.ts`) checks that every menu button does its action, the HUD shows life and items, pause shows the pause canvas and the settings change the stored values. End-to-end (`e2e/editor/phase6.spec.ts`): menu → village → pause → settings → save → load.
+- [x] (b) *Save / load with three slots restores position, inventory and quest progress.* Unit test saves into slot 1 and 3 at different places, changes everything, loads each slot and compares position, items, health and quest variable; end-to-end repeats it through the buttons.
+- [x] (c) *Unity-feel items 8 (menus / settings) and 9 (loading screen instead of a stutter at scene change).* Menus and settings are covered by (a); the loading screen is shown on scene change and when a slot is loaded (end-to-end).
+- [x] Layout, settings, saves, renderer (jsdom), split-screen HUD, schema, templates, UI tree and translation tests; golden and runtime tests for the new blocks.
+- [x] `pnpm test` (427 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end 58/58 (one Phase 1 test failed first because the new pause key swallowed the editor's Ctrl+P; fixed and covered by a unit test).
+- [ ] CI on GitHub (Ubuntu and Windows): see pull request.
+
+**Open / not done**
+
+- The UI Editor has no undo (like the Dialog editor); there is no separate "input actions" window; the key bindings are edited in the settings menu only.
+- Menus are driven by mouse (and the browser's Tab focus); there is no gamepad navigation through menus yet.
+- The built-in loading screen is always used; the loading template exists as an asset but is not wired to scene changes.
+- Saves hold quest variables and player state only: NPCs, doors, chests and object variables are not saved.
+- Still not built from Phase 5: list blocks, "drop item", "pause / resume" blocks and the event "When scene starts".
+- The Windows CI result of Phase 5's pull request was never seen.
+
+Screenshots: `docs/screenshots/phase-06.png` (pause menu and settings over the village HUD) and `docs/screenshots/phase-06-menu.png` (main menu).
 
 ## Phase 5: NPCs and game logic
 
