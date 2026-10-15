@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-21",
+          "next": {
+            "block": {
+              "fields": {
+                "scene": "scene:questdorf001",
+                "spawn": "Gruft"
+              },
+              "id": "t-22",
+              "type": "scenes.load"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

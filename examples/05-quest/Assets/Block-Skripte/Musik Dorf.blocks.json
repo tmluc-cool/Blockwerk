@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-25",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:music-calm"
+              },
+              "id": "t-26",
+              "type": "sound.playMusic"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

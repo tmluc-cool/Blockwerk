@@ -1,0 +1,72 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "Sprich mit Mira",
+      "id": "questvartask",
+      "inspector": false,
+      "name": "Aufgabe",
+      "scope": "game",
+      "type": "string"
+    },
+    {
+      "default": 0,
+      "id": "questvarstat",
+      "inspector": false,
+      "name": "Quest",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "answer": "annehmen"
+          },
+          "id": "t-14",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:click",
+                "where": "everywhere"
+              },
+              "id": "t-15",
+              "type": "sound.play"
+            }
+          },
+          "type": "dialog.whenAnswer"
+        },
+        {
+          "fields": {
+            "answer": "abgeben"
+          },
+          "id": "t-16",
+          "next": {
+            "block": {
+              "fields": {
+                "at": "self",
+                "effect": "sparkle"
+              },
+              "id": "t-17",
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:win",
+                    "where": "everywhere"
+                  },
+                  "id": "t-18",
+                  "type": "sound.play"
+                }
+              },
+              "type": "effects.spawn"
+            }
+          },
+          "type": "dialog.whenAnswer"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

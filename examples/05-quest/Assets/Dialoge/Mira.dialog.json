@@ -1,0 +1,127 @@
+{
+  "formatVersion": 1,
+  "nodes": {
+    "auftrag": {
+      "answers": [
+        {
+          "actions": [
+            {
+              "type": "setVariable",
+              "value": 1,
+              "variable": "questvarstat"
+            },
+            {
+              "type": "setVariable",
+              "value": "Finde den Schlüssel in der Truhe",
+              "variable": "questvartask"
+            }
+          ],
+          "id": "annehmen",
+          "next": "danke",
+          "text": "Ich hole es dir."
+        },
+        {
+          "id": "ablehnen",
+          "next": null,
+          "text": "Vielleicht später."
+        }
+      ],
+      "speaker": "Mira",
+      "text": "Mein Zauberbuch liegt in der Gruft hinter dem Tor im Norden. Den Schlüssel findest du in der Truhe am Brunnen. Aber Vorsicht: Zwei Zombies treiben sich im Dorf herum!",
+      "x": 360,
+      "y": 0
+    },
+    "belohnung": {
+      "answers": [],
+      "next": null,
+      "speaker": "Mira",
+      "text": "Mein Zauberbuch! Hier sind 25 Münzen für dich.",
+      "x": 360,
+      "y": 520
+    },
+    "danke": {
+      "answers": [],
+      "next": null,
+      "speaker": "Mira",
+      "text": "Wunderbar! Bring mir das Buch, dann belohne ich dich.",
+      "x": 720,
+      "y": 0
+    },
+    "hallo": {
+      "answers": [
+        {
+          "condition": {
+            "op": "==",
+            "type": "variable",
+            "value": 0,
+            "variable": "questvarstat"
+          },
+          "id": "fragen",
+          "next": "auftrag",
+          "text": "Was brauchst du?"
+        },
+        {
+          "condition": {
+            "op": "==",
+            "type": "variable",
+            "value": 1,
+            "variable": "questvarstat"
+          },
+          "id": "hinweis",
+          "next": "tipp",
+          "text": "Wo war das noch gleich?"
+        },
+        {
+          "actions": [
+            {
+              "count": 1,
+              "item": "Zauberbuch",
+              "type": "removeItem"
+            },
+            {
+              "count": 25,
+              "item": "Münze",
+              "type": "addItem"
+            },
+            {
+              "type": "setVariable",
+              "value": 2,
+              "variable": "questvarstat"
+            },
+            {
+              "type": "setVariable",
+              "value": "Erledigt – danke fürs Helfen!",
+              "variable": "questvartask"
+            }
+          ],
+          "condition": {
+            "count": 1,
+            "item": "Zauberbuch",
+            "type": "hasItem"
+          },
+          "id": "abgeben",
+          "next": "belohnung",
+          "text": "Ich habe dein Zauberbuch gefunden."
+        },
+        {
+          "id": "tschuess",
+          "next": null,
+          "text": "Auf Wiedersehen."
+        }
+      ],
+      "speaker": "Mira",
+      "text": "Willkommen im Dorf, Fremder! Ich bin Mira, die Magierin. Kann ich etwas für dich tun – oder du etwas für mich?",
+      "x": 0,
+      "y": 0
+    },
+    "tipp": {
+      "answers": [],
+      "next": null,
+      "speaker": "Mira",
+      "text": "Der Schlüssel liegt in der Truhe am Brunnen. Das Tor ist ganz im Norden. In der Gruft liegt mein Buch.",
+      "x": 360,
+      "y": 260
+    }
+  },
+  "start": "hallo"
+}

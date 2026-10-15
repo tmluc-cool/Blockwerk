@@ -1,0 +1,142 @@
+{
+  "base": null,
+  "formatVersion": 1,
+  "objects": {
+    "qo0000000079": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "qc0000000130",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000131",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000132",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 3.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000133",
+          "type": "npc",
+          "values": {
+            "startState": "patrol"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000134",
+          "type": "patrol",
+          "values": {
+            "route": null,
+            "speed": 1.6,
+            "wait": 1.2
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000135",
+          "type": "guard",
+          "values": {
+            "hearingRadius": 4,
+            "loseTime": 4,
+            "viewAngle": 110,
+            "viewDistance": 16
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000136",
+          "type": "follow",
+          "values": {
+            "distance": 1.4,
+            "speed": 3.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000137",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.3,
+            "damage": 12,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000138",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.3,
+            "max": 60,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000139",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "qc0000000140",
+          "type": "blockScript",
+          "values": {
+            "script": "questscrpt05"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Gegner",
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "overrides": [],
+  "root": "qo0000000079"
+}
