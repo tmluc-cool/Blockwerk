@@ -1,7 +1,9 @@
 export type { IRExpression, IRFunction, IRProgram, IRScript, IRStatement } from './ir';
 export { CompileError } from './diagnostics';
 export type { Diagnostic, DiagnosticCode } from './diagnostics';
-export { parseWorkspace, workspaceToIR } from './toIR';
+export { parseWorkspace, workspaceSignatures, workspaceToIR } from './toIR';
+export { CALL_KINDS, DEFINITION_KINDS, functionKey, PARAM_TYPES, signatureOf } from './functions';
+export type { CustomKind, CustomParam, CustomSignature, ParamType } from './functions';
 export type {
   IRResult,
   ScriptVariable,
@@ -11,6 +13,6 @@ export type {
 } from './toIR';
 export { CodegenError, generateCode, literal } from './codegen';
 export type { CodegenOptions, GeneratedCode } from './codegen';
-export { compileBlockScript } from './compile';
-export type { CompileOptions, CompileResult } from './compile';
+export { buildLibrary, compileBlockScript, compileProject, EMPTY_LIBRARY } from './compile';
+export type { CompileOptions, CompileResult, ProjectLibrary, ProjectScript } from './compile';
 export { identifier, NameTable, stableHash } from './names';

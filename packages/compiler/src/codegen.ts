@@ -51,14 +51,18 @@ class Writer {
 class Generator {
   private readonly names = new NameTable();
   private readonly writer = new Writer();
-  private readonly variables: ReadonlyMap<string, ScriptVariable>;
+  private variables: ReadonlyMap<string, ScriptVariable>;
+  private readonly ownVariables: ReadonlyMap<string, ScriptVariable>;
+  /** The custom block being generated (`null` while a script is). */
+  private fn: IRFunction | null = null;
 
   constructor(
     private readonly registry: BlockRegistry,
     private readonly program: IRProgram,
     variables: readonly ScriptVariable[],
   ) {
-    this.variables = new Map(variables.map((variable) => [variable.id, variable]));
+    this.ownVariables = new Map(variables.map((variable) => [variable.id, variable]));
+    this.variables = this.ownVariables;
   }
 
   generate(options: CodegenOptions): GeneratedCode {
@@ -99,10 +103,19 @@ class Generator {
 
   private function(fn: IRFunction): void {
     const params = ['self', 'game', ...fn.params.map((param) => identifier('p_', param))];
-    this.writer.line(0, '', null);
-    this.writer.line(0, `function* ${this.functionName(fn.id)}(${params.join(', ')}) {`, fn.id);
+    const owner = fn.external ? null : fn.id;
+    const w = this.writer;
+    w.line(0, '', null);
+    if (fn.name) w.line(0, `// custom block: ${fn.name.replace(/[\r\n]/g, ' ')}`, null);
+    w.line(0, `function* ${this.functionName(fn.id)}(${params.join(', ')}) {`, owner);
+    this.fn = fn;
+    this.variables = fn.variables
+      ? new Map(fn.variables.map((variable) => [variable.id, variable]))
+      : this.ownVariables;
     this.statements(fn.body, 1);
-    this.writer.line(0, '}', fn.id);
+    this.fn = null;
+    this.variables = this.ownVariables;
+    w.line(0, '}', owner);
   }
 
   private statements(statements: readonly IRStatement[], depth: number): void {
@@ -111,7 +124,8 @@ class Generator {
 
   private statement(statement: IRStatement, depth: number): void {
     const w = this.writer;
-    const blockId = statement.kind === 'block' ? statement.blockId : (statement.blockId ?? null);
+    const mapped = statement.kind === 'block' ? statement.blockId : (statement.blockId ?? null);
+    const blockId = this.fn?.external ? null : mapped;
     switch (statement.kind) {
       case 'declareLocal':
         w.line(
@@ -130,7 +144,7 @@ class Generator {
       case 'return':
         w.line(
           depth,
-          statement.value ? `return ${this.expression(statement.value)};` : 'return;',
+          statement.value ? `return ${this.returned(statement.value)};` : 'return;',
           blockId,
         );
         return;
@@ -168,7 +182,11 @@ class Generator {
       if (substack !== undefined) {
         this.statements(statement.substacks[substack] ?? [], depth + extraDepth);
       } else if (trimmed !== '') {
-        this.writer.line(depth + extraDepth, trimmed, statement.blockId);
+        // "Without screen refresh": loops do not wait for the next frame, but a runaway loop is
+        // still cut into slices so the game never freezes.
+        const line =
+          this.fn?.warp && trimmed === 'yield;' ? 'if (game.warpTick()) yield;' : trimmed;
+        this.writer.line(depth + extraDepth, line, this.fn?.external ? null : statement.blockId);
       }
     }
   }
@@ -255,10 +273,26 @@ class Generator {
             ? 'string'
             : 'boolean';
       case 'block': {
+        if (expression.type === 'custom.param') {
+          const name = expression.args['name'];
+          const index =
+            this.fn?.params.indexOf(name?.kind === 'literal' ? String(name.value) : '') ?? -1;
+          return (index >= 0 ? this.fn?.paramTypes?.[index] : undefined) ?? 'any';
+        }
         const definition = this.registry.get(expression.type);
         return definition && (definition.shape === 'reporter' || definition.shape === 'boolean')
           ? definition.output
           : 'any';
+      }
+      case 'call': {
+        const fn = this.program.functions.find(
+          (candidate) => candidate.id === expression.functionId,
+        );
+        return fn?.returns ?? 'any';
+      }
+      case 'param': {
+        const index = this.fn?.params.indexOf(expression.name) ?? -1;
+        return (index >= 0 ? this.fn?.paramTypes?.[index] : undefined) ?? 'any';
       }
       default:
         return 'any';
@@ -282,15 +316,46 @@ class Generator {
       },
       local: (input: string): string => identifier('l_', textOf(irArgs[input])),
       param: (input: string): string => identifier('p_', textOf(irArgs[input])),
+      text: (input: string): string => textOf(irArgs[input]),
     };
   }
 
   private call(functionId: string, args: readonly IRExpression[]): string {
-    if (!this.program.functions.some((fn) => fn.id === functionId)) {
-      throw new CodegenError(`Unknown function "${functionId}".`);
-    }
-    const values = ['self', 'game', ...args.map((arg) => this.expression(arg))];
+    const fn = this.program.functions.find((candidate) => candidate.id === functionId);
+    if (!fn) throw new CodegenError(`Unknown function "${functionId}".`);
+    const values = [
+      'self',
+      'game',
+      ...args.map((arg, index) => {
+        const type = fn.paramTypes?.[index] ?? 'any';
+        return type === 'number' || type === 'string' || type === 'boolean'
+          ? this.coerce(
+              arg,
+              type === 'string'
+                ? { type, default: '' }
+                : type === 'number'
+                  ? { type, default: 0 }
+                  : { type },
+            )
+          : this.expression(arg);
+      }),
+    ];
     return `${this.functionName(functionId)}(${values.join(', ')})`;
+  }
+
+  /** The value of a "return": converted to the result type of the custom block. */
+  private returned(value: IRExpression): string {
+    const type = this.fn?.returns ?? 'any';
+    return type === 'number' || type === 'string' || type === 'boolean'
+      ? this.coerce(
+          value,
+          type === 'string'
+            ? { type, default: '' }
+            : type === 'number'
+              ? { type, default: 0 }
+              : { type },
+        )
+      : this.expression(value);
   }
 }
 

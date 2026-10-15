@@ -39,7 +39,47 @@ export interface FrameReferences {
     readonly chooseUi: string;
     readonly createVariable: string;
     readonly noVariables: string;
+    readonly makeBlock: string;
+    readonly editBlock: string;
+    readonly goToDefinition: string;
+    readonly findUsages: string;
+    readonly extractBlock: string;
+    readonly missingBlock: string;
+    readonly noInput: string;
+    readonly quickInsert: string;
   };
+}
+
+/** A parameter of a custom block. */
+export interface FrameParam {
+  readonly name: string;
+  /** `any`, `number`, `string`, `boolean`, `list` or `dictionary`. */
+  readonly type: string;
+}
+
+/** A custom block (SPEC 7.6) that scripts of the open project can call. */
+export interface FrameCustomBlock {
+  /** ID of the definition block. */
+  readonly fn: string;
+  /** Asset ID of the script that holds the definition; empty for the open script. */
+  readonly library: string;
+  readonly name: string;
+  readonly kind: 'command' | 'value' | 'condition';
+  readonly params: readonly FrameParam[];
+  /** Type of the result (value blocks). */
+  readonly returns: string;
+}
+
+/** What the "Make a block" dialog edits: everything about a definition. */
+export interface CustomBlockSpec {
+  readonly kind: 'command' | 'value' | 'condition';
+  readonly name: string;
+  readonly params: readonly FrameParam[];
+  readonly returns: string;
+  /** Run without screen refresh. */
+  readonly warp: boolean;
+  /** `project`: all block scripts may use it. */
+  readonly scope: 'script' | 'project';
 }
 
 /**
@@ -55,6 +95,20 @@ export interface BlockFrameOptions {
   readonly state: string | null;
   readonly variables: readonly FrameVariable[];
   readonly references: FrameReferences;
+  /** Custom blocks the open script can call (its own and the project-wide ones). */
+  readonly customBlocks: readonly FrameCustomBlock[];
+  /** The "Make a block" button of the palette was clicked. */
+  readonly onMakeBlock: () => void;
+  /** "Edit custom block" on a definition block. */
+  readonly onEditBlock: (blockId: string, spec: CustomBlockSpec) => void;
+  /** "Go to definition" on a call block (`library` is empty for the open script). */
+  readonly onGoToDefinition: (library: string, fn: string) => void;
+  /** The selected block changed (`null`: nothing is selected). */
+  readonly onSelectBlock: (blockId: string | null) => void;
+  /** "All usages" on a block: searches the project for the name it stands for. */
+  readonly onFindUsages: (name: string) => void;
+  /** Asks for the name of a new custom block (resolves to `null` when cancelled). */
+  readonly askName: () => Promise<string | null>;
   /** Called with the serialized workspace (JSON) after every change. */
   readonly onChange: (state: string) => void;
   /** Variables were created, renamed or deleted inside Blockly. */
@@ -74,6 +128,12 @@ export interface BlockFrameController {
   load(state: string | null, variables: readonly FrameVariable[]): void;
   setVariables(variables: readonly FrameVariable[]): void;
   setReferences(references: FrameReferences): void;
+  /** The custom blocks that exist now; calls in the workspace follow their definitions. */
+  setCustomBlocks(blocks: readonly FrameCustomBlock[]): void;
+  /** Puts a new custom block definition into the visible part of the workspace. */
+  createDefinition(spec: CustomBlockSpec): void;
+  /** Changes a definition block (name, inputs, result type, options). */
+  updateDefinition(blockId: string, spec: CustomBlockSpec): void;
   /** Lets the stacks of running hat blocks glow (play mode). */
   setRunning(hatIds: readonly string[]): void;
   /** Scrolls to a block and selects it. */

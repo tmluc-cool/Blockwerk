@@ -1,4 +1,5 @@
 import { focusPanel, openPanel } from './layout/layoutController';
+import { useSearch } from './panels/SearchPanel';
 import { activeSceneView } from './scene/sceneViews';
 import type { ConsoleLink } from './state/console';
 import { useDocument } from './state/document';
@@ -24,6 +25,14 @@ export function openUiEditor(assetId: string): void {
   useEditor.getState().openUiAsset(assetId);
   openPanel('uiEditor');
   focusPanel('uiEditor');
+}
+
+/** Opens the Search window with a text ("All usages" in the block editor). */
+export function openSearch(query: string): void {
+  useSearch.getState().setQuery(query);
+  useSearch.getState().setKind('all');
+  openPanel('search');
+  focusPanel('search');
 }
 
 /** Follows a console entry: selects the object and shows the block. */

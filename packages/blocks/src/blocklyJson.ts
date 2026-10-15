@@ -13,6 +13,8 @@ export interface BlocklyArgJson {
   readonly source?: string;
   readonly variable?: null;
   readonly colour?: string;
+  /** `field_bw_local`: whether the name is picked from locals (`use`) or parameters (`param`). */
+  readonly role?: string;
 }
 
 /** A block definition in Blockly's JSON format (`Blockly.defineBlocksWithJsonArray`). */
@@ -67,7 +69,11 @@ function argFor(name: string, input: BlockInput, locale: Locale): BlocklyArgJson
     case 'numberField':
       return { type: 'field_number', name, value: input.default };
     case 'textField':
-      return { type: 'field_input', name, text: input.default };
+      return {
+        type: input.multiline ? 'field_multilinetext' : 'field_input',
+        name,
+        text: input.default,
+      };
     case 'dropdown':
       return {
         type: 'field_dropdown',
@@ -133,6 +139,15 @@ export function toBlocklyJson(definition: BlockDefinition, locale: Locale): Bloc
     args0: inline.map((name) => {
       const input = definition.inputs[name];
       if (!input) throw new Error(`Block "${definition.id}" has no input "${name}".`);
+      if (definition.id === 'literal.number' && input.type === 'numberField') {
+        // The number in a slot also takes an expression such as "x/2 + 10" (SPEC 7.8).
+        return { type: 'field_bw_number', name, value: input.default };
+      }
+      const local = definition.local;
+      if (input.type === 'textField' && local && local.field === name && local.role !== 'declare') {
+        // Names of local variables and parameters are picked from what exists at the block.
+        return { type: 'field_bw_local', name, text: input.default, role: local.role };
+      }
       return argFor(name, input, locale);
     }),
     ...rows,

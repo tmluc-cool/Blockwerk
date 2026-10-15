@@ -138,6 +138,7 @@ export type { GameLogEntry, GameOptions, ScriptAsset, VariableMonitor } from './
 export type {
   Easing,
   GameApi,
+  SceneApi,
   MathFunction,
   ObjectProperty,
   ObjectRef,

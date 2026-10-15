@@ -6,7 +6,7 @@ import {
   peekNpcState,
   terrainRegistry,
 } from '@blockwerk/runtime';
-import { compileBlockScript } from '@blockwerk/compiler';
+import { compileProject } from '@blockwerk/compiler';
 import type { SceneData } from '@blockwerk/project';
 import { Vector3 } from 'three';
 import { lastGameViewStats } from './game/GameViewport';
@@ -20,6 +20,7 @@ import {
   importProject,
   openScene,
   saveProject,
+  updateBlockScript,
   useDocument,
 } from './state/document';
 import { useEditor } from './state/editor';
@@ -60,6 +61,10 @@ export interface BlockwerkDebugHooks {
   files(): Record<string, string>;
   save(): Promise<void>;
   compiledScript(assetId: string): string;
+  /** The Blockly workspace of a block script (JSON). */
+  scriptWorkspace(assetId: string): unknown;
+  /** Replaces the workspace of a block script, as if it was edited in the block editor. */
+  setScriptWorkspace(assetId: string, workspace: unknown): void;
   playStatus(): string;
   /** Milliseconds from Play to the first rendered game frame. */
   playStartupMs(): number | null;
@@ -171,13 +176,22 @@ export function installTestHooks(): void {
       return Object.fromEntries(project.files());
     },
     save: () => saveProject(),
-    compiledScript: (assetId) => {
+    scriptWorkspace: (assetId) =>
+      useDocument.getState().project?.assetOfType(assetId, 'blockScript')?.data.workspace ?? null,
+    setScriptWorkspace: (assetId, workspace) => {
       const entry = useDocument.getState().project?.assetOfType(assetId, 'blockScript');
-      if (!entry) return '';
-      return compileBlockScript(entry.data.workspace, {
-        assetName: assetId,
+      if (entry) updateBlockScript(assetId, { ...entry.data, workspace: workspace as never });
+    },
+    compiledScript: (assetId) => {
+      const { project } = useDocument.getState();
+      if (!project?.assetOfType(assetId, 'blockScript')) return '';
+      const scripts = project.assetsOfType('blockScript').map((entry) => ({
+        assetId: entry.id,
+        assetName: assetDisplayName(entry.path),
+        workspace: entry.data.workspace,
         variables: entry.data.variables,
-      }).code;
+      }));
+      return compileProject(scripts).get(assetId)?.code ?? '';
     },
     playStatus: () => usePlay.getState().status,
     playStartupMs: () => usePlay.getState().startupMs,

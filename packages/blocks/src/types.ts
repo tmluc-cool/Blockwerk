@@ -50,6 +50,7 @@ export type CategoryId =
   | 'ui'
   | 'scenes'
   | 'data'
+  | 'code'
   | 'myBlocks'
   | 'debug';
 
@@ -94,6 +95,8 @@ export interface NumberField {
 export interface TextField {
   readonly type: 'textField';
   readonly default: string;
+  /** Several lines (code blocks). */
+  readonly multiline?: boolean;
 }
 
 /** One choice of a dropdown field. */
@@ -192,6 +195,8 @@ export interface CompileMeta {
   local(input: string): string;
   /** JavaScript identifier of the parameter of the custom block named in a text field. */
   param(input: string): string;
+  /** The text of a text field as written, not as a JavaScript string. */
+  text(input: string): string;
 }
 
 /**
@@ -246,6 +251,12 @@ interface BlockDefinitionBase<I extends BlockInputs> {
   readonly hidden?: boolean;
   /** Set on blocks that declare or use a local variable or a parameter. */
   readonly local?: LocalUse;
+  /**
+   * Set on blocks that hold the user's own JavaScript in the text field `field`: `statements`
+   * (runs like blocks, may use `yield*`) or `expression` (gives a value). The compiler checks
+   * that the code can be read before a game starts (SPEC 7.9).
+   */
+  readonly code?: { readonly field: string; readonly kind: 'statements' | 'expression' };
 }
 
 /** Hat block: starts a script when its event fires. */

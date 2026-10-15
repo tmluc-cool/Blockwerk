@@ -11,6 +11,7 @@ import { HierarchyPanel } from '../panels/HierarchyPanel';
 import { InspectorPanel } from '../panels/InspectorPanel';
 import { LightingPanel } from '../panels/LightingPanel';
 import { DialogEditorPanel } from '../panels/DialogEditorPanel';
+import { SearchPanel } from '../panels/SearchPanel';
 import { UiEditorPanel } from '../panels/UiEditorPanel';
 import { NavigationPanel } from '../panels/NavigationPanel';
 import { ProjectPanel } from '../panels/ProjectPanel';
@@ -32,6 +33,7 @@ const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPane
   blockEditor: BlockEditorPanel,
   dialogEditor: DialogEditorPanel,
   uiEditor: UiEditorPanel,
+  search: SearchPanel,
   inspector: InspectorPanel,
   lighting: LightingPanel,
   navigation: NavigationPanel,

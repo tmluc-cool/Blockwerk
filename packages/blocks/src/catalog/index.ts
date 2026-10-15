@@ -156,7 +156,18 @@ import {
   touching,
 } from './sensing';
 import { changeVariable, getVariable, hideVariable, setVariable, showVariable } from './variables';
+import { codeValue, runCode } from './code';
 import { changeLocal, declareLocal, getLocal, setLocal } from './locals';
+import {
+  callCommand,
+  callCondition,
+  callValue,
+  defineCommand,
+  defineCondition,
+  defineValue,
+  parameter,
+  returnValue,
+} from './custom';
 import {
   dictGet,
   dictHas,
@@ -382,6 +393,18 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   dictKeys,
   dictSize,
   forEachItem,
+  // Custom blocks
+  defineCommand,
+  defineValue,
+  defineCondition,
+  callCommand,
+  callValue,
+  callCondition,
+  returnValue,
+  parameter,
+  // Code
+  runCode,
+  codeValue,
   // Shadows
   numberLiteral,
   textLiteral,

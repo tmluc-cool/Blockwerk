@@ -1,4 +1,5 @@
-import { compileBlockScript, CompileError } from '@blockwerk/compiler';
+import { buildLibrary, compileBlockScript, CompileError, EMPTY_LIBRARY } from '@blockwerk/compiler';
+import type { ProjectLibrary, ProjectScript } from '@blockwerk/compiler';
 import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SaveData, SceneData } from '@blockwerk/project';
 import { Game, initPhysics, loadedRapier, loadScriptModule, setQuality } from '@blockwerk/runtime';
@@ -113,11 +114,32 @@ export function keepAllChanges(objectId: string): void {
   }
 }
 
-function compileAsset(id: string, name: string, data: BlockScriptData): ScriptAsset | null {
+/** The project-wide custom blocks as of the last compile (hot reload compares with it). */
+let library: ProjectLibrary = EMPTY_LIBRARY;
+
+/** Every block script of the project in the form the compiler reads. */
+function projectScripts(): ProjectScript[] {
+  const { project } = useDocument.getState();
+  return (project?.assetsOfType('blockScript') ?? []).map((entry) => ({
+    assetId: entry.id,
+    assetName: assetDisplayName(entry.path),
+    workspace: entry.data.workspace,
+    variables: entry.data.variables,
+  }));
+}
+
+function compileAsset(
+  id: string,
+  name: string,
+  data: BlockScriptData,
+  shared: ProjectLibrary = library,
+): ScriptAsset | null {
   try {
     const result = compileBlockScript(data.workspace, {
       assetName: name,
+      assetId: id,
       variables: data.variables,
+      library: shared,
     });
     for (const diagnostic of result.diagnostics) {
       useConsole
@@ -149,6 +171,7 @@ function compileAsset(id: string, name: string, data: BlockScriptData): ScriptAs
 
 function compileAll(): void {
   compiled = new Map();
+  library = buildLibrary(projectScripts());
   const { project } = useDocument.getState();
   for (const entry of project?.assetsOfType('blockScript') ?? []) {
     const asset = compileAsset(entry.id, assetDisplayName(entry.path), entry.data);
@@ -160,9 +183,20 @@ function compileAll(): void {
 function hotReload(): void {
   const { project } = useDocument.getState();
   if (!game || !project) return;
-  for (const entry of project.assetsOfType('blockScript')) {
+  const entries = project.assetsOfType('blockScript');
+  const changed = entries.filter((entry) => compiled.get(entry.id)?.data !== entry.data);
+  if (changed.length === 0) return;
+  // A change in a script that holds project-wide custom blocks reaches every script that calls
+  // them, so all scripts are compiled again; otherwise only the changed ones are.
+  const before = library;
+  library = buildLibrary(projectScripts());
+  const ids = new Set(changed.map((entry) => entry.id));
+  const touchesLibrary = [...before.signatures.values(), ...library.signatures.values()].some(
+    (signature) => ids.has(signature.assetId),
+  );
+  for (const entry of touchesLibrary ? entries : changed) {
     const previous = compiled.get(entry.id);
-    if (previous?.data === entry.data) continue;
+    if (previous?.data === entry.data && !touchesLibrary) continue;
     const asset = compileAsset(entry.id, assetDisplayName(entry.path), entry.data);
     if (!asset) continue;
     compiled.set(entry.id, { data: entry.data, asset });

@@ -1,0 +1,51 @@
+{
+  "variables": [
+    {
+      "id": "varaaaaaaaaa",
+      "name": "A",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "k-1",
+          "next": {
+            "block": {
+              "type": "code.run",
+              "id": "k-2",
+              "fields": {
+                "code": "self.position.y += 1;\nyield* game.wait(0.1);\nself.position.x = three.MathUtils.clamp(5, 0, 2);"
+              },
+              "next": {
+                "block": {
+                  "type": "variables.set",
+                  "id": "k-4",
+                  "fields": {
+                    "variable": {
+                      "id": "varaaaaaaaaa"
+                    }
+                  },
+                  "inputs": {
+                    "value": {
+                      "block": {
+                        "type": "code.value",
+                        "id": "k-3",
+                        "fields": {
+                          "code": "scene.findAll().length"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

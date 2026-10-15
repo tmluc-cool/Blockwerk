@@ -1,0 +1,370 @@
+{
+  "variables": [
+    {
+      "id": "varaaaaaaaaa",
+      "name": "A",
+      "scope": "game"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "events.whenGameStarts",
+          "id": "c-25",
+          "next": {
+            "block": {
+              "type": "custom.callCommand",
+              "id": "c-26",
+              "inputs": {
+                "ARG0": {
+                  "shadow": {
+                    "type": "literal.number",
+                    "id": "c-27",
+                    "fields": {
+                      "NUM": 3
+                    }
+                  }
+                }
+              },
+              "extraState": {
+                "fn": "def-count",
+                "name": "Zähle"
+              },
+              "next": {
+                "block": {
+                  "type": "variables.set",
+                  "id": "c-30",
+                  "fields": {
+                    "variable": {
+                      "id": "varaaaaaaaaa"
+                    }
+                  },
+                  "inputs": {
+                    "value": {
+                      "block": {
+                        "type": "custom.callValue",
+                        "id": "c-28",
+                        "inputs": {
+                          "ARG0": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "c-29",
+                              "fields": {
+                                "NUM": 4
+                              }
+                            }
+                          }
+                        },
+                        "extraState": {
+                          "fn": "def-double",
+                          "name": "Doppelt"
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "control.if",
+                      "id": "c-36",
+                      "inputs": {
+                        "condition": {
+                          "block": {
+                            "type": "custom.callCondition",
+                            "id": "c-32",
+                            "inputs": {
+                              "ARG0": {
+                                "block": {
+                                  "type": "variables.get",
+                                  "id": "c-31",
+                                  "fields": {
+                                    "variable": {
+                                      "id": "varaaaaaaaaa"
+                                    }
+                                  }
+                                }
+                              },
+                              "ARG1": {
+                                "shadow": {
+                                  "type": "literal.text",
+                                  "id": "c-33",
+                                  "fields": {
+                                    "TEXT": "x"
+                                  }
+                                }
+                              }
+                            },
+                            "extraState": {
+                              "fn": "def-big",
+                              "name": "Gross"
+                            }
+                          }
+                        },
+                        "then": {
+                          "block": {
+                            "type": "custom.callCommand",
+                            "id": "c-34",
+                            "inputs": {
+                              "ARG0": {
+                                "shadow": {
+                                  "type": "literal.number",
+                                  "id": "c-35",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            },
+                            "extraState": {
+                              "fn": "def-count",
+                              "name": "Zähle"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "custom.defineCommand",
+          "id": "def-count",
+          "fields": {
+            "name": "Zähle"
+          },
+          "extraState": {
+            "params": [
+              {
+                "name": "n",
+                "type": "number"
+              }
+            ],
+            "warp": true
+          },
+          "next": {
+            "block": {
+              "type": "control.repeat",
+              "id": "c-5",
+              "inputs": {
+                "times": {
+                  "block": {
+                    "type": "custom.param",
+                    "id": "c-2",
+                    "fields": {
+                      "name": "n"
+                    }
+                  }
+                },
+                "body": {
+                  "block": {
+                    "type": "variables.change",
+                    "id": "c-3",
+                    "fields": {
+                      "variable": {
+                        "id": "varaaaaaaaaa"
+                      }
+                    },
+                    "inputs": {
+                      "by": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "c-4",
+                          "fields": {
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "custom.defineValue",
+          "id": "def-double",
+          "fields": {
+            "name": "Doppelt"
+          },
+          "extraState": {
+            "params": [
+              {
+                "name": "x",
+                "type": "number"
+              }
+            ],
+            "returns": "number"
+          },
+          "next": {
+            "block": {
+              "type": "custom.return",
+              "id": "c-10",
+              "inputs": {
+                "value": {
+                  "block": {
+                    "type": "operators.multiply",
+                    "id": "c-8",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "type": "custom.param",
+                          "id": "c-7",
+                          "fields": {
+                            "name": "x"
+                          }
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "c-9",
+                          "fields": {
+                            "NUM": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "custom.defineCondition",
+          "id": "def-big",
+          "fields": {
+            "name": "Gross"
+          },
+          "extraState": {
+            "params": [
+              {
+                "name": "x",
+                "type": "number"
+              },
+              {
+                "name": "t",
+                "type": "string"
+              }
+            ]
+          },
+          "next": {
+            "block": {
+              "type": "control.if",
+              "id": "c-20",
+              "inputs": {
+                "condition": {
+                  "block": {
+                    "type": "operators.gt",
+                    "id": "c-13",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "type": "custom.param",
+                          "id": "c-12",
+                          "fields": {
+                            "name": "x"
+                          }
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "type": "literal.number",
+                          "id": "c-14",
+                          "fields": {
+                            "NUM": 10
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "block": {
+                    "type": "custom.return",
+                    "id": "c-19",
+                    "inputs": {
+                      "value": {
+                        "block": {
+                          "type": "operators.not",
+                          "id": "c-18",
+                          "inputs": {
+                            "a": {
+                              "block": {
+                                "type": "operators.lt",
+                                "id": "c-15",
+                                "inputs": {
+                                  "a": {
+                                    "shadow": {
+                                      "type": "literal.number",
+                                      "id": "c-16",
+                                      "fields": {
+                                        "NUM": 1
+                                      }
+                                    }
+                                  },
+                                  "b": {
+                                    "shadow": {
+                                      "type": "literal.number",
+                                      "id": "c-17",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "custom.return",
+                  "id": "c-24",
+                  "inputs": {
+                    "value": {
+                      "block": {
+                        "type": "operators.lt",
+                        "id": "c-21",
+                        "inputs": {
+                          "a": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "c-22",
+                              "fields": {
+                                "NUM": 1
+                              }
+                            }
+                          },
+                          "b": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "c-23",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

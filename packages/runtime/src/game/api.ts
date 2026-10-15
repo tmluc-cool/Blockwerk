@@ -1,3 +1,4 @@
+import type * as THREE from 'three';
 import type { Vector3 } from 'three';
 import type { GameObject, VariableValue } from '../world/GameObject';
 
@@ -19,6 +20,14 @@ export type MathFunction =
 
 /** Scope of a block-script variable. */
 export type VariableScope = 'object' | 'game';
+
+/** What code blocks can ask about the running scene (`scene` in code blocks). */
+export interface SceneApi {
+  /** The first object with this name, or `null`. */
+  find(name: string): GameObject | null;
+  /** All objects, or those with the tag. */
+  findAll(tag?: string): GameObject[];
+}
 
 /**
  * Everything compiled block scripts can use, passed to every script as `game`. Angles are in
@@ -47,6 +56,13 @@ export interface GameApi {
   random(from: number, to: number): number;
   letterOf(index: number, text: string): string;
   contains(text: string, part: string): boolean;
+
+  /** The 3D library (three.js) for code blocks. */
+  readonly three: typeof THREE;
+  /** Finding objects for code blocks. */
+  readonly scene: SceneApi;
+  /** `true` once in a while inside loops that run without screen refresh (then they wait one frame). */
+  warpTick(): boolean;
 
   // Lists and dictionaries (SPEC 7.3). Lists count from 1; wrong kinds of values are ignored.
   split(text: string, separator: string): VariableValue[];

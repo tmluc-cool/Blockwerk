@@ -5,7 +5,12 @@ export type DiagnosticCode =
   | 'notAValue'
   | 'invalidField'
   | 'unknownVariable'
-  | 'unknownLocal';
+  | 'unknownLocal'
+  | 'unknownParam'
+  | 'unknownFunction'
+  | 'returnOutside'
+  | 'typeMismatch'
+  | 'codeSyntax';
 
 /** A problem found while compiling, pointing at the block that caused it. */
 export interface Diagnostic {
