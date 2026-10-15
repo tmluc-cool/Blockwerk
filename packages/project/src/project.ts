@@ -51,10 +51,36 @@ export const ASSET_EXTENSIONS: Readonly<Record<AssetType, string>> = {
   prefab: '.prefab.json',
   model: '.glb',
   image: '.png',
+  terrain: '.terrain.bin',
+  audio: '.wav',
 };
+
+/** More file name endings of an asset type besides the main one. */
+export const EXTRA_ASSET_EXTENSIONS: Readonly<Partial<Record<AssetType, readonly string[]>>> = {
+  audio: ['.ogg', '.mp3'],
+};
+
+/** Every file name ending of an asset type, the main one first. */
+export function assetExtensions(type: AssetType): readonly string[] {
+  return [ASSET_EXTENSIONS[type], ...(EXTRA_ASSET_EXTENSIONS[type] ?? [])];
+}
 
 /** An image asset (PNG) in memory: the file itself is kept by the project (see {@link Project.assetBytes}). */
 export interface ImageData {
+  /** Content hash of the file. */
+  readonly hash: string;
+  readonly byteLength: number;
+}
+
+/** A sound asset (WAV, OGG or MP3) in memory: the file is kept by the project. */
+export interface AudioAssetData {
+  /** Content hash of the file. */
+  readonly hash: string;
+  readonly byteLength: number;
+}
+
+/** A terrain asset (height map and paint) in memory: the file is kept by the project. */
+export interface TerrainAssetData {
   /** Content hash of the file. */
   readonly hash: string;
   readonly byteLength: number;
@@ -74,10 +100,12 @@ export interface AssetDataByType {
   prefab: PrefabData;
   model: ModelData;
   image: ImageData;
+  terrain: TerrainAssetData;
+  audio: AudioAssetData;
 }
 
 /** Asset types stored as binary files next to their meta file. */
-const BINARY_TYPES = ['model', 'image'] as const;
+const BINARY_TYPES = ['model', 'image', 'terrain', 'audio'] as const;
 type BinaryAssetType = (typeof BINARY_TYPES)[number];
 
 /** Whether an asset type is a binary file. */
@@ -167,8 +195,12 @@ export interface SaveResult {
 
 /** The asset type of a path, by its file name ending. */
 export function assetTypeOfPath(path: string): AssetType | null {
-  for (const [type, extension] of Object.entries(ASSET_EXTENSIONS) as [AssetType, string][]) {
-    if (path.endsWith(extension) && basename(path).length > extension.length) return type;
+  for (const type of Object.keys(ASSET_EXTENSIONS) as AssetType[]) {
+    for (const extension of assetExtensions(type)) {
+      if (path.toLowerCase().endsWith(extension) && basename(path).length > extension.length) {
+        return type;
+      }
+    }
   }
   return null;
 }
@@ -177,7 +209,10 @@ export function assetTypeOfPath(path: string): AssetType | null {
 export function assetDisplayName(path: string): string {
   const name = basename(path);
   const type = assetTypeOfPath(path);
-  return type ? name.slice(0, -ASSET_EXTENSIONS[type].length) : name;
+  const extension = type
+    ? assetExtensions(type).find((candidate) => name.toLowerCase().endsWith(candidate))
+    : undefined;
+  return extension ? name.slice(0, -extension.length) : name;
 }
 
 const SCHEMAS = {
@@ -374,6 +409,53 @@ export class Project {
     return entry;
   }
 
+  /** Adds a terrain (height map and paint layers). The path must be free and end with `.terrain.bin`. */
+  createTerrain(
+    path: string,
+    data: Uint8Array,
+    license: string | null = null,
+  ): AssetEntry<'terrain'> {
+    const normalized = this.checkAssetPath('terrain', path);
+    const meta: MetaData = { ...newMeta('terrain'), license };
+    const entry: AssetEntry<'terrain'> = {
+      id: meta.id,
+      type: 'terrain',
+      path: normalized,
+      meta,
+      data: { hash: hashBytes(data), byteLength: data.byteLength },
+    };
+    this.bytes.set(entry.id, data);
+    this.entries.set(entry.id, entry);
+    return entry;
+  }
+
+  /** Adds a sound (WAV, OGG or MP3). The path must be free and end with `.wav`, `.ogg` or `.mp3`. */
+  createAudio(path: string, data: Uint8Array, license: string | null = null): AssetEntry<'audio'> {
+    const normalized = this.checkAssetPath('audio', path);
+    const meta: MetaData = { ...newMeta('audio'), license };
+    const entry: AssetEntry<'audio'> = {
+      id: meta.id,
+      type: 'audio',
+      path: normalized,
+      meta,
+      data: { hash: hashBytes(data), byteLength: data.byteLength },
+    };
+    this.bytes.set(entry.id, data);
+    this.entries.set(entry.id, entry);
+    return entry;
+  }
+
+  /** Replaces the file of a binary asset (e.g. a terrain after sculpting); the ID stays. */
+  updateAssetBytes(id: string, bytes: Uint8Array): void {
+    const entry = this.entries.get(id);
+    if (!entry || !isBinaryAssetType(entry.type)) throw new Error(`Unknown binary asset ${id}.`);
+    this.bytes.set(id, bytes);
+    this.entries.set(id, {
+      ...entry,
+      data: { hash: hashBytes(bytes), byteLength: bytes.byteLength },
+    } as AnyAsset);
+  }
+
   /**
    * Adds an asset that keeps its identity (meta data with ID), e.g. from "My Prefabs". The path is
    * made unique if taken. Returns `null` if an asset with this ID already exists.
@@ -392,7 +474,7 @@ export class Project {
     let entry: AnyAsset;
     if ('bytes' in content) {
       if (!isBinaryAssetType(type))
-        throw new Error(`Only models and images are binary: ${normalized}`);
+        throw new Error(`Only models, images, terrains and sounds are binary: ${normalized}`);
       entry = {
         id: meta.id,
         type,
@@ -565,7 +647,9 @@ export class Project {
       throw new Error(`Assets must be inside ${ASSETS_FOLDER}/: ${normalized}`);
     }
     if (assetTypeOfPath(normalized) !== type) {
-      throw new Error(`A ${type} asset must end with ${ASSET_EXTENSIONS[type]}: ${normalized}`);
+      throw new Error(
+        `A ${type} asset must end with ${assetExtensions(type).join(' or ')}: ${normalized}`,
+      );
     }
     if (this.isPathTaken(normalized, ignoreId)) throw new Error(`Path is taken: ${normalized}`);
     return normalized;
@@ -714,6 +798,8 @@ export function defaultAssetFolder(type: AssetType, folders: NewProjectFolders):
     prefab: folders.prefabs,
     model: folders.models,
     image: folders.images,
+    terrain: folders.terrains ?? 'Terrains',
+    audio: folders.sounds ?? 'Sounds',
   };
   return joinPath(ASSETS_FOLDER, names[type]);
 }
@@ -725,6 +811,10 @@ export interface NewProjectFolders {
   readonly prefabs: string;
   readonly models: string;
   readonly images: string;
+  /** Folder of terrains (default `Terrains`). */
+  readonly terrains?: string;
+  /** Folder of sounds (default `Sounds`). */
+  readonly sounds?: string;
 }
 
 /** Options for {@link createProject}. */

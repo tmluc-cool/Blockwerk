@@ -1,4 +1,21 @@
 export { createRenderer } from './rendering/createRenderer';
+export {
+  autoQuality,
+  currentQuality,
+  isQualityName,
+  isSoftwareRenderer,
+  onQualityChange,
+  pixelRatioFor,
+  QUALITY_LEVELS,
+  QUALITY_NAMES,
+  qualitySettings,
+  setQuality,
+} from './rendering/quality';
+export type { QualityName, QualitySettings } from './rendering/quality';
+export { DEFAULT_POST_SETTINGS, effectivePost, PostProcessing } from './rendering/PostProcessing';
+export type { EffectivePost, PostSettings } from './rendering/PostProcessing';
+export { ViewRenderer } from './rendering/ViewRenderer';
+export { postRegistry } from './components/postProcessing';
 export type { RendererOptions } from './rendering/createRenderer';
 export { measureFrame } from './rendering/RenderStats';
 export type { RenderStats } from './rendering/RenderStats';
@@ -34,6 +51,22 @@ export type { WorldOptions } from './world/World';
 export { defineComponent, isFieldVisible, resolveValues } from './components/defineComponent';
 export type * from './components/defineComponent';
 export { COMPONENTS, getComponentDefinition } from './components';
+export { emitterRegistry } from './components/particleSystem';
+export { terrainRegistry } from './components/terrain';
+export type { TerrainState } from './components/terrain';
+export { loadTerrain, setTerrainSource } from './terrain/source';
+export { TerrainGrass } from './terrain/TerrainGrass';
+export { TerrainMesh } from './terrain/TerrainMesh';
+export { Effects } from './effects/Effects';
+export { ParticleEmitter } from './effects/ParticleEmitter';
+export {
+  DEFAULT_PARTICLE_PARAMS,
+  isParticlePreset,
+  PARTICLE_PRESET_NAMES,
+  PARTICLE_PRESETS,
+  particleTemplateValues,
+} from './effects/presets';
+export type { ParticleParams, ParticlePresetName } from './effects/presets';
 export { colliderRegistry } from './components/colliders';
 export type { ColliderShape, ColliderState } from './components/colliders';
 export { cameraRegistry } from './components/camera';
@@ -104,3 +137,43 @@ export type {
   PlayerBindings,
   RawInput,
 } from './game/actions';
+
+export type { SkyClock } from './environment/Environment';
+export {
+  CLEAR_WEATHER,
+  isWeatherType,
+  WEATHER_TYPES,
+  weatherLook,
+  Weather,
+} from './environment/Weather';
+export type { WeatherLook, WeatherState, WeatherType } from './environment/Weather';
+export { seededRandom, TERRAIN_LAYERS, TERRAIN_TOOLS, TerrainData } from './terrain/TerrainData';
+export type { TerrainBrush, TerrainRegion, TerrainTool } from './terrain/TerrainData';
+export { WaterSurface } from './water/WaterSurface';
+export type { WaterReflection, WaterSettings } from './water/WaterSurface';
+export {
+  BUILTIN_EFFECTS,
+  BUILTIN_LOOPS,
+  BUILTIN_SOUNDS,
+  isBuiltinSound,
+  isLoopingSound,
+  SYNTH_RATE,
+  synthesize,
+} from './audio/synth';
+export type { BuiltinSound } from './audio/synth';
+export { AUDIO_BUSES, AudioEngine, isAudioBus, setAudioSource } from './audio/AudioEngine';
+export type {
+  AudioBus,
+  AudioEngineOptions,
+  AudioSource,
+  PlayOptions,
+  SoundHandle,
+} from './audio/AudioEngine';
+export { audioSourceRegistry } from './components/audio';
+export type { AudioSourceState } from './components/audio';
+export {
+  RecordedGain,
+  RecordedPanner,
+  RecordedSource,
+  RecordingAudioContext,
+} from './audio/RecordingAudioContext';

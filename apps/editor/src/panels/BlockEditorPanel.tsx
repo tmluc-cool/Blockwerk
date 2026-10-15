@@ -1,5 +1,6 @@
 import { assetDisplayName, createId, VARIABLE_TYPES } from '@blockwerk/project';
 import type { BlockScriptData, SceneData, VariableData } from '@blockwerk/project';
+import { BUILTIN_SOUNDS } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
@@ -61,10 +62,21 @@ function references(scene: SceneData | null): FrameReferences {
     id: asset.id,
     name: assetDisplayName(asset.path),
   }));
+  const sounds = [
+    ...BUILTIN_SOUNDS.map((name) => ({
+      value: `builtin:${name}`,
+      name: t(`sound.builtin.${name}` as TranslationKey),
+    })),
+    ...(project?.assetsOfType('audio') ?? []).map((asset) => ({
+      value: `audio:${asset.id}`,
+      name: assetDisplayName(asset.path),
+    })),
+  ];
   return {
     objects,
     tags: [...tags].sort(),
     prefabs,
+    sounds,
     labels: {
       self: t('reference.self'),
       any: t('reference.any'),

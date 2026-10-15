@@ -1,3 +1,5 @@
+import { postRegistry } from '../components/postProcessing';
+import type { PostSettings } from '../rendering/PostProcessing';
 import type { ComponentData, SceneData, SceneObjectData } from '@blockwerk/project';
 import { Euler, MathUtils, Scene, Vector3 } from 'three';
 import type { Object3D, PerspectiveCamera } from 'three';
@@ -9,8 +11,16 @@ import { Environment } from '../environment/Environment';
 import { InstanceBatcher } from '../models/InstanceBatcher';
 import type { ModelCache } from '../models/ModelCache';
 import type { ModelTemplate } from '../models/ModelCache';
+import type { AudioEngine } from '../audio/AudioEngine';
+import { Effects } from '../effects/Effects';
 import { GameObject } from './GameObject';
 import type { ComponentInstance } from './GameObject';
+
+/** A body of water the world knows about (for swimming). */
+export interface WaterBody {
+  /** Surface height at a world position, or `null` if the position is outside this water. */
+  surfaceAt(x: number, z: number): number | null;
+}
 
 /** Options for {@link World}. */
 export interface WorldOptions {
@@ -58,6 +68,12 @@ export class World {
   private readonly options: WorldOptions;
   /** Draws equal model meshes together (automatic instancing). */
   readonly batcher: InstanceBatcher;
+  /** The game's sound system (play mode only; `null` in the editor's own world). */
+  audio: AudioEngine | null = null;
+  /** One-shot particle effects (dust, sparks, …). */
+  readonly effects: Effects;
+  /** Bodies of water that things can swim in (kept by the water components). */
+  readonly waters = new Set<WaterBody>();
   private readonly pendingModels = new Set<Promise<unknown>>();
 
   constructor(data: SceneData, options: WorldOptions = {}) {
@@ -65,8 +81,24 @@ export class World {
     this.environment = new Environment({ groundSize: 0 });
     this.environment.addTo(this.scene);
     this.batcher = new InstanceBatcher(this.scene);
+    this.effects = new Effects(this.scene);
     this.data = { ...data, objects: {} };
     this.sync(data);
+    // Sky, fog and weather of the scene apply from the start, not only when they change.
+    this.applyEnvironment();
+  }
+
+  /**
+   * Height of the water surface at a position, or `null` if there is no swimmable water there.
+   * Where waters overlap, the highest surface counts.
+   */
+  waterSurfaceAt(x: number, z: number): number | null {
+    let best: number | null = null;
+    for (const water of this.waters) {
+      const level = water.surfaceAt(x, z);
+      if (level !== null && (best === null || level > best)) best = level;
+    }
+    return best;
   }
 
   /** The scene data the world currently shows. */
@@ -114,6 +146,17 @@ export class World {
     for (let current = node; current; current = current.parent) {
       const id: unknown = current.userData['gameObjectId'];
       if (typeof id === 'string') return this.objects.get(id);
+    }
+    return undefined;
+  }
+
+  /**
+   * Post-processing settings of a camera: from a Post-Processing component on its object or a
+   * parent. `null` means switched off, `undefined` that there is no component.
+   */
+  postSettings(camera: Object3D): PostSettings | null | undefined {
+    for (let object = this.objectFromNode(camera) ?? null; object; object = object.parent) {
+      if (postRegistry.has(object)) return postRegistry.get(object);
     }
     return undefined;
   }
@@ -194,7 +237,7 @@ export class World {
   claimSun(owner: GameObject): boolean {
     if (this.sunOwner && this.sunOwner !== owner) return false;
     this.sunOwner = owner;
-    this.environment.sun.visible = true;
+    this.environment.setSunVisible(true);
     return true;
   }
 
@@ -202,20 +245,22 @@ export class World {
   releaseSun(owner: GameObject): void {
     if (this.sunOwner !== owner) return;
     this.sunOwner = null;
-    this.environment.sun.visible = false;
+    this.environment.setSunVisible(false);
   }
 
   /** Follows the sun object's rotation. Call before rendering. */
   updateSun(): void {
     const owner = this.sunOwner;
     if (!owner) {
-      this.environment.sun.visible = false;
+      this.environment.setSunVisible(false);
       return;
     }
+    this.environment.setSunVisible(owner.activeInHierarchy);
+    // With a day cycle the clock places the sun; the object only gives its color and strength.
+    if (this.environment.clockDriven) return;
     owner.object3d.updateWorldMatrix(true, false);
     const shining = FORWARD.clone().transformDirection(owner.object3d.matrixWorld);
     this.environment.setSunDirection(shining.negate());
-    this.environment.sun.visible = owner.activeInHierarchy;
   }
 
   /** Brings everything that is derived per frame up to date (sun, instancing). Call before rendering. */
@@ -289,6 +334,7 @@ export class World {
   /** Releases all resources. */
   dispose(): void {
     for (const id of [...this.objects.keys()]) this.removeObject(id);
+    this.effects.clear();
     this.batcher.dispose();
     this.environment.dispose();
   }
@@ -380,5 +426,19 @@ export class World {
     const environment = this.data.environment;
     this.environment.setAmbientIntensity(environment.ambientIntensity);
     this.environment.setFog(environment.fog.enabled, environment.fog.near, environment.fog.far);
+    this.environment.setClock(
+      environment.sky
+        ? {
+            timeOfDay: environment.sky.timeOfDay,
+            dayLength: environment.sky.dayLength,
+            sunAzimuth: environment.sky.sunAzimuth,
+          }
+        : null,
+    );
+    const weather = environment.weather;
+    this.environment.setWeather(
+      weather ? { ...weather } : { type: 'clear', intensity: 0, windSpeed: 0, windDirection: 0 },
+      true,
+    );
   }
 }

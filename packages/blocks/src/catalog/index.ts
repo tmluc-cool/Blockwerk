@@ -11,6 +11,20 @@ import {
   switchPart,
   whenAbility,
 } from './character';
+import { spawnEffect, startParticles, stopParticles } from './effects';
+import { crossfadeMusic, playMusic, playSound, setVolume, stopAllSounds } from './sound';
+import {
+  setFogDensity,
+  setGraphicsLevel,
+  setLight,
+  setLightColor,
+  setSunBrightness,
+  setTimeOfDay,
+  setTimeSpeed,
+  setWeather,
+  setWind,
+  timeOfDay,
+} from './environment';
 import {
   createClone,
   spawnPrefab,
@@ -162,6 +176,27 @@ export const BLOCK_CATALOG: readonly BlockDefinition[] = [
   shakeCamera,
   playCameraPath,
   setFieldOfView,
+  // Environment
+  setTimeOfDay,
+  setTimeSpeed,
+  timeOfDay,
+  setWeather,
+  setWind,
+  setFogDensity,
+  setSunBrightness,
+  setLight,
+  setLightColor,
+  setGraphicsLevel,
+  // Sound
+  playSound,
+  playMusic,
+  crossfadeMusic,
+  stopAllSounds,
+  setVolume,
+  // Effects
+  spawnEffect,
+  startParticles,
+  stopParticles,
   // Physics
   push,
   setVelocity,

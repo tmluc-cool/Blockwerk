@@ -5,6 +5,7 @@ import {
   expect,
   objectId,
   openExample,
+  scaled,
   settle,
   tab,
   test,
@@ -158,11 +159,24 @@ test.describe('phase 1: objects, components, block scripts, play mode', () => {
 
     // The game view has the keyboard: hold W until all spheres are collected.
     await page.keyboard.down('w');
-    await expect
-      .poll(() => page.evaluate(() => window.__blockwerk?.liveVariable(null, 'Punkte')), {
-        timeout: 30_000,
-      })
-      .toBe(3);
+    try {
+      await expect
+        .poll(() => page.evaluate(() => window.__blockwerk?.liveVariable(null, 'Punkte')), {
+          timeout: scaled(30_000),
+        })
+        .toBe(3);
+    } catch (error) {
+      // Slow machines (software rendering) fail here; say what the game was doing.
+      const state = await page.evaluate(() => ({
+        performance: window.__blockwerk?.playPerformance(),
+        player: window.__blockwerk?.liveObjects('Spieler'),
+        points: window.__blockwerk?.liveVariable(null, 'Punkte'),
+        focus: document.hasFocus(),
+        active: document.activeElement?.tagName,
+      }));
+      console.log('WASD DIAGNOSTICS', JSON.stringify(state));
+      throw error;
+    }
     await page.keyboard.up('w');
     await expect(page.getByTestId('monitor')).toContainText('3');
     expect(await page.evaluate(() => window.__blockwerk?.liveObjects('Kugel 1').length)).toBe(0);
@@ -243,7 +257,7 @@ test.describe('phase 1: objects, components, block scripts, play mode', () => {
         async () =>
           (await page.evaluate(() => window.__blockwerk?.liveObjects('Spieler') ?? []))[0]
             ?.position[2] ?? 0,
-        { timeout: 15_000 },
+        { timeout: scaled(15_000) },
       )
       .toBeGreaterThan(12);
     await page.keyboard.up('w');
@@ -261,7 +275,9 @@ test.describe('phase 1: objects, components, block scripts, play mode', () => {
     const files = await page.evaluate(() => window.__blockwerk?.files());
     await page.reload();
     await expect
-      .poll(() => page.evaluate(() => window.__blockwerk?.project().name), { timeout: 20_000 })
+      .poll(() => page.evaluate(() => window.__blockwerk?.project().name), {
+        timeout: scaled(20_000),
+      })
       .toBe('Hindernisparcours');
     expect(await page.evaluate(() => window.__blockwerk?.files())).toEqual(files);
     expect(await page.evaluate(() => window.__blockwerk?.project().dirty)).toBe(false);

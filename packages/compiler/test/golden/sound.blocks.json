@@ -1,0 +1,55 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenKey",
+        "id": "sn-1",
+        "fields": { "key": "Space", "mode": "pressed" },
+        "next": {
+          "block": {
+            "type": "sound.play",
+            "id": "sn-2",
+            "fields": { "sound": "builtin:jump", "where": "here" },
+            "next": {
+              "block": {
+                "type": "sound.playMusic",
+                "id": "sn-3",
+                "fields": { "sound": "builtin:music-calm" },
+                "next": {
+                  "block": {
+                    "type": "sound.crossfadeMusic",
+                    "id": "sn-4",
+                    "fields": { "sound": "audio:abc123def456" },
+                    "inputs": {
+                      "seconds": {
+                        "shadow": { "type": "literal.number", "id": "sn-5", "fields": { "NUM": 3 } }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "sound.setVolume",
+                        "id": "sn-6",
+                        "fields": { "channel": "effects" },
+                        "inputs": {
+                          "percent": {
+                            "shadow": {
+                              "type": "literal.number",
+                              "id": "sn-7",
+                              "fields": { "NUM": 25 }
+                            }
+                          }
+                        },
+                        "next": { "block": { "type": "sound.stopAll", "id": "sn-8" } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

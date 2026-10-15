@@ -46,6 +46,8 @@ export interface ControlState {
   ticksSinceLanding: number;
   /** Ticks since the last jump started. */
   ticksSinceJump: number;
+  /** Swimming in water (the water component's "Swimmable"). */
+  swimming: boolean;
   /** Steering is off (block "lock controls"). */
   locked: boolean;
   /** The character is rolling (ability Roll). */
@@ -65,6 +67,16 @@ export interface ControlState {
   /** Crouches (true) or stands up (false), as long as there is room. */
   setCrouch(crouch: boolean): void;
 }
+
+/** Water depth in meters (at the feet) at which a character starts swimming, and stops again. */
+const SWIM_ENTER_DEPTH = 1.1;
+const SWIM_EXIT_DEPTH = 0.8;
+/** How far below the surface a swimming character's feet float, and how fast it swims. */
+const SWIM_FLOAT_DEPTH = 1.2;
+const SWIM_SPEED_FACTOR = 0.55;
+
+/** Fall speed in m/s above which landing raises dust. */
+const LANDING_DUST_SPEED = 4;
 
 /** Control states by object. */
 export const controlRegistry = new WeakMap<object, ControlState>();
@@ -299,6 +311,7 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     jumping: false,
     ticksSinceLanding: 1000,
     ticksSinceJump: 1000,
+    swimming: false,
     locked: false,
     rolling: false,
     gliding: false,
@@ -342,8 +355,16 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     const look = locked ? new Vector2() : input.look();
     const grounded = motor.grounded;
     // Landing and leaving the ground.
-    if (grounded && !wasGrounded) state.ticksSinceLanding = 0;
-    else state.ticksSinceLanding += 1;
+    if (grounded && !wasGrounded) {
+      state.ticksSinceLanding = 0;
+      // A hard landing raises dust at the feet (louder the faster the fall).
+      if (verticalVelocity < -LANDING_DUST_SPEED) {
+        const size = Math.min(1.6, -verticalVelocity / 8);
+        context.world.effects.spawn('dust', object.worldPosition(), { scale: size });
+      }
+    } else {
+      state.ticksSinceLanding += 1;
+    }
     state.ticksSinceJump += 1;
     wasGrounded = grounded;
     coyote = grounded ? v.coyoteTime : Math.max(0, coyote - dt);
@@ -421,11 +442,20 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     } else {
       state.stamina = null;
     }
-    const topSpeed = state.crouching
-      ? v.crouchSpeed
-      : state.running
-        ? settings.runSpeed
-        : settings.walkSpeed;
+    // Swimming: in water deeper than the chest the character floats and swims slowly.
+    const feet = object.worldPosition();
+    const surface = context.world.waterSurfaceAt(feet.x, feet.z);
+    const depth = surface === null ? 0 : surface - feet.y;
+    if (!state.swimming && depth > SWIM_ENTER_DEPTH) state.swimming = true;
+    else if (state.swimming && depth < SWIM_EXIT_DEPTH) state.swimming = false;
+    const swimming = state.swimming && surface !== null;
+    const topSpeed = swimming
+      ? settings.walkSpeed * SWIM_SPEED_FACTOR
+      : state.crouching
+        ? v.crouchSpeed
+        : state.running
+          ? settings.runSpeed
+          : settings.walkSpeed;
     const target =
       direction.lengthSq() > 0
         ? direction.normalize().multiplyScalar(topSpeed * amount)
@@ -447,7 +477,14 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
 
     // Vertical: jump, gravity, sticking to the ground.
     const gravity = v.gravity;
-    if (buffered > 0 && (grounded || coyote > 0) && !state.crouching) {
+    if (swimming && surface !== null) {
+      // Float with the head above water; the jump button swims up (to climb out at the shore).
+      const floatY = surface - SWIM_FLOAT_DEPTH;
+      const wanted = input.isHeld('jump') && !locked ? 2.5 : (floatY - feet.y) * 3;
+      verticalVelocity = MathUtils.clamp(wanted, -2.5, 2.5);
+      state.jumping = false;
+      buffered = 0;
+    } else if (buffered > 0 && (grounded || coyote > 0) && !state.crouching) {
       // Half a step of gravity less, so the discrete arc peaks at exactly the jump height.
       const launch = Math.sqrt(2 * gravity * Math.max(0, settings.jumpHeight));
       verticalVelocity = Math.max(0, launch - (gravity * dt) / 2);
@@ -484,6 +521,7 @@ function walkingControl(object: GameObject, mode: Exclude<ControlMode, 'vehicle'
     const glidingNow =
       !!glideConfig &&
       !grounded &&
+      !swimming &&
       !locked &&
       input.isHeld('jump') &&
       verticalVelocity < -glideConfig.fallSpeed;
@@ -650,6 +688,7 @@ export const vehicleControl = defineComponent({
       running: false,
       crouching: false,
       jumping: false,
+      swimming: false,
       ticksSinceLanding: 1000,
       ticksSinceJump: 1000,
       locked: false,

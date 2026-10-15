@@ -112,6 +112,27 @@ export const environmentSchema = z.object({
   fog: z.object({ enabled: z.boolean(), near: z.number(), far: z.number() }),
   /** Gravity in m/s² (default Earth gravity straight down). */
   gravity: vec3Schema.optional(),
+  /**
+   * Day cycle: hour of the day, seconds a day takes (0 = the clock stands still) and a compass
+   * offset of the sun's path. Without it the sun object's rotation places the sun. Optional so
+   * existing scenes stay byte-identical.
+   */
+  sky: z
+    .object({
+      timeOfDay: z.number().min(0).max(24),
+      dayLength: z.number().min(0),
+      sunAzimuth: z.number(),
+    })
+    .optional(),
+  /** Weather at the start of the scene. */
+  weather: z
+    .object({
+      type: z.enum(['clear', 'rain', 'snow', 'fog']),
+      intensity: z.number().min(0).max(1),
+      windSpeed: z.number().min(0),
+      windDirection: z.number(),
+    })
+    .optional(),
 });
 /** Sky, ambient light and fog of a scene. The sun is a light component on an object. */
 export type EnvironmentData = z.infer<typeof environmentSchema>;
@@ -190,8 +211,16 @@ export const DEFAULT_MODEL_IMPORT_SETTINGS: ModelImportSettings = {
   generateCollider: true,
 };
 
-/** Asset types. Models (GLB) and images (PNG) are binary files; all others are JSON. */
-export const ASSET_TYPES = ['scene', 'blockScript', 'prefab', 'model', 'image'] as const;
+/** Asset types. Models (GLB), images (PNG), terrains and sounds are binary files; all others are JSON. */
+export const ASSET_TYPES = [
+  'scene',
+  'blockScript',
+  'prefab',
+  'model',
+  'image',
+  'terrain',
+  'audio',
+] as const;
 export const assetTypeSchema = z.enum(ASSET_TYPES);
 export type AssetType = z.infer<typeof assetTypeSchema>;
 
@@ -211,6 +240,8 @@ export const projectFileSchema = z.object({
   name: z.string().min(1),
   /** Asset ID of the scene that opens first. */
   startScene: idSchema.nullable(),
+  /** Graphics level a game starts with (`low` … `ultra`); players can switch it. Optional. */
+  graphicsLevel: z.enum(['low', 'medium', 'high', 'ultra']).optional(),
 });
 /** Contents of `blockwerk.json`. */
 export type ProjectFileData = z.infer<typeof projectFileSchema>;

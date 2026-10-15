@@ -50,6 +50,8 @@ function newProjectFolders(): NewProjectFolders {
     prefabs: t('project.folder.prefabs'),
     models: t('project.folder.models'),
     images: t('project.folder.images'),
+    terrains: t('project.folder.terrains'),
+    sounds: t('project.folder.sounds'),
   };
 }
 
@@ -466,12 +468,16 @@ export async function createNewProject(name: string): Promise<void> {
 export async function importProject(
   name: string,
   files: Readonly<Record<string, string>>,
+  binaries: Readonly<Record<string, string>> = {},
 ): Promise<void> {
   const backend = await backendOrDetect();
   if (useDocument.getState().projectRef && hasUnsavedChanges()) await saveProject({ quiet: true });
   const ref = await backend.create(name);
   const fs = await backend.open(ref);
   for (const [path, text] of Object.entries(files)) await fs.writeText(path, text);
+  for (const [path, url] of Object.entries(binaries)) {
+    await fs.writeBytes(path, new Uint8Array(await (await fetch(url)).arrayBuffer()));
+  }
   const project = await loadProject(fs);
   activate(backend, ref, project, fs);
 }
@@ -579,6 +585,29 @@ export function importModelAsset(
   return entry;
 }
 
+/** Sound file endings the editor imports. */
+export const SOUND_FILE_EXTENSIONS = ['.wav', '.ogg', '.mp3'] as const;
+
+/** Adds sound files (WAV, OGG, MP3) to the project folder; returns the new assets. */
+export async function importSoundFiles(
+  files: readonly File[],
+  folder: string,
+): Promise<AssetEntry<'audio'>[]> {
+  const { project } = useDocument.getState();
+  if (!project) return [];
+  const added: AssetEntry<'audio'>[] = [];
+  for (const file of files) {
+    const lower = file.name.toLowerCase();
+    const extension = SOUND_FILE_EXTENSIONS.find((candidate) => lower.endsWith(candidate));
+    if (!extension) continue;
+    const name = file.name.slice(0, -extension.length);
+    const path = project.uniqueAssetPath(folder, name, 'audio').replace(/\.wav$/, extension);
+    added.push(project.createAudio(path, new Uint8Array(await file.arrayBuffer())));
+  }
+  if (added.length > 0) assetsChanged();
+  return added;
+}
+
 /** Adds an image (PNG), e.g. a character portrait, to the project. */
 export function importImageAsset(
   folder: string,
@@ -605,7 +634,12 @@ export function adoptAssets(
   for (const file of files) {
     const content = file.bytes
       ? { bytes: file.bytes }
-      : { data: file.json as AssetDataByType[Exclude<AssetType, 'model' | 'image'>] };
+      : {
+          data: file.json as AssetDataByType[Exclude<
+            AssetType,
+            'model' | 'image' | 'terrain' | 'audio'
+          >],
+        };
     if (project.adoptAsset(file.path, file.meta, content)) added++;
   }
   if (added > 0) assetsChanged();
@@ -769,4 +803,25 @@ export function setSceneGravity(y: number): void {
     (scene) => ({ ...scene, environment: { ...scene.environment, gravity: [0, y, 0] } }),
     'scene-gravity',
   );
+}
+
+/** Changes the environment of the open scene (sky, fog, weather, ambient light) with undo. */
+export function setEnvironment(
+  patch: Partial<SceneData['environment']>,
+  mergeKey = 'environment',
+): void {
+  editScene(
+    'undo.lighting',
+    (scene) => ({ ...scene, environment: { ...scene.environment, ...patch } }),
+    mergeKey,
+  );
+}
+
+/** Sets the graphics level new games of the project start with (`null` = none chosen). */
+export function setProjectGraphicsLevel(level: 'low' | 'medium' | 'high' | 'ultra' | null): void {
+  const { project } = useDocument.getState();
+  if (!project) return;
+  const { graphicsLevel: _before, ...rest } = project.settings;
+  project.settings = level ? { ...rest, graphicsLevel: level } : rest;
+  assetsChanged();
 }

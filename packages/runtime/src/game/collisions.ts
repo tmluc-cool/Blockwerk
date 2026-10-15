@@ -48,6 +48,11 @@ export function toWorldShape(
       return box(localCenter, new Vector3(...shape.size));
     case 'cylinder':
       return box(localCenter, new Vector3(shape.radius * 2, shape.height, shape.radius * 2));
+    case 'heightfield':
+      return box(
+        localCenter.clone().setY(localCenter.y + (shape.minHeight + shape.maxHeight) / 2),
+        new Vector3(shape.size, Math.max(0.01, shape.maxHeight - shape.minHeight), shape.size),
+      );
     case 'mesh':
       return meshBounds
         ? box(localCenter.clone().add(meshBounds.center), meshBounds.size)

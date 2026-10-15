@@ -1,0 +1,40 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenKey",
+        "id": "fx-1",
+        "fields": { "key": "Space", "mode": "pressed" },
+        "next": {
+          "block": {
+            "type": "effects.spawn",
+            "id": "fx-2",
+            "fields": { "effect": "dust", "at": "self" },
+            "next": {
+              "block": {
+                "type": "effects.spawn",
+                "id": "fx-3",
+                "fields": { "effect": "explosion", "at": "object:spawnpoint01" },
+                "next": {
+                  "block": {
+                    "type": "effects.start",
+                    "id": "fx-4",
+                    "fields": { "target": "object:campfire0001" },
+                    "next": {
+                      "block": {
+                        "type": "effects.stop",
+                        "id": "fx-5",
+                        "fields": { "target": "self" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

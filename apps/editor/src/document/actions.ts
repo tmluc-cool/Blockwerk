@@ -11,6 +11,7 @@ import { useBrush } from '../library/brush';
 import type { BrushSource } from '../library/brush';
 import { useAssetLibrary } from '../library/assetLibrary';
 import { editorModels } from '../library/models';
+import { createTerrainAsset } from '../terrain/terrainEditing';
 import { instantiatePrefabInScene } from './prefabActions';
 import { activeSceneView } from '../scene/sceneViews';
 import { editScene, useDocument } from '../state/document';
@@ -113,6 +114,19 @@ export function createPrimitiveObject(
     t(SHAPE_NAMES[shape]),
     [{ type: 'meshRenderer', enabled: true, values: { shape } }, COLLIDERS[shape]],
     placement(),
+    parent,
+  );
+}
+
+/** Object > 3D object > Terrain: a flat 200 m terrain with its data file (centered on the object). */
+export function createTerrainObject(parent?: string | null): string | null {
+  if (!editable()) return null;
+  const asset = createTerrainAsset(200, 129, t('terrain.defaultName'));
+  if (!asset) return null;
+  return create(
+    t('terrain.defaultName'),
+    [{ type: 'terrain', enabled: true, values: { terrain: asset } }],
+    { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] },
     parent,
   );
 }

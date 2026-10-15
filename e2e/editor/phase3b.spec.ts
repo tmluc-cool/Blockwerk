@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Page } from '@playwright/test';
 import { avatarFbx, avatarGlb, AVATAR_BONES } from '../../packages/character/test/avatars';
-import { expect, tab, test } from './fixtures';
+import { expect, scaled, tab, test } from './fixtures';
 
 /** Acceptance of phase 3b in the editor: the Character Studio (SPEC 5.10, 10). */
 
@@ -19,7 +19,7 @@ async function openStudio(page: Page): Promise<void> {
   await openExample(page);
   await tab(page, 'Figur').click();
   await expect(page.getByTestId('studio')).toBeVisible();
-  await expect.poll(() => studioState(page), { timeout: 60_000 }).not.toBeNull();
+  await expect.poll(() => studioState(page), { timeout: scaled(60_000) }).not.toBeNull();
 }
 
 type StudioState = NonNullable<Awaited<ReturnType<typeof studioState>>>;
@@ -30,12 +30,14 @@ function studioState(page: Page) {
 
 /** Waits for the studio to show a figure with the given mode and returns its state. */
 async function figureReady(page: Page, mode: string): Promise<StudioState> {
-  await expect.poll(async () => (await studioState(page))?.mode, { timeout: 60_000 }).toBe(mode);
+  await expect
+    .poll(async () => (await studioState(page))?.mode, { timeout: scaled(60_000) })
+    .toBe(mode);
   // Retargeted library clips arrive in a second round.
   if (mode === 'skeleton') {
     await expect
       .poll(async () => (await studioState(page))?.clips.includes('Walking_A'), {
-        timeout: 60_000,
+        timeout: scaled(60_000),
       })
       .toBe(true);
   }
@@ -75,7 +77,7 @@ test.describe('phase 3b', () => {
   test('a VRM avatar and a rigged FBX model are uploaded and run with the library animations', async ({
     editor: page,
   }, testInfo) => {
-    test.setTimeout(240_000);
+    test.setTimeout(scaled(240_000));
     const dir = testInfo.outputPath('avatars');
     mkdirSync(dir, { recursive: true });
     // Bone names no recognition can understand: the VRM humanoid tells which bone is which.
@@ -119,12 +121,17 @@ test.describe('phase 3b', () => {
     const avatar = await figureReady(page, 'skeleton');
     expect(avatar.mapped).toBe(true);
     expect(avatar.clips).toEqual(expect.arrayContaining(['Walking_A', 'Running_A', 'Jump_Start']));
-    for (const state of ['walk', 'run', 'jump']) {
+    for (const state of ['walk', 'run']) {
       await page.getByTestId(`anim-play-${state}`).click();
       await expect
-        .poll(async () => (await studioState(page))?.animation, { timeout: 30_000 })
+        .poll(async () => (await studioState(page))?.animation, { timeout: scaled(30_000) })
         .toBe(state);
     }
+    // The jump is a one-shot clip: it ends and the figure idles again, so check that it was played.
+    await page.getByTestId('anim-play-jump').click();
+    await expect
+      .poll(async () => (await studioState(page))?.played, { timeout: scaled(30_000) })
+      .toContain('jump');
     // The body is scaled to the chosen body height (1.8 m).
     expect(avatar.height).toBeGreaterThan(1.6);
     expect(avatar.height).toBeLessThan(2);
@@ -141,14 +148,14 @@ test.describe('phase 3b', () => {
       .toMatch(/^[a-z0-9]{12}$/);
     await expect
       .poll(async () => (await studioState(page))?.clips.includes('Walking_A'), {
-        timeout: 60_000,
+        timeout: scaled(60_000),
       })
       .toBe(true);
     expect((await studioState(page))?.mapped).toBe(true);
   });
 
   test('a model without a skeleton is a rigid figure', async ({ editor: page }, testInfo) => {
-    test.setTimeout(180_000);
+    test.setTimeout(scaled(180_000));
     const dir = testInfo.outputPath('avatars');
     mkdirSync(dir, { recursive: true });
     const slime = join(dir, 'Schleim.glb');
@@ -162,7 +169,7 @@ test.describe('phase 3b', () => {
   test('the builder dresses the knight and the sword follows every animation', async ({
     editor: page,
   }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(scaled(240_000));
     await openStudio(page);
     const knight = await figureReady(page, 'skeleton');
     expect(knight.height).toBeGreaterThan(1.6);
@@ -206,7 +213,7 @@ test.describe('phase 3b', () => {
   test('switching the movement profile changes the jump arc and the feel in the test area', async ({
     editor: page,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(scaled(300_000));
     await openStudio(page);
     await figureReady(page, 'skeleton');
     await page.getByTestId('studio-tab-movement').click();
@@ -227,7 +234,7 @@ test.describe('phase 3b', () => {
     await page.getByTestId('game-canvas').focus();
     await expect
       .poll(() => page.evaluate(() => window.__blockwerk?.playPerformance().frames ?? 0), {
-        timeout: 60_000,
+        timeout: scaled(60_000),
       })
       .toBeGreaterThan(3);
     await page.keyboard.down('KeyW');
@@ -236,7 +243,7 @@ test.describe('phase 3b', () => {
         async () =>
           (await page.evaluate(() => window.__blockwerk?.characterState('Ritter')))?.speed,
         {
-          timeout: 60_000,
+          timeout: scaled(60_000),
         },
       )
       .toBeCloseTo(1.4, 0);
@@ -265,7 +272,7 @@ test.describe('phase 3b', () => {
   test('the ability cards double jump and roll work without a single block', async ({
     editor: page,
   }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(scaled(300_000));
     await openStudio(page);
     await figureReady(page, 'skeleton');
     // Take both abilities off, then drag the cards onto the figure.
@@ -284,7 +291,7 @@ test.describe('phase 3b', () => {
     await page.getByTestId('game-canvas').focus();
     await expect
       .poll(() => page.evaluate(() => window.__blockwerk?.playPerformance().frames ?? 0), {
-        timeout: 60_000,
+        timeout: scaled(60_000),
       })
       .toBeGreaterThan(3);
     // Stepping the paused game keeps every key press in its own tick.
@@ -322,7 +329,7 @@ test.describe('phase 3b', () => {
   test('a portrait becomes an image in the project and player 2 is a variant with other colors', async ({
     editor: page,
   }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(scaled(240_000));
     await openStudio(page);
     await figureReady(page, 'skeleton');
     await page.getByTestId('studio-tab-portrait').click();

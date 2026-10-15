@@ -7,9 +7,9 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 0 | Foundation and Unity layout | done |
 | 1 | Objects, components, block scripts, Play Mode | done |
 | 2 | Project window, Asset Library, Prefabs | done |
-| 3 | Player, physics, animation | in review (PR #6, CI green) |
-| 3b | Character Studio | in review |
-| 4 | Environment and graphics | open |
+| 3 | Player, physics, animation | done |
+| 3b | Character Studio | done |
+| 4 | Environment and graphics | done |
 | 5 | NPCs and game logic | open |
 | 6 | UI, menus, saving | open |
 | 7 | Large projects | open |
@@ -19,6 +19,72 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 4: Environment and graphics
+
+Branch: `phase/04-umgebung` (builds on `main` with Phases 3 and 3b merged).
+
+### Plan
+
+**Subtasks** (SPEC 8.3, 8.9, 8.11, 8.16, 9.1, 10)
+
+1. **Graphics levels and post-processing** (`packages/runtime`): levels Low / Medium / High / Ultra (resolution scale, shadow map size and cascade distance, shadow type, anti-aliasing, post-processing on/off, grass and particle density, draw distance), switchable in play mode without a restart (Game view drop-down, a block, and the project default). **Post-processing** as a component on the camera object (Unity's Volume): tone mapping, bloom, ambient occlusion, anti-aliasing, color grading, vignette, optional depth of field (`postprocessing`, Zlib; `n8ao`, ISC).
+2. **Sky, day-night cycle, weather, fog:** the scene's environment settings grow optional fields (time of day, day length, sun azimuth, fog color/density, weather type and intensity, wind). The sun, sky, ambient light, fog and a star dome follow the time of day; moon light at night. Weather: rain, snow, fog, wind, with ground-wetness and sound hooks. A **Lighting window** (Unity: Window → Rendering → Lighting) edits all of this live in the Scene and Game views.
+3. **Particle system component** with inspector modules like Unity (emission, shape, lifetime, color over time, size over time, gravity) and the templates dust (landing), sparks, explosion, smoke, fire, magic, rain, snow, collect sparkle. The character controller spawns dust when landing.
+4. **Terrain:** component with a height map, up to 4 texture layers painted with brushes (raise, lower, smooth, flatten, paint), stored as a binary asset next to the scene (`*.terrain.bin`, SPEC 9.1); a height-field collider; grass and plants spread by instancing following the painted layer. Scene view brushes and a Terrain inspector.
+5. **Water:** component with reflection and waves, a swim option in the character controller (buoyancy, slower movement, swim animation state when the model has one).
+6. **Audio** (`packages/runtime`): Audio Source component with 3D sound (volume and direction by distance, Web Audio), listener on the camera, music with cross-fade, separate volumes for music, effects and voices, footsteps through animation events and the character's sound set, ambient sounds per area. New asset type `audio` for imported sounds; built-in synthesized sound effects so every example has sound without third-party files.
+7. **Blocks** (Appendix A "(4)" blocks): set time of day, set weather, set graphics level, play sound (at), play music, stop/volume, play/stop particle effect — each with a golden and a runtime test.
+8. **Example** `examples/04-landschaft`: hill landscape with lake, forest, village, day-night cycle and rain; measure draw calls (< 500) and frame time; acceptance tests, screenshot, PR.
+
+**Affected packages:** `runtime` (environment, post-processing, particles, terrain, water, audio, quality), `blocks`, `compiler`, `project` (environment fields, terrain and audio asset types, graphics setting), `apps/editor` (Lighting window, terrain brushes, quality switch, audio import), `examples/`.
+
+**Risks**
+
+- 60 FPS cannot be measured in this environment (software rendering at 2–4 FPS). The acceptance measures what can be measured: draw calls, triangles, instance counts, per-frame CPU time of the engine, and the graphics-level switch; real FPS needs a machine with a graphics card (Game view → Statistics).
+- Post-processing, terrain, grass and water are the heaviest pieces; each has a cheaper path for Low/Medium, and the levels are tuned by counts (shadow map size, instance counts) rather than by timing.
+- No CC0 sound files can be downloaded here (hosts blocked): the built-in sounds are synthesized in code; imported sounds use the same Audio Source.
+- Terrain data is binary and must be deterministic: a fixed little-endian layout and no git diffs for unchanged terrain.
+
+### Assumptions
+
+- **Environment data:** new fields are optional in the scene's `environment` so old scenes stay byte-identical. The graphics level default is an optional field in `blockwerk.json`; players switch at runtime.
+- **Terrain file:** `.terrain.bin` holds a small header (magic, version, resolution, size, layer count), float heights and 8-bit layer weights; it is a binary asset type like models (stable ID in a meta file).
+- **Quality levels** (`packages/runtime/src/rendering/quality.ts`): Low (no post-processing, 1024 shadow map, quarter grass, 0.4 particles), Medium, High (default of the project; AO at half resolution, full grass) and Ultra (4096 shadow map, depth of field, 1.5× grass and particles, full-size water reflection). A software renderer (as in tests) starts on Low; the project's `graphicsLevel` or the player's choice wins.
+- **Sky and weather:** the clock is optional (`environment.sky`); without it the sun object's rotation places the sun as before. Weather changes fade over seconds. Rain and snow are drawn by the graphics card from a clock (no per-frame CPU work); the audio engine plays rain and wind loops that follow the weather.
+- **Terrain:** the object's origin is the center of a square terrain (default 200 m, 129×129 samples). The file stores float32 heights (not 16-bit, simpler and exact for the collider) and 8-bit layer weights; the file is always written the same way. Brushes edit one shared working copy (live in the Scene and Game view); each stroke is one undo step through a revision counter in the component and in-memory snapshots (40 per terrain, lost when the project closes; the file on disk is always the latest state). Plants other than grass (trees, rocks) are placed with the library brush from Phase 2, which instances equal models automatically.
+- **Water:** a plane of the given size at the object's height; the quality level picks sky-color only (Low), a half-resolution planar reflection (Medium, High) or a full one (Ultra). Characters swim when the water is deeper than 1.1 m at their feet (float with the head out, 0.55× speed, jump swims up); there is no dedicated swim animation, the walk/idle clips are used.
+- **Audio:** Web Audio with a panner per 3D sound (linear fade from "full volume up to" to "silent from", equal-power panning for direction). No CC0 sound files can be downloaded here, so the 15 effects and 6 loops (footsteps per ground, jump, land, hurt, win, coin, click, hit, whoosh, explosion, splash, wind, rain, stream, night, two music pieces) are synthesized in code from fixed seeds. Imported sounds (WAV, OGG, MP3) become the project's `audio` assets. Ambient sounds per area are Audio Sources on objects of that area (loop, 2D or 3D). Footsteps come from animation events named `step` when the animator has such markers and from stride length otherwise; the sound set of the Character component (`footstep=…;jump=…`, per ground `footstep:stone=…`, `none` for silence) overrides the built-in ones.
+- **Examples with binary files:** `examples/*/…/*.bin` (and `.glb`, `.png`, `.wav`, `.ogg`, `.mp3`) are bundled as data URLs and written as bytes into the new project. German folder names with umlauts are avoided (the browser's file storage in this environment dropped them), so the terrain folder is `Landschaften`.
+- **`examples/04-landschaft`** is generated by `scripts/make-example-04.mjs` (run `npx tsx scripts/make-example-04.mjs`): fixed seeds, so the same files come out every time. The library models (KayKit medieval pack, CC0) need `pnpm assets:fetch`.
+
+### Result
+
+**Implemented**
+
+- **Graphics levels and post-processing:** four levels, switchable while playing (Game view, Lighting window, block, project default), a Post-Processing component on the camera (tone mapping, bloom, ambient occlusion, color grading, vignette, depth of field).
+- **Sky, day-night, weather, fog:** sun, moon, stars and fog follow the clock; rain, snow, fog and wind; Lighting window (Window → Lighting) with undo; blocks set time, time speed, weather, wind, fog density, sun brightness, lamps on/off and color, graphics level; "time of day" reporter.
+- **Particles:** Particle System component with inspector modules (emission, shape, lifetime and speed, size and color over life, forces) and nine templates; the character controller raises dust on a hard landing; blocks create effect, start and stop particle system.
+- **Terrain:** component, `.terrain.bin` asset type (project package), height-field collider, four paint layers, instanced grass that follows the grass layer and the graphics level, brushes (raise, lower, smooth, flatten, paint) and "generate hills" in the inspector, Object → 3D object → Terrain.
+- **Water:** component with waves, sun glints, planar reflection by graphics level, fog and transparency; swimming in the character controller.
+- **Audio:** Audio Source and Audio Listener components, `AudioEngine` with three mixer channels, music cross-fade, weather loops, character sound sets (footsteps by ground, jump, land, splash); asset type `audio` with import and preview; sound blocks (play sound here/everywhere, play music, fade music, stop all, set volume); Game view mute button.
+- **Example** `examples/04-landschaft`: 200 m of hills with a lake (swimmable, reflective), about 300 trees and 30 rocks (instanced library models), a village with ten buildings, well, windmill, barrels and four lanterns that turn on at night, a camp fire (fire and smoke particles, warm light), grass, a day cycle (8 o'clock, one day in three minutes), rain after 45 seconds, music, stream sound at the lake, F = hit (sparks, sound, camera shake), E = explosion.
+
+**Acceptance**
+
+- [x] `examples/04-landschaft` runs in play mode (hill landscape with lake, forest, village, day-night cycle and rain). Unit test on the real project (`apps/editor/test/example04.test.ts`): the knight stands on the hills, floats in the lake, the clock moves 1.33 h in 10 s, lamps turn on at 21:00 and off at 10:00, rain starts after 45 s, music and the 3D stream play, footsteps follow the ground, F and E give sparks, sound and shake.
+- [ ] 60 FPS on "High": **not measurable here** (software rendering at 0.5–2 FPS). Measured instead in the end-to-end test: **about 120 draw calls** (limit 500, checked at every level in the end-to-end test) and under 1 M triangles on "High"; the logic tick costs about 3 ms (3300 ticks including physics, scripts and 380 objects in 10 s in Node); the grass is capped at 90 000 clumps with distance fade. A real graphics card is needed to confirm 60 FPS (Game view → Statistics).
+- [x] Unity-feel checklist 4 (real shadows, soft light, sky, fog, bloom, ambient occlusion): sun shadows with a level-dependent map, baked sky light, sky shader, fog, Post-Processing component on the example's camera (screenshot).
+- [x] Checklist 6 (sound: footsteps, jumps, hits; quieter with distance, from the right direction): footsteps, jump, landing and splash from the sound set, hit and explosion sounds on keys F and E; 3D sounds use a linear distance model with a panner (unit tests read panner position, distance model and listener from a recording context). The sound itself cannot be heard here.
+- [x] Checklist 7 (feedback: dust on landing, particles on hits, short camera shake): `landing dust` test in `character.test.ts`; key F in the example gives sparks and `shake camera`.
+- [x] Graphics level switches while playing without a restart: end-to-end test runs Low → Ultra → Medium → High in one play session (frames keep coming, start time unchanged, draw calls stay under 500); unit test on the example.
+- [x] Terrain brush, lighting window, audio source: end-to-end tests (brush strokes and undo, time of day/weather/quality with undo, built-in sound choice).
+- [x] `pnpm test` (332 tests), `pnpm lint`, `pnpm typecheck` green locally; end-to-end 53/53.
+- [ ] CI on GitHub: see pull request.
+
+Not demonstrable here: 60 FPS, the sound itself (no speakers), the look on a real graphics card (shadow softness, bloom strength) and the desktop installer.
+
+Screenshot: `docs/screenshots/phase-04.png` (Scene view while the game runs: lake with reflection, forest, village).
 
 ## Phase 3b: Character Studio
 

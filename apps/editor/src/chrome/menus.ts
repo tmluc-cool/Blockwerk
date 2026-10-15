@@ -17,6 +17,7 @@ import {
   createEmpty,
   createLight,
   createPrimitiveObject,
+  createTerrainObject,
   deleteSelection,
   duplicateSelection,
   LIGHT_TYPES,
@@ -118,11 +119,19 @@ export function createObjectMenuItems(
       label: t('menu.gameObject.object3d'),
       disabled,
       testId: 'menu-3d-object',
-      submenu: PRIMITIVE_SHAPES.map<MenuItem>((shape) => ({
-        label: t(SHAPE_NAMES[shape]),
-        testId: `create-${shape}`,
-        action: () => createPrimitiveObject(shape, parent),
-      })),
+      submenu: [
+        ...PRIMITIVE_SHAPES.map<MenuItem>((shape) => ({
+          label: t(SHAPE_NAMES[shape]),
+          testId: `create-${shape}`,
+          action: () => createPrimitiveObject(shape, parent),
+        })),
+        { kind: 'separator' },
+        {
+          label: t('menu.gameObject.terrain'),
+          testId: 'create-terrain',
+          action: () => createTerrainObject(parent),
+        },
+      ],
     },
     {
       label: t('menu.gameObject.light'),
@@ -166,7 +175,7 @@ async function openExampleDialog(t: Translate): Promise<void> {
     EXAMPLES.map((example) => ({ value: example.id, label: exampleName(example) })),
   );
   const example = EXAMPLES.find((item) => item.id === id);
-  if (example) await importProject(exampleName(example), example.files);
+  if (example) await importProject(exampleName(example), example.files, example.binaries);
 }
 
 /** The top-level menus of the menu bar (Unity: File, Edit, Assets, GameObject, Component, Window, Help). */

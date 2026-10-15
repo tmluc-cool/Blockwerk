@@ -114,12 +114,13 @@ export interface DropdownField {
  * - `objectOrMouse`: the mouse pointer and all objects
  * - `touchTarget`: anything, all tags and all objects
  * - `prefab`: the prefabs of the project
+ * - `sound`: the built-in sounds and the sound files of the project
  */
-export type ReferenceSource = 'object' | 'objectOrMouse' | 'touchTarget' | 'prefab';
+export type ReferenceSource = 'object' | 'objectOrMouse' | 'touchTarget' | 'prefab' | 'sound';
 
 /**
  * Dropdown of objects or tags of the scene, or prefabs of the project. Values: `self`, `any`,
- * `mouse`, `object:<id>`, `tag:<name>`, `prefab:<asset ID>` (`prefab:` for none yet).
+ * `mouse`, `object:<id>`, `tag:<name>`, `prefab:<asset ID>` (`prefab:` for none yet), `builtin:<sound>`, `audio:<asset ID>`.
  */
 export interface ReferenceField {
   readonly type: 'reference';

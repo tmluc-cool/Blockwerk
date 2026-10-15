@@ -161,6 +161,34 @@ export function editComponentValue(
   });
 }
 
+/** Several field values of a component in one undo step (e.g. applying a template). */
+export function editComponentValues(
+  ids: readonly string[],
+  type: string,
+  index: number,
+  values: Readonly<Record<string, JsonValue>>,
+): void {
+  applyEdit({
+    label: 'undo.change',
+    ids,
+    path: `component:${type}:${index}:*`,
+    recipe: (scene, targets) =>
+      Object.entries(values).reduce(
+        (current, [field, value]) => setComponentValue(current, targets, type, index, field, value),
+        scene,
+      ),
+    live: (object) => {
+      const instance = object.components.filter((component) => component.definition.type === type)[
+        index
+      ];
+      if (!instance) return;
+      const stored = { ...(instance.values as Record<string, JsonValue>), ...values };
+      instance.values = resolveValues(instance.definition, stored);
+      instance.behavior.apply(instance.values);
+    },
+  });
+}
+
 /** Turns a component on or off. */
 export function editComponentEnabled(
   ids: readonly string[],

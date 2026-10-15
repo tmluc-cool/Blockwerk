@@ -279,7 +279,7 @@ export const animator = defineComponent({
         current = 'roll';
         return result;
       }
-      if (!control.grounded) {
+      if (!control.grounded && !control.swimming) {
         airTicks += 1;
         const jump = clipOf('jump');
         const jumpLength = jump ? (actions.get(jump)?.getClip().duration ?? 0) : 0;

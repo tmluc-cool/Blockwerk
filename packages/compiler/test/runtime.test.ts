@@ -8,6 +8,7 @@ import { b, get, set, workspace } from './dsl';
 import type { TestBlock } from './dsl';
 import { loadFixture } from './fixtures';
 import { phase3Cases } from './phase3Cases';
+import { phase4Cases } from './phase4Cases';
 
 /**
  * Runtime tests: compiled blocks run in a real {@link Game}. Every catalog block must be
@@ -752,7 +753,7 @@ const cases: RuntimeCase[] = [
   },
 ];
 
-const allCases = [...cases, ...phase3Cases];
+const allCases = [...cases, ...phase3Cases, ...phase4Cases];
 
 beforeAll(async () => {
   await initPhysics();

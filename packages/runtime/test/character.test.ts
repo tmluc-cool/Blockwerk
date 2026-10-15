@@ -64,6 +64,20 @@ function heroOf(game: Game) {
 }
 
 describe('character controller', () => {
+  it('raises dust after a hard landing but not after a small step', () => {
+    const high = makeGame({ ground000001: ground, hero00000001: hero([0, 6, 0]) });
+    let dust = 0;
+    run(high, 2, () => {
+      dust = Math.max(dust, high.world.effects.active);
+    });
+    expect(dust).toBeGreaterThan(0);
+    const low = makeGame({ ground000001: ground, hero00000001: hero([0, 0.2, 0]) });
+    run(low, 1);
+    expect(low.world.effects.active).toBe(0);
+    high.dispose();
+    low.dispose();
+  });
+
   it('stands on the ground and walks with smooth acceleration', () => {
     const game = makeGame({ ground000001: ground, hero00000001: hero() });
     run(game, 0.3);

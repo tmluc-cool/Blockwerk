@@ -1,13 +1,14 @@
 import { compileBlockScript, CompileError } from '@blockwerk/compiler';
 import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SceneData } from '@blockwerk/project';
-import { Game, initPhysics, loadedRapier, loadScriptModule } from '@blockwerk/runtime';
+import { Game, initPhysics, loadedRapier, loadScriptModule, setQuality } from '@blockwerk/runtime';
 import type { GamepadSnapshot } from '@blockwerk/runtime';
 import type { GameLogEntry, ScriptAsset, VariableMonitor, World } from '@blockwerk/runtime';
 import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
 import { gameView } from '../game/gameViews';
 import { focusPanel } from '../layout/layoutController';
+import { useMute } from '../audio/editorAudio';
 import { editorModels } from '../library/models';
 import {
   currentEditWorld,
@@ -310,6 +311,9 @@ export function play(options: PlayOptions = {}): void {
     );
     return;
   }
+  // The project's graphics level, if it names one (players can switch it afterwards).
+  const level = useDocument.getState().project?.settings.graphicsLevel;
+  if (level) setQuality(level);
   playStarted = performance.now();
   frameTimes.length = 0;
   frameWork.length = 0;
@@ -329,6 +333,9 @@ export function play(options: PlayOptions = {}): void {
     prefabs: (id) => resolvePrefab(id, prefabSource()) ?? null,
     physics: physicsSettings(),
   });
+  game.audio.setMuted(useMute.getState().muted);
+  // The Play click allows sound in the browser.
+  game.audio.resume();
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
   game.world.updateSun();
   game.world.environment.shareLightingFrom(currentEditWorld()?.environment ?? null);

@@ -1,10 +1,14 @@
 import type { IDockviewPanelProps } from 'dockview-react';
+import { currentQuality, onQualityChange, QUALITY_NAMES, setQuality } from '@blockwerk/runtime';
+import type { QualityName } from '@blockwerk/runtime';
 import { useEffect, useRef, useState } from 'react';
 import { GameViewport } from '../game/GameViewport';
 import type { GameViewStats } from '../game/GameViewport';
 import type { AspectPreset } from '../game/GameViewport';
 import { setGameView } from '../game/gameViews';
-import { usePlay } from '../state/play';
+import { Volume2, VolumeX } from 'lucide-react';
+import { useMute } from '../audio/editorAudio';
+import { currentGame, usePlay } from '../state/play';
 import { useT } from '../state/settings';
 
 type Stats = GameViewStats;
@@ -17,9 +21,12 @@ export function GamePanel({ api }: IDockviewPanelProps) {
   const [aspect, setAspect] = useState<AspectPreset>('free');
   const [showStats, setShowStats] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [quality, setQualityState] = useState<QualityName>(currentQuality());
+  useEffect(() => onQualityChange((name) => setQualityState(name)), []);
   const [hasCamera, setHasCamera] = useState(true);
   const monitors = usePlay((state) => state.monitors);
   const status = usePlay((state) => state.status);
+  const muted = useMute((state) => state.muted);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -66,7 +73,34 @@ export function GamePanel({ api }: IDockviewPanelProps) {
             <option value="4:3">4:3</option>
           </select>
         </label>
+        <label className="toolbar-field">
+          <span className="muted">{t('game.quality')}</span>
+          <select
+            value={quality}
+            data-testid="game-quality"
+            onChange={(event) => setQuality(event.target.value as QualityName)}
+          >
+            {QUALITY_NAMES.map((name) => (
+              <option key={name} value={name}>
+                {t(`game.quality.${name}` as never)}
+              </option>
+            ))}
+          </select>
+        </label>
         <span className="toolbar-spacer" />
+        <button
+          type="button"
+          className={muted ? 'toggled' : ''}
+          aria-pressed={muted}
+          data-testid="mute-toggle"
+          onClick={() => {
+            const next = !muted;
+            useMute.getState().set(next);
+            currentGame()?.audio.setMuted(next);
+          }}
+        >
+          {muted ? <VolumeX size={14} /> : <Volume2 size={14} />} {t('game.mute')}
+        </button>
         <button
           type="button"
           className={showStats ? 'toggled' : ''}

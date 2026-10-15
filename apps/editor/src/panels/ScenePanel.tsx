@@ -9,6 +9,8 @@ import { SceneViewport } from '../scene/SceneViewport';
 import type { SceneCameraSnapshot, ShadingMode } from '../scene/SceneViewport';
 import { createLibraryObject, createModelObject, placeBrushObjects } from '../document/actions';
 import { useBrush } from '../library/brush';
+import { terrainBrushActive, terrainBrushRadius, terrainStroke } from '../terrain/terrainEditing';
+import { useTerrainTool } from '../terrain/terrainTool';
 import type { BrushSource, GroundPoint } from '../library/brush';
 import { currentEditWorld } from '../scene/worlds';
 import { usePlay } from '../state/play';
@@ -111,6 +113,8 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
           existing: () => brushedPositions(source),
         };
       },
+      terrainBrush: () => (terrainBrushActive() ? terrainBrushRadius() : null),
+      terrainStroke,
       brushPlace: (points, stroke) => {
         const source = useBrush.getState().source;
         if (source) placeBrushObjects(source, points, stroke);
@@ -128,6 +132,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
         viewport.refreshBrush();
       }
     });
+    const unsubscribeTerrain = useTerrainTool.subscribe(() => viewport.refreshBrush());
     const activate = (): void => activateSceneView(viewport);
     host.addEventListener('pointerdown', activate);
     const resize = (): void => viewport.resize(host.clientWidth, host.clientHeight);
@@ -142,6 +147,7 @@ export function ScenePanel({ api }: IDockviewPanelProps) {
     });
     return () => {
       unsubscribeBrush();
+      unsubscribeTerrain();
       unsubscribeSelection();
       host.removeEventListener('pointerdown', activate);
       observer.disconnect();

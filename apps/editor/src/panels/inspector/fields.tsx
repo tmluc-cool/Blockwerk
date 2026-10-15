@@ -1,8 +1,12 @@
-import type { FieldDefinition } from '@blockwerk/runtime';
+import { assetDisplayName } from '@blockwerk/project';
 import type { JsonValue } from '@blockwerk/project';
+import { BUILTIN_SOUNDS, isBuiltinSound } from '@blockwerk/runtime';
+import type { FieldDefinition } from '@blockwerk/runtime';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useRef, useState } from 'react';
 import type { TranslationKey } from '../../i18n';
+import { previewSound, stopPreview } from '../../audio/editorAudio';
+import { useDocument } from '../../state/document';
 import { useT } from '../../state/settings';
 import { ModelField } from './ModelField';
 import { ObjectField } from './ObjectField';
@@ -266,6 +270,9 @@ export function FieldEditor({
     case 'object':
       return <ObjectField value={value} onChange={onChange} disabled={disabled} testId={testId} />;
     case 'asset': {
+      if (field.assetType === 'sound') {
+        return <SoundField value={value} onChange={onChange} disabled={disabled} testId={testId} />;
+      }
       if (field.assetType === 'model') {
         return <ModelField value={value} onChange={onChange} disabled={disabled} testId={testId} />;
       }
@@ -300,4 +307,76 @@ export function FieldEditor({
       );
     }
   }
+}
+
+/** Plays a sound for listening (built-in `builtin:<name>` or project `audio:<id>`). */
+export function SoundPreviewButton({ value }: { value: string }) {
+  const t = useT();
+  return (
+    <div className="add-component">
+      <button type="button" data-testid="sound-preview" onClick={() => previewSound(value)}>
+        {t('sound.preview')}
+      </button>
+      <button type="button" data-testid="sound-preview-stop" onClick={stopPreview}>
+        {t('sound.stop')}
+      </button>
+    </div>
+  );
+}
+
+/** Choice of a sound: none, a built-in sound or a sound of the project, with a preview button. */
+function SoundField({
+  value,
+  onChange,
+  disabled,
+  testId,
+}: {
+  value: Shared<unknown> | undefined;
+  onChange: (value: JsonValue) => void;
+  disabled?: boolean;
+  testId?: string;
+}) {
+  const t = useT();
+  const project = useDocument((state) => state.project);
+  useDocument((state) => state.assetsVersion);
+  const current = typeof value === 'string' ? value : '';
+  const audio = project?.assetsOfType('audio') ?? [];
+  const known =
+    current === '' ||
+    isBuiltinSound(current.replace('builtin:', '')) ||
+    audio.some((asset) => current === `audio:${asset.id}`);
+  return (
+    <span className="asset-field">
+      <select
+        value={value === MIXED ? '\u0000' : current}
+        disabled={disabled}
+        data-testid={testId}
+        onChange={(event) => onChange(event.target.value === '' ? null : event.target.value)}
+      >
+        {value === MIXED && <option value={'\u0000'}>{t('inspector.mixed')}</option>}
+        <option value="">{t('sound.none')}</option>
+        {!known && <option value={current}>{current}</option>}
+        {BUILTIN_SOUNDS.map((name) => (
+          <option key={name} value={`builtin:${name}`}>
+            {t(`sound.builtin.${name}` as TranslationKey)}
+          </option>
+        ))}
+        {audio.map((asset) => (
+          <option key={asset.id} value={`audio:${asset.id}`}>
+            {assetDisplayName(asset.path)}
+          </option>
+        ))}
+      </select>
+      {current && (
+        <button
+          type="button"
+          className="small"
+          data-testid={testId ? `${testId}-preview` : undefined}
+          onClick={() => previewSound(current)}
+        >
+          {t('sound.preview')}
+        </button>
+      )}
+    </span>
+  );
 }

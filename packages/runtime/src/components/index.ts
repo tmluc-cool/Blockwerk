@@ -1,5 +1,6 @@
 import { doubleJump, glide, roll, stamina } from './abilities';
 import { animator } from './animator';
+import { audioListener, audioSource } from './audio';
 import { blockScript } from './blockScript';
 import { character } from './figure';
 import { camera } from './camera';
@@ -25,6 +26,10 @@ import { rigidbody } from './rigidbody';
 import type { ComponentDefinition } from './defineComponent';
 import { light } from './light';
 import { meshRenderer } from './meshRenderer';
+import { particleSystem } from './particleSystem';
+import { postProcessing } from './postProcessing';
+import { terrain } from './terrain';
+import { water } from './water';
 
 /** All built-in component types in "Add Component" order. */
 export const COMPONENTS: readonly ComponentDefinition[] = [
@@ -54,6 +59,12 @@ export const COMPONENTS: readonly ComponentDefinition[] = [
   fixedCamera,
   cameraPath,
   sharedCamera,
+  postProcessing,
+  particleSystem,
+  terrain,
+  water,
+  audioSource,
+  audioListener,
   light,
   blockScript,
 ] as unknown as readonly ComponentDefinition[];

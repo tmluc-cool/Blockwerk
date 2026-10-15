@@ -1,4 +1,12 @@
-import { createRenderer, measureFrame } from '@blockwerk/runtime';
+import {
+  autoQuality,
+  createRenderer,
+  measureFrame,
+  onQualityChange,
+  pixelRatioFor,
+  qualitySettings,
+  ViewRenderer,
+} from '@blockwerk/runtime';
 import type { RenderStats, World } from '@blockwerk/runtime';
 import { Raycaster, Vector2, Vector3 } from 'three';
 import type { PerspectiveCamera, WebGLRenderer } from 'three';
@@ -66,6 +74,8 @@ export class GameViewport {
   /** Times of the frames drawn in the last second (for the frame rate). */
   private readonly frameTimes: number[] = [];
   private readonly renderer: WebGLRenderer;
+  private readonly views: ViewRenderer;
+  private lastRender = 0;
   private world: World | null = null;
   private aspect: AspectPreset = 'free';
   private containerWidth = 1;
@@ -85,6 +95,13 @@ export class GameViewport {
     canvas.tabIndex = 0;
     container.appendChild(canvas);
     this.renderer = createRenderer({ canvas });
+    this.views = new ViewRenderer(this.renderer);
+    autoQuality(this.renderer);
+    this.cleanup.push(
+      onQualityChange(() => {
+        this.layout();
+      }),
+    );
     this.cleanup.push(onWorldChange(() => this.requestRender()));
     this.cleanup.push(registerRenderView(this));
     const listen = <K extends keyof HTMLElementEventMap>(
@@ -183,6 +200,7 @@ export class GameViewport {
     for (const world of new Set([this.world, currentEditWorld()])) {
       world?.environment.releaseRenderer(this.renderer);
     }
+    this.views.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
@@ -240,7 +258,7 @@ export class GameViewport {
       else height = Math.round(width / target);
     }
     const view = this.container.ownerDocument.defaultView;
-    this.renderer.setPixelRatio(Math.min(view?.devicePixelRatio ?? 1, 2));
+    this.renderer.setPixelRatio(pixelRatioFor(view?.devicePixelRatio ?? 1, qualitySettings()));
     this.renderer.setSize(Math.max(1, width), Math.max(1, height), false);
     const canvas = this.renderer.domElement;
     canvas.style.width = `${width}px`;
@@ -286,20 +304,33 @@ export class GameViewport {
     world.environment.setFocus(focus);
     world.environment.prepare(this.renderer, first);
     const css = this.renderer.getSize(new Vector2());
+    const quality = qualitySettings();
+    const dpr = this.container.ownerDocument.defaultView?.devicePixelRatio ?? 1;
+    this.views.applyQuality(quality, world, dpr);
+    this.views.setSize(css.x, css.y);
+    const clock = performance.now();
+    const delta = this.lastRender > 0 ? Math.min(0.1, (clock - this.lastRender) / 1000) : 1 / 60;
+    this.lastRender = clock;
     const stats = measureFrame(this.renderer, () => {
       const split = layout.views.length > 1;
-      this.renderer.setScissorTest(split);
+      if (!split) {
+        // One view: the whole canvas, through the post-processing chain of its camera.
+        first.aspect = css.x / Math.max(1, css.y);
+        first.updateProjectionMatrix();
+        first.updateMatrixWorld();
+        this.views.render(world, first, quality, delta);
+        return;
+      }
+      this.renderer.setScissorTest(true);
       layout.views.forEach((view, index) => {
-        const rect = split
-          ? viewRect(index, layout.views.length, layout.split, css.x, css.y)
-          : { x: 0, y: 0, width: css.x, height: css.y };
+        const rect = viewRect(index, layout.views.length, layout.split, css.x, css.y);
         const camera = view.camera;
         camera.aspect = rect.width / Math.max(1, rect.height);
         camera.updateProjectionMatrix();
         camera.updateMatrixWorld();
         this.renderer.setViewport(rect.x, rect.y, rect.width, rect.height);
         this.renderer.setScissor(rect.x, rect.y, rect.width, rect.height);
-        this.renderer.render(world.scene, camera);
+        this.views.renderDirect(world, camera);
       });
       this.renderer.setScissorTest(false);
       this.renderer.setViewport(0, 0, css.x, css.y);

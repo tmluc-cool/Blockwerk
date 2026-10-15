@@ -106,6 +106,28 @@ export interface GameApi {
   staminaPercent(self: GameObject): number;
 
   // Camera (SPEC 8.6)
+  // Environment and graphics (SPEC 8.9, 8.3)
+  setTimeOfDay(hours: number): void;
+  timeOfDay(): number;
+  setTimeSpeed(factor: number): void;
+  setWeather(type: string, seconds: number): void;
+  weather(): string;
+  setWind(speed: number, direction: number): void;
+  setFogDensity(percent: number): void;
+  setSunBrightness(percent: number): void;
+  setLightEnabled(self: GameObject, ref: ObjectRef, on: boolean): void;
+  setLightColor(self: GameObject, ref: ObjectRef, color: string): void;
+  playSound(self: GameObject, sound: string, where: string): void;
+  playMusic(sound: string): void;
+  crossfadeMusic(sound: string, seconds: number): void;
+  stopAllSounds(): void;
+  setVolume(bus: string, percent: number): void;
+  spawnEffect(self: GameObject, effect: string, at: ObjectRef): void;
+  startParticles(self: GameObject, ref: ObjectRef): void;
+  stopParticles(self: GameObject, ref: ObjectRef): void;
+  setGraphicsLevel(level: string): void;
+  graphicsLevel(): string;
+
   switchCamera(view: string): void;
   switchCameraTo(self: GameObject, ref: ObjectRef): void;
   setCameraDistance(self: GameObject, distance: number): void;

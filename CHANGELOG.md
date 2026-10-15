@@ -5,6 +5,24 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 4: environment and graphics
+
+- Graphics levels Low, Medium, High and Ultra (resolution, shadows, anti-aliasing, post-processing,
+  grass and particle density, water reflection), switchable while the game runs (Game view, block,
+  project default). Post-processing component on the camera: tone mapping, bloom, ambient occlusion,
+  color grading, vignette, depth of field.
+- Sky with a day-night cycle (sun, moon, stars), weather (rain, snow, fog, wind), a Lighting window
+  and blocks for time, weather, wind, fog, sun, lamps and graphics level.
+- Particle system component with Unity-like modules and the templates dust, sparks, explosion, smoke,
+  fire, magic, rain, snow and sparkle; dust when a character lands; blocks for effects.
+- Terrain with a height map, four paint layers, instanced grass and a height-field collider, stored as
+  `*.terrain.bin`; Scene view brushes (raise, lower, smooth, flatten, paint) with undo.
+- Water with waves, reflections and sun glints; characters swim in it.
+- Audio: Audio Source and Audio Listener with 3D sound, music with cross-fades, mixer channels for
+  music, effects and voices, footsteps by ground, jump, landing and splash sounds, built-in
+  synthesized sounds and sound import (WAV, OGG, MP3); sound blocks.
+- Example project `examples/04-landschaft`.
+
 ### Phase 3b: Character Studio
 
 - Character Studio window: turntable with jump arc, collision capsule and comparison figure; model

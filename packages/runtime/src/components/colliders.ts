@@ -23,7 +23,18 @@ export type ColliderShape =
       readonly height: number;
     }
   /** The object's own meshes (Unity: Mesh Collider); `convex` wraps them in a hull. */
-  | { readonly kind: 'mesh'; readonly center: Vec3; readonly convex: boolean };
+  | { readonly kind: 'mesh'; readonly center: Vec3; readonly convex: boolean }
+  /** A height map (terrain): `resolution` × `resolution` heights in meters, `size` meters wide. */
+  | {
+      readonly kind: 'heightfield';
+      readonly center: Vec3;
+      readonly resolution: number;
+      readonly size: number;
+      readonly heights: Float32Array;
+      /** Lowest and highest height, for rough overlap tests. */
+      readonly minHeight: number;
+      readonly maxHeight: number;
+    };
 
 /** Live state of a collider, read by the collision and physics systems. */
 export interface ColliderState {
@@ -41,7 +52,8 @@ export interface ColliderState {
 /** Collider states by object, kept by the collider behaviors. */
 export const colliderRegistry = new WeakMap<object, ColliderState[]>();
 
-function register(owner: object, state: ColliderState): () => void {
+/** Registers a collider state for an object; returns a function that removes it again. */
+export function registerCollider(owner: object, state: ColliderState): () => void {
   const list = colliderRegistry.get(owner) ?? [];
   list.push(state);
   colliderRegistry.set(owner, list);
@@ -91,7 +103,7 @@ function colliderBehavior<V extends CommonValues>(
     bounciness: 0,
     version: 0,
   };
-  const unregister = register(owner, state);
+  const unregister = registerCollider(owner, state);
   return {
     apply(values: V) {
       state.shape = shape(values);

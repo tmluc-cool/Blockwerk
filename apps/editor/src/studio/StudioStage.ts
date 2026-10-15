@@ -5,6 +5,7 @@ import {
   figureRegistry,
   Game,
   initPhysics,
+  isSoftwareRenderer,
   jumpArc,
   TICK_SECONDS,
 } from '@blockwerk/runtime';
@@ -139,12 +140,17 @@ export class StageViewport {
   };
   private overlaysKey = '';
   private animation: string | null = 'idle';
+  private played: string[] = [];
   private speed = 1;
   private loop = true;
   private frame = 0;
   private lastTime = 0;
   private accumulator = 0;
   private disposed = false;
+  private drawn = 0;
+  private readonly software: boolean;
+  /** False while a figure is being built; CPU-drawn machines do not draw half-built figures. */
+  private ready = false;
   private preview: { canvas: HTMLCanvasElement; settings: CameraPreview } | null = null;
   private readonly cleanup: (() => void)[] = [];
 
@@ -157,6 +163,9 @@ export class StageViewport {
     canvas.dataset['testid'] = 'studio-canvas';
     container.appendChild(canvas);
     this.renderer = createRenderer({ canvas });
+    // Machines that draw with the CPU skip the shadow pass and refresh the camera preview rarely.
+    this.software = isSoftwareRenderer(this.renderer);
+    if (this.software) this.renderer.shadowMap.enabled = false;
     const listen = <K extends keyof HTMLElementEventMap>(
       type: K,
       listener: (event: HTMLElementEventMap[K]) => void,
@@ -253,6 +262,8 @@ export class StageViewport {
     this.game?.dispose();
     this.game = null;
     this.callbacks.figure(null, null);
+    this.ready = false;
+    this.played = [];
     if (!object) return;
     await initPhysics();
     if (this.disposed || generation !== this.generation) return;
@@ -281,6 +292,7 @@ export class StageViewport {
     await game.world.modelsLoaded();
     game.stepTick();
     if (this.disposed || generation !== this.generation) return;
+    this.ready = true;
     const figure = game.world.getObject('figure0000001');
     this.applyAnimation();
     this.callbacks.figure(
@@ -302,6 +314,8 @@ export class StageViewport {
     attachedAt: Record<string, number[]>;
     clips: string[];
     animation: string | null;
+    /** Animations the animator accepted since the stage was built (one-shot clips end quickly). */
+    played: string[];
     mapped: boolean;
     missing: string[];
     arc: { height: number; walk: number; run: number } | null;
@@ -335,6 +349,7 @@ export class StageViewport {
       ),
       clips: animatorRegistry.get(figure)?.clips.slice() ?? [],
       animation: animatorRegistry.get(figure)?.current ?? null,
+      played: [...this.played],
       mapped: info.mapping?.complete ?? false,
       missing: info.mapping ? [...info.mapping.missing] : [],
       arc: arc ? { height: arc.height, walk: arc.walkDistance, run: arc.runDistance } : null,
@@ -402,8 +417,11 @@ export class StageViewport {
     const animator = figure ? animatorRegistry.get(figure) : undefined;
     if (!animator) return;
     animator.speed = this.speed;
-    if (this.animation) animator.play(this.animation, { once: !this.loop, fade: 0.15 });
-    else animator.stop();
+    if (this.animation) {
+      if (animator.play(this.animation, { once: !this.loop, fade: 0.15 })) {
+        this.played.push(this.animation);
+      }
+    } else animator.stop();
   }
 
   private rebuildHelpers(): void {
@@ -509,7 +527,7 @@ export class StageViewport {
     }
     if (steps === 4) this.accumulator = 0;
     if (this.spin) this.yaw += dt * 0.5;
-    this.draw(game);
+    if (this.ready || !this.software) this.draw(game);
   };
 
   private draw(game: Game): void {
@@ -521,7 +539,10 @@ export class StageViewport {
     game.world.prepareRender();
     const scene = game.world.scene;
     scene.background = new Color(0x2a2d33);
-    if (this.preview) this.drawCameraView(game);
+    // The camera preview is a second full draw; on CPU-drawn machines it refreshes every sixth frame.
+    if (this.preview && (!this.software || this.drawn++ % 6 === 0)) {
+      this.drawCameraView(game);
+    }
     const target = new Vector3(0, this.height * 0.5, 0);
     const distance = (this.height * 2.6 + 0.8) * this.zoom;
     this.camera.position.set(

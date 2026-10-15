@@ -1,6 +1,11 @@
 import { assetDisplayName } from '@blockwerk/project';
 import type { ComponentData, JsonValue, SceneObjectData } from '@blockwerk/project';
-import { COMPONENTS, getComponentDefinition, isFieldVisible } from '@blockwerk/runtime';
+import {
+  COMPONENTS,
+  getComponentDefinition,
+  isFieldVisible,
+  particleTemplateValues,
+} from '@blockwerk/runtime';
 import type { ComponentDefinition, FieldDefinition } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { ChevronDown, ChevronRight, EllipsisVertical, Pin } from 'lucide-react';
@@ -12,6 +17,7 @@ import { addComponentToSelection } from '../document/actions';
 import {
   editComponentEnabled,
   editComponentValue,
+  editComponentValues,
   editHeader,
   editScriptVariable,
   editTransformAxis,
@@ -38,7 +44,10 @@ import {
 } from '../state/document';
 import { useEditor } from '../state/editor';
 import { keepAllChanges, keepChange, playingWorld, usePlay } from '../state/play';
+import type { TranslationKey } from '../i18n';
 import { useSettings, useT } from '../state/settings';
+import { TerrainTools } from '../terrain/TerrainTools';
+import { SoundPreviewButton } from './inspector/fields';
 import { FieldEditor, MIXED, shared, VectorInput } from './inspector/fields';
 import { ModelImportInspector } from './inspector/ModelImportInspector';
 import { PrefabBar } from './inspector/PrefabBar';
@@ -254,7 +263,8 @@ function ComponentSection({
   }
   // Fields that depend on others (e.g. Shape only without a model) show if any object needs them.
   const fieldEntries = (Object.entries(definition.fields) as [string, FieldDefinition][]).filter(
-    ([, field]) => slot.components.some((component) => isFieldVisible(field, component.values)),
+    ([, field]) =>
+      !field.hidden && slot.components.some((component) => isFieldVisible(field, component.values)),
   );
   const ungrouped = fieldEntries.filter(([, field]) => !field.group);
   const groups = [
@@ -265,6 +275,10 @@ function ComponentSection({
   const scripts =
     project
       ?.assetsOfType('blockScript')
+      .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
+  const terrains =
+    project
+      ?.assetsOfType('terrain')
       .map((entry) => ({ id: entry.id, name: assetDisplayName(entry.path) })) ?? [];
   const componentId = slot.components[0]?.id ?? '';
   const renderField = ([name, field]: [string, FieldDefinition]) => (
@@ -288,10 +302,27 @@ function ComponentSection({
           slot.components.map((component) => component.values[name] ?? fieldDefault(field)),
         )}
         testId={`${testBase}-${name}`}
-        assets={field.type === 'asset' && field.assetType === 'blockScript' ? scripts : undefined}
+        assets={
+          field.type === 'asset'
+            ? field.assetType === 'blockScript'
+              ? scripts
+              : field.assetType === 'terrain'
+                ? terrains
+                : undefined
+            : undefined
+        }
         disabled={playing && field.type === 'asset'}
         onOpenAsset={(id) => openScriptEditor(id, ids.length === 1 ? (ids[0] ?? null) : null)}
-        onChange={(value) => editComponentValue(ids, slot.type, slot.index, name, value)}
+        onChange={(value) => {
+          if (slot.type === 'particleSystem' && name === 'preset' && typeof value === 'string') {
+            const template = particleTemplateValues(value);
+            if (template) {
+              editComponentValues(ids, slot.type, slot.index, { ...template, preset: value });
+              return;
+            }
+          }
+          editComponentValue(ids, slot.type, slot.index, name, value);
+        }}
       />
     </Row>
   );
@@ -346,13 +377,23 @@ function ComponentSection({
                   onClick={() => setGroupsOpen({ ...groupsOpen, [group]: !groupOpen })}
                 >
                   {groupOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                  {group === 'material' ? t('component.group.material') : group}
+                  {t(`component.group.${group}` as TranslationKey)}
                 </button>
                 {groupOpen &&
                   fieldEntries.filter(([, field]) => field.group === group).map(renderField)}
               </div>
             );
           })}
+          {slot.type === 'terrain' && ids.length === 1 && ids[0] && (
+            <TerrainTools
+              objectId={ids[0]}
+              asset={
+                typeof slot.components[0]?.values['terrain'] === 'string'
+                  ? slot.components[0].values['terrain']
+                  : null
+              }
+            />
+          )}
           {slot.type === 'blockScript' && (
             <ScriptVariables slot={slot} ids={ids} activeId={activeId} playing={playing} />
           )}
@@ -483,7 +524,8 @@ function AssetInspector({ id }: { id: string }) {
           </span>
         </Row>
       )}
-      {entry.type !== 'model' && (
+      {entry.type === 'audio' && <SoundPreviewButton value={`audio:${entry.id}`} />}
+      {(entry.type === 'scene' || entry.type === 'prefab' || entry.type === 'blockScript') && (
         <div className="add-component">
           <button
             type="button"

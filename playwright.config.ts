@@ -10,11 +10,14 @@ export const WEBGL_ARGS = [
   '--ignore-gpu-blocklist',
 ];
 
+/** CI runners without a GPU (Windows) draw in software and are several times slower. */
+const slow = process.platform === 'win32' && process.env['CI'] ? 3 : 1;
+
 export default defineConfig({
   testDir: 'e2e',
   outputDir: 'test-results',
-  timeout: 90_000,
-  expect: { timeout: 15_000 },
+  timeout: 90_000 * slow,
+  expect: { timeout: 15_000 * slow },
   fullyParallel: false,
   workers: 1,
   forbidOnly: Boolean(process.env['CI']),
