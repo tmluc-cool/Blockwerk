@@ -164,6 +164,7 @@ test.describe('phase 7: large projects', () => {
     await expect(editor.getByTestId('quick-insert')).toBeVisible();
     await page.keyboard.press('Enter');
     await expect.poll(types).toContain('events.whenKey');
+    await expect(editor.getByTestId('quick-insert')).toBeHidden();
 
     // The event block is selected, so the next block goes below it; its number field is open.
     await page.keyboard.type('gehe');

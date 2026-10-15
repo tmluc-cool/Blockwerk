@@ -350,7 +350,8 @@ export function installQuickInsert(context: QuickInsertContext): () => void {
 
   const open = (first: string): void => {
     before = Blockly.common.getSelected();
-    box = document.createElement('div');
+    const mine = document.createElement('div');
+    box = mine;
     box.className = 'bw-quick';
     box.dataset['testid'] = 'quick-insert';
     const input = document.createElement('input');
@@ -382,7 +383,8 @@ export function installQuickInsert(context: QuickInsertContext): () => void {
         apply(selected);
       }
     });
-    input.addEventListener('blur', () => window.setTimeout(() => box && close(), 150));
+    // A late blur of this popup must not close a newer one the user already opened.
+    input.addEventListener('blur', () => window.setTimeout(() => box === mine && close(), 150));
     input.value = first;
     input.focus();
     update();
