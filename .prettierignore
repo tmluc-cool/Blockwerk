@@ -14,3 +14,7 @@ THIRD_PARTY.md
 examples/*/Assets
 examples/*/Einstellungen
 examples/*/blockwerk.json
+apps/desktop/player-template
+apps/desktop/release
+export-out
+library

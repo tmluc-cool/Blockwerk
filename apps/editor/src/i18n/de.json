@@ -1001,5 +1001,6 @@
   "export.problem.noPlayer": "Der Spieler für den Web-Build fehlt in dieser Version des Editors.",
   "export.problem.noDesktop": "Dafür brauchst du die Desktop-Version von Blockwerk.",
   "export.problem.noWindowsApp": "Eine Windows-App baut nur die Windows-Version von Blockwerk.",
-  "export.problem.writeFailed": "Das Schreiben ist schiefgegangen: {message}"
+  "export.problem.writeFailed": "Das Schreiben ist schiefgegangen: {message}",
+  "build.graphics": "Grafikstufe"
 }

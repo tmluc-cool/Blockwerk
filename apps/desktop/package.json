@@ -10,12 +10,19 @@
     "build": "tsc -p tsconfig.json",
     "dev": "node scripts/dev.mjs",
     "start": "electron .",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dist": "electron-builder --config electron-builder.yml --publish never"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "typescript": "6.0.3",
     "vite": "8.3.4"
-  }
+  },
+  "dependencies": {
+    "rcedit": "^5.0.2"
+  },
+  "author": "Blockwerk contributors",
+  "homepage": "https://github.com/tmluc-cool/Blockwerk"
 }

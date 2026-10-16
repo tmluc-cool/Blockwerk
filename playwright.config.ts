@@ -35,6 +35,7 @@ export default defineConfig({
   },
   projects: [
     { name: 'editor', testDir: 'e2e/editor', use: { browserName: 'chromium' } },
+    { name: 'player', testDir: 'e2e/player', use: { browserName: 'chromium' } },
     { name: 'desktop', testDir: 'e2e/desktop' },
   ],
   webServer: externalUrl

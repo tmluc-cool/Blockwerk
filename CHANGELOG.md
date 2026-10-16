@@ -5,6 +5,19 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 9: Build and export
+
+- **File → Build Settings** (Ctrl+Shift+B): scene list with the start scene, platform, name, window
+  mode, graphics level, icon and start image; **Build** and **Build and Run**.
+- **Web build** as a folder and a ZIP (itch.io), also from the browser version of the editor.
+- **Windows app** (`<Name>.exe`): starts in fullscreen, offline, without the editor, with a loading
+  screen and a settings menu; built by the Windows version of Blockwerk.
+- Only the assets a game uses are exported; scripts are compiled, so the game carries neither
+  Blockly nor the compiler. `CREDITS.txt` lists every third-party asset and the engine parts with
+  their licenses.
+- `pnpm export <project> --out <folder>` for the command line, `pnpm dist` for the installer and
+  the portable exe of Blockwerk, `release.yml` publishes a GitHub Release for every tag `v*`.
+
 ### Phase 8: Debugging
 
 - Scene check before every start: empty fields, broken references, empty condition slots, messages

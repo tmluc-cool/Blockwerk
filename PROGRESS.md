@@ -14,7 +14,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 6 | UI, menus, saving | done |
 | 7 | Large projects | done |
 | 8 | Debugging | in review |
-| 9 | Build and export | in progress |
+| 9 | Build and export | in review |
 | 10 | AI assistant | open |
 | 11 | Polish and final acceptance | open |
 
@@ -53,6 +53,35 @@ What exists already: the runtime (`Game`, `UiRenderer`, settings, saves, loading
 - **The browser editor can export Web only**; Windows export needs the desktop editor (it holds the player template). The command line covers both.
 - **No code signing**: Windows shows its SmartScreen notice for unsigned apps; documented in the release notes.
 - **Scripts are exported as compiled JavaScript** (no Blockly, no compiler in the player).
+
+### Result
+
+**Implemented**
+
+- **Export package** (`packages/export`): `buildGame` walks the scenes of the build and everything they use (prefabs, dialogs, UI canvases, scripts, models, sounds, images, terrains, library models; also IDs named in block fields and Code blocks), compiles the scripts without debug hooks and writes `game/game.json` plus the used files; unused assets stay out. `CREDITS.txt` lists every third-party asset with author, license and source and the engine parts. Repeatable (sorted, no clock). `assembleWebBuild` and `zipFiles` make the web build.
+- **Player** (`apps/player`): a Vite page that loads a game pack with a loading screen, runs the game (renderer, input, gamepad, pointer lock, UI layer, settings menu, pause, saves, scene changes with the loading screen, fullscreen) and imports the runtime and nothing from the editor. The big part loads after the loading screen is visible. The built-in UI texts moved from the editor's i18n files into the runtime; the frame drawing (`drawGameFrame`) is shared with the Game view.
+- **Build Settings** (File → Build Settings, Ctrl+Shift+B): scene list with order and start scene, platform, name, window mode, graphics level, icon and start image, **Build** and **Build and Run** (Windows). New optional `build` section in `blockwerk.json`. The browser editor builds the web ZIP as a download; the desktop editor writes a folder and a ZIP.
+- **Windows app:** the player shell (`apps/desktop/src/playerMain.ts`, fullscreen by the build setting, no menu bar, no network, only the game's own files), the **player template** (`pnpm player-template`: Electron runtime of the system it runs on + shell + player page), `buildWindowsApp` (copies the template, game in `resources/game`, `<Name>.exe`, icon via `rcedit` on Windows) and the desktop export services. `pnpm export <project> --out … --platform web|windows|app` does the same without the editor.
+- **Installer and release:** `pnpm dist` builds, with electron-builder, the Windows installer (NSIS) and the portable exe of Blockwerk; both carry the editor, the asset library and the player template. `.github/workflows/release.yml`: a tag `v*` builds installer, portable exe, web version of the editor and the start package of the library, writes the changelog from the commits (`scripts/changelog.mjs`) and publishes a GitHub Release; changes to the workflow run the same as a dry run.
+- Documentation in `docs/export.md`.
+
+**Acceptance**
+
+- [x] (a) *`examples/05-quest` as a Windows app starts in fullscreen without the editor, offline, with loading screen and working settings.* `e2e/desktop/player.spec.ts` exports the quest, starts the app with the shell's self-check and reads the report: window in fullscreen, no menu bar, the game's name as the title, the game runs (30+ ticks) in the menu scene without a problem, no request left the app, no editor file in the app. Locally it ran with the Linux player template (same code, Linux Electron under `xvfb-run`); the same test builds and starts the real `.exe` on `windows-latest` in CI. The loading screen and the settings are checked in the web build (b), the same page.
+- [x] (b) *The web build runs in the browser; `CREDITS.txt` lists all third-party assets.* `e2e/player/web.spec.ts`: export with ZIP, served over HTTP, loading screen with the name, start click, main menu, settings (a slider changes and is kept), "Play" through the loading screen into the village, HUD, no console error, no request outside the page; `CREDITS.txt` names KayKit, CC0-1.0 and the engine. `packages/export` tests: only used assets, every library model of the pack exists, credits list only used sources.
+- [ ] (c) *A tag `v0.9.0` creates a release with installer, web version, changelog and start package.* The workflow runs as a dry run on this pull request (same steps, nothing published); the real tag publishes on GitHub and waits for the user's go (see the pull request).
+- [x] Unit tests for the exporter, the web assembly and ZIP, the Windows app builder and the icon file, the changelog script and the build settings schema; end-to-end for Build Settings in the editor.
+- [x] `pnpm test` (532 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 74/74 locally (editor, player and desktop projects under `xvfb-run`).
+- [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
+
+**Open / not done**
+
+- **No code signing:** Windows shows its SmartScreen notice for the installer and for exported apps (noted in the release text and `docs/export.md`).
+- **A Windows app needs the Windows version of Blockwerk** (it carries the Windows player template); Linux and macOS builds of the app are not offered (the template step works there, the editor offers Windows only).
+- **"Build and Run" is for the Windows app only**; a web build cannot start from a folder without a server.
+- The player template adds about 250 MB to the installer (an Electron runtime per exported game is how Electron apps are made).
+- Sounds, images in menus and terrains are loaded completely before the game starts; very large games would want streaming.
+- Phase 6 leftovers stay (no undo in the UI Editor, no gamepad navigation in menus, saves do not hold NPCs, doors and chests); breakpoints are not saved (phase 8).
 
 ## Phase 8: Debugging
 

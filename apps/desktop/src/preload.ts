@@ -32,6 +32,24 @@ export interface DesktopApi {
     remove(root: string, path: string): Promise<void>;
     rename(root: string, from: string, to: string): Promise<void>;
   };
+  readonly exporter: {
+    chooseFolder(): Promise<string | null>;
+    writeFiles(folder: string, files: readonly ExportFile[], clean: boolean): Promise<void>;
+    windowsAvailable(): Promise<boolean>;
+    buildWindows(options: {
+      readonly folder: string;
+      readonly name: string;
+      readonly files: readonly ExportFile[];
+      readonly icon: Uint8Array | null;
+    }): Promise<{ readonly exe: string; readonly warnings: readonly string[] }>;
+    run(path: string): Promise<void>;
+  };
+}
+
+/** A file the desktop app writes for an export. */
+interface ExportFile {
+  readonly path: string;
+  readonly data: Uint8Array | string;
 }
 
 const api: DesktopApi = {
@@ -54,6 +72,18 @@ const api: DesktopApi = {
     list: (root, path) => ipcRenderer.invoke('fs:list', root, path) as Promise<FileEntry[]>,
     remove: (root, path) => ipcRenderer.invoke('fs:remove', root, path) as Promise<void>,
     rename: (root, from, to) => ipcRenderer.invoke('fs:rename', root, from, to) as Promise<void>,
+  },
+  exporter: {
+    chooseFolder: () => ipcRenderer.invoke('export:chooseFolder') as Promise<string | null>,
+    writeFiles: (folder, files, clean) =>
+      ipcRenderer.invoke('export:writeFiles', folder, files, clean) as Promise<void>,
+    windowsAvailable: () => ipcRenderer.invoke('export:windowsAvailable') as Promise<boolean>,
+    buildWindows: (options) =>
+      ipcRenderer.invoke('export:buildWindows', options) as Promise<{
+        exe: string;
+        warnings: string[];
+      }>,
+    run: (path) => ipcRenderer.invoke('export:run', path) as Promise<void>,
   },
 };
 

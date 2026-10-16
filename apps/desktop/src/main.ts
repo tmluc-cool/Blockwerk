@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, net, protocol } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { join, normalize, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { registerExporter } from './exporter';
 import { registerProjectFiles } from './projectFiles';
 
 /**
@@ -29,7 +30,10 @@ const CONTENT_SECURITY_POLICY = [
 
 const devServerUrl = process.env['BLOCKWERK_EDITOR_URL'];
 const editorDist = normalize(
-  process.env['BLOCKWERK_EDITOR_DIST'] ?? join(__dirname, '..', '..', 'editor', 'dist'),
+  process.env['BLOCKWERK_EDITOR_DIST'] ??
+    (app.isPackaged
+      ? join(process.resourcesPath, 'editor')
+      : join(__dirname, '..', '..', 'editor', 'dist')),
 );
 
 /** The asset library (`pnpm assets:fetch`); packaged apps carry it in their resources. */
@@ -127,6 +131,7 @@ void app.whenReady().then(() => {
     mainWindow = null;
   });
   registerProjectFiles(() => mainWindow);
+  registerExporter();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });

@@ -1,0 +1,133 @@
+name: Release
+
+# A tag `v*` builds the Windows installer and the portable exe of Blockwerk, the web version of the
+# editor and the start package of the asset library, writes the changelog from the commits and
+# publishes all of it as a GitHub Release (SPEC 9.5). Changes to this workflow and to the
+# packaging run the same build as a dry run (nothing is published).
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - apps/desktop/electron-builder.yml
+      - apps/desktop/src/playerMain.ts
+      - scripts/build-player-template.mjs
+      - scripts/changelog.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    name: Windows installer, web version, start package
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The changelog needs the history and the earlier tags.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-dryrun" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The previews of the asset library are rendered in a browser.
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Cache asset library
+        uses: actions/cache@v4
+        with:
+          path: library
+          key: library-${{ runner.os }}-${{ hashFiles('packages/library/sources/**', 'packages/library/scripts/**', 'pnpm-lock.yaml') }}
+
+      - name: Build asset library
+        run: pnpm assets:fetch
+
+      - name: Build
+        run: pnpm build
+
+      - name: Build player template (the Windows player that exported games are made from)
+        run: pnpm player-template
+
+      - name: Installer and portable exe
+        env:
+          # No code signing: Windows shows its SmartScreen notice (see docs/export.md).
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          pnpm --filter @blockwerk/desktop exec npm pkg set version=${{ steps.version.outputs.version }}
+          pnpm --filter @blockwerk/desktop dist
+
+      - name: Collect release files
+        run: |
+          mkdir release-assets
+          cp apps/desktop/release/*.exe release-assets/
+          powershell -NoProfile -Command "Compress-Archive -Path apps/editor/dist/* -DestinationPath release-assets/Blockwerk-web-${{ steps.version.outputs.version }}.zip"
+          powershell -NoProfile -Command "Compress-Archive -Path library -DestinationPath release-assets/Blockwerk-start-package-${{ steps.version.outputs.version }}.zip"
+          ls -la release-assets
+
+      - name: Changelog
+        run: |
+          current="${GITHUB_REF_NAME}"
+          [[ "$GITHUB_REF" == refs/tags/v* ]] || current=HEAD
+          previous="$(git describe --tags --abbrev=0 "${current}^" 2>/dev/null || true)"
+          node scripts/changelog.mjs "$previous" "$current" > release-notes.md
+          {
+            echo
+            echo "### Notes"
+            echo
+            echo "- The Windows installer and the portable exe are not code signed; Windows may ask once whether to run them."
+            echo "- The web version of the editor expects the asset library in a \`library/\` folder next to it: unpack the start package there."
+          } >> release-notes.md
+          cat release-notes.md
+
+      - name: Keep the files of this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.version.outputs.version }}
+          path: |
+            release-assets/
+            release-notes.md
+          retention-days: 14
+
+      - name: Publish the release
+        if: steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=()
+          [[ "${{ steps.version.outputs.tag }}" == *-* ]] && flags+=(--prerelease)
+          gh release create "${{ steps.version.outputs.tag }}" release-assets/* \
+            --title "Blockwerk ${{ steps.version.outputs.tag }}" \
+            --notes-file release-notes.md \
+            "${flags[@]}"
