@@ -1,0 +1,36 @@
+# Installer and portable exe of the Blockwerk editor (`pnpm dist`, SPEC 9.5).
+# Build order: `pnpm build`, `pnpm player-template`, then electron-builder.
+appId: org.blockwerk.editor
+productName: Blockwerk
+copyright: Blockwerk contributors, MIT License
+directories:
+  output: release
+files:
+  - dist/**
+  - package.json
+  # The player shell and its preload are only for the player template.
+  - '!dist/playerMain.js*'
+  - '!dist/playerPreload.js*'
+extraResources:
+  # The editor page, the asset library (`pnpm assets:fetch`) and the player template.
+  - from: ../editor/dist
+    to: editor
+  - from: ../../library
+    to: library
+    filter:
+      - '**/*'
+  - from: player-template
+    to: player-template
+# The icon tool runs as a program and cannot start from inside an archive.
+asarUnpack:
+  - '**/node_modules/rcedit/**'
+win:
+  target:
+    - nsis
+    - portable
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}

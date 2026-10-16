@@ -24,6 +24,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `blockly` | 13.3.0 | Apache-2.0 | runtime | apps/editor |
 | `dockview-react` | 8.5.1 | MIT | runtime | apps/editor |
 | `electron` | 44.7.0 | MIT | development | apps/desktop |
+| `electron-builder` | 26.15.3 | MIT | development | apps/desktop |
 | `eslint` | 10.12.0 | MIT | development | (root) |
 | `eslint-plugin-react-hooks` | 7.1.1 | MIT | development | (root) |
 | `fflate` | 0.8.2 | MIT | development, runtime | packages/export, packages/library |
@@ -35,6 +36,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `playwright` | 1.56.1 | Apache-2.0 | development | packages/library |
 | `postprocessing` | 6.39.5 | Zlib | runtime | packages/runtime |
 | `prettier` | 3.9.10 | MIT | development | (root) |
+| `rcedit` | 5.0.2 | MIT | development | apps/desktop |
 | `react` | 19.3.0 | MIT | runtime | apps/editor |
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
 | `recast-navigation` | 0.43.1 | MIT | runtime | packages/runtime |
@@ -68,6 +70,7 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `@csstools/css-tokenizer` | 4.0.2 | MIT |
 | `@dimforge/rapier3d-compat` | 0.12.0, 0.21.0 | Apache-2.0 |
 | `@exodus/bytes` | 1.16.0 | MIT |
+| `@noble/hashes` | 2.4.0 | MIT |
 | `@recast-navigation/core` | 0.43.1 | MIT |
 | `@recast-navigation/generators` | 0.43.1 | MIT |
 | `@recast-navigation/three` | 0.43.1 | MIT |
