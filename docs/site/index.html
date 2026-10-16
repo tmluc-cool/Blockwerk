@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blockwerk</title>
+    <meta
+      name="description"
+      content="Blockwerk is a free, open-source 3D game engine: use it like Unity, program it with Scratch-like blocks."
+    />
+    <style>
+      :root {
+        color-scheme: dark light;
+        --bg: #17191d;
+        --panel: #25282e;
+        --text: #e6e9ef;
+        --dim: #a3abb8;
+        --accent: #f39a2b;
+        --link: #8ec1ff;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f1f2f5;
+          --panel: #ffffff;
+          --text: #1e2126;
+          --dim: #4d5563;
+          --accent: #b35f00;
+          --link: #0b57b7;
+        }
+      }
+      body {
+        margin: 0;
+        font:
+          16px/1.55 system-ui,
+          sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 32px 16px 64px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 40px;
+      }
+      h2 {
+        margin-top: 40px;
+        color: var(--accent);
+      }
+      a {
+        color: var(--link);
+      }
+      a:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .lead {
+        font-size: 20px;
+        color: var(--dim);
+      }
+      .hero {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+      .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 20px 0;
+      }
+      .buttons a {
+        padding: 10px 18px;
+        font-weight: 600;
+        text-decoration: none;
+        color: #1a1206;
+        background: var(--accent);
+        border-radius: 6px;
+      }
+      .buttons a.secondary {
+        color: var(--text);
+        background: var(--panel);
+        border: 1px solid var(--dim);
+      }
+      ul.games {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+        padding: 0;
+        list-style: none;
+      }
+      ul.games li {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px;
+        background: var(--panel);
+        border-radius: 8px;
+      }
+      ul.games span {
+        color: var(--dim);
+        font-size: 14px;
+      }
+      footer {
+        margin-top: 48px;
+        color: var(--dim);
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Blockwerk</h1>
+      <p class="lead">
+        Use it like Unity, program it like Scratch, play it like a real game. Free, open source,
+        offline, no account.
+      </p>
+      <img
+        class="hero"
+        src="screenshots/phase-02.png"
+        alt="The Blockwerk editor with the village example: Hierarchy, Scene view, Inspector and Project window."
+      />
+      <div class="buttons">
+        <a href="editor/">Open the editor in your browser</a>
+        <a class="secondary" href="https://github.com/tmluc-cool/Blockwerk/releases"
+          >Download for Windows</a
+        >
+        <a class="secondary" href="https://github.com/tmluc-cool/Blockwerk">Source on GitHub</a>
+      </div>
+
+      <h2>Play the examples</h2>
+      <p>These games were made with Blockwerk and run right here in your browser.</p>
+      <ul class="games">
+        <!-- games -->
+      </ul>
+
+      <h2>Learn</h2>
+      <ul>
+        <li>
+          Start the tutorial inside the editor: <strong>Help → Tutorial</strong> (your first world
+          in 10 minutes).
+        </li>
+        <li>
+          <a href="https://github.com/tmluc-cool/Blockwerk/blob/main/docs/tutorial.md">Tutorial</a>,
+          <a href="https://github.com/tmluc-cool/Blockwerk/blob/main/docs/templates.md">templates</a
+          >,
+          <a href="https://github.com/tmluc-cool/Blockwerk/blob/main/docs/export.md"
+            >building and exporting a game</a
+          >,
+          <a href="https://github.com/tmluc-cool/Blockwerk/blob/main/docs/ai.md"
+            >the optional AI assistant</a
+          >
+        </li>
+        <li>
+          <a href="https://github.com/tmluc-cool/Blockwerk/tree/main/docs/reference"
+            >Reference of all blocks and components</a
+          >
+          with the Unity counterpart of each.
+        </li>
+      </ul>
+
+      <footer>
+        Blockwerk is MIT-licensed and not affiliated with Unity Technologies or the Scratch Team at
+        MIT. The models in the asset library are CC0. The editor and the engine come in English and
+        German (Deutsch).
+      </footer>
+    </main>
+  </body>
+</html>

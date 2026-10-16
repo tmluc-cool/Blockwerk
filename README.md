@@ -9,9 +9,14 @@ and a play mode. The game logic, however, is built with Scratch-like command blo
 The editor and the engine are available in **English and German**; everything else in this
 repository (documentation, issues, pull requests) is in English.
 
+![A short tour of the editor: Scene view, Inspector, block script and Play mode](docs/screenshots/editor-tour.gif)
+
+**[Try it in your browser](https://tmluc-cool.github.io/Blockwerk/)**: the editor and playable example
+games, nothing to install (available once GitHub Pages is switched on for the repository).
+
 ![Blockwerk editor with the village example from phase 2](docs/screenshots/phase-02.png)
 
-> **Status:** early development. Phases 0 to 10 are done (editor, block scripts, asset library,
+> **Status:** the last phase (11, polish and the final game) is in progress. Phases 0 to 10 are done (editor, block scripts, asset library,
 > player, physics, environment, NPCs, UI and saving, large projects, debugging, build and export,
 > and an optional AI assistant with your own key, see [docs/ai.md](docs/ai.md)). To try it out:
 > "File → Open Example Project" or "File → New Project from Template" (five small games,
@@ -42,6 +47,9 @@ pnpm docs:reference # regenerate docs/reference (all blocks and components, with
 ```
 
 Details on the layout, the rules and how to contribute are in [CONTRIBUTING.md](CONTRIBUTING.md).
+New here? [docs/good-first-issues.md](docs/good-first-issues.md) lists small tasks to start with.
+`pnpm tour` records the animated tour above and `pnpm site` builds the web site (see
+[docs/site/](docs/site/)).
 
 ## Unity terms in Blockwerk
 

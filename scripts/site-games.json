@@ -1,0 +1,50 @@
+[
+  {
+    "slug": "held",
+    "folder": "examples/03-held",
+    "title": "Hero",
+    "about": "Third-person hero with an obstacle course, double jump and camera."
+  },
+  {
+    "slug": "landschaft",
+    "folder": "examples/04-landschaft",
+    "title": "Landscape",
+    "about": "Terrain, water, weather and a day and night cycle."
+  },
+  {
+    "slug": "quest",
+    "folder": "examples/05-quest",
+    "title": "Quest",
+    "about": "Village with NPCs, dialogs, enemies, items, menus and saving."
+  },
+  {
+    "slug": "abenteuer",
+    "folder": "templates/abenteuer",
+    "title": "Template: Adventure",
+    "about": "Collect coins and reach the flag."
+  },
+  {
+    "slug": "arena",
+    "folder": "templates/arena",
+    "title": "Template: Arena",
+    "about": "First-person shooter against skeletons."
+  },
+  {
+    "slug": "plattformer",
+    "folder": "templates/plattformer",
+    "title": "Template: Platformer",
+    "about": "Jump over the void and collect gems."
+  },
+  {
+    "slug": "koop",
+    "folder": "templates/koop",
+    "title": "Template: Co-op",
+    "about": "Two players in split screen share a coin counter."
+  },
+  {
+    "slug": "rennen",
+    "folder": "templates/rennen",
+    "title": "Template: Racing",
+    "about": "Laps with a halfway line."
+  }
+]
