@@ -20,6 +20,7 @@ export const blockScript = defineComponent({
       type: 'asset',
       default: null,
       assetType: 'blockScript',
+      required: true,
       text: { de: 'Skript', en: 'Script' },
     },
   },

@@ -24,6 +24,7 @@ const fields = {
   ui: {
     type: 'asset',
     assetType: 'ui',
+    required: true,
     default: null,
     text: { de: 'UI-Leinwand', en: 'UI Canvas' },
   },

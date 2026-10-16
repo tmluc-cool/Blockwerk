@@ -220,3 +220,6 @@ export { cloneValue, valueToText } from './game/values';
 export type { UiFrame, UiHost, UiLoading } from './ui/UiRenderer';
 export { UI_STRING_KEYS } from './ui/strings';
 export type { UiStringKey, UiStrings } from './ui/strings';
+export { checkWorld } from './check/checkWorld';
+export type { CheckContext, EmptySlot, ScriptFacts, SentMessage } from './check/checkWorld';
+export type { Problem, ProblemCode, ProblemLink } from './check/problems';

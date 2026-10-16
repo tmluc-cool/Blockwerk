@@ -15,6 +15,7 @@ import type { Quaternion } from 'three';
 import * as THREE from 'three';
 import { MathUtils, Plane, Raycaster, Vector2, Vector3 } from 'three';
 import { colliderRegistry } from '../components/colliders';
+import type { Problem } from '../check/problems';
 import { errorLine } from '../scripts';
 import type { SceneApi } from './api';
 import { cloneValue, dictOps, valueToText, listOps } from './values';
@@ -102,6 +103,12 @@ export type GameLogEntry =
       readonly blockId: string | null;
     }
   | {
+      /** A problem the game found while running (the same kind the scene check lists). */
+      readonly level: 'error' | 'warning' | 'info';
+      readonly kind: 'problem';
+      readonly problem: Problem;
+    }
+  | {
       /** A message of the "write to log" block. */
       readonly level: 'info' | 'warning' | 'error';
       readonly kind: 'userLog';
@@ -178,6 +185,10 @@ interface Thread {
   readonly asset: ScriptAsset;
   readonly iterator: Generator<void, void, void>;
   done: boolean;
+  /** Whether a "without screen refresh" loop of this thread used up its slice in this step. */
+  sliceHit: boolean;
+  /** In how many steps in a row it did (a loop that never ends keeps hitting it). */
+  slices: number;
 }
 
 interface ActiveDialog {
@@ -254,6 +265,11 @@ function isNumeric(value: unknown): boolean {
  */
 /** Passes of loops without screen refresh before the loop waits for the next frame. */
 const WARP_SLICE = 20000;
+/**
+ * A "without screen refresh" loop that used its whole slice in this many steps in a row (about
+ * five seconds) never ends: the script is stopped and the problem reported.
+ */
+const MAX_WARP_SLICES = 300;
 
 export class Game implements GameApi {
   readonly world: World;
@@ -325,6 +341,8 @@ export class Game implements GameApi {
     this.audio = options.audio ?? new AudioEngine();
     this.world.audio = this.audio;
     this.world.showNpcStates = true;
+    this.world.onProblem = (problem) =>
+      this.options.log?.({ level: problem.severity, kind: 'problem', problem });
     this.characterSounds = new CharacterSounds(this.world, this.audio, this.random_);
     const rapier = loadedRapier();
     this.physics = rapier
@@ -1099,7 +1117,9 @@ export class Game implements GameApi {
    */
   warpTick(): boolean {
     this.warpCount += 1;
-    return this.warpCount % WARP_SLICE === 0;
+    if (this.warpCount % WARP_SLICE !== 0) return false;
+    if (this.current) this.current.sliceHit = true;
+    return true;
   }
 
   // ---------------------------------------------------------------- GameApi: code blocks
@@ -2136,7 +2156,15 @@ export class Game implements GameApi {
       if (!restart) return null;
       this.kill(existing);
     }
-    const thread: Thread = { key, object, asset, iterator: entry.run(object, this), done: false };
+    const thread: Thread = {
+      key,
+      object,
+      asset,
+      iterator: entry.run(object, this),
+      done: false,
+      sliceHit: false,
+      slices: 0,
+    };
     this.running.set(key, thread);
     this.threads.push(thread);
     return thread;
@@ -2163,8 +2191,13 @@ export class Game implements GameApi {
       if (!thread.object.activeInHierarchy) continue;
       this.current = thread;
       this.recentlyRun.set(thread.key, { thread, tick: this.tick });
+      thread.sliceHit = false;
       try {
         if (thread.iterator.next().done) this.finish(thread);
+        else if (thread.sliceHit) {
+          thread.slices += 1;
+          if (thread.slices >= MAX_WARP_SLICES) this.stopRunaway(thread);
+        } else thread.slices = 0;
       } catch (error) {
         this.finish(thread);
         this.report(thread, error);
@@ -2173,6 +2206,27 @@ export class Game implements GameApi {
       }
     }
     this.threads = this.threads.filter((thread) => !thread.done);
+  }
+
+  /** Stops a script whose loop never waits for the next frame and tells the console. */
+  private stopRunaway(thread: Thread): void {
+    const line = errorLine(new Error(), thread.asset.sourceUrl);
+    const blockId = line === null ? null : (thread.asset.lineToBlock[line] ?? null);
+    this.kill(thread);
+    this.options.log?.({
+      level: 'error',
+      kind: 'problem',
+      problem: {
+        severity: 'error',
+        code: 'loopWithoutWaiting',
+        params: { object: thread.object.name },
+        link: {
+          objectId: thread.object.cloneOf ?? thread.object.id,
+          assetId: thread.asset.assetId,
+          ...(blockId ? { blockId } : {}),
+        },
+      },
+    });
   }
 
   private finish(thread: Thread): void {

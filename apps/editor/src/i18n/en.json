@@ -956,5 +956,17 @@
   "refactor.renameVariable": "Rename variable everywhere",
   "blocks.findUsages": "All usages",
   "blockEditor.codeView": "Code view",
-  "blockEditor.codeViewReadOnly": "read-only"
+  "blockEditor.codeViewReadOnly": "read-only",
+  "check.emptyReference": "{object}: The field \"{field}\" of the \"{component}\" component is empty.",
+  "check.brokenAssetReference": "{object}: The field \"{field}\" ({component}) points to a file that does not exist.",
+  "check.brokenObjectReference": "{object}: The field \"{field}\" ({component}) points to an object that does not exist.",
+  "check.emptySlot": "A slot is empty in the script {script}: {block}",
+  "check.messageWithoutReceiver": "{source} sends the message \"{message}\", but no script receives it.",
+  "check.npcOutsideNavigation": "The NPC {object} stands outside the navigation mesh and finds no way.",
+  "check.npcWithoutNavigation": "The scene has NPCs ({count}, for example {object}) but no navigation mesh: a ground with a collider is missing.",
+  "check.playerWithoutCamera": "The player {object} has no camera: the scene has no Camera component.",
+  "check.modelWithoutCollider": "{count} objects with a model have no collider (for example {object}): figures walk through them.",
+  "check.figureWithoutAnimation": "The figure {object} has no animation for \"{animation}\".",
+  "check.noPathToTarget": "The NPC {object} finds no way to {target}: it stands outside the navigation mesh.",
+  "check.loopWithoutWaiting": "The script {script} of {object} was stopped: a loop never waits for the next frame."
 }

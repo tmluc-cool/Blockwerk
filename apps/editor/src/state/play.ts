@@ -3,6 +3,7 @@ import type { ProjectLibrary, ProjectScript } from '@blockwerk/compiler';
 import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SaveData, SceneData } from '@blockwerk/project';
 import { Game, initPhysics, loadedRapier, loadScriptModule, setQuality } from '@blockwerk/runtime';
+import type { Problem } from '@blockwerk/runtime';
 import type { GamepadSnapshot } from '@blockwerk/runtime';
 import type {
   CarryState,
@@ -29,6 +30,8 @@ import {
   worldUpdated,
 } from '../scene/worlds';
 import { useConsole } from './console';
+import { checkScene } from '../document/sceneCheck';
+import { useSettings } from './settings';
 import { editScene, prefabSource, useDocument } from './document';
 
 /** A value changed while playing that can be kept after stopping. */
@@ -206,7 +209,12 @@ function hotReload(): void {
 
 function logGame(entry: GameLogEntry): void {
   const log = useConsole.getState();
-  if (entry.kind === 'scriptError') {
+  if (entry.kind === 'problem') {
+    logProblem(entry.problem);
+    if (entry.level === 'error' && log.errorPause && usePlay.getState().status === 'playing') {
+      pause();
+    }
+  } else if (entry.kind === 'scriptError') {
     log.log(
       'error',
       'console.scriptError',
@@ -398,6 +406,39 @@ function createGame(scene: SceneData, extras: GameExtras): Game {
   });
 }
 
+/** Texts in the interface language: the check hands both, `fieldEn` / `componentEn` are English. */
+function problemParams(problem: Problem, german: boolean): Record<string, string> {
+  const params: Record<string, string> = { ...problem.params };
+  if (!german) {
+    if (params['componentEn']) params['component'] = params['componentEn'];
+    if (params['fieldEn']) params['field'] = params['fieldEn'];
+  }
+  delete params['componentEn'];
+  delete params['fieldEn'];
+  return params;
+}
+
+/** Writes a problem to the console, with the script name filled in where the problem has a script. */
+function logProblem(problem: Problem): void {
+  const { project } = useDocument.getState();
+  const locale = useSettings.getState().locale;
+  const params = problemParams(problem, locale === 'de');
+  const assetId = problem.link.assetId;
+  const entry = assetId ? project?.asset(assetId) : undefined;
+  if (entry && params['script'] === undefined) params['script'] = assetDisplayName(entry.path);
+  useConsole.getState().log(problem.severity, `check.${problem.code}`, params, problem.link);
+}
+
+/** Checks a freshly built scene and lists the problems in the console (nothing stops the game). */
+export function runSceneCheck(built: Game): number {
+  const { project } = useDocument.getState();
+  if (!project) return 0;
+  const locale = useSettings.getState().locale;
+  const problems = checkScene(built.world, { project, displayName: assetDisplayName, locale });
+  for (const problem of problems) logProblem(problem);
+  return problems.length;
+}
+
 /** IDs of the game variables (of all block scripts) that belong in a save. */
 function savedVariableIds(): Set<string> {
   const ids = new Set<string>();
@@ -454,6 +495,7 @@ function beginSceneChange(request: SceneRequest): void {
     });
     next.audio.setMuted(useMute.getState().muted);
     next.world.updateSun();
+    runSceneCheck(next);
     game = next;
     setPlayWorld(next.world);
     old.dispose();
@@ -521,6 +563,7 @@ export function play(options: PlayOptions = {}): void {
     sceneName: openScene ? assetDisplayName(openScene.path) : undefined,
   });
   game.audio.setMuted(useMute.getState().muted);
+  runSceneCheck(game);
   // The Play click allows sound in the browser.
   game.audio.resume();
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.

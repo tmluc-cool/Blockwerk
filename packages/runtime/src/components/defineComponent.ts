@@ -17,6 +17,8 @@ interface FieldBase {
   readonly hidden?: boolean;
   /** Shown only while another field is empty (`null` or `""`) or, with `empty: false`, set. */
   readonly visibleIf?: { readonly field: string; readonly empty: boolean };
+  /** An empty value is a mistake the scene check reports (a script component without a script). */
+  readonly required?: boolean;
 }
 
 /** Whether a field is shown for the given values (see `visibleIf`). */

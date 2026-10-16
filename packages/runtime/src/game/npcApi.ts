@@ -78,7 +78,7 @@ export function* navigateTo(
   const target = resolveNearest(context, self, ref);
   if (!agent || !target) return;
   commands.clear(self);
-  if (!agent.moveTo(target.worldPosition())) return;
+  if (!agent.moveTo(target.worldPosition(), target)) return;
   for (let waited = 0; agent.moving && waited < GO_TO_TIMEOUT; waited += tick) yield;
 }
 

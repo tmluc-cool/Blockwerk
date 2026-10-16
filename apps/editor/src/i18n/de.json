@@ -956,5 +956,17 @@
   "refactor.renameVariable": "Variable überall umbenennen",
   "blocks.findUsages": "Alle Verwendungen",
   "blockEditor.codeView": "Code-Ansicht",
-  "blockEditor.codeViewReadOnly": "nur lesen"
+  "blockEditor.codeViewReadOnly": "nur lesen",
+  "check.emptyReference": "{object}: Das Feld „{field}“ der Komponente „{component}“ ist leer.",
+  "check.brokenAssetReference": "{object}: Das Feld „{field}“ ({component}) zeigt auf eine Datei, die es nicht gibt.",
+  "check.brokenObjectReference": "{object}: Das Feld „{field}“ ({component}) zeigt auf ein Objekt, das es nicht gibt.",
+  "check.emptySlot": "Im Skript {script} ist ein Steckplatz leer: {block}",
+  "check.messageWithoutReceiver": "{source} sendet die Nachricht „{message}“, aber kein Skript empfängt sie.",
+  "check.npcOutsideNavigation": "Der NPC {object} steht ausserhalb des Navigationsnetzes und findet keinen Weg.",
+  "check.npcWithoutNavigation": "Die Szene hat NPCs ({count}, zum Beispiel {object}), aber kein Navigationsnetz: Es fehlt ein Boden mit Collider.",
+  "check.playerWithoutCamera": "Der Spieler {object} hat keine Kamera: In der Szene gibt es keine Kamera-Komponente.",
+  "check.modelWithoutCollider": "{count} Objekte mit Modell haben keinen Collider (zum Beispiel {object}): Figuren laufen durch sie hindurch.",
+  "check.figureWithoutAnimation": "Die Figur {object} hat keine Animation für „{animation}“.",
+  "check.noPathToTarget": "Der NPC {object} findet keinen Weg zu {target}: Er steht ausserhalb des Navigationsnetzes.",
+  "check.loopWithoutWaiting": "Das Skript {script} von {object} wurde angehalten: Eine Schleife wartet nie auf das nächste Bild."
 }
