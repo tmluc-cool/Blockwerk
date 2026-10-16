@@ -1,0 +1,71 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "L",
+            "mode": "pressed"
+          },
+          "id": "t-1",
+          "next": {
+            "block": {
+              "extraState": {
+                "fn": "def-endless",
+                "library": "kaputtscr001",
+                "name": "endlos rechnen",
+                "params": []
+              },
+              "id": "t-2",
+              "type": "custom.callCommand"
+            }
+          },
+          "type": "events.whenKey"
+        },
+        {
+          "extraState": {
+            "warp": true
+          },
+          "fields": {
+            "name": "endlos rechnen"
+          },
+          "id": "def-endless",
+          "next": {
+            "block": {
+              "id": "t-5",
+              "inputs": {
+                "body": {
+                  "block": {
+                    "fields": {
+                      "variable": {
+                        "id": "kaputtvar001"
+                      }
+                    },
+                    "id": "t-3",
+                    "inputs": {
+                      "by": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "t-4",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "variables.change"
+                  }
+                }
+              },
+              "type": "control.forever"
+            }
+          },
+          "type": "custom.defineCommand"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

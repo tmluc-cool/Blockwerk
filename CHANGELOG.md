@@ -5,6 +5,22 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 8: Debugging
+
+- Scene check before every start: empty fields, broken references, empty condition slots, messages
+  without a receiver, NPCs outside the navigation mesh, players without a camera, models without a
+  collider; each shown in the console in plain language (German and English) with a link.
+- Runtime problems explained: an NPC without a path, a figure without a walk animation, missing
+  scripts and prefabs.
+- "Write to log" block (info, warning, error).
+- Loop guard: an endless loop "without screen refresh" is stopped with an error; the editor keeps
+  responding.
+- Breakpoints (click, F9, optional condition), "Next block" (F10), "Continue"; the stopped block is
+  highlighted. Debug hooks exist only in the editor's play mode.
+- Play-mode Inspector shows running scripts and lets you change game and object variables live.
+- Profiler window: frame time by scripts, physics, rendering and UI; draw calls; triangles.
+- `examples/08-kaputt`: a scene with deliberate mistakes for trying all of this.
+
 ### Phase 7: Large projects
 
 - Lists and dictionaries as variable types and values (also in saves), with blocks to create, add,

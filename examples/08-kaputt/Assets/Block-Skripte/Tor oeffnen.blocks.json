@@ -1,0 +1,85 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "T",
+            "mode": "pressed"
+          },
+          "id": "t-6",
+          "next": {
+            "block": {
+              "fields": {
+                "level": "info"
+              },
+              "id": "t-7",
+              "inputs": {
+                "message": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Ich öffne das Tor"
+                    },
+                    "id": "t-8",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "message": "tor-auf",
+                    "target": "all"
+                  },
+                  "id": "t-9",
+                  "type": "control.sendMessage"
+                }
+              },
+              "type": "control.log"
+            }
+          },
+          "type": "events.whenKey"
+        },
+        {
+          "fields": {
+            "key": "G",
+            "mode": "pressed"
+          },
+          "id": "t-10",
+          "next": {
+            "block": {
+              "id": "t-13",
+              "inputs": {
+                "then": {
+                  "block": {
+                    "fields": {
+                      "level": "warning"
+                    },
+                    "id": "t-11",
+                    "inputs": {
+                      "message": {
+                        "shadow": {
+                          "fields": {
+                            "TEXT": "leer"
+                          },
+                          "id": "t-12",
+                          "type": "literal.text"
+                        }
+                      }
+                    },
+                    "type": "control.log"
+                  }
+                }
+              },
+              "type": "control.if"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

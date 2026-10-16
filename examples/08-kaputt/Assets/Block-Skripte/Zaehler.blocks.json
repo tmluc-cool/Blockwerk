@@ -1,0 +1,94 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 0,
+      "id": "kaputtvar001",
+      "inspector": false,
+      "name": "punkte",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "Z",
+            "mode": "pressed"
+          },
+          "id": "t-14",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "kaputtvar001"
+                }
+              },
+              "id": "t-15",
+              "inputs": {
+                "by": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "t-16",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "variable": {
+                      "id": "kaputtvar001"
+                    }
+                  },
+                  "id": "t-17",
+                  "inputs": {
+                    "by": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 10
+                        },
+                        "id": "t-18",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "fields": {
+                        "variable": {
+                          "id": "kaputtvar001"
+                        }
+                      },
+                      "id": "t-19",
+                      "inputs": {
+                        "by": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 100
+                            },
+                            "id": "t-20",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "type": "variables.change"
+                    }
+                  },
+                  "type": "variables.change"
+                }
+              },
+              "type": "variables.change"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

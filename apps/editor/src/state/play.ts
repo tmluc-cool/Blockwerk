@@ -252,6 +252,8 @@ function logGame(entry: GameLogEntry): void {
       { object: entry.objectName, asset: entry.assetId ?? '–' },
       { objectId: entry.objectId },
     );
+  } else if (entry.kind === 'missingScript' && entry.assetId === null) {
+    // An empty script field: the scene check before the start already reported it.
   } else {
     log.log(
       'warning',
@@ -667,6 +669,7 @@ export function pause(): void {
   else if (status === 'paused') {
     // Continue after a breakpoint: the script that stopped goes on.
     useDebug.getState().setHit(null);
+    game?.debugResume();
     usePlay.setState({ status: 'playing' });
   }
 }

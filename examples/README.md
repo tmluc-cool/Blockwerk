@@ -13,7 +13,7 @@ section 10) and must run in play mode.
 | 4     | `04-landschaft`                                                    | done    |
 | 5     | `05-quest` (since phase 6 with main menu, pause, settings, saves)  | done    |
 | 7     | `07-gross` (86 block scripts, a script library with custom blocks) | done    |
-| 8     | `08-kaputt`                                                        | planned |
+| 8     | `08-kaputt` (five deliberate mistakes for the debugging tools)     | done    |
 | 11    | `endspiel`                                                         | planned |
 
 Phase 0 has no example project of its own: the project format and the play mode arrive in

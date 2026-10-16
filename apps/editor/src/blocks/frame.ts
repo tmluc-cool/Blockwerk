@@ -51,6 +51,23 @@ function mount(options: BlockFrameOptions): BlockFrameController {
   let running: Blockly.BlockSvg[] = [];
   let marked: Blockly.BlockSvg[] = [];
   let stoppedBlock: Blockly.BlockSvg | null = null;
+  /** Wanted marks; they are put on the blocks again whenever a script is loaded. */
+  let breakpointIds: readonly string[] = [];
+  let stoppedId: string | null = null;
+
+  const applyMarks = (): void => {
+    for (const block of marked) block.removeClass('bw-breakpoint');
+    marked = [];
+    for (const id of breakpointIds) {
+      const block = workspace?.getBlockById(id);
+      if (!block) continue;
+      block.addClass('bw-breakpoint');
+      marked.push(block);
+    }
+    stoppedBlock?.removeClass('bw-stopped');
+    stoppedBlock = stoppedId ? (workspace?.getBlockById(stoppedId) ?? null) : null;
+    stoppedBlock?.addClass('bw-stopped');
+  };
   let removeQuickInsert: (() => void) | null = null;
   FieldExpressionNumber.setVariableProvider(() => variables);
   setReferences(options.references);
@@ -150,6 +167,7 @@ function mount(options: BlockFrameOptions): BlockFrameController {
     document.body.dataset['empty'] = state === null ? 'true' : 'false';
     // Calls follow the definitions as they are now (they may have changed in another script).
     if (refreshCalls(workspace)) save();
+    applyMarks();
   };
 
   const create = (): void => {
@@ -287,19 +305,12 @@ function mount(options: BlockFrameOptions): BlockFrameController {
       }
     },
     setBreakpoints(blockIds) {
-      for (const block of marked) block.removeClass('bw-breakpoint');
-      marked = [];
-      for (const id of blockIds) {
-        const block = workspace?.getBlockById(id);
-        if (!block) continue;
-        block.addClass('bw-breakpoint');
-        marked.push(block);
-      }
+      breakpointIds = blockIds;
+      applyMarks();
     },
     setStoppedAt(blockId) {
-      stoppedBlock?.removeClass('bw-stopped');
-      stoppedBlock = blockId ? (workspace?.getBlockById(blockId) ?? null) : null;
-      stoppedBlock?.addClass('bw-stopped');
+      stoppedId = blockId;
+      applyMarks();
     },
     reveal(blockId) {
       const block = workspace?.getBlockById(blockId);
