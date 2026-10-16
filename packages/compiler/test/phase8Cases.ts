@@ -1,7 +1,7 @@
-import type { GameLogEntry } from '@blockwerk/runtime';
+import type { BreakpointCondition, DebugHit, GameLogEntry } from '@blockwerk/runtime';
 import { expect } from 'vitest';
 import { b, call, define, workspace } from './dsl';
-import { A, ground, hero, launch, run, when } from './phase3Cases';
+import { A, B, ground, hero, launch, run, when } from './phase3Cases';
 import type { RuntimeCase } from './phase3Cases';
 
 /** Runtime cases of the phase 8 blocks (debugging). */
@@ -80,6 +80,41 @@ export const phase8Cases: RuntimeCase[] = [
       run(game, 0.5);
       expect(game.tick).toBeGreaterThan(before);
       expect(game.vars[A]).toBeGreaterThan(1_000_000);
+    },
+  },
+  {
+    name: 'a breakpoint stops the script before its block, step goes one block on, continue finishes',
+    covers: ['variables.set'],
+    run: () => {
+      const hits: DebugHit[] = [];
+      const breakpoints = new Map<string, BreakpointCondition | null>();
+      const first = b('variables.set', { variable: { id: A } }, { value: 1 });
+      const second = b('variables.set', { variable: { id: A } }, { value: 2 });
+      const third = b('variables.set', { variable: { id: B } }, { value: 3 });
+      const game = launch({
+        debug: { breakpoints: () => breakpoints, onHit: (hit) => hits.push(hit) },
+        objects: { ground000001: ground, hero00000001: hero([], 'steps') },
+        scripts: { steps: workspace(when(b('events.whenGameStarts'), first, second, third)) },
+      });
+      breakpoints.set(`steps/${second.id}`, null);
+      // The editor pauses the game when a script stops, so the test stops ticking, too.
+      game.stepTick();
+      // Stopped before the second block: the first one ran, the second did not.
+      expect(hits.map((hit) => hit.blockId)).toEqual([second.id]);
+      expect(hits[0]).toMatchObject({ objectId: 'hero00000001', assetId: 'steps' });
+      expect(game.vars[A]).toBe(1);
+      expect(game.scriptPositions().map((position) => position.blockId)).toEqual([second.id]);
+      // Step: the second block runs, the script stops before the third.
+      game.debugStep();
+      game.stepTick();
+      expect(hits.map((hit) => hit.blockId)).toEqual([second.id, third.id]);
+      expect(game.vars[A]).toBe(2);
+      expect(game.vars[B]).toBe('');
+      // Continue: nothing stops any more, the script runs to its end.
+      breakpoints.clear();
+      run(game, 0.2);
+      expect(hits).toHaveLength(2);
+      expect(game.vars[B]).toBe(3);
     },
   },
 ];

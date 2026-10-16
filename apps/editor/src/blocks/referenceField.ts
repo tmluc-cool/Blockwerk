@@ -33,6 +33,8 @@ let references: FrameReferences = {
     goToDefinition: '',
     findUsages: '',
     extractBlock: '',
+    toggleBreakpoint: '',
+    breakpointCondition: '',
     missingBlock: '?',
     noInput: '',
     quickInsert: 'Search',

@@ -41,6 +41,8 @@ export interface CompileOptions {
   readonly variables?: readonly ScriptVariable[];
   /** Project-wide custom blocks this script may call (see {@link buildLibrary}). */
   readonly library?: ProjectLibrary;
+  /** Add the hooks for breakpoints and stepping (see `CodegenOptions.debug`). */
+  readonly debug?: boolean;
 }
 
 /** Result of compiling one block-script asset. */
@@ -150,7 +152,11 @@ export function compileBlockScript(workspace: unknown, options: CompileOptions):
     signatures: library.signatures,
   });
   const program = link(own, library);
-  const generated = generateCode(program, registry, { assetName: options.assetName, variables });
+  const generated = generateCode(program, registry, {
+    assetName: options.assetName,
+    variables,
+    ...(options.debug ? { debug: true } : {}),
+  });
   return { ...generated, program, diagnostics };
 }
 
@@ -158,6 +164,7 @@ export function compileBlockScript(workspace: unknown, options: CompileOptions):
 export function compileProject(
   scripts: readonly ProjectScript[],
   registry: BlockRegistry = defaultRegistry,
+  options: { readonly debug?: boolean } = {},
 ): Map<string, CompileResult> {
   const library = buildLibrary(scripts, registry);
   const results = new Map<string, CompileResult>();
@@ -170,6 +177,7 @@ export function compileProject(
         registry,
         variables: script.variables ?? [],
         library,
+        ...(options.debug ? { debug: true } : {}),
       }),
     );
   }

@@ -42,6 +42,8 @@ interface Hooks {
   onGoToDefinition: BlockFrameOptions['onGoToDefinition'];
   askName: BlockFrameOptions['askName'];
   onFindUsages: BlockFrameOptions['onFindUsages'];
+  onToggleBreakpoint: BlockFrameOptions['onToggleBreakpoint'];
+  onBreakpointCondition: BlockFrameOptions['onBreakpointCondition'];
 }
 
 let hooks: Hooks = {
@@ -50,6 +52,8 @@ let hooks: Hooks = {
   onGoToDefinition: () => undefined,
   askName: () => Promise.resolve(null),
   onFindUsages: () => undefined,
+  onToggleBreakpoint: () => undefined,
+  onBreakpointCondition: () => undefined,
 };
 
 /** Connects the custom block code to the editor (called once per mount). */
@@ -455,6 +459,26 @@ function registerContextMenu(): void {
     },
   });
   registry.register({
+    id: 'bw_toggle_breakpoint',
+    scopeType,
+    weight: 4,
+    displayText: () => currentReferences().labels.toggleBreakpoint,
+    preconditionFn: (scope) => (canBreak(scope.block) ? 'enabled' : 'hidden'),
+    callback: (scope) => {
+      if (scope.block) hooks.onToggleBreakpoint(scope.block.id);
+    },
+  });
+  registry.register({
+    id: 'bw_breakpoint_condition',
+    scopeType,
+    weight: 4.5,
+    displayText: () => currentReferences().labels.breakpointCondition,
+    preconditionFn: (scope) => (canBreak(scope.block) ? 'enabled' : 'hidden'),
+    callback: (scope) => {
+      if (scope.block) hooks.onBreakpointCondition(scope.block.id);
+    },
+  });
+  registry.register({
     id: 'bw_extract_custom_block',
     scopeType,
     weight: 3,
@@ -470,6 +494,13 @@ function registerContextMenu(): void {
       if (scope.block) void extractAsCustomBlock(scope.block as Blockly.BlockSvg);
     },
   });
+}
+
+/** Breakpoints sit on statement blocks (the ones that do something), not on hats or values. */
+export function canBreak(block: Blockly.Block | null | undefined): boolean {
+  if (!block || block.isShadow()) return false;
+  if (DEFINITION_TYPES.includes(block.type)) return false;
+  return block.previousConnection !== null;
 }
 
 /** The name a block stands for that the project search can look up: variable, block, message. */

@@ -134,7 +134,18 @@ export type { Locale, LocalizedText } from './text';
 export { loadScriptModule, ScriptModuleError } from './scripts';
 export type { CompiledScriptModule, ScriptEntry, ScriptEvent, ScriptThread } from './scripts';
 export { Game, TICK_SECONDS } from './game/Game';
-export type { GameLogEntry, GameOptions, ScriptAsset, VariableMonitor } from './game/Game';
+export type {
+  BreakpointCondition,
+  DebugHit,
+  GameDebug,
+  GameLogEntry,
+  GameOptions,
+  RunningScript,
+  ScriptAsset,
+  TickProfile,
+  VariableMonitor,
+  VariableReader,
+} from './game/Game';
 export type {
   Easing,
   GameApi,

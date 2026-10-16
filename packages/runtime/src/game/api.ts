@@ -241,6 +241,8 @@ export interface GameApi {
   distanceAhead(self: GameObject, meters: number): number;
 
   resetTimer(): void;
+  /** Debug hook before every block (debug play): `true` stops the script at this block. */
+  debugHit(blockId: string): boolean;
   /** Writes a message to the console ("write to log"). */
   writeLog(self: GameObject, level: 'info' | 'warning' | 'error', value: unknown): void;
   /** Stops all scripts of the game. */

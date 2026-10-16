@@ -14,6 +14,7 @@ import { DialogEditorPanel } from '../panels/DialogEditorPanel';
 import { SearchPanel } from '../panels/SearchPanel';
 import { UiEditorPanel } from '../panels/UiEditorPanel';
 import { NavigationPanel } from '../panels/NavigationPanel';
+import { ProfilerPanel } from '../panels/ProfilerPanel';
 import { ProjectPanel } from '../panels/ProjectPanel';
 import { ScenePanel } from '../panels/ScenePanel';
 import { installShortcuts } from '../shortcuts';
@@ -37,6 +38,7 @@ const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPane
   inspector: InspectorPanel,
   lighting: LightingPanel,
   navigation: NavigationPanel,
+  profiler: ProfilerPanel,
   project: ProjectPanel,
   assetLibrary: AssetLibraryPanel,
   console: ConsolePanel,

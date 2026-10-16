@@ -11,6 +11,7 @@ import {
 import type {
   AudioEngine,
   CarryState,
+  GameDebug,
   GameLogEntry,
   GameObject,
   SaveStorage,
@@ -130,6 +131,8 @@ export interface Scene {
   readonly uis?: Record<string, UiData>;
   readonly saves?: SaveStorage;
   readonly log?: (entry: GameLogEntry) => void;
+  /** Breakpoints and stepping; the scripts are compiled with the debug hooks. */
+  readonly debug?: GameDebug;
 }
 
 export function launch(scene: Scene): Game {
@@ -141,6 +144,8 @@ export function launch(scene: Scene): Game {
       workspace: source,
       variables: VARIABLES,
     })),
+    undefined,
+    scene.debug ? { debug: true } : {},
   );
   const assets = new Map([...compiled].map(([id, result]) => [id, toAsset(id, result)] as const));
   return new Game(
@@ -161,6 +166,7 @@ export function launch(scene: Scene): Game {
       spawn: scene.spawn,
       random: () => 0.5,
       ...(scene.log ? { log: scene.log } : {}),
+      ...(scene.debug ? { debug: scene.debug } : {}),
     },
   );
 }

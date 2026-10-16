@@ -26,6 +26,12 @@ export interface CodegenOptions {
   readonly assetName: string;
   /** Variables of the block script. */
   readonly variables?: readonly ScriptVariable[];
+  /**
+   * Debug hooks: before every statement block `if (game.debugHit("<blockId>")) yield;` lets the
+   * game stop there (breakpoints, stepping) and tell which block a script is at. Only the
+   * editor's play mode asks for it; exported games compile without.
+   */
+  readonly debug?: boolean;
 }
 
 const INDENT = '  ';
@@ -60,6 +66,7 @@ class Generator {
     private readonly registry: BlockRegistry,
     private readonly program: IRProgram,
     variables: readonly ScriptVariable[],
+    private readonly debug = false,
   ) {
     this.ownVariables = new Map(variables.map((variable) => [variable.id, variable]));
     this.variables = this.ownVariables;
@@ -149,12 +156,19 @@ class Generator {
         );
         return;
       case 'call':
+        this.debugHook(depth, blockId);
         w.line(depth, `yield* ${this.call(statement.functionId, statement.args)};`, blockId);
         return;
       case 'block':
         this.blockStatement(statement, depth);
         return;
     }
+  }
+
+  /** The line that lets the game stop before a block in debug play. */
+  private debugHook(depth: number, blockId: string | null): void {
+    if (!this.debug || blockId === null) return;
+    this.writer.line(depth, `if (game.debugHit(${JSON.stringify(blockId)})) yield;`, blockId);
   }
 
   private blockStatement(statement: Extract<IRStatement, { kind: 'block' }>, depth: number): void {
@@ -172,6 +186,7 @@ class Generator {
       args,
       this.meta(statement.blockId, statement.type, statement.args),
     );
+    this.debugHook(depth, this.fn?.external ? null : statement.blockId);
     for (const rawLine of code.split('\n')) {
       const leading = rawLine.length - rawLine.trimStart().length;
       const extraDepth = Math.floor(leading / INDENT.length);
@@ -379,5 +394,7 @@ export function generateCode(
   registry: BlockRegistry,
   options: CodegenOptions,
 ): GeneratedCode {
-  return new Generator(registry, program, options.variables ?? []).generate(options);
+  return new Generator(registry, program, options.variables ?? [], options.debug ?? false).generate(
+    options,
+  );
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   defaultRegistry,
+  evaluateExpression,
   ExpressionError,
   expressionToBlocks,
   isPlainNumber,
@@ -125,5 +126,33 @@ describe('what is an expression', () => {
     expect(looksLikeExpression('wenn taste')).toBe(false);
     expect(looksLikeExpression('42')).toBe(false);
     expect(looksLikeExpression('')).toBe(false);
+  });
+});
+
+describe('evaluateExpression', () => {
+  const read = (values: Record<string, unknown>) => (name: string) => values[name];
+  const check = (source: string, values: Record<string, unknown> = {}) =>
+    evaluateExpression(parseExpression(source), read(values));
+
+  it('calculates with the usual precedence and converts text to numbers', () => {
+    expect(check('x / 2 + 10', { x: 8 })).toBe(14);
+    expect(check('a * (b + 1)', { a: 3, b: '2' })).toBe(9);
+    expect(check('-x', { x: 4 })).toBe(-4);
+  });
+
+  it('compares, combines conditions and ignores case in equality', () => {
+    expect(check('punkte > 3 and name = "ADA"', { punkte: 4, name: 'ada' })).toBe(true);
+    expect(check('punkte > 3 and name = "ADA"', { punkte: 2, name: 'ada' })).toBe(false);
+    expect(check('not (a = b) or c', { a: 1, b: 1, c: true })).toBe(true);
+    expect(check('a != b', { a: 'x', b: 'y' })).toBe(true);
+  });
+
+  it('joins text and reads unknown names as nothing', () => {
+    expect(check('"Hallo " & name', { name: 'Welt' })).toBe('Hallo Welt');
+    expect(check('fehlt + 1')).toBe(1);
+  });
+
+  it('does not run function calls', () => {
+    expect(() => check('wurzel(4)')).toThrow();
   });
 });

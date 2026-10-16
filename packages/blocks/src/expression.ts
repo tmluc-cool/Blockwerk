@@ -240,6 +240,91 @@ export function parseExpression(source: string): Expression {
   return new Parser(tokenize(source), source.length).parse();
 }
 
+/** A value an expression can have. */
+export type ExpressionValue = number | string | boolean;
+
+function numeric(value: unknown): number {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'boolean') return value ? 1 : 0;
+  const parsed = Number(String(value ?? '').replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function truthy(value: unknown): boolean {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  const text = String(value ?? '').toLowerCase();
+  return text !== '' && text !== 'false' && text !== '0';
+}
+
+/**
+ * Evaluates an expression (for conditions of breakpoints) with the rules of the blocks: numbers
+ * and text convert into each other, `=` ignores case, `&` joins text. `read` gives the value of a
+ * name (a variable of the script); an unknown name reads as `undefined` and counts as 0 or "".
+ */
+export function evaluateExpression(
+  node: Expression,
+  read: (name: string) => unknown,
+): ExpressionValue {
+  switch (node.kind) {
+    case 'number':
+    case 'text':
+      return node.value;
+    case 'name': {
+      const value = read(node.name);
+      if (value === undefined || value === null) return 0;
+      if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
+        return value;
+      }
+      return JSON.stringify(value);
+    }
+    case 'unary': {
+      const operand = evaluateExpression(node.operand, read);
+      return node.op === '-' ? -numeric(operand) : !truthy(operand);
+    }
+    case 'call':
+      throw new ExpressionError(`"${node.name}" cannot be used in a condition`, 0);
+    case 'binary': {
+      const left = evaluateExpression(node.left, read);
+      if (node.op === 'and') return truthy(left) && truthy(evaluateExpression(node.right, read));
+      if (node.op === 'or') return truthy(left) || truthy(evaluateExpression(node.right, read));
+      const right = evaluateExpression(node.right, read);
+      switch (node.op) {
+        case '+':
+          return numeric(left) + numeric(right);
+        case '-':
+          return numeric(left) - numeric(right);
+        case '*':
+          return numeric(left) * numeric(right);
+        case '/':
+          return numeric(left) / numeric(right);
+        case '%':
+          return numeric(left) % numeric(right);
+        case '&':
+          return String(left) + String(right);
+        case '<':
+          return numeric(left) < numeric(right);
+        case '>':
+          return numeric(left) > numeric(right);
+        case '<=':
+          return numeric(left) <= numeric(right);
+        case '>=':
+          return numeric(left) >= numeric(right);
+        case '=':
+        case '!=': {
+          const equal =
+            typeof left === 'number' && typeof right === 'number'
+              ? left === right
+              : String(left).toLowerCase() === String(right).toLowerCase();
+          return node.op === '=' ? equal : !equal;
+        }
+        default:
+          return 0;
+      }
+    }
+  }
+}
+
 /** Whether a text is just a number (so no blocks are needed). */
 export function isPlainNumber(source: string): boolean {
   return /^\s*[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:e[+-]?\d+)?\s*$/i.test(source);

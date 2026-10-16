@@ -13,6 +13,7 @@ export type PanelId =
   | 'inspector'
   | 'lighting'
   | 'navigation'
+  | 'profiler'
   | 'project'
   | 'assetLibrary'
   | 'console';
@@ -39,6 +40,7 @@ export const PANELS: readonly PanelDefinition[] = [
   { id: 'figure', titleKey: 'panel.figure' },
   { id: 'lighting', titleKey: 'panel.lighting' },
   { id: 'navigation', titleKey: 'panel.navigation' },
+  { id: 'profiler', titleKey: 'panel.profiler' },
   { id: 'assetLibrary', titleKey: 'panel.assetLibrary' },
   { id: 'console', titleKey: 'panel.console' },
 ];

@@ -5,6 +5,7 @@ import { registerFieldColour } from '@blockly/field-colour';
 import * as Blockly from 'blockly/core';
 import type { Theme } from '../state/settings';
 import {
+  canBreak,
   createDefinitionBlock,
   refreshCalls,
   registerMyBlocksCategory,
@@ -48,6 +49,8 @@ function mount(options: BlockFrameOptions): BlockFrameController {
   let loading = false;
   let customJson = JSON.stringify(options.customBlocks);
   let running: Blockly.BlockSvg[] = [];
+  let marked: Blockly.BlockSvg[] = [];
+  let stoppedBlock: Blockly.BlockSvg | null = null;
   let removeQuickInsert: (() => void) | null = null;
   FieldExpressionNumber.setVariableProvider(() => variables);
   setReferences(options.references);
@@ -57,6 +60,8 @@ function mount(options: BlockFrameOptions): BlockFrameController {
     onGoToDefinition: options.onGoToDefinition,
     askName: options.askName,
     onFindUsages: options.onFindUsages,
+    onToggleBreakpoint: options.onToggleBreakpoint,
+    onBreakpointCondition: options.onBreakpointCondition,
   });
 
   const save = (): void => {
@@ -202,7 +207,18 @@ function mount(options: BlockFrameOptions): BlockFrameController {
   const onResize = (): void => {
     if (workspace) Blockly.svgResize(workspace);
   };
-  const onKeyDown = (event: KeyboardEvent): void => options.onKeyDown(event);
+  const onKeyDown = (event: KeyboardEvent): void => {
+    // F9 sets or removes a breakpoint on the selected block (as in most debuggers).
+    if (event.key === 'F9' && !event.ctrlKey && !event.altKey && !event.metaKey) {
+      const selected = Blockly.common.getSelected();
+      if (selected && selected instanceof Blockly.BlockSvg && canBreak(selected)) {
+        event.preventDefault();
+        options.onToggleBreakpoint(selected.id);
+        return;
+      }
+    }
+    options.onKeyDown(event);
+  };
   window.addEventListener('resize', onResize);
   window.addEventListener('keydown', onKeyDown);
   create();
@@ -269,6 +285,21 @@ function mount(options: BlockFrameOptions): BlockFrameController {
           running.push(block);
         }
       }
+    },
+    setBreakpoints(blockIds) {
+      for (const block of marked) block.removeClass('bw-breakpoint');
+      marked = [];
+      for (const id of blockIds) {
+        const block = workspace?.getBlockById(id);
+        if (!block) continue;
+        block.addClass('bw-breakpoint');
+        marked.push(block);
+      }
+    },
+    setStoppedAt(blockId) {
+      stoppedBlock?.removeClass('bw-stopped');
+      stoppedBlock = blockId ? (workspace?.getBlockById(blockId) ?? null) : null;
+      stoppedBlock?.addClass('bw-stopped');
     },
     reveal(blockId) {
       const block = workspace?.getBlockById(blockId);

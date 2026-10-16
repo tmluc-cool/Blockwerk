@@ -91,6 +91,46 @@ export interface ScriptAsset {
   readonly sourceUrl: string;
 }
 
+/** Where the time of a logic tick goes (milliseconds). */
+export interface TickProfile {
+  scripts: number;
+  physics: number;
+  /** NPC behavior and navigation. */
+  npc: number;
+  components: number;
+  other: number;
+}
+
+/** Reads a variable of the running script by its name (game variable, or the object's own). */
+export type VariableReader = (name: string) => VariableValue | undefined;
+
+/** A condition of a breakpoint: stops only if it is true. */
+export type BreakpointCondition = (read: VariableReader) => boolean;
+
+/** Where a script stopped. */
+export interface DebugHit {
+  readonly objectId: string;
+  readonly objectName: string;
+  readonly assetId: string;
+  readonly blockId: string;
+}
+
+/** What the editor gives the game for debugging (SPEC 9.2). */
+export interface GameDebug {
+  /** Breakpoints by `"<assetId>/<blockId>"`; `null` stops always, a function only if it is true. */
+  breakpoints(): ReadonlyMap<string, BreakpointCondition | null>;
+  /** A script stopped at a breakpoint or after a step. */
+  onHit(hit: DebugHit): void;
+}
+
+/** A script that is running, and the block it is at (debug play only). */
+export interface RunningScript {
+  readonly objectId: string;
+  readonly objectName: string;
+  readonly assetId: string;
+  readonly blockId: string | null;
+}
+
 /** Messages from the running game for the console. */
 export type GameLogEntry =
   | {
@@ -159,6 +199,8 @@ export interface GameOptions extends WorldOptions {
   /** Name of the spawn point the players start at (an object tagged `Spawn`). */
   readonly spawn?: string;
   readonly log?: (entry: GameLogEntry) => void;
+  /** Breakpoints and stepping (editor play mode only; scripts need the debug hooks to use it). */
+  readonly debug?: GameDebug;
   /** Random source in [0, 1); defaults to `Math.random`. */
   readonly random?: () => number;
   /** Creates IDs for clones. */
@@ -189,6 +231,8 @@ interface Thread {
   sliceHit: boolean;
   /** In how many steps in a row it did (a loop that never ends keeps hitting it). */
   slices: number;
+  /** The block it passed last (debug play). */
+  lastBlock: string | null;
 }
 
 interface ActiveDialog {
@@ -747,7 +791,13 @@ export class Game implements GameApi {
   /** Runs exactly one logic tick (Unity: Step), also while paused. */
   stepTick(): void {
     // Order of SPEC 8.1: input, components, scripts, character controllers, physics, events,
-    // spawn/destroy, animation, camera.
+    // spawn/destroy, animation, camera. The time of each part is kept for the Profiler.
+    let mark = performance.now();
+    const lap = (part: keyof TickProfile): void => {
+      const now = performance.now();
+      this.profile[part] += now - mark;
+      mark = now;
+    };
     this.input.beginTick();
     const pads = this.gamepadIndices();
     this.players[1].update(this.input, pads[1], TICK_SECONDS);
@@ -756,14 +806,18 @@ export class Game implements GameApi {
     this.updateTimers();
     this.deliverMessages();
     this.deliverObjectEvents();
+    lap('other');
     this.tickComponents('control');
+    lap('components');
     // While someone talks, the NPCs wait (nothing sneaks up on the player in a dialog).
     if (!this.dialog) {
       this.npcCommands.update(this.world, TICK_SECONDS, () => this.random_());
       this.updateNpcStates();
     }
+    lap('npc');
     this.updateDialog();
     this.updateInteraction();
+    lap('other');
     if (this.tick === 0) this.fire('start', () => true, false);
     this.fire('update', () => true, false);
     this.fire(
@@ -780,25 +834,34 @@ export class Game implements GameApi {
       (params) => params['phase'] !== 'held',
     );
     this.stepThreads(this.threads);
+    lap('scripts');
     this.physics?.sync();
     if (this.world.navigationInUse && !this.dialog) this.world.navigation.update(TICK_SECONDS);
+    lap('npc');
     this.tickComponents('character');
+    lap('components');
     if (this.physics) {
       this.physics.sync();
       this.physics.step();
       for (const event of this.physics.takeZoneEvents()) this.zoneEvent(event);
     }
+    lap('physics');
     this.touchEvents();
     this.processDestroyQueue();
+    lap('other');
     this.tickComponents('animate');
+    lap('components');
     this.animationEvents();
+    lap('other');
     this.tickComponents('camera');
+    lap('components');
     this.transitions.update(this.world, TICK_SECONDS);
     this.tick += 1;
     this.world.environment.advance(TICK_SECONDS);
     this.world.effects.update(TICK_SECONDS);
     this.world.updateSun();
     this.updateAudio();
+    lap('other');
   }
 
   /** Audio positions (SPEC 8.1): the listener, weather sounds, character sounds. */
@@ -1120,6 +1183,93 @@ export class Game implements GameApi {
     if (this.warpCount % WARP_SLICE !== 0) return false;
     if (this.current) this.current.sliceHit = true;
     return true;
+  }
+
+  // ---------------------------------------------------------------- debugging
+
+  /** Milliseconds per part of the logic tick since the last {@link takeProfile}. */
+  private readonly profile: TickProfile = {
+    scripts: 0,
+    physics: 0,
+    npc: 0,
+    components: 0,
+    other: 0,
+  };
+
+  /** Time spent in each part of the logic ticks since the last call (the Profiler window). */
+  takeProfile(): TickProfile {
+    const taken = { ...this.profile };
+    this.profile.scripts = 0;
+    this.profile.physics = 0;
+    this.profile.npc = 0;
+    this.profile.components = 0;
+    this.profile.other = 0;
+    return taken;
+  }
+
+  /** The script that stopped last, so "step" continues with it. */
+  private hitThread: Thread | null = null;
+  /** While set, the next block this script reaches stops it again (one step). */
+  private stepThread: Thread | null = null;
+
+  /** Called by the debug hooks before every block: tells if the script should stop here. */
+  debugHit(blockId: string): boolean {
+    const thread = this.current;
+    if (!thread) return false;
+    thread.lastBlock = blockId;
+    const debug = this.options.debug;
+    if (!debug) return false;
+    let stop = this.stepThread === thread;
+    if (!stop) {
+      const key = `${thread.asset.assetId}/${blockId}`;
+      const breakpoints = debug.breakpoints();
+      if (breakpoints.has(key)) {
+        const condition = breakpoints.get(key) ?? null;
+        stop = condition === null || this.safeCondition(condition, thread);
+      }
+    }
+    if (!stop) return false;
+    this.stepThread = null;
+    this.hitThread = thread;
+    debug.onHit({
+      objectId: thread.object.cloneOf ?? thread.object.id,
+      objectName: thread.object.name,
+      assetId: thread.asset.assetId,
+      blockId,
+    });
+    return true;
+  }
+
+  private safeCondition(condition: BreakpointCondition, thread: Thread): boolean {
+    try {
+      return condition((name) => this.readVariable(thread, name));
+    } catch {
+      // A broken condition stops like an unconditional breakpoint: better to see it than to miss it.
+      return true;
+    }
+  }
+
+  private readVariable(thread: Thread, name: string): VariableValue | undefined {
+    const variable = thread.asset.variables.find((candidate) => candidate.name === name);
+    if (!variable) return undefined;
+    return variable.scope === 'game' ? this.vars[variable.id] : thread.object.vars[variable.id];
+  }
+
+  /** "Step": the script that stopped runs up to its next block and stops there. */
+  debugStep(): void {
+    this.stepThread = this.hitThread;
+  }
+
+  /** The scripts that are running and where they are (blocks only known in debug play). */
+  scriptPositions(): RunningScript[] {
+    return this.threads
+      .filter((thread) => !thread.done)
+      .map((thread) => ({
+        objectId: thread.object.cloneOf ?? thread.object.id,
+        objectName: thread.object.name,
+        assetId: thread.asset.assetId,
+        blockId: thread.lastBlock,
+      }));
   }
 
   // ---------------------------------------------------------------- GameApi: code blocks
@@ -2164,6 +2314,7 @@ export class Game implements GameApi {
       done: false,
       sliceHit: false,
       slices: 0,
+      lastBlock: null,
     };
     this.running.set(key, thread);
     this.threads.push(thread);

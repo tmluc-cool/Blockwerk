@@ -1,4 +1,5 @@
 import {
+  ChevronsRight,
   Hand,
   Layers,
   LayoutGrid,
@@ -16,7 +17,16 @@ import { useState } from 'react';
 import type { TranslationKey } from '../i18n';
 import { useLayout } from '../layout/layoutController';
 import { useEditor } from '../state/editor';
-import { pause, setTimeScale, step, TIME_SCALES, togglePlay, usePlay } from '../state/play';
+import {
+  pause,
+  setTimeScale,
+  step,
+  stepBlock,
+  TIME_SCALES,
+  togglePlay,
+  usePlay,
+} from '../state/play';
+import { useDebug } from '../state/debug';
 import type { TimeScale } from '../state/play';
 import { useDocument } from '../state/document';
 import type { Tool } from '../state/editor';
@@ -43,6 +53,7 @@ export function Toolbar() {
   const timeScale = usePlay((state) => state.timeScale);
   const ready = useDocument((state) => state.scene !== null);
   const playing = status !== 'stopped';
+  const stopped = useDebug((state) => state.hit !== null);
 
   return (
     <div className="toolbar" data-testid="toolbar">
@@ -113,6 +124,18 @@ export function Toolbar() {
         >
           <StepForward size={16} />
         </button>
+        {stopped && (
+          <button
+            type="button"
+            className="text-button"
+            title={t('toolbar.stepBlockTip')}
+            data-testid="step-block"
+            onClick={stepBlock}
+          >
+            <ChevronsRight size={14} />
+            {t('toolbar.stepBlock')}
+          </button>
+        )}
         <select
           className="time-scale"
           value={timeScale}
