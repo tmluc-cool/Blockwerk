@@ -2,7 +2,9 @@ name: Pages
 
 # Builds the web site: the start page, the editor in the browser and playable web builds of the
 # example games, and publishes it on GitHub Pages (SPEC phase 11). Pages has to be switched on once
-# in the repository settings (Settings -> Pages -> Source: GitHub Actions). Changes to this
+# in the repository settings (Settings -> Pages -> Source: GitHub Actions) and the repository
+# variable PAGES_ENABLED set to true (Settings -> Variables); until then the site is only built.
+# Changes to this
 # workflow and to the site run the same build as a dry run (nothing is published).
 
 on:
@@ -68,7 +70,8 @@ jobs:
   deploy:
     name: Publish
     needs: build
-    if: github.event_name != 'pull_request'
+    # Only once the owner has switched Pages on and set the repository variable PAGES_ENABLED.
+    if: github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
