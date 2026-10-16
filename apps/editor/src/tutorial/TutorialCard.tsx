@@ -35,6 +35,38 @@ function useSpot(selector: string | null): Spot | null {
   return selector ? spot : null;
 }
 
+const CARD_WIDTH = 340;
+const CARD_HEIGHT = 230;
+const MARGIN = 16;
+const TOP = 90;
+
+/** The corner that does not cover the framed part of the editor (bottom right if none does). */
+function cornerFor(spot: Spot | null): {
+  right?: number;
+  left?: number;
+  top?: number;
+  bottom?: number;
+} {
+  const corners = [
+    { right: MARGIN, bottom: MARGIN },
+    { left: MARGIN, bottom: MARGIN },
+    { right: MARGIN, top: TOP },
+    { left: MARGIN, top: TOP },
+  ];
+  if (!spot) return corners[0] ?? {};
+  const fits = (corner: (typeof corners)[number]): boolean => {
+    const left = corner.left ?? window.innerWidth - CARD_WIDTH - (corner.right ?? 0);
+    const top = corner.top ?? window.innerHeight - CARD_HEIGHT - (corner.bottom ?? 0);
+    return (
+      left + CARD_WIDTH < spot.left ||
+      left > spot.left + spot.width ||
+      top + CARD_HEIGHT < spot.top ||
+      top > spot.top + spot.height
+    );
+  };
+  return corners.find(fits) ?? corners[0] ?? {};
+}
+
 /**
  * The tutorial card: a small window in the corner that says what to do next and frames the part
  * of the editor it means. It never blocks the editor; every step also has "Next".
@@ -68,6 +100,7 @@ export function TutorialCard() {
         aria-labelledby="tutorial-title"
         data-testid="tutorial-card"
         data-step={step.id}
+        style={cornerFor(spot)}
       >
         <p className="tutorial-progress" data-testid="tutorial-progress">
           {t('tutorial.progress', {
