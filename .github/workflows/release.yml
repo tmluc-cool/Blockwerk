@@ -135,9 +135,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          tag="${{ steps.version.outputs.tag }}"
           flags=()
-          [[ "${{ steps.version.outputs.tag }}" == *-* ]] && flags+=(--prerelease)
-          gh release create "${{ steps.version.outputs.tag }}" release-assets/* \
-            --title "Blockwerk ${{ steps.version.outputs.tag }}" \
-            --notes-file release-notes.md \
-            "${flags[@]}"
+          [[ "$tag" == *-* ]] && flags+=(--prerelease)
+          # A release made by hand in the GitHub page (for the tag) gets the files and the notes;
+          # otherwise the release is created here.
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release-assets/* --clobber
+            gh release edit "$tag" --notes-file release-notes.md
+          else
+            gh release create "$tag" release-assets/* \
+              --title "Blockwerk $tag" \
+              --notes-file release-notes.md \
+              "${flags[@]}"
+          fi
