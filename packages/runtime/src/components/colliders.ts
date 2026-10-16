@@ -211,6 +211,7 @@ export const capsuleCollider = defineComponent({
 /** Cylinder Collider, upright along Y (SPEC 8.4; Unity has no built-in counterpart). */
 export const cylinderCollider = defineComponent({
   type: 'cylinderCollider',
+  unity: 'none (use a CapsuleCollider or MeshCollider)',
   category: 'physics',
   text: { de: 'Zylinder-Collider', en: 'Cylinder Collider' },
   docs: {

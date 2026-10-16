@@ -27,6 +27,7 @@ function defineAbility<const F extends FieldDefinitions>(options: {
   text: { de: string; en: string };
   docs: { de: string; en: string };
   keywords: { de: string[]; en: string[] };
+  unity?: string;
   fields: F;
   config: (values: never) => AbilityConfig[AbilityName];
 }) {
@@ -37,6 +38,7 @@ function defineAbility<const F extends FieldDefinitions>(options: {
     text: options.text,
     docs: options.docs,
     keywords: options.keywords,
+    ...(options.unity ? { unity: options.unity } : {}),
     fields: options.fields,
     create({ object }) {
       let enabled = true;
@@ -68,6 +70,7 @@ function defineAbility<const F extends FieldDefinitions>(options: {
 /** Doppelsprung: further jumps in the air. */
 export const doubleJump = defineAbility({
   type: 'doubleJump',
+  unity: 'custom script (extra jump)',
   text: { de: 'Doppelsprung', en: 'Double Jump' },
   docs: {
     de: 'Fähigkeit: Springen in der Luft. Die Sprungtaste löst den zweiten Sprung aus.',
@@ -101,6 +104,7 @@ export const doubleJump = defineAbility({
 /** Rollen: a quick roll in the facing direction (Action "Roll"). */
 export const roll = defineAbility({
   type: 'roll',
+  unity: 'custom script (dodge roll)',
   text: { de: 'Rollen', en: 'Roll' },
   docs: {
     de: 'Fähigkeit: Ausweichrolle in Blickrichtung mit der Aktion „Rollen“ (Taste Q, Gamepad RB). Währenddessen ist die Figur geduckt und nicht steuerbar.',
@@ -138,6 +142,7 @@ export const roll = defineAbility({
 /** Gleiten: slow fall while the jump button is held in the air. */
 export const glide = defineAbility({
   type: 'glide',
+  unity: 'custom script (glide)',
   text: { de: 'Gleiten', en: 'Glide' },
   docs: {
     de: 'Fähigkeit: Sprungtaste in der Luft gedrückt halten, solange die Figur fällt, bremst den Fall.',
@@ -159,6 +164,7 @@ export const glide = defineAbility({
 /** Ausdauer: sprinting uses stamina. */
 export const stamina = defineAbility({
   type: 'stamina',
+  unity: 'custom script (stamina)',
   text: { de: 'Ausdauer', en: 'Stamina' },
   docs: {
     de: 'Fähigkeit: Rennen verbraucht Ausdauer, die sich in Ruhe wieder auffüllt. Ohne Ausdauer geht die Figur nur.',
