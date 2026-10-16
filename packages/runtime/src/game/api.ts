@@ -241,6 +241,8 @@ export interface GameApi {
   distanceAhead(self: GameObject, meters: number): number;
 
   resetTimer(): void;
+  /** Writes a message to the console ("write to log"). */
+  writeLog(self: GameObject, level: 'info' | 'warning' | 'error', value: unknown): void;
   /** Stops all scripts of the game. */
   stopAll(): void;
   /** Stops all other scripts of the object. */

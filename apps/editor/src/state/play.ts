@@ -218,6 +218,20 @@ function logGame(entry: GameLogEntry): void {
       },
     );
     if (log.errorPause && usePlay.getState().status === 'playing') pause();
+  } else if (entry.kind === 'userLog') {
+    log.log(
+      entry.level,
+      'console.userLog',
+      { object: entry.objectName, message: entry.message },
+      {
+        objectId: entry.objectId,
+        ...(entry.assetId ? { assetId: entry.assetId } : {}),
+        ...(entry.blockId ? { blockId: entry.blockId } : {}),
+      },
+    );
+    if (entry.level === 'error' && log.errorPause && usePlay.getState().status === 'playing') {
+      pause();
+    }
   } else if (entry.kind === 'missingPrefab') {
     log.log(
       'warning',

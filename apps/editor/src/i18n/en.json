@@ -215,6 +215,7 @@
   "console.diagnostic.codeSyntax": "{script}: The code of a code block cannot be read ({message}), the block is skipped.",
   "console.compileFailed": "{script} cannot be compiled: {message}",
   "console.scriptError": "Error in a script of {object}: {message}",
+  "console.userLog": "{object}: {message}",
   "console.missingScript": "{object}: Block Script component without a valid script.",
   "console.playStarted": "Play mode started ({ms} ms).",
   "hierarchy.live": "live",

@@ -102,6 +102,16 @@ export type GameLogEntry =
       readonly blockId: string | null;
     }
   | {
+      /** A message of the "write to log" block. */
+      readonly level: 'info' | 'warning' | 'error';
+      readonly kind: 'userLog';
+      readonly message: string;
+      readonly objectId: string;
+      readonly objectName: string;
+      readonly assetId: string | null;
+      readonly blockId: string | null;
+    }
+  | {
       readonly level: 'warning';
       readonly kind: 'missingScript' | 'missingPrefab';
       readonly objectId: string;
@@ -1942,6 +1952,20 @@ export class Game implements GameApi {
     const object = this.find(self, ref);
     if (object) this.destroyQueue.add(object);
     return object === self;
+  }
+
+  writeLog(self: GameObject, level: 'info' | 'warning' | 'error', value: unknown): void {
+    const thread = this.current;
+    const line = thread ? errorLine(new Error(), thread.asset.sourceUrl) : null;
+    this.options.log?.({
+      level,
+      kind: 'userLog',
+      message: valueToText(value),
+      objectId: self.cloneOf ?? self.id,
+      objectName: self.name,
+      assetId: thread?.asset.assetId ?? null,
+      blockId: thread && line !== null ? (thread.asset.lineToBlock[line] ?? null) : null,
+    });
   }
 
   stopAll(): void {

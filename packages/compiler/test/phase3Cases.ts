@@ -11,6 +11,7 @@ import {
 import type {
   AudioEngine,
   CarryState,
+  GameLogEntry,
   GameObject,
   SaveStorage,
   ScriptAsset,
@@ -128,6 +129,7 @@ export interface Scene {
   readonly spawn?: string;
   readonly uis?: Record<string, UiData>;
   readonly saves?: SaveStorage;
+  readonly log?: (entry: GameLogEntry) => void;
 }
 
 export function launch(scene: Scene): Game {
@@ -158,6 +160,7 @@ export function launch(scene: Scene): Game {
       carry: scene.carry,
       spawn: scene.spawn,
       random: () => 0.5,
+      ...(scene.log ? { log: scene.log } : {}),
     },
   );
 }

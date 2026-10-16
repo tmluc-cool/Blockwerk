@@ -17,6 +17,7 @@ import { phase3Cases } from './phase3Cases';
 import { phase4Cases } from './phase4Cases';
 import { phase5Cases } from './phase5Cases';
 import { phase6Cases } from './phase6Cases';
+import { phase8Cases } from './phase8Cases';
 import { phase7Cases } from './phase7Cases';
 
 /**
@@ -768,6 +769,7 @@ const allCases = [
   ...phase4Cases,
   ...phase5Cases,
   ...phase6Cases,
+  ...phase8Cases,
   ...phase7Cases,
 ];
 

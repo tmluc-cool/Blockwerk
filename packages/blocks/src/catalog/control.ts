@@ -160,6 +160,35 @@ export const destroy = defineBlock({
   since: 1,
 });
 
+export const writeLog = defineBlock({
+  id: 'control.log',
+  category: 'control',
+  shape: 'stack',
+  inputs: {
+    level: {
+      type: 'dropdown',
+      default: 'info',
+      options: [
+        { value: 'info', text: { de: 'Info', en: 'info' } },
+        { value: 'warning', text: { de: 'Warnung', en: 'warning' } },
+        { value: 'error', text: { de: 'Fehler', en: 'error' } },
+      ],
+    },
+    message: { type: 'any', default: 'Hallo' },
+  },
+  text: { de: 'schreibe ins Log {level} {message}', en: 'write to log {level} {message}' },
+  keywords: {
+    de: ['konsole', 'ausgabe', 'debug', 'fehler', 'melden'],
+    en: ['console', 'print', 'debug', 'output', 'trace'],
+  },
+  compile: ({ level, message }) => `game.writeLog(self, ${level}, ${message});`,
+  docs: {
+    de: 'Schreibt den Wert in die Konsole. Ein Klick auf den Eintrag springt zu diesem Block. Mit „Warnung“ und „Fehler“ lässt sich nach Meldungen filtern.',
+    en: 'Writes the value to the console. Clicking the entry jumps to this block. "Warning" and "error" can be filtered in the console.',
+  },
+  since: 8,
+});
+
 export const stop = defineBlock({
   id: 'control.stop',
   category: 'control',

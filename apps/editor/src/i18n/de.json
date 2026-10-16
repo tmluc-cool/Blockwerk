@@ -215,6 +215,7 @@
   "console.diagnostic.codeSyntax": "{script}: Der Code eines Code-Blocks lässt sich nicht lesen ({message}), der Block wird übersprungen.",
   "console.compileFailed": "{script} lässt sich nicht übersetzen: {message}",
   "console.scriptError": "Fehler in einem Skript von {object}: {message}",
+  "console.userLog": "{object}: {message}",
   "console.missingScript": "{object}: Block-Skript-Komponente ohne gültiges Skript.",
   "console.playStarted": "Play-Modus gestartet ({ms} ms).",
   "hierarchy.live": "läuft",
