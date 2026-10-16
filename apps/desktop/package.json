@@ -11,7 +11,7 @@
     "dev": "node scripts/dev.mjs",
     "start": "electron .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "dist": "electron-builder --config electron-builder.yml"
+    "dist": "electron-builder --config electron-builder.yml --publish never"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
@@ -22,5 +22,7 @@
   },
   "dependencies": {
     "rcedit": "^5.0.2"
-  }
+  },
+  "author": "Blockwerk contributors",
+  "homepage": "https://github.com/tmluc-cool/Blockwerk"
 }

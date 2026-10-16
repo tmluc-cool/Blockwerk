@@ -36,7 +36,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `playwright` | 1.56.1 | Apache-2.0 | development | packages/library |
 | `postprocessing` | 6.39.5 | Zlib | runtime | packages/runtime |
 | `prettier` | 3.9.10 | MIT | development | (root) |
-| `rcedit` | 5.0.2 | MIT | development | apps/desktop |
+| `rcedit` | 5.0.2 | MIT | runtime | apps/desktop |
 | `react` | 19.3.0 | MIT | runtime | apps/editor |
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
 | `recast-navigation` | 0.43.1 | MIT | runtime | packages/runtime |
@@ -70,6 +70,7 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `@csstools/css-tokenizer` | 4.0.2 | MIT |
 | `@dimforge/rapier3d-compat` | 0.12.0, 0.21.0 | Apache-2.0 |
 | `@exodus/bytes` | 1.16.0 | MIT |
+| `@malept/cross-spawn-promise` | 1.1.1 | Apache-2.0 |
 | `@noble/hashes` | 2.4.0 | MIT |
 | `@recast-navigation/core` | 0.43.1 | MIT |
 | `@recast-navigation/generators` | 0.43.1 | MIT |
@@ -82,6 +83,8 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `@types/webxr` | 0.5.24 | MIT |
 | `bidi-js` | 1.1.0 | MIT |
 | `blockly` | 13.3.0 | Apache-2.0 |
+| `cross-spawn` | 7.0.6 | MIT |
+| `cross-spawn-windows-exe` | 1.2.0 | Apache-2.0 |
 | `css-tree` | 3.2.1 | MIT |
 | `csstype` | 3.2.3 | MIT |
 | `data-urls` | 7.0.0 | MIT |
@@ -92,7 +95,10 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `entities` | 8.1.0 | BSD-2-Clause |
 | `fflate` | 0.8.2, 0.8.3 | MIT |
 | `html-encoding-sniffer` | 6.0.0 | MIT |
+| `is-docker` | 2.2.1 | MIT |
 | `is-potential-custom-element-name` | 1.0.1 | MIT |
+| `is-wsl` | 2.2.0 | MIT |
+| `isexe` | 2.0.0 | ISC |
 | `jsdom` | 29.1.1 | MIT |
 | `lru-cache` | 11.5.3 | BlueOak-1.0.0 |
 | `lucide-react` | 1.56.0 | ISC |
@@ -100,14 +106,18 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `meshoptimizer` | 1.1.1 | MIT |
 | `n8ao` | 2.0.1 | ISC |
 | `parse5` | 8.0.1 | MIT |
+| `path-key` | 3.1.1 | MIT |
 | `postprocessing` | 6.39.5 | Zlib |
 | `punycode` | 2.3.1 | MIT |
+| `rcedit` | 5.0.2 | MIT |
 | `react` | 19.3.0 | MIT |
 | `react-dom` | 19.3.0 | MIT |
 | `recast-navigation` | 0.43.1 | MIT |
 | `require-from-string` | 2.0.2 | MIT |
 | `saxes` | 6.0.0 | ISC |
 | `scheduler` | 0.28.0 | MIT |
+| `shebang-command` | 2.0.0 | MIT |
+| `shebang-regex` | 3.0.0 | MIT |
 | `source-map-js` | 1.2.2 | BSD-3-Clause |
 | `symbol-tree` | 3.2.4 | MIT |
 | `three` | 0.186.1 | MIT |
@@ -120,6 +130,7 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `webidl-conversions` | 8.0.1 | BSD-2-Clause |
 | `whatwg-mimetype` | 5.0.0 | MIT |
 | `whatwg-url` | 16.0.1 | MIT |
+| `which` | 2.0.2 | ISC |
 | `xml-name-validator` | 5.0.0 | Apache-2.0 |
 | `xmlchars` | 2.2.0 | MIT |
 | `zod` | 4.6.7 | MIT |

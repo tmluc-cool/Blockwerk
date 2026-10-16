@@ -87,7 +87,7 @@ interface PageState {
 function smokeTest(window: BrowserWindow, file: string, blocked: string[]): void {
   const started = Date.now();
   const poll = async (): Promise<void> => {
-    let state: PageState | null = null;
+    let state: PageState | null;
     try {
       state = (await window.webContents.executeJavaScript(
         'window.__blockwerkPlayer ? window.__blockwerkPlayer() : null',
