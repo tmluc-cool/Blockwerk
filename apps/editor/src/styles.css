@@ -2505,3 +2505,13 @@ button.small {
   margin: 0 0 8px;
   color: var(--bw-text-dim);
 }
+.build-panel {
+  padding: 12px 16px;
+  max-width: 560px;
+}
+.build-panel .field-label {
+  min-width: 130px;
+}
+.build-scenes li {
+  max-width: 480px;
+}

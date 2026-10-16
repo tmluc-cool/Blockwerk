@@ -50,7 +50,7 @@ export function BuildSettingsPanel(_props: IDockviewPanelProps): ReactElement {
 
   if (!project) {
     return (
-      <div className="studio-panel" data-testid="build-settings">
+      <div className="studio-panel build-panel" data-testid="build-settings">
         <p className="panel-empty">{t('build.noProject')}</p>
       </div>
     );
@@ -86,7 +86,7 @@ export function BuildSettingsPanel(_props: IDockviewPanelProps): ReactElement {
   };
 
   return (
-    <div className="studio-panel" data-testid="build-settings">
+    <div className="studio-panel build-panel" data-testid="build-settings">
       <section className="studio-group">
         <h4>{t('build.scenes')}</h4>
         <p className="panel-hint">{t('build.scenesHint')}</p>
@@ -181,7 +181,7 @@ export function BuildSettingsPanel(_props: IDockviewPanelProps): ReactElement {
           </select>
         </label>
         <label className="field-row">
-          <span className="field-label">{t('lighting.graphicsDefault')}</span>
+          <span className="field-label">{t('build.graphics')}</span>
           <select
             value={project.settings.graphicsLevel ?? ''}
             onChange={(event) =>

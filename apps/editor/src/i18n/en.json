@@ -1001,5 +1001,6 @@
   "export.problem.noPlayer": "The player for the web build is missing in this version of the editor.",
   "export.problem.noDesktop": "This needs the desktop version of Blockwerk.",
   "export.problem.noWindowsApp": "Only the Windows version of Blockwerk builds a Windows app.",
-  "export.problem.writeFailed": "Writing failed: {message}"
+  "export.problem.writeFailed": "Writing failed: {message}",
+  "build.graphics": "Graphics level"
 }
