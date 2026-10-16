@@ -11,11 +11,12 @@ repository (documentation, issues, pull requests) is in English.
 
 ![Blockwerk editor with the village example from phase 2](docs/screenshots/phase-02.png)
 
-> **Status:** early development. Phases 0 to 8 are done (editor, block scripts, asset library,
-> player, physics, environment, NPCs, UI and saving, large projects, debugging), phases 9 (build and
-> export) and 10 (AI assistant, optional with your own key, [docs/ai.md](docs/ai.md)) are in review. To try it out: "File → Open Example Project" and press Play; "File → Build
-> Settings" makes a web build or a Windows app of a game ([docs/export.md](docs/export.md)). See
-> the [roadmap](#roadmap) for the current state.
+> **Status:** early development. Phases 0 to 10 are done (editor, block scripts, asset library,
+> player, physics, environment, NPCs, UI and saving, large projects, debugging, build and export,
+> and an optional AI assistant with your own key, see [docs/ai.md](docs/ai.md)). To try it out:
+> "File → Open Example Project" and press Play; "File → Build Settings" makes a web build or a
+> Windows app of a game ([docs/export.md](docs/export.md)). See the [roadmap](#roadmap) for the
+> current state.
 
 ## Download
 
@@ -67,21 +68,21 @@ trying out characters, the Character Studio and an asset library with CC0 models
 
 ## Roadmap
 
-| Phase | Content                                       | Status    |
-| ----- | --------------------------------------------- | --------- |
-| 0     | Foundation and Unity layout                   | ✅ done   |
-| 1     | Objects, components, block scripts, play mode | ✅ done   |
-| 2     | Project window, asset library, prefabs        | ✅ done   |
-| 3     | Player, physics, animation                    | ✅ done   |
-| 3b    | Character Studio                              | ✅ done   |
-| 4     | Environment and graphics                      | ✅ done   |
-| 5     | NPCs and game logic                           | ✅ done   |
-| 6     | UI, menus, saving                             | ✅ done   |
-| 7     | Large projects                                | ✅ done   |
-| 8     | Debugging                                     | ✅ done   |
-| 9     | Build and export                              | in review |
-| 10    | AI assistant                                  | in review |
-| 11    | Polish and final acceptance                   | planned   |
+| Phase | Content                                       | Status  |
+| ----- | --------------------------------------------- | ------- |
+| 0     | Foundation and Unity layout                   | ✅ done |
+| 1     | Objects, components, block scripts, play mode | ✅ done |
+| 2     | Project window, asset library, prefabs        | ✅ done |
+| 3     | Player, physics, animation                    | ✅ done |
+| 3b    | Character Studio                              | ✅ done |
+| 4     | Environment and graphics                      | ✅ done |
+| 5     | NPCs and game logic                           | ✅ done |
+| 6     | UI, menus, saving                             | ✅ done |
+| 7     | Large projects                                | ✅ done |
+| 8     | Debugging                                     | ✅ done |
+| 9     | Build and export                              | ✅ done |
+| 10    | AI assistant                                  | ✅ done |
+| 11    | Polish and final acceptance                   | planned |
 
 The full specification is in [SPEC.md](SPEC.md) (German), the progress of each phase in
 [PROGRESS.md](PROGRESS.md).
