@@ -71,7 +71,7 @@ What exists already: the runtime (`Game`, `UiRenderer`, settings, saves, loading
 - [x] (b) *The web build runs in the browser; `CREDITS.txt` lists all third-party assets.* `e2e/player/web.spec.ts`: export with ZIP, served over HTTP, loading screen with the name, start click, main menu, settings (a slider changes and is kept), "Play" through the loading screen into the village, HUD, no console error, no request outside the page; `CREDITS.txt` names KayKit, CC0-1.0 and the engine. `packages/export` tests: only used assets, every library model of the pack exists, credits list only used sources.
 - [ ] (c) *A tag `v0.9.0` creates a release with installer, web version, changelog and start package.* The workflow runs as a dry run on this pull request (same steps, nothing published); the real tag publishes on GitHub and waits for the user's go (see the pull request).
 - [x] Unit tests for the exporter, the web assembly and ZIP, the Windows app builder and the icon file, the changelog script and the build settings schema; end-to-end for Build Settings in the editor.
-- [x] `pnpm test` (TESTCOUNT tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end E2ECOUNT locally (editor, player and desktop projects under `xvfb-run`).
+- [x] `pnpm test` (532 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 74/74 locally (editor, player and desktop projects under `xvfb-run`).
 - [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
 
 **Open / not done**
