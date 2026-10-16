@@ -1,0 +1,92 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": "Sprich mit Mira im Dorf",
+      "id": "esvartask001",
+      "inspector": false,
+      "name": "Aufgabe",
+      "saved": true,
+      "scope": "game",
+      "type": "string"
+    },
+    {
+      "default": 0,
+      "id": "esvarquest01",
+      "inspector": false,
+      "name": "Quest",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    },
+    {
+      "default": 0,
+      "id": "esvarbork001",
+      "inspector": false,
+      "name": "Trank erhalten",
+      "saved": true,
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "answer": "abgeben"
+          },
+          "id": "t-15",
+          "next": {
+            "block": {
+              "fields": {
+                "at": "self",
+                "effect": "sparkle"
+              },
+              "id": "t-16",
+              "next": {
+                "block": {
+                  "fields": {
+                    "sound": "builtin:win",
+                    "where": "everywhere"
+                  },
+                  "id": "t-17",
+                  "next": {
+                    "block": {
+                      "id": "t-18",
+                      "inputs": {
+                        "seconds": {
+                          "shadow": {
+                            "fields": {
+                              "NUM": 1.5
+                            },
+                            "id": "t-19",
+                            "type": "literal.number"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "fields": {
+                            "ui": "ui:esuivictory1"
+                          },
+                          "id": "t-20",
+                          "type": "ui.show"
+                        }
+                      },
+                      "type": "control.wait"
+                    }
+                  },
+                  "type": "sound.play"
+                }
+              },
+              "type": "effects.spawn"
+            }
+          },
+          "type": "dialog.whenAnswer"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

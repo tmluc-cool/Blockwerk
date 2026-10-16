@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "nodes": {
+    "hallo": {
+      "answers": [
+        {
+          "actions": [
+            {
+              "count": 5,
+              "item": "Münze",
+              "type": "removeItem"
+            },
+            {
+              "count": 1,
+              "item": "Heiltrank",
+              "type": "addItem"
+            }
+          ],
+          "condition": {
+            "count": 5,
+            "item": "Münze",
+            "type": "hasItem"
+          },
+          "id": "kaufen",
+          "next": "verkauft",
+          "text": "Einen Heiltrank, bitte."
+        },
+        {
+          "id": "tipp",
+          "next": "tipp",
+          "text": "Hast du einen Tipp?"
+        },
+        {
+          "id": "tschuess",
+          "next": null,
+          "text": "Später."
+        }
+      ],
+      "speaker": "Pip",
+      "text": "Psst! Ich bin Pip. Für fünf Münzen verkaufe ich dir einen Heiltrank. Die Münzen liegen überall im Dorf herum.",
+      "x": 0,
+      "y": 0
+    },
+    "tipp": {
+      "answers": [],
+      "next": null,
+      "speaker": "Pip",
+      "text": "Spring zweimal, dann kommst du über jeden Zaun. Mit Q rollst du dich weg, wenn ein Skelett zuschlägt. Und wenn dein Freund Enter drückt, spielt ihr zu zweit.",
+      "x": 360,
+      "y": 260
+    },
+    "verkauft": {
+      "answers": [],
+      "next": null,
+      "speaker": "Pip",
+      "text": "Gute Wahl! Der Trank wirkt sofort.",
+      "x": 360,
+      "y": 0
+    }
+  },
+  "start": "hallo"
+}

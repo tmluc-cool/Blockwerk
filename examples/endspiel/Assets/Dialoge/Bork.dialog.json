@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "nodes": {
+    "gegeben": {
+      "answers": [],
+      "next": null,
+      "speaker": "Bork",
+      "text": "Hier, zwei Heiltränke aus dem Vorrat der Wache. Drück H, wenn es brenzlig wird.",
+      "x": 360,
+      "y": 0
+    },
+    "hallo": {
+      "answers": [
+        {
+          "actions": [
+            {
+              "count": 2,
+              "item": "Heiltrank",
+              "type": "addItem"
+            },
+            {
+              "type": "setVariable",
+              "value": 1,
+              "variable": "esvarbork001"
+            }
+          ],
+          "condition": {
+            "op": "==",
+            "type": "variable",
+            "value": 0,
+            "variable": "esvarbork001"
+          },
+          "id": "trank",
+          "next": "gegeben",
+          "text": "Hast du etwas gegen Wunden?"
+        },
+        {
+          "id": "tschuess",
+          "next": null,
+          "text": "Danke, Bork."
+        }
+      ],
+      "speaker": "Bork",
+      "text": "Halt! Ich bin Bork, die Wache von Birkenau. Mit dem Schwert in der Hand (Taste F oder linke Maustaste) schlägst du Skelette in die Flucht.",
+      "x": 0,
+      "y": 0
+    }
+  },
+  "start": "hallo"
+}

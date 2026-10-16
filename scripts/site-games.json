@@ -1,5 +1,11 @@
 [
   {
+    "slug": "endspiel",
+    "folder": "examples/endspiel",
+    "title": "Final game: Birkenau",
+    "about": "The final game: village, landscape, quests, skeletons, two players in split screen."
+  },
+  {
     "slug": "held",
     "folder": "examples/03-held",
     "title": "Hero",

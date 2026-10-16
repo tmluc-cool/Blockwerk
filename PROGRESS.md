@@ -53,6 +53,23 @@ Branch: `phase/11-feinschliff` (builds on `main` with Phases 0–10 merged).
 - The tutorial runs inside the real editor with highlights (no separate sandbox). It watches the open project and Play state and moves on by itself; it changes nothing in the project. Its step is kept in the browser's local storage (a per-user convenience, not project data); without storage it starts from the beginning. The card moves to a free corner so it never covers the part it points at.
 - File names inside projects stay ASCII ("Muenze", not "Münze"), as in the other examples: the browser storage (OPFS) of Chromium in the test environment rejects names with umlauts. Object and script names inside the files may have umlauts.
 
+- The final game is one open landscape plus the main menu (two scenes), not a crypt scene like `05-quest`: the landscape, the village, the ruin and the fights all happen in one place so that the day-night cycle and the split screen can be seen together. Player 2 joins with Enter (the second hero and camera are inactive until then), because a menu button cannot set a variable.
+- The three NPCs are the quest giver Mira, the guard Bork (gives potions) and the trader Pip.
+- The game's text is German (like all examples); the editor around it is German or English.
+
+### Result of phase 11
+
+Parts 1 to 5 are merged (generated reference, accessibility, templates, tutorial, GitHub and pages). Part 6 (this branch): the final game, its tests, the screenshots, the Windows build in CI and the proof.
+
+- [x] `examples/endspiel`: main menu → loading screen → open landscape with village and day-night cycle → third-person hero from the Character Studio with two ability cards (Double Jump, Roll) → three NPCs with dialogs → skeletons with navigation and combat → items and inventory → player 2 in split screen → save and load → win and lose. 13 tests on the real project (`apps/editor/test/endspiel.test.ts`) and an end-to-end run in the editor (`e2e/editor/phase11.spec.ts`).
+- [x] Windows `.exe`: `release.yml` exports the game with the Windows player on `windows-latest` (`Endspiel.exe`, zipped as a release file); it runs as a dry run on pull requests that touch the release files. **The first CI result of that step is still to be seen on this pull request.**
+- [x] Unity-feel checklist (SPEC 1.1) points 1 to 9 with a test or measurement each: [docs/final-acceptance.md](docs/final-acceptance.md). How the motion looks and how the sound sounds must still be judged on real hardware.
+- [ ] Point 10 of the checklist and "60 FPS on High": **not measurable here** (software rendering, about 0.5 frames per second). Measured instead: 107 to 162 draw calls (limit 500, asserted in the end-to-end test) and about 1.1 million triangles in the final game.
+- [ ] "Someone with Unity experience finds their way without explanation": **manual check**, test sheet in [docs/unity-test-sheet.md](docs/unity-test-sheet.md). Not ticked.
+- [x] Quality targets of SPEC 12 measured, with two honest exceptions: 60 FPS (see above) and **Play start under 1 s: 1.1 s for the final game's menu scene in the software renderer** (30 to 160 ms for the small examples); to re-measure on a graphics card.
+- [x] Screenshots: `docs/screenshots/phase-11.png` (split screen), `phase-11-menue.png`, `phase-11-szene.png`; the README tour (`editor-tour.gif`) shows the final game.
+- Still waiting for the owner: enabling GitHub Pages (and the `PAGES_ENABLED` variable), opening the good first issues, the release tag `v1.0.0`.
+
 ---
 
 ## Ideas for later

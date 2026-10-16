@@ -1,0 +1,141 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "key": "H",
+            "mode": "pressed"
+          },
+          "id": "t-1",
+          "next": {
+            "block": {
+              "id": "t-9",
+              "inputs": {
+                "condition": {
+                  "block": {
+                    "fields": {
+                      "item": "Heiltrank",
+                      "target": "self"
+                    },
+                    "id": "t-2",
+                    "type": "items.has"
+                  }
+                },
+                "then": {
+                  "block": {
+                    "fields": {
+                      "item": "Heiltrank",
+                      "target": "self"
+                    },
+                    "id": "t-3",
+                    "inputs": {
+                      "count": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "t-4",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "fields": {
+                          "target": "self"
+                        },
+                        "id": "t-5",
+                        "inputs": {
+                          "amount": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 40
+                              },
+                              "id": "t-6",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "fields": {
+                              "sound": "builtin:win",
+                              "where": "everywhere"
+                            },
+                            "id": "t-7",
+                            "next": {
+                              "block": {
+                                "fields": {
+                                  "at": "self",
+                                  "effect": "sparkle"
+                                },
+                                "id": "t-8",
+                                "type": "effects.spawn"
+                              }
+                            },
+                            "type": "sound.play"
+                          }
+                        },
+                        "type": "items.heal"
+                      }
+                    },
+                    "type": "items.remove"
+                  }
+                }
+              },
+              "type": "control.if"
+            }
+          },
+          "type": "events.whenKey"
+        },
+        {
+          "fields": {
+            "phase": "died"
+          },
+          "id": "t-10",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:hurt",
+                "where": "everywhere"
+              },
+              "id": "t-11",
+              "next": {
+                "block": {
+                  "id": "t-12",
+                  "inputs": {
+                    "seconds": {
+                      "shadow": {
+                        "fields": {
+                          "NUM": 1.2
+                        },
+                        "id": "t-13",
+                        "type": "literal.number"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "fields": {
+                        "ui": "ui:esuidefeat01"
+                      },
+                      "id": "t-14",
+                      "type": "ui.show"
+                    }
+                  },
+                  "type": "control.wait"
+                }
+              },
+              "type": "sound.play"
+            }
+          },
+          "type": "items.whenHealth"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

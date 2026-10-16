@@ -1,0 +1,215 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        0,
+        0
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "background": "rgba(0,0,0,0.55)",
+      "bind": {
+        "kind": "health"
+      },
+      "color": "#d33",
+      "id": "e1",
+      "name": "Life bar",
+      "offsetMax": [
+        284,
+        50
+      ],
+      "offsetMin": [
+        24,
+        24
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "type": "bar",
+      "visible": true
+    },
+    {
+      "align": "left",
+      "anchorMax": [
+        0,
+        0
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "bind": {
+        "kind": "health"
+      },
+      "fontSize": 18,
+      "id": "e2",
+      "name": "Life text",
+      "offsetMax": [
+        284,
+        84
+      ],
+      "offsetMin": [
+        24,
+        56
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "text": "Leben {value}",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "align": "left",
+      "anchorMax": [
+        0,
+        0
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "bind": {
+        "kind": "variable",
+        "variable": "esvartask001"
+      },
+      "fontSize": 18,
+      "id": "etask",
+      "name": "Aufgabe",
+      "offsetMax": [
+        424,
+        122
+      ],
+      "offsetMin": [
+        24,
+        92
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "text": "Aufgabe: {value}",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "align": "left",
+      "anchorMax": [
+        0,
+        0
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "fontSize": 14,
+      "id": "ehint",
+      "name": "Hinweis",
+      "offsetMax": [
+        520,
+        156
+      ],
+      "offsetMin": [
+        24,
+        130
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "text": "E sprechen · F schlagen · Q rollen · H Trank · Enter: Spieler 2",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "align": "left",
+      "anchorMax": [
+        1,
+        0
+      ],
+      "anchorMin": [
+        1,
+        0
+      ],
+      "background": "rgba(0,0,0,0.35)",
+      "fontSize": 18,
+      "id": "e3",
+      "name": "Inventory",
+      "offsetMax": [
+        -24,
+        244
+      ],
+      "offsetMin": [
+        -280,
+        24
+      ],
+      "pivot": [
+        1,
+        0
+      ],
+      "type": "inventory",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        1
+      ],
+      "anchorMin": [
+        0.5,
+        1
+      ],
+      "fontSize": 20,
+      "id": "e4",
+      "name": "Hint",
+      "offsetMax": [
+        200,
+        -90
+      ],
+      "offsetMin": [
+        -200,
+        -130
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "type": "hint",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        1
+      ],
+      "anchorMin": [
+        0.5,
+        1
+      ],
+      "fontSize": 18,
+      "id": "e5",
+      "name": "Dialog",
+      "offsetMax": [
+        320,
+        -40
+      ],
+      "offsetMin": [
+        -320,
+        -330
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "type": "dialog",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

@@ -22,7 +22,7 @@ const run = (command, args, env = {}) => {
 
 run('pnpm', ['--filter', '@blockwerk/editor', 'build']);
 run('pnpm', ['exec', 'playwright', 'test', '--project', 'editor', '-g', 'README tour frames'], {
-  BLOCKWERK_TOUR: 'abenteuer',
+  BLOCKWERK_TOUR: '1',
 });
 // Two seconds per frame, 960 pixels wide, one shared palette so the file stays small.
 run('ffmpeg', [
