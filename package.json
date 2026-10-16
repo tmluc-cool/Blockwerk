@@ -23,6 +23,7 @@
     "screenshot": "pnpm build && node scripts/screenshot.mjs",
     "assets:fetch": "pnpm --filter @blockwerk/library run assets:fetch",
     "export": "tsx scripts/export-game.ts",
+    "ai:live": "tsx scripts/ai-live.ts",
     "player-template": "node scripts/build-player-template.mjs",
     "dist": "pnpm build && pnpm player-template && pnpm --filter @blockwerk/desktop dist"
   },
@@ -34,6 +35,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
     "prettier": "^3.9.10",
+    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.4"

@@ -50,8 +50,10 @@ export function openPanel(id: PanelId): void {
   }
   // The editors for dialogs and UI need room: they open next to the Scene view, not in the small
   // bottom group the Project window lives in.
+  // The assistant opens beside the Inspector so the Scene view stays visible for its ghost objects.
   const wide = id === 'dialogEditor' || id === 'uiEditor';
-  const group = (wide ? api.getPanel('scene')?.group : undefined) ?? api.activeGroup;
+  const anchor = wide ? 'scene' : id === 'ai' ? 'inspector' : null;
+  const group = (anchor ? api.getPanel(anchor)?.group : undefined) ?? api.activeGroup;
   api.addPanel({
     id,
     component: id,

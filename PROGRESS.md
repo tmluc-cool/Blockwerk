@@ -15,10 +15,74 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 7 | Large projects | done |
 | 8 | Debugging | in review |
 | 9 | Build and export | in review |
-| 10 | AI assistant | open |
+| 10 | AI assistant | in review |
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 10: AI assistant
+
+Branch: `phase/10-ki` (builds on `main` with Phases 0–9 merged).
+
+### Plan
+
+**Subtasks** (SPEC 9.4, Principle 5 "blocks are the truth": the AI proposes, never changes anything secretly)
+
+What exists already: the block catalog with every block defined once (`packages/blocks`), the component definitions (`COMPONENTS`), the asset library index, the compiler with diagnostics, the scene operations behind one undo step (`editScene`, `createObject`), the console, the play-mode variable values and the scene check of phase 8. What is missing is the assistant itself.
+
+1. **`packages/ai`** (pure TypeScript, no DOM, no network of its own):
+   - **Catalogs for the prompt**, generated from the single sources: the block catalog (`id`, shape, text, inputs with dropdown values), the component list, the library index (`id | name | category | size`), and a compact **project summary** (scenes, objects with IDs, tags, positions, components, scripts with their variables) that the editor hands in.
+   - **Answer formats** (the model answers through forced tool calls, so the reply is structured JSON): `propose_script` (a block script as a tree), `propose_world` (library objects with positions) and `answer` (text for "explain" and "why does this not work").
+   - **Validators**: a script proposal is checked against the catalog (block exists, shape fits its place, hat first, fields and dropdown values, reference values, socket types, variables, limits on size and depth, no Code blocks, no custom blocks), converted to Blockly workspace JSON and **compiled once** (compiler diagnostics count as errors); a world proposal is checked against the library index (model exists, finite numbers, positions and sizes in range, at most 60 objects).
+   - **Repair loop**: an invalid answer goes back to the model with the list of errors, at most **two repair attempts**; then the user sees "the assistant could not give a valid answer" and nothing happens.
+   - **Transport interface** `AiTransport` (one `send(request)`), the Anthropic Messages API request and response types, and a fake transport for tests. Requests use prompt caching for the big catalogs.
+2. **Key and transport** (`apps/editor`, `apps/desktop`): the key is entered under **Edit → Preferences**. Browser: kept in local storage of the browser (a note says so). Desktop: stored encrypted with Electron's `safeStorage` in the main process; the key never reaches the page, the main process sends the request (only to `api.anthropic.com`). The model can be chosen (default `claude-sonnet-5-5`, others from a list, or typed). **Without a key** no assistant button, menu entry or panel exists and the editor makes no request outside itself.
+3. **Assistant panel** (`apps/editor`): window "AI Assistant" (toolbar button "AI" and Window menu, only with a key) with five tasks: *Build logic* (script for the selected object, or a new one), *Build world* (objects from the library), *Explain* (the selected script), *Why does this not work?* (with the console, the scene check problems and the variable values of play mode), *Tidy up* (a cleaned-up version of the selected script). Every answer is shown as a **preview** first: a script as readable block outline (the same texts as the blocks), a world as **half-transparent ghost objects in the Scene view** with a list; **Apply** makes it real as **one undo step**, **Discard** throws it away. Texts in German and English.
+4. **Acceptance**: unit tests for the catalogs, validators, repair loop and conversion; a runtime test that a proposed guard script (canned answer) compiles and makes a guard chase the player; the world proposal with real library models; invalid answers of every kind are caught; end-to-end with a mocked API (preview, apply, undo) and a test that without a key nothing is visible and nothing leaves the editor; screenshot, PR.
+
+**Affected packages:** new `packages/ai`, `apps/editor` (panel, preferences, ghost objects, i18n), `apps/desktop` (key storage and request in the main process), `packages/blocks` (reading helpers if needed), `examples/` (none new).
+
+**Risks**
+
+- **I cannot call the real API here** (no key, and no network from tests by rule). The prompts, formats and validators are tested against canned model answers and invalid ones; whether a real model answers well can only be seen with a key. A live check script (`pnpm ai:live`, needs `ANTHROPIC_API_KEY`) is provided and not part of CI. The pull request says so.
+- **Block scripts that look right but do the wrong thing**: the preview, the confirmation and undo are the guard rails; the validator and the compile check catch the rest.
+- **Key safety**: no key in the repository or in logs, no telemetry; the desktop key is encrypted at rest (when the system offers `safeStorage`; otherwise it is kept for the session only); the browser key is in local storage in plain text, the preferences say so.
+- **Size of the prompt**: blocks and library together are about 15,000 tokens; prompt caching keeps repeated requests cheap and fast.
+
+### Assumptions
+
+- **Structured answers through forced tool calls** (one tool per task), not free text; the schema is shallow, the validators do the real checking.
+- **The assistant never uses Code blocks and never writes custom blocks**; it builds with the catalog blocks only.
+- **A world proposal stands on the ground at the height the model gives** (the summary says where the ground is); the apply step does not snap to surfaces.
+- **Default model `claude-sonnet-5-5`**; the list offers the other current models and a free text field.
+
+### Result
+
+**Implemented**
+
+- **`packages/ai`** (pure TypeScript, no DOM of its own): the prompt catalogs generated from the single sources (blocks, components, library index, a compact project summary), the three answer formats (`propose_script`, `propose_world`, `answer`) as forced tool calls with prompt caching, the **validators** (script: catalog, shapes, fields, references, socket types, variables, limits, no Code or custom blocks, converted to Blockly JSON and compiled once; world: library IDs, finite numbers, ranges, no overlaps, at most 60 objects), the **repair loop** (`runTask`, at most two repairs), and the `AiTransport` interface with a `fetch` transport for the Anthropic Messages API.
+- **Key and transport:** Edit → Preferences stores the key and the model. The desktop app keeps the key in its main process (encrypted with `safeStorage`, session only if the system offers no encryption), sends the request itself and only to `api.anthropic.com`; the page never sees the key. The browser keeps it in local storage (the preferences say so). Without a key there is no toolbar button, no Window menu entry and no panel.
+- **AI Assistant window** (opens beside the Inspector): *Build logic*, *Build world*, *Explain*, *Why does this not work?* (console, scene check and variable values of the play mode) and *Tidy up*. Answers are a **preview** (a block outline with the texts of the blocks; **half-transparent ghost objects** in the Scene view plus a list); **Apply** is one undo step, **Discard** changes nothing. Invalid answers show the reasons. All texts in German and English.
+- Documentation in `docs/ai.md`; `pnpm ai:live` checks the real API with `ANTHROPIC_API_KEY` (not part of the tests or the CI).
+
+**Acceptance**
+
+- [x] (a) *"Wache soll das Tor bewachen und den Spieler verfolgen, wenn sie ihn sieht" gives a valid block script that works after applying.* With a model answer written by hand in the way a model answers: `packages/ai` tests check it against the catalog and compile it, and a runtime test plays it (a guard waits at the gate, chases the player when it sees them, walks back). In the editor (`e2e/editor/phase10.spec.ts`): preview first, nothing changed; Apply attaches the script to the selected guard, it runs in play mode without an error; one Ctrl+Z removes it, Ctrl+Y brings it back.
+- [x] (b) *"Stell 5 Häuser und einen Brunnen auf die Wiese" places fitting library objects as a proposal.* The answer names real library models; the editor shows six ghost objects in the Scene view and a list, Apply creates six objects in one undo step, Discard leaves nothing behind (`phase10.spec.ts`, screenshot).
+- [x] (c) *Invalid answers are caught.* Unknown blocks, wrong shapes, bad references, broken numbers, unknown models, objects inside each other, missing conditions, too many blocks, garbage that is not an object: all rejected in the unit tests; in the editor an answer that stays invalid causes exactly three requests (the first and two repairs), the repair messages carry the errors, the project stays untouched.
+- [x] *Without a key nothing is visible and nothing goes to the network.* The standard `editor` fixture fails any test with a request that leaves localhost; the no-key test checks there is no toolbar button, no Window entry and no panel, only the key field under Edit → Preferences.
+- [x] Every AI change is one undo step; preview and confirmation before every change.
+- [x] `pnpm test` (569 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 81/81 locally (editor, player and desktop projects under `xvfb-run`).
+- [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
+
+**Open / not done**
+
+- **The real model was not asked in CI or here:** there is no key in this environment and tests never use the network. Whether a real model answers well (good block choices, sensible places) can only be seen with a key: `pnpm ai:live` and the window. The validators and the preview are the safety net.
+- The browser version keeps the key in local storage in plain text (the preferences say so); the desktop app encrypts it when the system offers `safeStorage`, otherwise it lasts for the session.
+- The block outline in the preview shows object and tag references as `object:<id>` / `tag:Player`, not as names.
+- No streaming of the answer; the window shows "working" until the answer (with repairs) is there.
+- The assistant builds with catalog blocks only (no Code blocks, no custom blocks), places world objects at the heights the model gives (no snapping to surfaces) and cannot change components of objects.
+
 
 ## Phase 9: Build and export
 

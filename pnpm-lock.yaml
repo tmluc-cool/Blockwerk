@@ -29,6 +29,9 @@ importers:
       prettier:
         specifier: ^3.9.10
         version: 3.9.10
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -66,6 +69,9 @@ importers:
       '@blockly/field-colour':
         specifier: 13.3.0
         version: 13.3.0(blockly@13.3.0(jsdom@29.1.1(@noble/hashes@2.4.0)))
+      '@blockwerk/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@blockwerk/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
@@ -152,6 +158,34 @@ importers:
       vite:
         specifier: ^8.3.4
         version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)
+
+  packages/ai:
+    dependencies:
+      '@blockwerk/blocks':
+        specifier: workspace:*
+        version: link:../blocks
+      '@blockwerk/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@blockwerk/library':
+        specifier: workspace:*
+        version: link:../library
+      '@blockwerk/project':
+        specifier: workspace:*
+        version: link:../project
+    devDependencies:
+      '@blockwerk/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@types/node':
+        specifier: 24.19.2
+        version: 24.19.2
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      three:
+        specifier: ^0.186.1
+        version: 0.186.1
 
   packages/blocks: {}
 

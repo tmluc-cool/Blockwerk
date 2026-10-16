@@ -5,6 +5,18 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 10: AI assistant
+
+- **AI Assistant** window (toolbar "AI", Window menu) with your own Anthropic key: _Build logic_,
+  _Build world_, _Explain_, _Why does this not work?_ and _Tidy up_. Off by default; without a key
+  nothing of it is visible and the editor makes no request outside itself.
+- Every answer is a **preview** first (block outline, or half-transparent ghost objects in the
+  Scene view); **Apply** is one undo step, **Discard** changes nothing.
+- Answers are validated against the block catalog, the component list and the asset library, and
+  scripts must compile; an invalid answer is repaired at most twice, then explained.
+- Key under **Edit → Preferences**: encrypted by the desktop app (never reaches the page), local
+  storage in the browser; selectable model. `pnpm ai:live` checks the real API. See `docs/ai.md`.
+
 ### Phase 9: Build and export
 
 - **File → Build Settings** (Ctrl+Shift+B): scene list with the start scene, platform, name, window

@@ -37,6 +37,7 @@ import type {
 } from '@blockwerk/project';
 import { create } from 'zustand';
 import { History } from '../document/history';
+import { addComponent } from '../document/sceneOps';
 import type { TranslationKey } from '../i18n';
 import { editorModels, setProjectModelSource } from '../library/models';
 import { detectBackend } from '../storage/backends';
@@ -1041,4 +1042,48 @@ export function setProjectStartScene(sceneId: string): void {
   if (!project || !project.assetOfType(sceneId, 'scene')) return;
   project.settings = { ...project.settings, startScene: sceneId };
   assetsChanged();
+}
+
+/**
+ * An AI script proposal the user confirmed (SPEC 9.4): the script becomes a new block-script asset
+ * and, if `objectId` is given, a Block Script component on that object. One undo step undoes both.
+ * Returns the ID of the new asset.
+ */
+export function applyAiScript(options: {
+  readonly name: string;
+  readonly data: BlockScriptData;
+  readonly objectId: string | null;
+  readonly folder: string;
+}): string | null {
+  const { project, scene } = useDocument.getState();
+  if (!project || !scene) return null;
+  const entry = project.createAsset(
+    'blockScript',
+    project.uniqueAssetPath(options.folder, options.name, 'blockScript'),
+    options.data,
+  );
+  const before = scene;
+  const after =
+    options.objectId && options.objectId in before.objects
+      ? addComponent(before, [options.objectId], 'blockScript', false, { script: entry.id })
+      : before;
+  useDocument.setState({ scene: after });
+  touch(true);
+  refactorUndo.push({
+    label: 'undo.aiScript',
+    seq: ++actionSeq,
+    undo: () => {
+      project.deleteAsset(entry.id);
+      useDocument.setState({ scene: before });
+      touch(true);
+    },
+    redo: () => {
+      project.adoptAsset(entry.path, entry.meta, { data: options.data });
+      useDocument.setState({ scene: after });
+      touch(true);
+    },
+  });
+  refactorRedo.length = 0;
+  syncHistoryLabels();
+  return entry.id;
 }

@@ -12,8 +12,8 @@ repository (documentation, issues, pull requests) is in English.
 ![Blockwerk editor with the village example from phase 2](docs/screenshots/phase-02.png)
 
 > **Status:** early development. Phases 0 to 8 are done (editor, block scripts, asset library,
-> player, physics, environment, NPCs, UI and saving, large projects, debugging), phase 9 (build and
-> export) is in review. To try it out: "File → Open Example Project" and press Play; "File → Build
+> player, physics, environment, NPCs, UI and saving, large projects, debugging), phases 9 (build and
+> export) and 10 (AI assistant, optional with your own key, [docs/ai.md](docs/ai.md)) are in review. To try it out: "File → Open Example Project" and press Play; "File → Build
 > Settings" makes a web build or a Windows app of a game ([docs/export.md](docs/export.md)). See
 > the [roadmap](#roadmap) for the current state.
 
@@ -79,7 +79,7 @@ trying out characters, the Character Studio and an asset library with CC0 models
 | 7     | Large projects                                | ✅ done   |
 | 8     | Debugging                                     | ✅ done   |
 | 9     | Build and export                              | in review |
-| 10    | AI assistant                                  | planned   |
+| 10    | AI assistant                                  | in review |
 | 11    | Polish and final acceptance                   | planned   |
 
 The full specification is in [SPEC.md](SPEC.md) (German), the progress of each phase in
@@ -87,7 +87,9 @@ The full specification is in [SPEC.md](SPEC.md) (German), the progress of each p
 
 ## Principles
 
-- Everything is free, local and offline. No account, no build limits, no telemetry.
+- Everything is free, local and offline. No account, no build limits, no telemetry. The only
+  exception is the optional AI assistant, which talks to Anthropic with your own key and is
+  invisible without one.
 - Projects are readable files and friendly to Git.
 - The bundled asset library contains CC0 models only.
 

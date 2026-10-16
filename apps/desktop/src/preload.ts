@@ -32,6 +32,17 @@ export interface DesktopApi {
     remove(root: string, path: string): Promise<void>;
     rename(root: string, from: string, to: string): Promise<void>;
   };
+  readonly ai: {
+    hasKey(): Promise<boolean>;
+    setKey(key: string): Promise<'encrypted' | 'session'>;
+    clearKey(): Promise<void>;
+    send(
+      request: unknown,
+    ): Promise<
+      | { readonly ok: true; readonly body: unknown }
+      | { readonly ok: false; readonly status: number; readonly message: string }
+    >;
+  };
   readonly exporter: {
     chooseFolder(): Promise<string | null>;
     writeFiles(folder: string, files: readonly ExportFile[], clean: boolean): Promise<void>;
@@ -72,6 +83,15 @@ const api: DesktopApi = {
     list: (root, path) => ipcRenderer.invoke('fs:list', root, path) as Promise<FileEntry[]>,
     remove: (root, path) => ipcRenderer.invoke('fs:remove', root, path) as Promise<void>,
     rename: (root, from, to) => ipcRenderer.invoke('fs:rename', root, from, to) as Promise<void>,
+  },
+  ai: {
+    hasKey: () => ipcRenderer.invoke('ai:hasKey') as Promise<boolean>,
+    setKey: (key) => ipcRenderer.invoke('ai:setKey', key) as Promise<'encrypted' | 'session'>,
+    clearKey: () => ipcRenderer.invoke('ai:clearKey') as Promise<void>,
+    send: (request) =>
+      ipcRenderer.invoke('ai:send', request) as Promise<
+        { ok: true; body: unknown } | { ok: false; status: number; message: string }
+      >,
   },
   exporter: {
     chooseFolder: () => ipcRenderer.invoke('export:chooseFolder') as Promise<string | null>,

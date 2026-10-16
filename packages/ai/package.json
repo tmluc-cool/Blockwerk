@@ -1,0 +1,25 @@
+{
+  "name": "@blockwerk/ai",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@blockwerk/blocks": "workspace:*",
+    "@blockwerk/compiler": "workspace:*",
+    "@blockwerk/library": "workspace:*",
+    "@blockwerk/project": "workspace:*"
+  },
+  "devDependencies": {
+    "@blockwerk/runtime": "workspace:*",
+    "@types/node": "24.19.2",
+    "@types/three": "^0.186.0",
+    "three": "^0.186.1"
+  }
+}

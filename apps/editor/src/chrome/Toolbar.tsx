@@ -3,6 +3,7 @@ import {
   Hand,
   Layers,
   LayoutGrid,
+  Sparkles,
   Move,
   Move3d,
   Pause,
@@ -15,7 +16,8 @@ import {
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 import type { TranslationKey } from '../i18n';
-import { useLayout } from '../layout/layoutController';
+import { useAiSettings } from '../ai/aiSettings';
+import { openPanel, useLayout } from '../layout/layoutController';
 import { useEditor } from '../state/editor';
 import {
   pause,
@@ -49,6 +51,8 @@ export function Toolbar() {
   const { tool, setTool, pivotMode, togglePivotMode, space, toggleSpace } = useEditor();
   useLayout((state) => state.named);
   const [openMenu, setOpenMenu] = useState<'layout' | 'layers' | null>(null);
+  // The assistant exists only with a stored key (SPEC 9.4).
+  const hasAiKey = useAiSettings((state) => state.hasKey);
   const status = usePlay((state) => state.status);
   const timeScale = usePlay((state) => state.timeScale);
   const ready = useDocument((state) => state.scene !== null);
@@ -151,6 +155,17 @@ export function Toolbar() {
         </select>
       </div>
       <div className="toolbar-group right">
+        {hasAiKey && (
+          <button
+            type="button"
+            className="text-button"
+            data-testid="toolbar-ai"
+            onClick={() => openPanel('ai')}
+          >
+            <Sparkles size={14} />
+            {t('toolbar.ai')}
+          </button>
+        )}
         <MenuButton
           className="text-button"
           label={

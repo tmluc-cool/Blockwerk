@@ -9,6 +9,7 @@ import {
   saveLayoutAs,
   useLayout,
 } from '../layout/layoutController';
+import { useAiSettings } from '../ai/aiSettings';
 import { PANELS } from '../layout/panels';
 import { COMPONENTS, PRIMITIVE_SHAPES } from '@blockwerk/runtime';
 import {
@@ -43,7 +44,7 @@ import {
   useDocument,
 } from '../state/document';
 import { useEditor } from '../state/editor';
-import { showPhysicsSettings } from '../state/dialogs';
+import { showPhysicsSettings, showPreferences } from '../state/dialogs';
 import { playInTestArea } from '../testArea/playTestArea';
 import { pause, step, togglePlay, usePlay } from '../state/play';
 import type { Translate } from '../i18n';
@@ -296,6 +297,11 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
         { kind: 'separator' },
         { label: t('menu.edit.projectSettings'), disabled: true },
         {
+          label: t('menu.edit.preferences'),
+          testId: 'menu-preferences',
+          action: showPreferences,
+        },
+        {
           label: t('menu.edit.physicsSettings'),
           testId: 'menu-physics-settings',
           action: showPhysicsSettings,
@@ -366,7 +372,9 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
         {
           label: t('menu.window.panels'),
           testId: 'menu-open-window',
-          submenu: PANELS.map<MenuItem>((panel) => ({
+          submenu: PANELS.filter(
+            (panel) => panel.id !== 'ai' || useAiSettings.getState().hasKey,
+          ).map<MenuItem>((panel) => ({
             label: t(panel.titleKey),
             shortcut: panel.focusKey ? `Ctrl+${panel.focusKey}` : undefined,
             testId: `open-${panel.id}`,
