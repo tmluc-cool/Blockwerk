@@ -37,12 +37,12 @@
   --bw-hover: rgba(0, 0, 0, 0.06);
   --bw-pressed: rgba(0, 0, 0, 0.12);
   --bw-input: #f6f7f9;
-  --bw-accent: #d97a0a;
+  --bw-accent: #b35a00;
   --bw-accent-text: #ffffff;
   --bw-selection: #3a78c2;
   --bw-selection-text: #ffffff;
   --bw-prefab: #1f5fae;
-  --bw-warning: #b07d00;
+  --bw-warning: #8a6200;
   --bw-error: #c8322e;
   --bw-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
 }
@@ -113,7 +113,10 @@ select {
 
 input:focus-visible,
 select:focus-visible,
-button:focus-visible {
+textarea:focus-visible,
+button:focus-visible,
+canvas:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--bw-accent);
   outline-offset: -1px;
 }
@@ -2570,4 +2573,16 @@ button.small {
 }
 .ai-answer-text {
   white-space: pre-wrap;
+}
+
+/* Respect the system setting "reduce motion": no running animations, no slow transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

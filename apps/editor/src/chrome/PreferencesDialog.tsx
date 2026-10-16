@@ -27,8 +27,14 @@ export function PreferencesDialog() {
     });
   };
   return (
-    <div className="dialog" role="dialog" aria-modal="true" data-testid="preferences-dialog">
-      <h2>{t('preferences.title')}</h2>
+    <div
+      className="dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialog-title"
+      data-testid="preferences-dialog"
+    >
+      <h2 id="dialog-title">{t('preferences.title')}</h2>
       <h3>{t('preferences.ai')}</h3>
       <p className="muted">{t('preferences.aiHint')}</p>
       {hasKey ? (

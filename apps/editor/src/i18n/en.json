@@ -234,6 +234,8 @@
   "inspector.mixed": "—",
   "inspector.addTag": "Add Tag …",
   "inspector.addLayer": "Add Layer …",
+  "inspector.toggleComponent": "Expand or collapse component",
+  "inspector.objectName": "Object name",
   "inspector.componentMenu": "Component menu",
   "inspector.reset": "Reset",
   "inspector.copyValues": "Copy Component",

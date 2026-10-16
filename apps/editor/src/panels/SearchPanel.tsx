@@ -183,6 +183,7 @@ export function SearchPanel(_props: IDockviewPanelProps) {
           autoFocus
           value={query}
           placeholder={t('search.placeholder')}
+          aria-label={t('search.placeholder')}
           data-testid="search-input"
           onChange={(event) => setQuery(event.target.value)}
         />

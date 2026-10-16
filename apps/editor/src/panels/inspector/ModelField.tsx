@@ -144,6 +144,7 @@ export function ModelField({
             autoFocus
             type="search"
             placeholder={t('inspector.model.search')}
+            aria-label={t('inspector.model.search')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {

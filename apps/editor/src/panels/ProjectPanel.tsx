@@ -259,6 +259,7 @@ export function ProjectPanel(_props: IDockviewPanelProps) {
           className="search"
           type="search"
           placeholder={t('project.search')}
+          aria-label={t('project.search')}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />

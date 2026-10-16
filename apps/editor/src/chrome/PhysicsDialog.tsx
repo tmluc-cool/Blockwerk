@@ -27,9 +27,10 @@ export function PhysicsDialog() {
       className="dialog dialog-wide"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="dialog-title"
       data-testid="physics-dialog"
     >
-      <h2>{t('physics.title')}</h2>
+      <h2 id="dialog-title">{t('physics.title')}</h2>
       <div className="physics-row">
         <label>{t('physics.gravity')}</label>
         <NumberInput
