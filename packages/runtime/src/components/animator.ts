@@ -136,7 +136,7 @@ export const animator = defineComponent({
       text: { de: 'Tempo der Renn-Animation (m/s)', en: 'Run Animation Speed' },
     },
   },
-  create({ object }) {
+  create({ object, world }) {
     let values = {
       useControls: true,
       defaultState: 'idle',
@@ -199,6 +199,19 @@ export const animator = defineComponent({
         action.clampWhenFinished = !loops;
         actions.set(clip.name, action);
         weights.set(action, 0);
+      }
+      // A figure that walks around but has no way to show it is worth a note in the console.
+      const walks = object.components.some(
+        (candidate) =>
+          candidate.definition.type === 'navAgent' || candidate.definition.type.endsWith('Control'),
+      );
+      if (walks && !states.has('walk') && !states.has('run')) {
+        world.reportProblem({
+          severity: 'warning',
+          code: 'figureWithoutAnimation',
+          params: { object: object.name, animation: ANIMATION_STATE_TEXT.walk.de },
+          link: { objectId: object.cloneOf ?? object.id },
+        });
       }
       created.addEventListener('finished', (event) => {
         const finished = (event as unknown as { action: AnimationAction }).action;

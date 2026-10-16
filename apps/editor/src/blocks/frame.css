@@ -26,6 +26,18 @@ body[data-theme='light'] {
   filter: drop-shadow(0 0 4px rgba(255, 211, 77, 0.8));
 }
 
+/* Breakpoints (SPEC 9.2): a red outline; the block a script stopped at glows. */
+.bw-breakpoint > .blocklyPath {
+  stroke: #e5484d;
+  stroke-width: 3px;
+}
+
+.bw-stopped > .blocklyPath {
+  stroke: #ffd34d;
+  stroke-width: 4px;
+  filter: drop-shadow(0 0 6px rgba(255, 211, 77, 0.95));
+}
+
 body[data-empty='true'] .blocklyToolbox,
 body[data-empty='true'] .blocklyFlyout {
   pointer-events: none;

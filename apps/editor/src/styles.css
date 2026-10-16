@@ -825,6 +825,28 @@ button:focus-visible {
   font-weight: 600;
 }
 
+.play-debug-group {
+  margin-bottom: 6px;
+}
+
+.play-debug .live-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.play-debug .live-row > span {
+  flex: 0 0 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.play-debug .live-value {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--bw-mono, monospace);
+}
+
 .script-variables {
   margin-top: 4px;
   border-top: 1px dashed var(--bw-border);
@@ -2394,4 +2416,49 @@ button.small {
 .icon-button.active {
   background: var(--bw-accent);
   color: var(--bw-accent-text);
+}
+
+.profiler {
+  padding: 8px;
+  overflow: auto;
+}
+
+.profiler-chart {
+  width: 100%;
+  height: 120px;
+  background: var(--bw-surface-2, rgba(0, 0, 0, 0.15));
+  border-radius: 4px;
+}
+
+.profiler-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 6px 0;
+  font-size: 12px;
+}
+
+.profiler-key i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  border-radius: 2px;
+}
+
+.profiler-numbers {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 12px;
+  margin: 0 0 8px;
+}
+
+.profiler-numbers dd {
+  margin: 0;
+}
+
+.profiler-prefab-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }

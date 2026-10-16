@@ -18,6 +18,7 @@ export { buildSearchIndex, searchBlocks } from './search';
 export type { BlockSearchEntry } from './search';
 export { CUSTOM_CALLS, CUSTOM_DEFINITIONS, CUSTOM_NAME_FIELD } from './catalog/custom';
 export {
+  evaluateExpression,
   expressionToBlocks,
   ExpressionError,
   isPlainNumber,
@@ -25,4 +26,10 @@ export {
   parseExpression,
   toBlocks,
 } from './expression';
-export type { BinaryOperator, BlockState, Expression, ExpressionScope } from './expression';
+export type {
+  BinaryOperator,
+  BlockState,
+  Expression,
+  ExpressionScope,
+  ExpressionValue,
+} from './expression';

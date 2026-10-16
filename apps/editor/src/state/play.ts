@@ -3,6 +3,7 @@ import type { ProjectLibrary, ProjectScript } from '@blockwerk/compiler';
 import { assetDisplayName, resolvePrefab } from '@blockwerk/project';
 import type { BlockScriptData, SaveData, SceneData } from '@blockwerk/project';
 import { Game, initPhysics, loadedRapier, loadScriptModule, setQuality } from '@blockwerk/runtime';
+import type { DebugHit, Problem } from '@blockwerk/runtime';
 import type { GamepadSnapshot } from '@blockwerk/runtime';
 import type {
   CarryState,
@@ -14,6 +15,7 @@ import type {
 } from '@blockwerk/runtime';
 import { create } from 'zustand';
 import type { TranslationKey } from '../i18n';
+import { lastGameViewStats } from '../game/GameViewport';
 import { gameView } from '../game/gameViews';
 import { gameSettings } from '../game/settingsStore';
 import { LocalSaveStorage } from '../game/saveStorage';
@@ -29,6 +31,10 @@ import {
   worldUpdated,
 } from '../scene/worlds';
 import { useConsole } from './console';
+import { breakpointConditions, useDebug } from './debug';
+import { checkScene } from '../document/sceneCheck';
+import { revealLink } from '../navigation';
+import { useSettings } from './settings';
 import { editScene, prefabSource, useDocument } from './document';
 
 /** A value changed while playing that can be kept after stopping. */
@@ -140,6 +146,8 @@ function compileAsset(
       assetId: id,
       variables: data.variables,
       library: shared,
+      // The editor's play mode is the debug mode: breakpoints and stepping need the hooks.
+      debug: true,
     });
     for (const diagnostic of result.diagnostics) {
       useConsole
@@ -206,7 +214,12 @@ function hotReload(): void {
 
 function logGame(entry: GameLogEntry): void {
   const log = useConsole.getState();
-  if (entry.kind === 'scriptError') {
+  if (entry.kind === 'problem') {
+    logProblem(entry.problem);
+    if (entry.level === 'error' && log.errorPause && usePlay.getState().status === 'playing') {
+      pause();
+    }
+  } else if (entry.kind === 'scriptError') {
     log.log(
       'error',
       'console.scriptError',
@@ -218,6 +231,20 @@ function logGame(entry: GameLogEntry): void {
       },
     );
     if (log.errorPause && usePlay.getState().status === 'playing') pause();
+  } else if (entry.kind === 'userLog') {
+    log.log(
+      entry.level,
+      'console.userLog',
+      { object: entry.objectName, message: entry.message },
+      {
+        objectId: entry.objectId,
+        ...(entry.assetId ? { assetId: entry.assetId } : {}),
+        ...(entry.blockId ? { blockId: entry.blockId } : {}),
+      },
+    );
+    if (entry.level === 'error' && log.errorPause && usePlay.getState().status === 'playing') {
+      pause();
+    }
   } else if (entry.kind === 'missingPrefab') {
     log.log(
       'warning',
@@ -244,6 +271,28 @@ function updateUi(force = false): void {
     monitors: game?.monitors() ?? [],
     tick: game?.tick ?? 0,
   }));
+}
+
+/** One frame as the Profiler shows it: where the time went (milliseconds) and what was drawn. */
+export interface ProfilerSample {
+  readonly frameMs: number;
+  readonly scripts: number;
+  readonly physics: number;
+  readonly npc: number;
+  readonly components: number;
+  readonly other: number;
+  readonly renderMs: number;
+  readonly drawCalls: number;
+  readonly triangles: number;
+}
+
+const profilerFrames: ProfilerSample[] = [];
+/** How many frames the Profiler keeps. */
+export const PROFILER_FRAMES = 300;
+
+/** The last frames of play mode for the Profiler, oldest first. */
+export function profilerSamples(): readonly ProfilerSample[] {
+  return profilerFrames;
 }
 
 /** Times of the recent play-mode frames and how long each took (for the statistics). */
@@ -280,10 +329,21 @@ function loop(time: number): void {
   game.paused = status !== 'playing' || sceneChange !== null;
   game.input.setGamepads(readGamepads());
   const alpha = game.advance(dt);
+  const logicEnd = performance.now();
   const request = game.takeSceneRequest();
   if (request) beginSceneChange(request);
   updateLoading();
   game.renderInterpolated(alpha, renderViews);
+  const renderMs = performance.now() - logicEnd;
+  const drawn = lastGameViewStats();
+  profilerFrames.push({
+    frameMs: performance.now() - workStart,
+    ...game.takeProfile(),
+    renderMs,
+    drawCalls: drawn?.drawCalls ?? 0,
+    triangles: drawn?.triangles ?? 0,
+  });
+  if (profilerFrames.length > PROFILER_FRAMES) profilerFrames.shift();
   updateUiLayer(game, usePlay.getState().loading);
   if (game.quitRequested) {
     stop();
@@ -371,6 +431,7 @@ function createGame(scene: SceneData, extras: GameExtras): Game {
     saves: new LocalSaveStorage(project?.settings.name ?? 'project'),
     savedVariables: savedVariableIds(),
     log: logGame,
+    debug: { breakpoints: breakpointConditions, onHit: onDebugHit },
     displayName: defaultObjectName,
     models: editorModels,
     onModelLoaded: worldUpdated,
@@ -382,6 +443,48 @@ function createGame(scene: SceneData, extras: GameExtras): Game {
     ...(extras.spawn !== undefined ? { spawn: extras.spawn } : {}),
     ...(extras.save ? { save: extras.save } : {}),
   });
+}
+
+/** Texts in the interface language: the check hands both, `fieldEn` / `componentEn` are English. */
+function problemParams(problem: Problem, german: boolean): Record<string, string> {
+  const params: Record<string, string> = { ...problem.params };
+  if (!german) {
+    if (params['componentEn']) params['component'] = params['componentEn'];
+    if (params['fieldEn']) params['field'] = params['fieldEn'];
+  }
+  delete params['componentEn'];
+  delete params['fieldEn'];
+  return params;
+}
+
+/** A script stopped at a breakpoint or after a step: pauses the game and shows the block. */
+function onDebugHit(hit: DebugHit): void {
+  useDebug.getState().setHit(hit);
+  usePlay.setState({ status: 'paused' });
+  const link = { objectId: hit.objectId, assetId: hit.assetId, blockId: hit.blockId };
+  useConsole.getState().log('info', 'console.breakpointHit', { object: hit.objectName }, link);
+  revealLink(link);
+}
+
+/** Writes a problem to the console, with the script name filled in where the problem has a script. */
+function logProblem(problem: Problem): void {
+  const { project } = useDocument.getState();
+  const locale = useSettings.getState().locale;
+  const params = problemParams(problem, locale === 'de');
+  const assetId = problem.link.assetId;
+  const entry = assetId ? project?.asset(assetId) : undefined;
+  if (entry && params['script'] === undefined) params['script'] = assetDisplayName(entry.path);
+  useConsole.getState().log(problem.severity, `check.${problem.code}`, params, problem.link);
+}
+
+/** Checks a freshly built scene and lists the problems in the console (nothing stops the game). */
+export function runSceneCheck(built: Game): number {
+  const { project } = useDocument.getState();
+  if (!project) return 0;
+  const locale = useSettings.getState().locale;
+  const problems = checkScene(built.world, { project, displayName: assetDisplayName, locale });
+  for (const problem of problems) logProblem(problem);
+  return problems.length;
 }
 
 /** IDs of the game variables (of all block scripts) that belong in a save. */
@@ -440,6 +543,7 @@ function beginSceneChange(request: SceneRequest): void {
     });
     next.audio.setMuted(useMute.getState().muted);
     next.world.updateSun();
+    runSceneCheck(next);
     game = next;
     setPlayWorld(next.world);
     old.dispose();
@@ -493,6 +597,7 @@ export function play(options: PlayOptions = {}): void {
   playStarted = performance.now();
   frameTimes.length = 0;
   frameWork.length = 0;
+  profilerFrames.length = 0;
   const scene = options.scene ?? useDocument.getState().scene;
   if (!scene) return;
   compileAll();
@@ -507,6 +612,7 @@ export function play(options: PlayOptions = {}): void {
     sceneName: openScene ? assetDisplayName(openScene.path) : undefined,
   });
   game.audio.setMuted(useMute.getState().muted);
+  runSceneCheck(game);
   // The Play click allows sound in the browser.
   game.audio.resume();
   // Same sun as the edit world: reuse its baked ambient light instead of baking again.
@@ -539,6 +645,7 @@ export function stop(): void {
   unsubscribeAssets = null;
   const finished = game;
   game = null;
+  useDebug.getState().setHit(null);
   setPlayWorld(null);
   finished.dispose();
   updateUiLayer(null, null);
@@ -557,7 +664,22 @@ export function togglePlay(): void {
 export function pause(): void {
   const { status } = usePlay.getState();
   if (status === 'playing') usePlay.setState({ status: 'paused' });
-  else if (status === 'paused') usePlay.setState({ status: 'playing' });
+  else if (status === 'paused') {
+    // Continue after a breakpoint: the script that stopped goes on.
+    useDebug.getState().setHit(null);
+    usePlay.setState({ status: 'playing' });
+  }
+}
+
+/**
+ * "Next block": the script that stopped runs its block and stops before the next one. The game
+ * runs until that happens, so everything else keeps going in between.
+ */
+export function stepBlock(): void {
+  if (!game || !useDebug.getState().hit) return;
+  game.debugStep();
+  useDebug.getState().setHit(null);
+  usePlay.setState({ status: 'playing' });
 }
 
 /** Step button (Ctrl+Alt+P): pauses and runs exactly one logic tick. */

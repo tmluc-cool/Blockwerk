@@ -11,7 +11,7 @@ import { PANELS } from './layout/panels';
 import { areaTabIds } from './chrome/AreaTabs';
 import { redo, saveProject, undo } from './state/document';
 import { TOOL_KEYS, useEditor } from './state/editor';
-import { pause, step, togglePlay } from './state/play';
+import { pause, step, stepBlock, togglePlay } from './state/play';
 
 /**
  * Whether keyboard input currently goes to a text field. Uses duck typing because events can
@@ -62,6 +62,10 @@ export function handleShortcut(event: KeyboardEvent, options: ShortcutOptions = 
     if (event.altKey) run(event, step);
     else if (event.shiftKey) run(event, pause);
     else run(event, togglePlay);
+    return;
+  }
+  if (event.key === 'F10' && !ctrl && !event.altKey && !event.repeat) {
+    run(event, stepBlock);
     return;
   }
   if (event.repeat && !(ctrl && (key === 'z' || key === 'y'))) return;

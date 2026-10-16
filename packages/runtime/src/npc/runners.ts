@@ -167,7 +167,7 @@ export class FollowRunner implements Runner {
     if (this.timer > 0 && agent.moving && !stale) return;
     this.timer = this.params.repath;
     agent.speed = this.params.speed;
-    agent.moveTo(there);
+    agent.moveTo(there, target);
   }
 
   stop({ agent }: Pick<RunnerContext, 'agent'>): void {

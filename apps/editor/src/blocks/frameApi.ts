@@ -47,6 +47,8 @@ export interface FrameReferences {
     readonly missingBlock: string;
     readonly noInput: string;
     readonly quickInsert: string;
+    readonly toggleBreakpoint: string;
+    readonly breakpointCondition: string;
   };
 }
 
@@ -107,6 +109,10 @@ export interface BlockFrameOptions {
   readonly onSelectBlock: (blockId: string | null) => void;
   /** "All usages" on a block: searches the project for the name it stands for. */
   readonly onFindUsages: (name: string) => void;
+  /** F9 or "Toggle breakpoint" on a block. */
+  readonly onToggleBreakpoint: (blockId: string) => void;
+  /** "Breakpoint condition…" on a block. */
+  readonly onBreakpointCondition: (blockId: string) => void;
   /** Asks for the name of a new custom block (resolves to `null` when cancelled). */
   readonly askName: () => Promise<string | null>;
   /** Called with the serialized workspace (JSON) after every change. */
@@ -136,6 +142,10 @@ export interface BlockFrameController {
   updateDefinition(blockId: string, spec: CustomBlockSpec): void;
   /** Lets the stacks of running hat blocks glow (play mode). */
   setRunning(hatIds: readonly string[]): void;
+  /** Marks the blocks that have a breakpoint. */
+  setBreakpoints(blockIds: readonly string[]): void;
+  /** Marks the block a script stopped at (`null`: none). */
+  setStoppedAt(blockId: string | null): void;
   /** Scrolls to a block and selects it. */
   reveal(blockId: string): void;
   dispose(): void;

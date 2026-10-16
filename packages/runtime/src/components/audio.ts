@@ -25,6 +25,7 @@ const fields = {
   sound: {
     type: 'asset',
     assetType: 'sound',
+    required: true,
     default: null,
     text: { de: 'Klang', en: 'Sound' },
   },

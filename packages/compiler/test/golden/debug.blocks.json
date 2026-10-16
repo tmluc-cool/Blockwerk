@@ -1,0 +1,43 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "events.whenGameStarts",
+        "id": "dbg-1",
+        "next": {
+          "block": {
+            "type": "control.log",
+            "id": "dbg-2",
+            "fields": { "level": "warning" },
+            "inputs": {
+              "message": {
+                "shadow": {
+                  "type": "literal.text",
+                  "id": "dbg-3",
+                  "fields": { "TEXT": "Achtung" }
+                }
+              }
+            },
+            "next": {
+              "block": {
+                "type": "control.log",
+                "id": "dbg-4",
+                "fields": { "level": "info" },
+                "inputs": {
+                  "message": {
+                    "shadow": {
+                      "type": "literal.number",
+                      "id": "dbg-5",
+                      "fields": { "NUM": 42 }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

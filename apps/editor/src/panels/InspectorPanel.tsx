@@ -6,7 +6,7 @@ import {
   isFieldVisible,
   particleTemplateValues,
 } from '@blockwerk/runtime';
-import type { ComponentDefinition, FieldDefinition } from '@blockwerk/runtime';
+import type { ComponentDefinition, FieldDefinition, GameObject } from '@blockwerk/runtime';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { ChevronDown, ChevronRight, EllipsisVertical, Pin } from 'lucide-react';
 import type { MouseEvent, ReactNode } from 'react';
@@ -44,6 +44,7 @@ import {
 } from '../state/document';
 import { useEditor } from '../state/editor';
 import { keepAllChanges, keepChange, playingWorld, usePlay } from '../state/play';
+import { PlayDebug } from './inspector/PlayDebug';
 import type { TranslationKey } from '../i18n';
 import { useSettings, useT } from '../state/settings';
 import { TerrainTools } from '../terrain/TerrainTools';
@@ -870,6 +871,9 @@ export function InspectorPanel(_props: IDockviewPanelProps) {
           overrideMark={overrideMark}
         />
       ))}
+      {playing && entries.length === 1 && world?.getObject(active.id) && (
+        <PlayDebug object={world.getObject(active.id) as GameObject} />
+      )}
       <AddComponentButton disabled={playing} />
       {menu && <ContextMenu menu={menu} onClose={() => setMenu(null)} />}
     </div>

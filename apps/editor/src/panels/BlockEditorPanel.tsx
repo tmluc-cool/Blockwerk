@@ -28,6 +28,7 @@ import { handleShortcut } from '../shortcuts';
 import { editCustomBlock, prompt } from '../state/dialogs';
 import { BUILT_IN_TAGS, updateBlockScript, useDocument } from '../state/document';
 import { activeObjectId, paletteArea, useEditor } from '../state/editor';
+import { askBreakpointCondition, useDebug } from '../state/debug';
 import { currentGame, usePlay } from '../state/play';
 import { t as translateNow, useSettings, useT } from '../state/settings';
 import type { TranslationKey } from '../i18n';
@@ -124,6 +125,8 @@ function references(scene: SceneData | null): FrameReferences {
       createVariable: t('blockEditor.createVariable'),
       noVariables: t('blockEditor.noVariables'),
       makeBlock: t('blocks.makeBlock'),
+      toggleBreakpoint: t('blocks.toggleBreakpoint'),
+      breakpointCondition: t('blocks.breakpointCondition'),
       editBlock: t('blocks.editBlock'),
       goToDefinition: t('blocks.goToDefinition'),
       findUsages: t('blocks.findUsages'),
@@ -561,6 +564,14 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
           useEditor.getState().showBlock(assetId, fn);
         },
         askName: () => prompt(translateNow('customBlock.askName')),
+        onToggleBreakpoint: (blockId) => {
+          const target = openScriptEntry();
+          if (target) useDebug.getState().toggleBreakpoint(target.id, blockId);
+        },
+        onBreakpointCondition: (blockId) => {
+          const target = openScriptEntry();
+          if (target) void askBreakpointCondition(target.id, blockId);
+        },
         onFindUsages: (name) => openSearch(name),
         onSelectBlock: (blockId) => setSelectedBlock(blockId),
         onChange: (state) => {
@@ -652,6 +663,22 @@ export function BlockEditorPanel(_props: IDockviewPanelProps) {
     if (revealBlock && revealBlock.assetId === entry?.id)
       controllerRef.current?.reveal(revealBlock.blockId);
   }, [revealBlock, entry?.id]);
+
+  // Breakpoints and the block a script stopped at are marked in the open script.
+  const breakpoints = useDebug((state) => state.breakpoints);
+  const stoppedAt = useDebug((state) => state.hit);
+  useEffect(() => {
+    const controller = controllerRef.current;
+    if (!controller) return;
+    controller.setBreakpoints(
+      entry
+        ? Object.values(breakpoints)
+            .filter((breakpoint) => breakpoint.assetId === entry.id)
+            .map((breakpoint) => breakpoint.blockId)
+        : [],
+    );
+    controller.setStoppedAt(entry && stoppedAt?.assetId === entry.id ? stoppedAt.blockId : null);
+  }, [breakpoints, stoppedAt, entry]);
 
   // Running scripts glow while playing.
   useEffect(() => {

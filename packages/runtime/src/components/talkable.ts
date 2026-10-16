@@ -5,6 +5,7 @@ const talkableFields = {
   dialog: {
     type: 'asset',
     assetType: 'dialog',
+    required: true,
     default: null,
     text: { de: 'Dialog', en: 'Dialog' },
   },

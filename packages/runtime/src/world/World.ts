@@ -1,3 +1,4 @@
+import type { Problem } from '../check/problems';
 import { MessageBus, ObjectEvents } from '../game/messages';
 import { Interactables } from '../gameplay/interaction';
 import { DEFAULT_NAVIGATION, Navigation } from '../navigation/Navigation';
@@ -94,6 +95,9 @@ export class World {
   checkpoint: Vector3 | null = null;
   /** Draw the state of NPCs above them (play mode; the editor's own world leaves it off). */
   showNpcStates = false;
+  /** Where problems found while playing go (the game sets it; the console shows them). */
+  onProblem: ((problem: Problem) => void) | null = null;
+  private readonly reportedProblems = new Set<string>();
 
   constructor(data: SceneData, options: WorldOptions = {}) {
     this.options = options;
@@ -105,6 +109,14 @@ export class World {
     this.sync(data);
     // Sky, fog and weather of the scene apply from the start, not only when they change.
     this.applyEnvironment();
+  }
+
+  /** Reports a problem once per object and kind (a stuck NPC would otherwise fill the console). */
+  reportProblem(problem: Problem): void {
+    const key = `${problem.code}|${problem.link.objectId ?? ''}|${problem.params['target'] ?? ''}`;
+    if (this.reportedProblems.has(key)) return;
+    this.reportedProblems.add(key);
+    this.onProblem?.(problem);
   }
 
   /**

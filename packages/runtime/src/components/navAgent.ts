@@ -4,13 +4,17 @@ import type { ControlState } from './controls';
 import { defineComponent } from './defineComponent';
 import type { FieldDefinitions, TickContext, TickStage } from './defineComponent';
 import type { NavigationAgent } from '../navigation/Navigation';
+import type { GameObject } from '../world/GameObject';
 
 /** What blocks and NPC components use to send an agent somewhere. */
 export interface NavAgentHandle {
   /** Walking speed in m/s (components of the NPC change it, e.g. running when chasing). */
   speed: number;
-  /** Starts walking to a point. Returns `false` if the point cannot be reached. */
-  moveTo(point: Vector3): boolean;
+  /**
+   * Starts walking to a point. Returns `false` if the point cannot be reached. `target` names the
+   * object the walk is for: if there is no way to it, the problem is reported in the console.
+   */
+  moveTo(point: Vector3, target?: GameObject): boolean;
   /** Stops walking. */
   stop(): void;
   /** Walking to a destination now. */
@@ -158,14 +162,24 @@ export const navAgent = defineComponent({
         speedSetting = Math.max(0, value);
         agent?.update({ speed: speedSetting });
       },
-      moveTo(point) {
+      moveTo(point, target) {
         destination = point.clone();
         arrived = false;
         if (world.navigation.ensureBuilt()) {
           ensureAgent();
           const ok = agent?.moveTo(point) ?? false;
           moving = ok;
-          if (!ok) destination = null;
+          if (!ok) {
+            destination = null;
+            if (target) {
+              world.reportProblem({
+                severity: 'error',
+                code: 'noPathToTarget',
+                params: { object: object.name, target: target.name },
+                link: { objectId: object.cloneOf ?? object.id },
+              });
+            }
+          }
           return ok;
         }
         // No navigation mesh (no ground or the engine is missing): walk in a straight line.
