@@ -234,6 +234,8 @@
   "inspector.mixed": "—",
   "inspector.addTag": "Tag hinzufügen …",
   "inspector.addLayer": "Ebene hinzufügen …",
+  "inspector.toggleComponent": "Komponente ein- oder ausklappen",
+  "inspector.objectName": "Name des Objekts",
   "inspector.componentMenu": "Komponenten-Menü",
   "inspector.reset": "Zurücksetzen",
   "inspector.copyValues": "Werte kopieren",

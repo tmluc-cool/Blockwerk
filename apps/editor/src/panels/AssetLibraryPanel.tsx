@@ -103,6 +103,7 @@ export function AssetLibraryPanel(_props: IDockviewPanelProps) {
           type="search"
           data-testid="library-search"
           placeholder={t('assetLibrary.search')}
+          aria-label={t('assetLibrary.search')}
           value={filter.query}
           onChange={(event) => update({ query: event.target.value })}
         />

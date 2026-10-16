@@ -552,11 +552,13 @@ function defineWalkingControl(
   text: { de: string; en: string },
   docs: { de: string; en: string },
   keywords: { de: string[]; en: string[] },
+  unity: string,
 ) {
   return defineComponent({
     type,
     category: 'gameplay',
     unique: true,
+    unity,
     text,
     docs,
     keywords,
@@ -591,6 +593,7 @@ export const thirdPersonControl = defineWalkingControl(
     de: ['spieler', 'steuerung', 'laufen', 'springen'],
     en: ['player', 'controller', 'walk', 'jump'],
   },
+  'ThirdPersonController (Starter Assets)',
 );
 
 /** First-Person-Steuerung: the view turns the character, movement is relative to it. */
@@ -603,6 +606,7 @@ export const firstPersonControl = defineWalkingControl(
     en: 'First person: mouse or right stick turn the character, movement follows the view. Needs a Character Controller.',
   },
   { de: ['ego', 'spieler', 'steuerung'], en: ['fps', 'player', 'controller'] },
+  'FirstPersonController (Starter Assets)',
 );
 
 /** Draufsicht-Steuerung: like third person, for cameras from above. */
@@ -615,6 +619,7 @@ export const topDownControl = defineWalkingControl(
     en: 'For games seen from above: move in screen directions, the character turns into the walking direction. Needs a Character Controller.',
   },
   { de: ['draufsicht', 'oben', 'spieler'], en: ['top down', 'player', 'controller'] },
+  'top-down controller (custom script)',
 );
 
 const VEHICLE_FIELDS = {
@@ -667,6 +672,7 @@ const VEHICLE_FIELDS = {
 /** Fahrzeug-Steuerung: gas, brake, reverse and steering like an arcade car. */
 export const vehicleControl = defineComponent({
   type: 'vehicleControl',
+  unity: 'WheelCollider + vehicle script',
   category: 'gameplay',
   unique: true,
   text: { de: 'Fahrzeug-Steuerung', en: 'Vehicle Controller' },

@@ -3,6 +3,7 @@ export { BlockDefinitionError, defineBlock, isFieldType, placeholdersOf } from '
 export { AREA_CATEGORIES, CATEGORIES, getCategory } from './categories';
 export type { CategoryDefinition } from './categories';
 export { BLOCK_CATALOG } from './catalog';
+export { BLOCK_UNITY } from './unity';
 export { BlockRegistry, defaultRegistry } from './registry';
 export { blocklyCheck, toBlocklyJson } from './blocklyJson';
 export type { BlocklyArgJson, BlocklyBlockJson } from './blocklyJson';

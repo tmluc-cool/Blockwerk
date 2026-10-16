@@ -223,6 +223,7 @@ export function HierarchyPanel(_props: IDockviewPanelProps) {
           className="search"
           type="search"
           placeholder={t('hierarchy.search')}
+          aria-label={t('hierarchy.search')}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />

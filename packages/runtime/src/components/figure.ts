@@ -163,6 +163,7 @@ const retargeted = new Map<string, AnimationClip[]>();
  */
 export const character = defineComponent({
   type: 'character',
+  unity: 'Animator + Avatar (Humanoid rig)',
   category: 'gameplay',
   unique: true,
   text: { de: 'Figur', en: 'Character' },

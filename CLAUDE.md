@@ -61,6 +61,7 @@ pnpm test:e2e       # Playwright
 pnpm lint
 pnpm build
 pnpm dist           # Windows-Installer und portable .exe
+pnpm docs:reference # Referenz aller Blöcke und Komponenten nach docs/reference erzeugen
 ```
 
 Lege diese Skripte in Phase 0 an (`assets:fetch` in Phase 2, `dist` spätestens in Phase 9) und halte sie aktuell.

@@ -174,6 +174,31 @@ describe('camera behaviors', () => {
     game.dispose();
   });
 
+  it('does not shake the camera when motion is reduced (accessibility)', () => {
+    const make = (reduceMotion: boolean): Game =>
+      new Game(
+        sceneData({
+          ground000001: ground,
+          hero00000001: hero('hero00000001'),
+          rig000000001: rig('thirdPersonCamera'),
+        }),
+        { scripts: () => null, reduceMotion },
+      );
+    const shaken = (game: Game): number => {
+      run(game, 0.3);
+      game.shakeCamera(get(game, 'rig000000001'), 3, 0.5);
+      run(game, 0.1);
+      const entry = cameraRegistry.get(get(game, 'rig000000001'));
+      return Math.abs(entry?.camera.rotation.x ?? 0) + Math.abs(entry?.camera.rotation.z ?? 0);
+    };
+    const normal = make(false);
+    expect(shaken(normal)).toBeGreaterThan(0.001);
+    normal.dispose();
+    const calm = make(true);
+    expect(shaken(calm)).toBe(0);
+    calm.dispose();
+  });
+
   it('first person, top down, side, fixed, path and shared cameras', () => {
     const path = objectData({
       name: 'Path',

@@ -39,4 +39,7 @@ export const UI_CSS = `
 .bw-ui-loading-fill { height: 100%; background: #4a8cff; transition: width 0.1s linear; }
 .bw-ui-notice { position: absolute; left: 50%; top: 24px; transform: translateX(-50%);
   padding: 6px 16px; border-radius: 6px; background: rgba(10,12,16,0.85); }
+@media (prefers-reduced-motion: reduce) {
+  .bw-ui-loading-fill { transition: none; }
+}
 `;

@@ -54,6 +54,9 @@ docs/               Documentation sources and screenshots
   the updated `THIRD_PARTY.md`.
 - The editor never uses the network. Only `pnpm assets:fetch` (development) and the optional AI
   assistant with the user's own API key may.
+- A new block needs an entry in `packages/blocks/src/unity.ts` (its Unity counterpart, or an empty
+  string if there is none), a new component a `unity` field. Run `pnpm docs:reference` and commit
+  `docs/reference/` (a test fails if it is out of date).
 - Do not use names, logos, icons or graphics of Unity, Scratch or other products.
 
 ## Commits and pull requests

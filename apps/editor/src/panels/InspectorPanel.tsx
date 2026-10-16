@@ -48,6 +48,7 @@ import { PlayDebug } from './inspector/PlayDebug';
 import type { TranslationKey } from '../i18n';
 import { useSettings, useT } from '../state/settings';
 import { TerrainTools } from '../terrain/TerrainTools';
+import { FieldLabelContext } from './inspector/fieldLabel';
 import { SoundPreviewButton } from './inspector/fields';
 import { FieldEditor, MIXED, shared, VectorInput } from './inspector/fields';
 import { ModelImportInspector } from './inspector/ModelImportInspector';
@@ -142,7 +143,9 @@ function Row({
       <span className="field-label" title={label}>
         {label}
       </span>
-      <div className="field-value">{children}</div>
+      <FieldLabelContext.Provider value={label}>
+        <div className="field-value">{children}</div>
+      </FieldLabelContext.Provider>
       {keep}
     </div>
   );
@@ -348,7 +351,13 @@ function ComponentSection({
   return (
     <section className="component" data-testid={testBase}>
       <header onContextMenu={(event) => onMenu(event, slot, definition)}>
-        <button type="button" className="icon-button flat" onClick={() => setOpen(!open)}>
+        <button
+          type="button"
+          className="icon-button flat"
+          aria-label={t('inspector.toggleComponent')}
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
         <input
@@ -775,6 +784,7 @@ export function InspectorPanel(_props: IDockviewPanelProps) {
         />
         <input
           className="name-field"
+          aria-label={t('inspector.objectName')}
           key={`${ids.join(',')}|${name === MIXED ? '' : String(name)}`}
           defaultValue={name === MIXED ? '' : String(name)}
           placeholder={name === MIXED ? t('inspector.mixed') : undefined}

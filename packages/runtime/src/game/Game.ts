@@ -201,6 +201,11 @@ export interface GameOptions extends WorldOptions {
   readonly log?: (entry: GameLogEntry) => void;
   /** Breakpoints and stepping (editor play mode only; scripts need the debug hooks to use it). */
   readonly debug?: GameDebug;
+  /**
+   * No camera shake (accessibility). Defaults to the system setting "reduce motion" where the
+   * host has one (`prefers-reduced-motion` in a browser).
+   */
+  readonly reduceMotion?: boolean;
   /** Random source in [0, 1); defaults to `Math.random`. */
   readonly random?: () => number;
   /** Creates IDs for clones. */
@@ -356,6 +361,8 @@ export class Game implements GameApi {
   private noticeState: { key: string; at: number } | null = null;
   private unsubscribeSettings: (() => void) | null = null;
   readonly settings: GameSettings;
+  /** Whether camera shake is switched off. */
+  readonly reduceMotion: boolean;
   private readonly timers = new Map<GameObject, Map<string, number>>();
   private readonly loopObjects = new WeakMap<Thread, GameObject>();
   private timerStart = 0;
@@ -382,6 +389,9 @@ export class Game implements GameApi {
   constructor(scene: SceneData, options: GameOptions) {
     this.options = options;
     this.settings = options.settings ?? new GameSettings();
+    this.reduceMotion =
+      options.reduceMotion ??
+      (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
     this.random_ = options.random ?? Math.random;
     this.world = new World(structuredClone(scene), options);
     this.audio = options.audio ?? new AudioEngine();
@@ -2010,6 +2020,7 @@ export class Game implements GameApi {
   }
 
   shakeCamera(self: GameObject, strength: number, seconds: number): void {
+    if (this.reduceMotion) return;
     gameplay.shakeCamera(this, self, strength, seconds);
   }
 

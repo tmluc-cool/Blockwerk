@@ -56,6 +56,7 @@ export function CustomBlockDialog({
       className="dialog dialog-wide"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="dialog-title"
       data-testid="custom-block-dialog"
       onSubmit={(event) => {
         event.preventDefault();
@@ -67,7 +68,9 @@ export function CustomBlockDialog({
           });
       }}
     >
-      <h2>{t(dialog.creating ? 'customBlock.titleNew' : 'customBlock.titleEdit')}</h2>
+      <h2 id="dialog-title">
+        {t(dialog.creating ? 'customBlock.titleNew' : 'customBlock.titleEdit')}
+      </h2>
       <div className="custom-row">
         <label>{t('customBlock.name')}</label>
         <input

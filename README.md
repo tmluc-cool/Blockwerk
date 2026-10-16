@@ -37,6 +37,7 @@ pnpm test           # unit and golden tests
 pnpm test:e2e       # Playwright (builds first; on Linux without a display: xvfb-run -a pnpm test:e2e)
 pnpm lint           # ESLint, Prettier, license check
 pnpm build          # type check and build of the editor and the desktop app
+pnpm docs:reference # regenerate docs/reference (all blocks and components, with the Unity counterpart)
 ```
 
 Details on the layout, the rules and how to contribute are in [CONTRIBUTING.md](CONTRIBUTING.md).

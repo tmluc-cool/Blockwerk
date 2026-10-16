@@ -19,13 +19,14 @@ function PromptDialog({ dialog }: { dialog: Extract<DialogRequest, { kind: 'prom
       className="dialog"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="dialog-title"
       data-testid="prompt-dialog"
       onSubmit={(event) => {
         event.preventDefault();
         finish(value);
       }}
     >
-      <h2>{dialog.title}</h2>
+      <h2 id="dialog-title">{dialog.title}</h2>
       <input
         autoFocus
         value={value}
@@ -52,8 +53,14 @@ function ChoiceDialog({ dialog }: { dialog: Extract<DialogRequest, { kind: 'choi
     dialog.resolve(result);
   };
   return (
-    <div className="dialog" role="dialog" aria-modal="true" data-testid="choice-dialog">
-      <h2>{dialog.title}</h2>
+    <div
+      className="dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialog-title"
+      data-testid="choice-dialog"
+    >
+      <h2 id="dialog-title">{dialog.title}</h2>
       <div className="choice-list">
         {dialog.options.length === 0 && <p className="muted">{t('dialog.nothingToChoose')}</p>}
         {dialog.options.map((option) => (
@@ -95,8 +102,14 @@ export function DialogHost() {
       ) : dialog.kind === 'choice' ? (
         <ChoiceDialog dialog={dialog} />
       ) : (
-        <div className="dialog" role="dialog" aria-modal="true" data-testid="message-dialog">
-          <h2>{dialog.title}</h2>
+        <div
+          className="dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title"
+          data-testid="message-dialog"
+        >
+          <h2 id="dialog-title">{dialog.title}</h2>
           <p>{dialog.message}</p>
           <div className="dialog-buttons">
             <button type="button" className="primary" autoFocus onClick={close}>

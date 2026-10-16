@@ -260,6 +260,7 @@ const THIRD_PERSON_CAMERA_FIELDS = {
  */
 export const thirdPersonCamera = defineComponent({
   type: 'thirdPersonCamera',
+  unity: 'Cinemachine FreeLook camera',
   category: 'gameplay',
   unique: true,
   text: { de: 'Third-Person-Kamera', en: 'Third Person Camera' },
@@ -385,6 +386,7 @@ const FIRST_PERSON_CAMERA_FIELDS = {
 /** First-Person-Kamera: sits at eye height, the view tilts with mouse or right stick. */
 export const firstPersonCamera = defineComponent({
   type: 'firstPersonCamera',
+  unity: 'Cinemachine virtual camera (first person)',
   category: 'gameplay',
   unique: true,
   text: { de: 'First-Person-Kamera', en: 'First Person Camera' },
@@ -465,6 +467,7 @@ const TOP_DOWN_CAMERA_FIELDS = {
 /** Draufsicht-Kamera: follows from above at a fixed angle. */
 export const topDownCamera = defineComponent({
   type: 'topDownCamera',
+  unity: 'Cinemachine virtual camera (top down)',
   category: 'gameplay',
   unique: true,
   text: { de: 'Draufsicht-Kamera', en: 'Top Down Camera' },
@@ -532,6 +535,7 @@ const SIDE_CAMERA_FIELDS = {
 /** Seitenansicht-Kamera: looks along +Z at the target, for platformers running along X. */
 export const sideCamera = defineComponent({
   type: 'sideCamera',
+  unity: 'Cinemachine virtual camera (side view)',
   category: 'gameplay',
   unique: true,
   text: { de: 'Seitenansicht-Kamera', en: 'Side View Camera' },
@@ -586,6 +590,7 @@ const FIXED_CAMERA_FIELDS = {
 /** Feste Kamera: stays where it is and optionally turns to watch a target. */
 export const fixedCamera = defineComponent({
   type: 'fixedCamera',
+  unity: 'Cinemachine virtual camera (fixed)',
   category: 'gameplay',
   unique: true,
   text: { de: 'Feste Kamera', en: 'Fixed Camera' },
@@ -644,6 +649,7 @@ const CAMERA_PATH_FIELDS = {
 /** Kamerafahrt: moves along the child objects of a path object as waypoints. */
 export const cameraPath = defineComponent({
   type: 'cameraPath',
+  unity: 'Cinemachine Dolly Track',
   category: 'gameplay',
   unique: true,
   text: { de: 'Kamerafahrt', en: 'Camera Path' },
@@ -759,6 +765,7 @@ const SHARED_CAMERA_FIELDS = {
 /** Gemeinsame Kamera: keeps all players in view (local multiplayer without split screen). */
 export const sharedCamera = defineComponent({
   type: 'sharedCamera',
+  unity: 'Cinemachine Target Group',
   category: 'gameplay',
   unique: true,
   text: { de: 'Gemeinsame Kamera', en: 'Shared Camera' },

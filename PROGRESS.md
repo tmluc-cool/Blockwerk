@@ -16,7 +16,41 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 8 | Debugging | done |
 | 9 | Build and export | done |
 | 10 | AI assistant | done |
-| 11 | Polish and final acceptance | open |
+| 11 | Polish and final acceptance | in progress |
+
+---
+
+## Phase 11: Polish and final acceptance
+
+Branch: `phase/11-feinschliff` (builds on `main` with Phases 0–10 merged).
+
+### Plan
+
+**Subtasks** (SPEC phase 11; the last phase, so it is bigger than the others and goes in this order: what every user sees first, then the proof)
+
+1. **Generated documentation** (`packages/docs` or a script over `packages/blocks` and the component definitions): one page per block category and per component, with the block's shape in text, inputs, the German and English texts and the **Unity counterpart** ("In Unity: `Transform.Translate`"), generated from the single sources so it cannot drift. A test fails if a block or component has no counterpart text.
+2. **Accessibility check**: keyboard reachability of every window and menu, visible focus, labels for buttons that only show an icon, contrast of both themes (a script that measures the colors of the theme tokens), no information by color alone in the console and in the block editor, `prefers-reduced-motion` for camera shake and UI animation. Findings are fixed or listed.
+3. **Template projects** (File → New Project → Template): third-person adventure, first-person arena, 3D platformer, co-op collecting game, small racing game. Each is a small project in `examples/templates/` built from the library, runs in Play Mode and exports; a test opens, plays and exports every template.
+4. **Interactive beginner tutorial** "Your first world in 10 minutes": steps with highlights in the real editor (place objects, add a script, press Play), progress saved, skippable, German and English.
+5. **GitHub finished**: `README.md` with GIF and screenshots, `pages.yml` (docs, web editor and the playable examples on GitHub Pages), at least 10 `good first issue` issues (as drafts in `docs/good-first-issues.md`, opened with the owner's go), release `v1.0.0` (the tag waits for the owner's go).
+6. **Final acceptance game** `examples/endspiel`: main menu → loading screen → open landscape with village and day-night cycle → animated third-person hero from the Character Studio with at least two ability cards → at least three NPCs (quest giver, trader, guard) with dialogs → enemies with navigation and combat → items and inventory → player 2 in split screen → save and load → win and lose → Windows `.exe`. Built from the existing examples (landscape, quest, hero) and kept deterministic by a script like `scripts/make-example-05.mjs`.
+7. **Proof against the checklist**: the 10 points of SPEC 1.1 one by one with a test or measurement each; the quality targets of SPEC 12 measured (frame rate and draw calls in the landscape, play start, opening a project with 80 scripts, saving without Git changes, error messages in German and English with jump).
+
+**Affected packages:** `packages/blocks`/`runtime` (documentation sources: Unity counterparts), new documentation script, `apps/editor` (templates dialog, tutorial, accessibility fixes), `examples/` (templates, endspiel), `.github/` (pages workflow, issue drafts), `docs/`.
+
+**Risks**
+
+- **Size:** this phase is several phases in one. It is cut into pull requests that each leave `main` green: (1) generated docs, (2) accessibility, (3) templates, (4) tutorial, (5) GitHub and pages, (6) the final game with the proof. The phase counts as done only when the last one is merged.
+- **"Someone with Unity experience finds their way without explanation"** cannot be shown by a test and I cannot be that person. It is a manual check for the owner or a tester; I prepare a one-page test script and say so in the result instead of ticking it.
+- **60 FPS on the target hardware** cannot be measured here (software rendering in CI and in this container). Draw calls and frame time are measured and reported with the hardware they came from; the 60 FPS line stays unticked until it is measured on real hardware.
+- **Windows `.exe` of the game** is built on `windows-latest` in CI (like the phase 9 test), not here.
+- **GitHub Pages and good first issues are public actions**: the workflow is added, but enabling Pages, opening issues and the `v1.0.0` tag wait for the owner's go.
+
+### Assumptions
+
+- The five templates are small (one scene, one or two scripts, library models only) so that they open quickly and can be read by beginners; the big showcase is `examples/endspiel`.
+- Documentation is generated to Markdown files under `docs/reference/` and checked in (so it is readable on GitHub); a test regenerates it and fails on a difference.
+- The tutorial runs inside the real editor with highlights (no separate sandbox).
 
 ---
 

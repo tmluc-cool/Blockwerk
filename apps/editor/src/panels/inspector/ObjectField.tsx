@@ -2,6 +2,7 @@ import type { JsonValue } from '@blockwerk/project';
 import { OBJECTS_DRAG_TYPE } from '../../library/projectDrag';
 import { useDocument } from '../../state/document';
 import { useT } from '../../state/settings';
+import { useFieldLabel } from './fieldLabel';
 import { MIXED } from './fields';
 import type { Shared } from './fields';
 
@@ -21,6 +22,7 @@ export function ObjectField({
   testId?: string;
 }) {
   const t = useT();
+  const name = useFieldLabel();
   const objects = useDocument((state) => state.scene?.objects);
   const id = typeof value === 'string' ? value : '';
   const entries = Object.entries(objects ?? {}).sort(([, a], [, b]) =>
@@ -44,6 +46,7 @@ export function ObjectField({
     >
       <select
         value={value === MIXED ? '\u0000' : id}
+        aria-label={name}
         disabled={disabled}
         data-testid={testId}
         onChange={(event) => onChange(event.target.value === '' ? null : event.target.value)}

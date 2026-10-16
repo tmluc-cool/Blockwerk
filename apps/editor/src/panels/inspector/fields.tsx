@@ -8,6 +8,7 @@ import type { TranslationKey } from '../../i18n';
 import { previewSound, stopPreview } from '../../audio/editorAudio';
 import { useDocument } from '../../state/document';
 import { useT } from '../../state/settings';
+import { useFieldLabel } from './fieldLabel';
 import { ModelField } from './ModelField';
 import { ObjectField } from './ObjectField';
 
@@ -52,6 +53,7 @@ export function NumberInput({
   disabled,
 }: NumberInputProps) {
   const t = useT();
+  const name = useFieldLabel(typeof label === 'string' ? label : undefined);
   const shown = value === MIXED ? '' : format(value);
   // While typing, the field shows the draft; otherwise the current value.
   const [draft, setDraft] = useState<string | null>(null);
@@ -98,6 +100,7 @@ export function NumberInput({
         inputMode="decimal"
         value={draft ?? shown}
         placeholder={value === MIXED ? t('inspector.mixed') : undefined}
+        aria-label={name}
         disabled={disabled}
         data-testid={testId}
         onFocus={(event) => {
@@ -180,6 +183,7 @@ export function FieldEditor({
   onOpenAsset?: (id: string) => void;
 }) {
   const t = useT();
+  const name = useFieldLabel();
   const unit = 'unit' in field && field.unit ? t(UNITS[field.unit] ?? 'unit.meters') : null;
   switch (field.type) {
     case 'number':
@@ -205,6 +209,7 @@ export function FieldEditor({
           ref={(element) => {
             if (element) element.indeterminate = value === MIXED;
           }}
+          aria-label={name}
           disabled={disabled}
           data-testid={testId}
           onChange={(event) => onChange(event.target.checked)}
@@ -217,6 +222,7 @@ export function FieldEditor({
           defaultValue={typeof value === 'string' ? value : ''}
           key={typeof value === 'string' ? value : 'mixed'}
           placeholder={value === MIXED ? t('inspector.mixed') : undefined}
+          aria-label={name}
           disabled={disabled}
           data-testid={testId}
           onBlur={(event) => onChange(event.target.value)}
@@ -231,6 +237,7 @@ export function FieldEditor({
           type="color"
           value={typeof value === 'string' ? value : field.default}
           className={value === MIXED ? 'mixed' : undefined}
+          aria-label={name}
           disabled={disabled}
           data-testid={testId}
           onChange={(event) => onChange(event.target.value)}
@@ -255,6 +262,7 @@ export function FieldEditor({
       return (
         <select
           value={typeof value === 'string' ? value : ''}
+          aria-label={name}
           disabled={disabled}
           data-testid={testId}
           onChange={(event) => onChange(event.target.value)}
@@ -281,6 +289,7 @@ export function FieldEditor({
         <span className="asset-field">
           <select
             value={value === MIXED ? '\u0000' : id}
+            aria-label={name}
             disabled={disabled}
             data-testid={testId}
             onChange={(event) => onChange(event.target.value === '' ? null : event.target.value)}
@@ -337,6 +346,7 @@ function SoundField({
   testId?: string;
 }) {
   const t = useT();
+  const name = useFieldLabel();
   const project = useDocument((state) => state.project);
   useDocument((state) => state.assetsVersion);
   const current = typeof value === 'string' ? value : '';
@@ -349,6 +359,7 @@ function SoundField({
     <span className="asset-field">
       <select
         value={value === MIXED ? '\u0000' : current}
+        aria-label={name}
         disabled={disabled}
         data-testid={testId}
         onChange={(event) => onChange(event.target.value === '' ? null : event.target.value)}
