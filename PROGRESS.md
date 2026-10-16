@@ -13,10 +13,19 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 5 | NPCs and game logic | done |
 | 6 | UI, menus, saving | done |
 | 7 | Large projects | done |
-| 8 | Debugging | in review |
-| 9 | Build and export | in review |
-| 10 | AI assistant | in review |
+| 8 | Debugging | done |
+| 9 | Build and export | done |
+| 10 | AI assistant | done |
 | 11 | Polish and final acceptance | open |
+
+---
+
+## Ideas for later
+
+Not planned, not part of any phase; maybe.
+
+- **Update symbol:** a symbol in the app when a newer version exists, one click to update. Would be the third place that uses the network, so it must be optional and switchable off (it would only ask GitHub Releases for the newest version). Windows shows its SmartScreen notice for unsigned apps again with every update, so downloading the new installer on click is better than replacing files silently.
+- **Optional account to store projects:** never required, nothing changes without it. Open question: GitHub as login and storage (projects are plain files, so a push to the user's own repository fits), or an own server (hosting costs, data protection, upkeep). No paywalls and no limits either way.
 
 ---
 
@@ -73,7 +82,7 @@ What exists already: the block catalog with every block defined once (`packages/
 - [x] *Without a key nothing is visible and nothing goes to the network.* The standard `editor` fixture fails any test with a request that leaves localhost; the no-key test checks there is no toolbar button, no Window entry and no panel, only the key field under Edit → Preferences.
 - [x] Every AI change is one undo step; preview and confirmation before every change.
 - [x] `pnpm test` (569 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 81/81 locally (editor, player and desktop projects under `xvfb-run`).
-- [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
+- [x] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request and on `main` after the merge.
 
 **Open / not done**
 
@@ -136,7 +145,7 @@ What exists already: the runtime (`Game`, `UiRenderer`, settings, saves, loading
 - [ ] (c) *A tag `v0.9.0` creates a release with installer, web version, changelog and start package.* The workflow runs as a dry run on this pull request (same steps, nothing published); the real tag publishes on GitHub and waits for the user's go (see the pull request).
 - [x] Unit tests for the exporter, the web assembly and ZIP, the Windows app builder and the icon file, the changelog script and the build settings schema; end-to-end for Build Settings in the editor.
 - [x] `pnpm test` (532 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 74/74 locally (editor, player and desktop projects under `xvfb-run`).
-- [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
+- [x] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request and on `main` after the merge.
 
 **Open / not done**
 
