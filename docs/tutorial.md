@@ -1,6 +1,6 @@
 # Tutorial: Deine erste Welt in 10 Minuten
 
-Das Tutorial läuft im echten Editor. Du startest es unter **Hilfe → Tutorial: Deine erste Welt in 10 Minuten**. Eine kleine Karte unten rechts sagt dir, was als Nächstes zu tun ist, und ein orangefarbener Rahmen zeigt, wo du es findest. Sobald du den Schritt erledigt hast, springt die Karte von selbst weiter. „Weiter“ überspringt einen Schritt, „Beenden“ schliesst das Tutorial jederzeit.
+Das Tutorial läuft im echten Editor. Du startest es unter **Hilfe → Tutorial: Deine erste Welt in 10 Minuten**. Eine kleine Karte unten rechts sagt dir, was als Nächstes zu tun ist, und ein orangefarbener Rahmen zeigt, wo du es findest. Sobald du den Schritt erledigt hast, springt die Karte von selbst weiter. „Weiter“ überspringt einen Schritt, „Beenden“ schliesst das Tutorial jederzeit; beim nächsten Start geht es am selben Schritt weiter, „Von vorn“ beginnt neu.
 
 | Schritt | Du machst                                                                    | Das Tutorial merkt es, wenn                  |
 | ------- | ---------------------------------------------------------------------------- | -------------------------------------------- |

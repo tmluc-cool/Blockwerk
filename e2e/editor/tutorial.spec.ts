@@ -25,6 +25,12 @@ test.describe('phase 11: tutorial', () => {
     await expect(page.getByTestId('tutorial-spot')).toBeVisible();
     await page.getByTestId('tutorial-close').click();
     await expect(page.getByTestId('tutorial-card')).toHaveCount(0);
+
+    // The progress is kept: starting again continues at the same step, "restart" goes back.
+    await startTutorial(page);
+    expect(await step(page)).toBe('cube');
+    await page.getByTestId('tutorial-restart').click();
+    expect(await step(page)).toBe('welcome');
   });
 
   test('walks from the first cube to a spinning one by doing the steps', async ({

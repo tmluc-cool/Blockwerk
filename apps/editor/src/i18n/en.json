@@ -1090,5 +1090,6 @@
   "tutorial.stop.title": "7. Stop",
   "tutorial.stop.body": "Press Play again. Changes made in Play Mode are discarded, just like in Unity.",
   "tutorial.finish.title": "You did it!",
-  "tutorial.finish.body": "That was your first game. Under \"File\", \"New from Template\" you find finished projects to build on. You can start the tutorial again any time from the \"Help\" menu."
+  "tutorial.finish.body": "That was your first game. Under \"File\", \"New from Template\" you find finished projects to build on. You can start the tutorial again any time from the \"Help\" menu.",
+  "tutorial.restart": "Restart"
 }

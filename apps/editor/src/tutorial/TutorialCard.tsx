@@ -111,6 +111,11 @@ export function TutorialCard() {
         <h2 id="tutorial-title">{t(step.title)}</h2>
         <p aria-live="polite">{t(step.body)}</p>
         <div className="tutorial-buttons">
+          {index > 0 && !last && (
+            <button type="button" onClick={() => goToStep(0)} data-testid="tutorial-restart">
+              {t('tutorial.restart')}
+            </button>
+          )}
           <button type="button" onClick={stopTutorial} data-testid="tutorial-close">
             {t('tutorial.close')}
           </button>
