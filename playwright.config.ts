@@ -21,6 +21,10 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: Boolean(process.env['CI']),
+  // The software-rendered Windows runner is so slow that a different 3D-heavy test times out in
+  // roughly every other run (phases 1, 3, 3b, never the same). One retry there; a test that only
+  // passes on the retry is reported as "flaky" in the log. Linux and local runs stay strict.
+  retries: slow > 1 ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   use: {
     baseURL: externalUrl ?? 'http://localhost:4173',
