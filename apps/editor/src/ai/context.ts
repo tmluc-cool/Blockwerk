@@ -108,10 +108,15 @@ export function scriptContext(project: Project, scene: SceneData): ScriptContext
       ui: ids('ui'),
       audio: ids('audio'),
     },
-    gameVariables: project
-      .assetsOfType('blockScript')
-      .flatMap((entry) => entry.data.variables)
-      .filter((variable) => variable.scope === 'game'),
+    gameVariables: [
+      ...new Map(
+        project
+          .assetsOfType('blockScript')
+          .flatMap((entry) => entry.data.variables)
+          .filter((variable) => variable.scope === 'game')
+          .map((variable) => [variable.id, variable] as const),
+      ).values(),
+    ],
   };
 }
 

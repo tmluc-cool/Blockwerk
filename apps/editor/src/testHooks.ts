@@ -94,6 +94,8 @@ export interface BlockwerkDebugHooks {
     resultKind: string | null;
     task: string;
   };
+  /** Number of ghost models of an AI world proposal in the Scene view. */
+  aiGhostCount(): number;
   debugState(): {
     breakpoints: string[];
     hit: { assetId: string; blockId: string; objectName: string } | null;
@@ -251,6 +253,7 @@ export function installTestHooks(): void {
         task: ai.task,
       };
     },
+    aiGhostCount: () => activeSceneView()?.ghostCount() ?? 0,
     debugState: () => {
       const { breakpoints, hit } = useDebug.getState();
       return { breakpoints: Object.keys(breakpoints), hit };

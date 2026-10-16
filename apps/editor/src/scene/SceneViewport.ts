@@ -457,6 +457,11 @@ export class SceneViewport {
 
   private ghosts: { group: Group; token: object } | null = null;
 
+  /** How many ghost models of an AI proposal are shown now (tests). */
+  ghostCount(): number {
+    return this.ghosts?.group.children.length ?? 0;
+  }
+
   /**
    * Shows a proposal (the AI assistant's world) as half-transparent models standing where they
    * would be placed; `null` removes them. The Scene view frames them so they are in sight.
