@@ -149,6 +149,22 @@ importers:
         specifier: ^0.186.1
         version: 0.186.1
 
+  packages/export:
+    dependencies:
+      '@blockwerk/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@blockwerk/library':
+        specifier: workspace:*
+        version: link:../library
+      '@blockwerk/project':
+        specifier: workspace:*
+        version: link:../project
+    devDependencies:
+      '@types/node':
+        specifier: 24.19.2
+        version: 24.19.2
+
   packages/library:
     dependencies:
       zod:

@@ -486,6 +486,22 @@ export const metaSchema = z.object({
 /** Contents of a `*.meta.json` file next to every asset. */
 export type MetaData = z.infer<typeof metaSchema>;
 
+/** Build settings (SPEC 9.3, Unity: Build Settings); all fields are optional. */
+export const buildSettingsSchema = z.object({
+  /** Scenes of the build in order; missing: the start scene and every scene it leads to. */
+  scenes: z.array(idSchema).optional(),
+  /** Name of the game in the exported app (window title, file name); defaults to the project name. */
+  productName: z.string().min(1).optional(),
+  /** How the game window starts (default `fullscreen`). */
+  window: z.enum(['fullscreen', 'windowed']).optional(),
+  /** Image asset used as the app icon. */
+  icon: idSchema.nullable().optional(),
+  /** Image asset shown on the loading screen while the game starts. */
+  splash: idSchema.nullable().optional(),
+});
+/** The `build` section of `blockwerk.json`. */
+export type BuildSettings = z.infer<typeof buildSettingsSchema>;
+
 export const projectFileSchema = z.object({
   formatVersion: z.literal(FORMAT_VERSION),
   name: z.string().min(1),
@@ -493,6 +509,8 @@ export const projectFileSchema = z.object({
   startScene: idSchema.nullable(),
   /** Graphics level a game starts with (`low` … `ultra`); players can switch it. Optional. */
   graphicsLevel: z.enum(['low', 'medium', 'high', 'ultra']).optional(),
+  /** Settings of "Build" (SPEC 9.3). Optional so existing projects stay byte-identical. */
+  build: buildSettingsSchema.optional(),
 });
 /** Contents of `blockwerk.json`. */
 export type ProjectFileData = z.infer<typeof projectFileSchema>;

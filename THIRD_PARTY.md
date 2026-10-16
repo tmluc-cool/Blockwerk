@@ -16,7 +16,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `@gltf-transform/functions` | 4.5.1 | MIT | development | packages/library |
 | `@playwright/test` | 1.56.1 | Apache-2.0 | development | (root) |
 | `@recast-navigation/three` | 0.43.1 | MIT | runtime | packages/runtime |
-| `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor, packages/library |
+| `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor, packages/export, packages/library |
 | `@types/react` | 19.3.0 | MIT | development | apps/editor |
 | `@types/react-dom` | 19.3.0 | MIT | development | apps/editor |
 | `@types/three` | 0.186.0 | MIT | development | apps/editor, packages/character, packages/compiler, packages/runtime |

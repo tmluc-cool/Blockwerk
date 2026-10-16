@@ -1,0 +1,22 @@
+{
+  "name": "@blockwerk/export",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./pack": "./src/pack.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@blockwerk/compiler": "workspace:*",
+    "@blockwerk/library": "workspace:*",
+    "@blockwerk/project": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2"
+  }
+}
