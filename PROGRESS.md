@@ -72,7 +72,7 @@ What exists already: the block catalog with every block defined once (`packages/
 - [x] (c) *Invalid answers are caught.* Unknown blocks, wrong shapes, bad references, broken numbers, unknown models, objects inside each other, missing conditions, too many blocks, garbage that is not an object: all rejected in the unit tests; in the editor an answer that stays invalid causes exactly three requests (the first and two repairs), the repair messages carry the errors, the project stays untouched.
 - [x] *Without a key nothing is visible and nothing goes to the network.* The standard `editor` fixture fails any test with a request that leaves localhost; the no-key test checks there is no toolbar button, no Window entry and no panel, only the key field under Edit → Preferences.
 - [x] Every AI change is one undo step; preview and confirmation before every change.
-- [x] `pnpm test` (569 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end E2ECOUNT locally.
+- [x] `pnpm test` (569 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 81/81 locally (editor, player and desktop projects under `xvfb-run`).
 - [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
 
 **Open / not done**
