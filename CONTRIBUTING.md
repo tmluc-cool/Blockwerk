@@ -1,6 +1,7 @@
 # Contributing to Blockwerk
 
 Thanks for helping! This guide explains the setup, the rules and the most common contributions.
+Looking for a first task? See [docs/good-first-issues.md](docs/good-first-issues.md).
 The full specification is in [SPEC.md](SPEC.md); the working rules in [CLAUDE.md](CLAUDE.md) apply
 to human contributors too.
 
@@ -13,18 +14,20 @@ to human contributors too.
 
 ## Commands
 
-| Command             | What it does                                                                |
-| ------------------- | --------------------------------------------------------------------------- |
-| `pnpm dev`          | Editor in the browser with hot reload                                       |
-| `pnpm dev:desktop`  | Editor in Electron (starts Vite and Electron)                               |
-| `pnpm test`         | All unit and golden tests (Vitest)                                          |
-| `pnpm test:e2e`     | Builds, then runs the Playwright tests for the browser and desktop app      |
-| `pnpm lint`         | ESLint, Prettier check and license check                                    |
-| `pnpm typecheck`    | TypeScript in every package                                                 |
-| `pnpm build`        | Type check, editor build, desktop build                                     |
-| `pnpm format`       | Formats all files with Prettier                                             |
-| `pnpm run licenses` | Checks dependency licenses and regenerates `THIRD_PARTY.md`                 |
-| `pnpm screenshot`   | Builds and writes the screenshot of the sample scene to `docs/screenshots/` |
+| Command             | What it does                                                                 |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `pnpm dev`          | Editor in the browser with hot reload                                        |
+| `pnpm dev:desktop`  | Editor in Electron (starts Vite and Electron)                                |
+| `pnpm test`         | All unit and golden tests (Vitest)                                           |
+| `pnpm test:e2e`     | Builds, then runs the Playwright tests for the browser and desktop app       |
+| `pnpm lint`         | ESLint, Prettier check and license check                                     |
+| `pnpm typecheck`    | TypeScript in every package                                                  |
+| `pnpm build`        | Type check, editor build, desktop build                                      |
+| `pnpm format`       | Formats all files with Prettier                                              |
+| `pnpm run licenses` | Checks dependency licenses and regenerates `THIRD_PARTY.md`                  |
+| `pnpm screenshot`   | Builds and writes the screenshot of the sample scene to `docs/screenshots/`  |
+| `pnpm tour`         | Records the animated tour of the README (`docs/screenshots/editor-tour.gif`) |
+| `pnpm site`         | Builds the GitHub Pages site (`site/`: start page, editor, playable games)   |
 
 ## Repository layout
 
