@@ -2462,3 +2462,46 @@ button.small {
   justify-content: space-between;
   gap: 12px;
 }
+
+.build-scenes {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.build-scenes li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 3px 0;
+}
+.build-scenes li > label:first-child {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.build-start {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--bw-text-dim);
+}
+.build-problems {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+.build-problem {
+  padding: 3px 0;
+  color: var(--bw-text-dim);
+}
+.build-problem.error {
+  color: var(--bw-danger, #e5584d);
+}
+.build-problem.warning {
+  color: var(--bw-warning, #e0a03a);
+}
+.panel-hint {
+  margin: 0 0 8px;
+  color: var(--bw-text-dim);
+}

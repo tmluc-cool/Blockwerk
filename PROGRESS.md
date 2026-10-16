@@ -14,11 +14,45 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 6 | UI, menus, saving | done |
 | 7 | Large projects | done |
 | 8 | Debugging | in review |
-| 9 | Build and export | open |
+| 9 | Build and export | in progress |
 | 10 | AI assistant | open |
 | 11 | Polish and final acceptance | open |
 
 ---
+
+## Phase 9: Build and export
+
+Branch: `phase/09-export` (builds on `main` with Phases 0–8 merged).
+
+### Plan
+
+**Subtasks** (SPEC 9.3 export, 9.5 `release.yml`)
+
+What exists already: the runtime (`Game`, `UiRenderer`, settings, saves, loading screens between scenes), compiled scripts (`compileProject`, without debug hooks for exports), the Electron shell of the editor (`apps/desktop`), the asset library with licenses (`library/index.json`) and a `license` field in every asset's meta file. What is missing is everything that turns a project into something a player can start.
+
+1. **Export package** (`packages/export`, pure functions, no DOM): `buildGamePack(project, options) → files`. Walks the scenes of the build list, the prefabs, dialogs, UI canvases and scripts they use, and collects **only the used assets** (library models, project models, sounds, images, terrains). Scripts are compiled once (no debug hooks) and written as code. Output: a `game/game.json` (name, start scene, graphics level, build settings, scenes, prefabs, dialogs, UIs, compiled scripts, tags and layers, saved variable IDs, file table) and `game/files/…` (binary assets under stable names), plus `CREDITS.txt` (every third-party asset with source and license, from the library index and the meta files, sorted, deterministic). Unit tests on the real examples.
+2. **Player** (`apps/player`, Vite): a web page that loads a game pack and runs it: loading screen with progress while files load, renderer and UI layer, keyboard / mouse / gamepad / pointer lock, settings menu (volumes, sensitivity, keys, graphics level, fullscreen), pause, scene changes with the loading screen, saves in local storage (per game name). It imports `packages/runtime` and `packages/project` types only, nothing from the editor and nothing from Blockly. The built-in UI texts move from the editor's i18n files to the runtime (`packages/runtime`, German and English), so exported games carry their own texts.
+3. **Build settings** (`packages/project` schema, `apps/editor`): an optional `build` section in `blockwerk.json` (scene list with the start scene, product name, window mode, graphics level, icon and splash image asset IDs). New window **File → Build Settings** like Unity: scene list (drag order, checkboxes), platform (Windows / Web), **Build** and **Build and Run**. Web build in the browser editor writes a ZIP download (`fflate`, MIT); in the desktop editor it writes a folder (and a ZIP). Texts in German and English.
+4. **Windows app** (`apps/desktop`, `apps/player`): a second small Electron shell, the **player shell**, loads the player page from its `resources/` and the game pack next to it; fullscreen by default, no menu bar, no network (Content Security Policy), no editor. `pnpm dist` builds, with `electron-builder`, the **Blockwerk installer** (NSIS) and the **portable exe** of the editor and the **player template** (the unpacked player shell, shipped inside the installer's resources). Exporting for Windows copies the player template, adds the game pack, names the exe after the game and, on Windows, sets the icon (`rcedit`, MIT). Also available as `pnpm export <project> --platform web|windows` for scripts and CI.
+5. **`release.yml`**: a tag `v*` builds on Windows the installer and portable exe, the web version of the editor (ZIP), the **Startpaket ZIP** of the asset library, generates the changelog from the commits and publishes a GitHub Release.
+6. **Example and acceptance**: export of `examples/05-quest` as Web and Windows pack; tests: pack contents (only used assets, `CREDITS.txt`), the pack runs headless for some seconds without errors and reaches the same state as the editor's play mode, end-to-end in the browser (loading screen, game draws, settings menu works, fullscreen toggle), an Electron test of the player shell (starts without an editor, fullscreen, offline). The Windows exe itself is built and started in CI on `windows-latest`. Screenshot `docs/screenshots/phase-09.png`.
+
+**Affected packages:** new `packages/export`, new `apps/player`, `apps/desktop` (player shell, builder config), `packages/project` (build settings), `packages/runtime` (UI texts, no change in behavior), `apps/editor` (Build Settings window, menu), `.github/workflows/release.yml`, `examples/`.
+
+**Risks**
+
+- **"Only used assets" must not drop something the game needs**: assets can be named in block fields (`audio:<id>`, `prefab:<id>`, `scene:<id>`, `ui:<id>`, `dialog:<id>`), in component fields and in code blocks (strings). The walk reads all of these; a reference found only inside a Code block's text is treated as used if it matches a known ID. A test runs every example from its pack.
+- **The Windows exe cannot be built in this container** (Linux, no Wine). The packaging is tested here with the Linux Electron under `xvfb-run` and a template directory; the real `.exe` is produced and started in CI on `windows-latest`. The pull request says exactly what was tested where.
+- **Size of the player**: three.js, Rapier (WASM), recast (WASM) and post-processing are needed; the web build must be code-split so the loading screen shows before the heavy parts arrive.
+- **Local storage in an exported web game** is shared per origin: saves and settings are keyed by the game name.
+- **Electron needs `unsafe-eval`** for compiled scripts (same as the editor, `new Function`); the Content Security Policy stays otherwise closed.
+
+### Assumptions
+
+- **The game pack is a new format** (`game.json` + files), not the project format: the project format stays unchanged except for an optional `build` section (additive, no migration, older projects keep saving byte-identical).
+- **The browser editor can export Web only**; Windows export needs the desktop editor (it holds the player template). The command line covers both.
+- **No code signing**: Windows shows its SmartScreen notice for unsigned apps; documented in the release notes.
+- **Scripts are exported as compiled JavaScript** (no Blockly, no compiler in the player).
 
 ## Phase 8: Debugging
 

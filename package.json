@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "pnpm --filter @blockwerk/editor dev",
     "dev:desktop": "pnpm --filter @blockwerk/desktop dev",
-    "build": "pnpm typecheck && pnpm --filter @blockwerk/editor build && pnpm --filter @blockwerk/desktop build",
+    "build": "pnpm typecheck && pnpm --filter @blockwerk/player build && pnpm --filter @blockwerk/editor build && pnpm --filter @blockwerk/desktop build",
     "typecheck": "pnpm -r typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -21,7 +21,8 @@
     "format": "prettier --write .",
     "licenses": "node scripts/licenses.mjs",
     "screenshot": "pnpm build && node scripts/screenshot.mjs",
-    "assets:fetch": "pnpm --filter @blockwerk/library run assets:fetch"
+    "assets:fetch": "pnpm --filter @blockwerk/library run assets:fetch",
+    "export": "tsx scripts/export-game.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

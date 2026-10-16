@@ -15,6 +15,7 @@
     "@blockwerk/blocks": "workspace:*",
     "@blockwerk/character": "workspace:*",
     "@blockwerk/compiler": "workspace:*",
+    "@blockwerk/export": "workspace:*",
     "@blockwerk/library": "workspace:*",
     "@blockwerk/project": "workspace:*",
     "@blockwerk/runtime": "workspace:*",
