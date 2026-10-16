@@ -196,6 +196,12 @@ add({
     comp('thirdPersonControl'),
   ],
 });
+// Mistake 6: a model without any collider (a figure with a Character Controller does not count).
+add({
+  name: 'Haus ohne Kollision',
+  position: [-9, 0, -4],
+  components: [comp('meshRenderer', { model: 'library:kaykit-city/building-a' })],
+});
 // Mistake 1: a script component with an empty field.
 add({
   name: 'Schalter ohne Skript',

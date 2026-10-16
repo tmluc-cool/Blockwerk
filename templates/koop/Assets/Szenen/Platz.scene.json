@@ -1,0 +1,1327 @@
+{
+  "environment": {
+    "ambientIntensity": 0.4,
+    "fog": {
+      "enabled": true,
+      "far": 150,
+      "near": 55
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 11
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "tdo000000001": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000002": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000003": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000004": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000005": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000006": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000007": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "tdo000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          20,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000008": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#c6b98a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Platz",
+      "order": 7,
+      "parent": "tdo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          44,
+          1,
+          44
+        ]
+      }
+    },
+    "tdo000000009": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000004",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9a8f7a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000005",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 1",
+      "order": 8,
+      "parent": "tdo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -8,
+          1.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          3,
+          1.6
+        ]
+      }
+    },
+    "tdo000000010": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000006",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9a8f7a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000007",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 2",
+      "order": 9,
+      "parent": "tdo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          8,
+          1.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          3,
+          1.6
+        ]
+      }
+    },
+    "tdo000000011": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000008",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9a8f7a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000009",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 3",
+      "order": 10,
+      "parent": "tdo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.5,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          3,
+          1.6
+        ]
+      }
+    },
+    "tdo000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000010",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#9a8f7a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000011",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Säule 4",
+      "order": 11,
+      "parent": "tdo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.5,
+          -8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          3,
+          1.6
+        ]
+      }
+    },
+    "tdo000000013": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000012",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/knight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000013",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000014",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000015",
+          "type": "thirdPersonControl",
+          "values": {
+            "player": "1"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Ritter",
+      "order": 12,
+      "parent": "tdo000000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          -2,
+          0,
+          -10
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000014": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000016",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/rogue"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000017",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000018",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000019",
+          "type": "thirdPersonControl",
+          "values": {
+            "player": "2"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Schurkin",
+      "order": 13,
+      "parent": "tdo000000003",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          2,
+          0,
+          -10
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000015": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000020",
+          "type": "camera",
+          "values": {
+            "player": "1",
+            "split": "vertical"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000021",
+          "type": "thirdPersonCamera",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Kamera 1",
+      "order": 14,
+      "parent": "tdo000000002",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          -2,
+          3,
+          -16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000016": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000022",
+          "type": "camera",
+          "values": {
+            "player": "2"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000023",
+          "type": "thirdPersonCamera",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Kamera 2",
+      "order": 15,
+      "parent": "tdo000000003",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2,
+          3,
+          -16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000017": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000024",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000025",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000026",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 1",
+      "order": 16,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          10,
+          0.6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000018": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000027",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000028",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000029",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 2",
+      "order": 17,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7.1,
+          0.6,
+          7.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000019": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000030",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000031",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000032",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 3",
+      "order": 18,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.6,
+          10
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000020": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000033",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000034",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000035",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 4",
+      "order": 19,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7.1,
+          0.6,
+          7.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000021": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000036",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000037",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000038",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 5",
+      "order": 20,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -10,
+          0.6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000022": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000039",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000040",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000041",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 6",
+      "order": 21,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -7.1,
+          0.6,
+          -7.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000023": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000042",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000043",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000044",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 7",
+      "order": 22,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.6,
+          -10
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000024": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000045",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000046",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000047",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 8",
+      "order": 23,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          7.1,
+          0.6,
+          -7.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000025": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000048",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000049",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000050",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 9",
+      "order": 24,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3.7,
+          0.6,
+          1.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000026": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000051",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000052",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000053",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 10",
+      "order": 25,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -1.6,
+          0.6,
+          3.7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000027": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000054",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000055",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000056",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 11",
+      "order": 26,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -3.7,
+          0.6,
+          -1.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000028": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000057",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000058",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tdc000000059",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Münze 12",
+      "order": 27,
+      "parent": "tdo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          1.6,
+          0.6,
+          -3.7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tdo000000029": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tdc000000060",
+          "type": "blockScript",
+          "values": {
+            "script": "tdskript0002"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Spielleitung",
+      "order": 28,
+      "parent": "tdo000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

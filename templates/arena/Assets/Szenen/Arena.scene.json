@@ -1,0 +1,1153 @@
+{
+  "environment": {
+    "ambientIntensity": 0.4,
+    "fog": {
+      "enabled": true,
+      "far": 150,
+      "near": 55
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 11
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "tbo000000001": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000002": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000003": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000004": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000005": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000006": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000007": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "tbo000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          20,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000008": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#4a4f5a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 7,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          36,
+          1,
+          36
+        ]
+      }
+    },
+    "tbo000000009": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000004",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#7b7f8a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000005",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer Nord",
+      "order": 8,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          2,
+          18.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          37,
+          4,
+          1
+        ]
+      }
+    },
+    "tbo000000010": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000006",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#7b7f8a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000007",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer Süd",
+      "order": 9,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          2,
+          -18.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          37,
+          4,
+          1
+        ]
+      }
+    },
+    "tbo000000011": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000008",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#7b7f8a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000009",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer Ost",
+      "order": 10,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          18.5,
+          2,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          4,
+          37
+        ]
+      }
+    },
+    "tbo000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000010",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#7b7f8a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000011",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Mauer West",
+      "order": 11,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -18.5,
+          2,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          4,
+          37
+        ]
+      }
+    },
+    "tbo000000013": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000012",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d7b6a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000013",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Deckung 1",
+      "order": 12,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          1,
+          -4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          2,
+          1.2
+        ]
+      }
+    },
+    "tbo000000014": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000014",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d7b6a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000015",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Deckung 2",
+      "order": 13,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6,
+          1,
+          -4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          2,
+          1.2
+        ]
+      }
+    },
+    "tbo000000015": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000016",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d7b6a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000017",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Deckung 3",
+      "order": 14,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          1,
+          6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          2,
+          1.2
+        ]
+      }
+    },
+    "tbo000000016": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000018",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#8d7b6a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000019",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Deckung 4",
+      "order": 15,
+      "parent": "tbo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6,
+          1,
+          6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3,
+          2,
+          1.2
+        ]
+      }
+    },
+    "tbo000000017": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000020",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000021",
+          "type": "firstPersonControl",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000022",
+          "type": "health",
+          "values": {
+            "max": 100,
+            "onDeath": "nothing"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000023",
+          "type": "blockScript",
+          "values": {
+            "script": "tbskript0001"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000024",
+          "type": "blockScript",
+          "values": {
+            "script": "tbskript0002"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Spieler",
+      "order": 16,
+      "parent": "tbo000000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0,
+          -14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000018": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000025",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 75
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000026",
+          "type": "firstPersonCamera",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Kamera",
+      "order": 17,
+      "parent": "tbo000000002",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          1.6,
+          -14
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000019": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000027",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000028",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000029",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000030",
+          "type": "npc",
+          "values": {
+            "startState": "chase"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000031",
+          "type": "follow",
+          "values": {
+            "distance": 1.2,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000032",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.4,
+            "damage": 10,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000033",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.1,
+            "max": 40,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000034",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Skelett 1",
+      "order": 18,
+      "parent": "tbo000000004",
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          -10,
+          0,
+          10
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000020": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000035",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000036",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000037",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000038",
+          "type": "npc",
+          "values": {
+            "startState": "chase"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000039",
+          "type": "follow",
+          "values": {
+            "distance": 1.2,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000040",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.4,
+            "damage": 10,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000041",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.1,
+            "max": 40,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000042",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Skelett 2",
+      "order": 19,
+      "parent": "tbo000000004",
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          10,
+          0,
+          10
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000021": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000043",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000044",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000045",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000046",
+          "type": "npc",
+          "values": {
+            "startState": "chase"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000047",
+          "type": "follow",
+          "values": {
+            "distance": 1.2,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000048",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.4,
+            "damage": 10,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000049",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.1,
+            "max": 40,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000050",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Skelett 3",
+      "order": 20,
+      "parent": "tbo000000004",
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          0,
+          0,
+          14
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tbo000000022": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000051",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000052",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000053",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000054",
+          "type": "npc",
+          "values": {
+            "startState": "chase"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000055",
+          "type": "follow",
+          "values": {
+            "distance": 1.2,
+            "speed": 2.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000056",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.4,
+            "damage": 10,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000057",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.1,
+            "max": 40,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000058",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Skelett 4",
+      "order": 21,
+      "parent": "tbo000000004",
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          -14,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

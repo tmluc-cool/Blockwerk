@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-24",
+          "next": {
+            "block": {
+              "fields": {
+                "level": "info"
+              },
+              "id": "t-25",
+              "inputs": {
+                "message": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Geschafft! Du hast die Flagge erreicht."
+                    },
+                    "id": "t-26",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "control.log"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

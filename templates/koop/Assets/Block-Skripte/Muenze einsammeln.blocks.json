@@ -1,0 +1,59 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 0,
+      "id": "tdvarmuenze1",
+      "inspector": false,
+      "name": "muenzen",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-27",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "tdvarmuenze1"
+                }
+              },
+              "id": "t-28",
+              "inputs": {
+                "by": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "t-29",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "fields": {
+                    "target": "self"
+                  },
+                  "id": "t-30",
+                  "type": "control.destroy"
+                }
+              },
+              "type": "variables.change"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -5,6 +5,17 @@ All notable changes are listed here. From the first release on, this file is gen
 
 ## Unreleased
 
+### Phase 11: Polish
+
+- **Reference of all blocks and components** (`docs/reference/`, German and English), generated
+  with the Unity counterpart of each one (`pnpm docs:reference`).
+- **Accessibility:** every control has a name, dialogs are labeled, the keyboard focus is visible
+  everywhere, the light theme reaches WCAG AA contrast, and with "reduce motion" set in the system
+  the editor stops its animations and games stop shaking the camera (`docs/accessibility.md`).
+- **Five template projects** (File → New Project from Template): adventure, arena, platformer,
+  co-op collecting game and racing game (`docs/templates.md`).
+- The scene check no longer lists a figure with a Character Controller as "model without collider".
+
 ### Phase 10: AI assistant
 
 - **AI Assistant** window (toolbar "AI", Window menu) with your own Anthropic key: _Build logic_,

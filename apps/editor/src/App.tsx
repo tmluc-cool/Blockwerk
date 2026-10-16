@@ -7,6 +7,7 @@ import { DockLayout } from './layout/DockLayout';
 import { useDocument } from './state/document';
 import { usePlay } from './state/play';
 import { useSettings } from './state/settings';
+import { TutorialCard } from './tutorial/TutorialCard';
 
 /** The editor window: menu bar, tool bar, area tabs and the docking area. */
 export function App() {
@@ -34,6 +35,7 @@ export function App() {
         <DockLayout />
       </main>
       <DialogHost />
+      <TutorialCard />
     </div>
   );
 }

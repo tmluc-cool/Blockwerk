@@ -2586,3 +2586,60 @@ button.small {
     scroll-behavior: auto !important;
   }
 }
+
+/* Tutorial: a card in the corner and a frame around the part of the editor it points at. */
+.tutorial-card {
+  position: fixed;
+  z-index: 60;
+  width: min(340px, calc(100vw - 32px));
+  padding: 14px 16px;
+  color: var(--bw-text);
+  background: var(--bw-panel-alt);
+  border: 2px solid var(--bw-accent);
+  border-radius: 8px;
+  box-shadow: var(--bw-shadow);
+}
+
+.tutorial-card h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.tutorial-card p {
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.tutorial-card .tutorial-progress {
+  margin-bottom: 4px;
+  color: var(--bw-text-dim);
+  font-size: 12px;
+}
+
+.tutorial-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tutorial-spot {
+  position: fixed;
+  z-index: 59;
+  pointer-events: none;
+  border: 2px solid var(--bw-accent);
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px rgba(243, 154, 43, 0.35);
+  animation: tutorial-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tutorial-pulse {
+  50% {
+    box-shadow: 0 0 0 7px rgba(243, 154, 43, 0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-spot {
+    animation: none;
+  }
+}

@@ -19,3 +19,6 @@ apps/desktop/release
 export-out
 library
 docs/reference/
+templates/*/Assets
+templates/*/Einstellungen
+templates/*/blockwerk.json

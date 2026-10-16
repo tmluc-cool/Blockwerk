@@ -24,9 +24,10 @@ import {
   LIGHT_TYPES,
   SHAPE_NAMES,
 } from '../document/actions';
-import { EXAMPLES, exampleName } from '../examples';
+import { EXAMPLES, exampleName, TEMPLATES } from '../examples';
 import type { TranslationKey } from '../i18n';
 import { choose, prompt, showMessage } from '../state/dialogs';
+import { startTutorial } from '../tutorial/useTutorial';
 import {
   createBlockScript,
   createNewProject,
@@ -181,6 +182,22 @@ async function openExampleDialog(t: Translate): Promise<void> {
   if (example) await importProject(exampleName(example), example.files, example.binaries);
 }
 
+/** File > New Project from Template: the five small starter projects. */
+async function newFromTemplateDialog(t: Translate): Promise<void> {
+  const id = await choose(
+    t('menu.file.newFromTemplate'),
+    TEMPLATES.map((template) => ({
+      value: template.id,
+      label: `${t(`template.${template.id}.name` as TranslationKey)} – ${t(`template.${template.id}.about` as TranslationKey)}`,
+    })),
+  );
+  const template = TEMPLATES.find((item) => item.id === id);
+  if (template) {
+    const name = t(`template.${template.id}.name` as TranslationKey);
+    await importProject(name, template.files, template.binaries);
+  }
+}
+
 /** The top-level menus of the menu bar (Unity: File, Edit, Assets, GameObject, Component, Window, Help). */
 export function menuBarMenus(t: Translate): { id: string; label: string; items: MenuItem[] }[] {
   const settings = useSettings.getState();
@@ -201,6 +218,12 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
               if (name?.trim()) void createNewProject(name.trim());
             });
           },
+        },
+        {
+          label: t('menu.file.newFromTemplate'),
+          testId: 'menu-new-from-template',
+          disabled: playing || TEMPLATES.length === 0,
+          action: () => void newFromTemplateDialog(t),
         },
         {
           label: t('menu.file.openProject'),
@@ -394,6 +417,12 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
       id: 'help',
       label: t('menu.help'),
       items: [
+        {
+          label: t('menu.help.tutorial'),
+          testId: 'menu-tutorial',
+          action: startTutorial,
+        },
+        { kind: 'separator' },
         {
           label: t('menu.help.shortcuts'),
           action: () => showMessage(t('menu.help.shortcuts'), t('help.shortcutsText')),

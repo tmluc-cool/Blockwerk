@@ -25,6 +25,7 @@
     "export": "tsx scripts/export-game.ts",
     "ai:live": "tsx scripts/ai-live.ts",
     "docs:reference": "tsx scripts/make-reference.ts",
+    "templates": "tsx scripts/make-templates.mjs",
     "player-template": "node scripts/build-player-template.mjs",
     "dist": "pnpm build && pnpm player-template && pnpm --filter @blockwerk/desktop dist"
   },

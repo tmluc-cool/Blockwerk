@@ -356,13 +356,49 @@
         {
           "enabled": true,
           "id": "kc0000000008",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-city/building-a"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Haus ohne Kollision",
+      "order": 10,
+      "parent": "ko0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -9,
+          0,
+          -4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000009",
           "type": "blockScript",
           "values": {}
         }
       ],
       "layer": "Default",
       "name": "Schalter ohne Skript",
-      "order": 10,
+      "order": 11,
       "parent": "ko0000000001",
       "static": false,
       "tag": "Untagged",
@@ -384,18 +420,18 @@
         ]
       }
     },
-    "ko0000000012": {
+    "ko0000000013": {
       "active": true,
       "components": [
         {
           "enabled": true,
-          "id": "kc0000000009",
+          "id": "kc0000000010",
           "type": "navAgent",
           "values": {}
         },
         {
           "enabled": true,
-          "id": "kc0000000010",
+          "id": "kc0000000011",
           "type": "npc",
           "values": {
             "startState": "chase"
@@ -403,7 +439,7 @@
         },
         {
           "enabled": true,
-          "id": "kc0000000011",
+          "id": "kc0000000012",
           "type": "follow",
           "values": {
             "distance": 1.5
@@ -412,7 +448,7 @@
       ],
       "layer": "Default",
       "name": "Wache 2",
-      "order": 11,
+      "order": 12,
       "parent": "ko0000000004",
       "static": false,
       "tag": "Untagged",
@@ -434,12 +470,12 @@
         ]
       }
     },
-    "ko0000000013": {
+    "ko0000000014": {
       "active": true,
       "components": [
         {
           "enabled": true,
-          "id": "kc0000000012",
+          "id": "kc0000000013",
           "type": "blockScript",
           "values": {
             "script": "kaputtscr001"
@@ -447,7 +483,7 @@
         },
         {
           "enabled": true,
-          "id": "kc0000000013",
+          "id": "kc0000000014",
           "type": "blockScript",
           "values": {
             "script": "kaputtscr002"
@@ -455,7 +491,7 @@
         },
         {
           "enabled": true,
-          "id": "kc0000000014",
+          "id": "kc0000000015",
           "type": "blockScript",
           "values": {
             "script": "kaputtscr003"
@@ -464,7 +500,7 @@
       ],
       "layer": "Default",
       "name": "Skript-Halter",
-      "order": 12,
+      "order": 13,
       "parent": "ko0000000001",
       "static": false,
       "tag": "Untagged",

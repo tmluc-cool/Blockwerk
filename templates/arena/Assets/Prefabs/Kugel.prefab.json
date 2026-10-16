@@ -1,0 +1,57 @@
+{
+  "base": null,
+  "formatVersion": 1,
+  "objects": {
+    "tbo000000024": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tbc000000059",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#ffd23f",
+            "shape": "sphere"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tbc000000060",
+          "type": "projectile",
+          "values": {
+            "damage": 20,
+            "effect": "sparks",
+            "ignoreTag": "Player",
+            "lifetime": 3,
+            "speed": 22
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kugel",
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.2,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.25,
+          0.25,
+          0.25
+        ]
+      }
+    }
+  },
+  "overrides": [],
+  "root": "tbo000000024"
+}

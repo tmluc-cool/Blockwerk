@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-7",
+          "next": {
+            "block": {
+              "fields": {
+                "level": "info"
+              },
+              "id": "t-8",
+              "inputs": {
+                "message": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Besiege die Skelette! Linke Maustaste schiesst, WASD laufen, Maus zielt."
+                    },
+                    "id": "t-9",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "control.log"
+            }
+          },
+          "type": "events.whenGameStarts"
+        },
+        {
+          "fields": {
+            "action": "attack",
+            "phase": "pressed",
+            "player": "any"
+          },
+          "id": "t-10",
+          "next": {
+            "block": {
+              "fields": {
+                "at": "self",
+                "prefab": "prefab:tbkugel00001"
+              },
+              "id": "t-11",
+              "type": "control.spawnPrefab"
+            }
+          },
+          "type": "events.whenAction"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}
