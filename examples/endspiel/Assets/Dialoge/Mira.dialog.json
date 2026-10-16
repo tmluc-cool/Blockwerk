@@ -1,0 +1,127 @@
+{
+  "formatVersion": 1,
+  "nodes": {
+    "auftrag": {
+      "answers": [
+        {
+          "actions": [
+            {
+              "type": "setVariable",
+              "value": 1,
+              "variable": "esvarquest01"
+            },
+            {
+              "type": "setVariable",
+              "value": "Hole das Zauberbuch aus der Ruine",
+              "variable": "esvartask001"
+            }
+          ],
+          "id": "annehmen",
+          "next": "danke",
+          "text": "Ich hole es dir."
+        },
+        {
+          "id": "ablehnen",
+          "next": null,
+          "text": "Vielleicht später."
+        }
+      ],
+      "speaker": "Mira",
+      "text": "Skelette haben mein Zauberbuch in die Ruine im Nordosten verschleppt. Folge dem Pfad. Bork, die Wache am Brunnen, kann dir einen Heiltrank geben, und mit Doppelsprung und Rolle kommst du an ihnen vorbei.",
+      "x": 360,
+      "y": 0
+    },
+    "belohnung": {
+      "answers": [],
+      "next": null,
+      "speaker": "Mira",
+      "text": "Mein Zauberbuch! Hier sind 25 Münzen für dich. Das Dorf ist gerettet!",
+      "x": 360,
+      "y": 520
+    },
+    "danke": {
+      "answers": [],
+      "next": null,
+      "speaker": "Mira",
+      "text": "Wunderbar! Bring mir das Buch, dann belohne ich dich.",
+      "x": 720,
+      "y": 0
+    },
+    "hallo": {
+      "answers": [
+        {
+          "condition": {
+            "op": "==",
+            "type": "variable",
+            "value": 0,
+            "variable": "esvarquest01"
+          },
+          "id": "fragen",
+          "next": "auftrag",
+          "text": "Was brauchst du?"
+        },
+        {
+          "condition": {
+            "op": "==",
+            "type": "variable",
+            "value": 1,
+            "variable": "esvarquest01"
+          },
+          "id": "hinweis",
+          "next": "tipp",
+          "text": "Wo war das noch gleich?"
+        },
+        {
+          "actions": [
+            {
+              "count": 1,
+              "item": "Zauberbuch",
+              "type": "removeItem"
+            },
+            {
+              "count": 25,
+              "item": "Münze",
+              "type": "addItem"
+            },
+            {
+              "type": "setVariable",
+              "value": 2,
+              "variable": "esvarquest01"
+            },
+            {
+              "type": "setVariable",
+              "value": "Erledigt – das Dorf ist gerettet!",
+              "variable": "esvartask001"
+            }
+          ],
+          "condition": {
+            "count": 1,
+            "item": "Zauberbuch",
+            "type": "hasItem"
+          },
+          "id": "abgeben",
+          "next": "belohnung",
+          "text": "Ich habe dein Zauberbuch gefunden."
+        },
+        {
+          "id": "tschuess",
+          "next": null,
+          "text": "Auf Wiedersehen."
+        }
+      ],
+      "speaker": "Mira",
+      "text": "Willkommen in Birkenau, Fremder! Ich bin Mira, die Magierin. Kann ich etwas für dich tun, oder du etwas für mich?",
+      "x": 0,
+      "y": 0
+    },
+    "tipp": {
+      "answers": [],
+      "next": null,
+      "speaker": "Mira",
+      "text": "Die Ruine liegt im Nordosten, am Ende des Pfads. Pass auf die Skelette auf!",
+      "x": 360,
+      "y": 260
+    }
+  },
+  "start": "hallo"
+}

@@ -1,0 +1,142 @@
+{
+  "base": null,
+  "formatVersion": 1,
+  "objects": {
+    "eso000000337": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000665",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-skeletons/skeleton-minion"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000666",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "esc000000667",
+          "type": "navAgent",
+          "values": {
+            "height": 1.9,
+            "radius": 0.4,
+            "speed": 3.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000668",
+          "type": "npc",
+          "values": {
+            "startState": "patrol"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000669",
+          "type": "patrol",
+          "values": {
+            "route": "eso000000352",
+            "speed": 1.6,
+            "wait": 1.2
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000670",
+          "type": "guard",
+          "values": {
+            "hearingRadius": 4,
+            "loseTime": 4,
+            "viewAngle": 110,
+            "viewDistance": 16
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000671",
+          "type": "follow",
+          "values": {
+            "distance": 1.4,
+            "speed": 3.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000672",
+          "type": "attack",
+          "values": {
+            "cooldown": 1.3,
+            "damage": 12,
+            "range": 1.9,
+            "windup": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000673",
+          "type": "health",
+          "values": {
+            "invulnerable": 0.3,
+            "max": 60,
+            "onDeath": "destroy"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000674",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              0.95,
+              0
+            ],
+            "height": 1.9,
+            "isTrigger": true,
+            "radius": 0.4
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000675",
+          "type": "blockScript",
+          "values": {
+            "script": "esscriptskel"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Skelett",
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Enemy",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "overrides": [],
+  "root": "eso000000337"
+}

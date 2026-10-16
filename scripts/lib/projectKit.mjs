@@ -69,7 +69,13 @@ export function createKit(prefix) {
       };
       return id;
     };
-    return { objects, area, add, data: { formatVersion: 1, environment, objects } };
+    return {
+      objects,
+      area,
+      add,
+      nextOrder: () => order++,
+      data: { formatVersion: 1, environment, objects },
+    };
   }
 
   /** A box (cube) with a collider, for floors, walls and platforms. */
@@ -98,7 +104,10 @@ export function createKit(prefix) {
   return { oid, cid, comp, scene, box, sun };
 }
 
-/** Writes a project to `folder`: scenes, scripts and prefabs are handed in ready-made. */
+/**
+ * Writes a project to `folder`: scenes, scripts and prefabs are handed in ready-made. `prepare`
+ * can add other assets (dialogs, menus, terrains) to the project before it is saved.
+ */
 export async function writeProject({
   folder,
   name,
@@ -107,8 +116,10 @@ export async function writeProject({
   scripts = [],
   prefabs = [],
   tags = [],
+  graphicsLevel = 'medium',
+  prepare = () => {},
 }) {
-  const project = new Project({ formatVersion: 1, name, startScene, graphicsLevel: 'medium' });
+  const project = new Project({ formatVersion: 1, name, startScene, graphicsLevel });
   project.tagsAndLayers = { formatVersion: 1, layers: [], tags };
   for (const script of scripts) {
     project.adoptAsset(
@@ -129,6 +140,7 @@ export async function writeProject({
       data: scene.data,
     });
   }
+  prepare(project);
   await project.save(new NodeFileSystem(folder));
   return project;
 }

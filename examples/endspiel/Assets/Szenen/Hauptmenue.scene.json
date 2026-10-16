@@ -1,0 +1,1134 @@
+{
+  "environment": {
+    "ambientIntensity": 0.45,
+    "fog": {
+      "enabled": true,
+      "far": 140,
+      "near": 40
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 17
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "eso000000370": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000371": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000372": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000373": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000374": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000375": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000376": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000707",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          20,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000377": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000708",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#6f9a4a",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000709",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Wiese",
+      "order": 7,
+      "parent": "eso000000370",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          90,
+          1,
+          90
+        ]
+      }
+    },
+    "eso000000378": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000710",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-a-red"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000711",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-a-red",
+      "order": 8,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -14,
+          0,
+          6
+        ],
+        "rotation": [
+          0,
+          160,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000379": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000712",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-tavern-red"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000713",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "tavern-red",
+      "order": 9,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          14
+        ],
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000380": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000714",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-home-b-blue"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000715",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "home-b-blue",
+      "order": 10,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          14,
+          0,
+          6
+        ],
+        "rotation": [
+          0,
+          200,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000381": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000716",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/building-well-blue"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000717",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1.5,
+              0
+            ],
+            "size": [
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "well-blue",
+      "order": 11,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000382": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000718",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000719",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 1",
+      "order": 12,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -30,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000383": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000720",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000721",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 2",
+      "order": 13,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -23.5,
+          0,
+          25
+        ],
+        "rotation": [
+          0,
+          47,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000384": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000722",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000723",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 3",
+      "order": 14,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -17,
+          0,
+          28
+        ],
+        "rotation": [
+          0,
+          94,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000385": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000724",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000725",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 4",
+      "order": 15,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -10.5,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          141,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000386": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000726",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000727",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 5",
+      "order": 16,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0,
+          25
+        ],
+        "rotation": [
+          0,
+          188,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000387": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000728",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000729",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 6",
+      "order": 17,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2.5,
+          0,
+          28
+        ],
+        "rotation": [
+          0,
+          235,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000388": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000730",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000731",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 7",
+      "order": 18,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          9,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          282,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000389": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000732",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000733",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 8",
+      "order": 19,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          15.5,
+          0,
+          25
+        ],
+        "rotation": [
+          0,
+          329,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000390": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000734",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-a"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000735",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 9",
+      "order": 20,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          22,
+          0,
+          28
+        ],
+        "rotation": [
+          0,
+          376,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000391": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000736",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/tree-single-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000737",
+          "type": "capsuleCollider",
+          "values": {
+            "center": [
+              0,
+              2,
+              0
+            ],
+            "height": 4,
+            "radius": 0.4
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Baum 10",
+      "order": 21,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          28.5,
+          0,
+          22
+        ],
+        "rotation": [
+          0,
+          423,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.5,
+          1.5
+        ]
+      }
+    },
+    "eso000000392": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000738",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 55
+          }
+        },
+        {
+          "enabled": true,
+          "id": "esc000000739",
+          "type": "postProcessing",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 22,
+      "parent": "eso000000371",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          4,
+          -16
+        ],
+        "rotation": [
+          8,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000393": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000740",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 0,
+            "ui": "esuimain0001",
+            "visibility": "always"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptmenue",
+      "order": 23,
+      "parent": "eso000000375",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000394": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000741",
+          "type": "uiCanvas",
+          "values": {
+            "player": "all",
+            "sortOrder": 10,
+            "ui": "esuisettin01",
+            "visibility": "manual"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Einstellungen",
+      "order": 24,
+      "parent": "eso000000375",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "eso000000395": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "esc000000742",
+          "type": "blockScript",
+          "values": {
+            "script": "esscriptmusm"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Musik",
+      "order": 25,
+      "parent": "eso000000370",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

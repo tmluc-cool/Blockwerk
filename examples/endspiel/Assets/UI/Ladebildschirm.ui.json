@@ -1,0 +1,93 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        1,
+        1
+      ],
+      "anchorMin": [
+        0,
+        0
+      ],
+      "background": "#0b0d12",
+      "id": "e1",
+      "name": "Background",
+      "offsetMax": [
+        0,
+        0
+      ],
+      "offsetMin": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "panel",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "fontSize": 40,
+      "id": "e2",
+      "name": "Title",
+      "offsetMax": [
+        300,
+        0
+      ],
+      "offsetMin": [
+        -300,
+        -60
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "text": "Lädt …",
+      "type": "text",
+      "visible": true
+    },
+    {
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "background": "rgba(255,255,255,0.15)",
+      "bind": {
+        "kind": "loading"
+      },
+      "color": "#4a8cff",
+      "id": "e3",
+      "name": "Progress",
+      "offsetMax": [
+        200,
+        36
+      ],
+      "offsetMin": [
+        -200,
+        20
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "bar",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

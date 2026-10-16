@@ -1,0 +1,521 @@
+{
+  "elements": [
+    {
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "background": "#0e1018",
+      "children": [
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e1",
+          "name": "Grafik",
+          "offsetMax": [
+            0,
+            -276
+          ],
+          "offsetMin": [
+            -330,
+            -310
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Grafik",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 18,
+          "id": "e2",
+          "name": "Graphics",
+          "offsetMax": [
+            280,
+            -276
+          ],
+          "offsetMin": [
+            30,
+            -310
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "graphicsLevel",
+          "type": "dropdown",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e3",
+          "name": "Gesamtlautstärke",
+          "offsetMax": [
+            0,
+            -236
+          ],
+          "offsetMin": [
+            -330,
+            -270
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Gesamtlautstärke",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e4",
+          "name": "masterVolume",
+          "offsetMax": [
+            280,
+            -236
+          ],
+          "offsetMin": [
+            30,
+            -270
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "masterVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e5",
+          "name": "Musik",
+          "offsetMax": [
+            0,
+            -196
+          ],
+          "offsetMin": [
+            -330,
+            -230
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Musik",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e6",
+          "name": "musicVolume",
+          "offsetMax": [
+            280,
+            -196
+          ],
+          "offsetMin": [
+            30,
+            -230
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "musicVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e7",
+          "name": "Effekte",
+          "offsetMax": [
+            0,
+            -156
+          ],
+          "offsetMin": [
+            -330,
+            -190
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Effekte",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e8",
+          "name": "effectsVolume",
+          "offsetMax": [
+            280,
+            -156
+          ],
+          "offsetMin": [
+            30,
+            -190
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "effectsVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e9",
+          "name": "Sprache",
+          "offsetMax": [
+            0,
+            -116
+          ],
+          "offsetMin": [
+            -330,
+            -150
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Sprache",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e10",
+          "name": "voicesVolume",
+          "offsetMax": [
+            280,
+            -116
+          ],
+          "offsetMin": [
+            30,
+            -150
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "voicesVolume",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e11",
+          "name": "Maus-Empfindlichkeit",
+          "offsetMax": [
+            0,
+            -76
+          ],
+          "offsetMin": [
+            -330,
+            -110
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Maus-Empfindlichkeit",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "id": "e12",
+          "name": "mouseSensitivity",
+          "offsetMax": [
+            280,
+            -76
+          ],
+          "offsetMin": [
+            30,
+            -110
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "mouseSensitivity",
+          "type": "slider",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e13",
+          "name": "Vollbild",
+          "offsetMax": [
+            0,
+            -36
+          ],
+          "offsetMin": [
+            -330,
+            -70
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Vollbild",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 18,
+          "id": "e14",
+          "name": "Fullscreen",
+          "offsetMax": [
+            280,
+            -36
+          ],
+          "offsetMin": [
+            30,
+            -70
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "setting": "fullscreen",
+          "text": "",
+          "type": "toggle",
+          "visible": true
+        },
+        {
+          "align": "left",
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e15",
+          "name": "Keys title",
+          "offsetMax": [
+            330,
+            42
+          ],
+          "offsetMin": [
+            -330,
+            16
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Tastenbelegung",
+          "type": "text",
+          "visible": true
+        },
+        {
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 16,
+          "id": "e16",
+          "name": "Keys",
+          "offsetMax": [
+            330,
+            258
+          ],
+          "offsetMin": [
+            -330,
+            44
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "type": "keybindings",
+          "visible": true
+        },
+        {
+          "actions": [
+            {
+              "type": "hideUi",
+              "ui": "esuisettin01"
+            }
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "fontSize": 20,
+          "id": "e17",
+          "name": "Zurück",
+          "offsetMax": [
+            100,
+            306
+          ],
+          "offsetMin": [
+            -100,
+            262
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "text": "Zurück",
+          "type": "button",
+          "visible": true
+        }
+      ],
+      "id": "e18",
+      "name": "Panel",
+      "offsetMax": [
+        360,
+        320
+      ],
+      "offsetMin": [
+        -360,
+        -340
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "type": "panel",
+      "visible": true
+    }
+  ],
+  "formatVersion": 1,
+  "referenceHeight": 720,
+  "referenceWidth": 1280
+}

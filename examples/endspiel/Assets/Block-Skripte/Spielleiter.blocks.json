@@ -1,0 +1,72 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-25",
+          "next": {
+            "block": {
+              "fields": {
+                "sound": "builtin:music-calm"
+              },
+              "id": "t-26",
+              "type": "sound.playMusic"
+            }
+          },
+          "type": "events.whenGameStarts"
+        },
+        {
+          "fields": {
+            "key": "Enter",
+            "mode": "pressed"
+          },
+          "id": "t-27",
+          "next": {
+            "block": {
+              "fields": {
+                "action": "activate",
+                "target": "object:eso000000362"
+              },
+              "id": "t-28",
+              "next": {
+                "block": {
+                  "fields": {
+                    "action": "activate",
+                    "target": "object:eso000000363"
+                  },
+                  "id": "t-29",
+                  "next": {
+                    "block": {
+                      "fields": {
+                        "level": "info"
+                      },
+                      "id": "t-30",
+                      "inputs": {
+                        "message": {
+                          "shadow": {
+                            "fields": {
+                              "TEXT": "Spieler 2 ist dabei"
+                            },
+                            "id": "t-31",
+                            "type": "literal.text"
+                          }
+                        }
+                      },
+                      "type": "control.log"
+                    }
+                  },
+                  "type": "looks.setActive"
+                }
+              },
+              "type": "looks.setActive"
+            }
+          },
+          "type": "events.whenKey"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

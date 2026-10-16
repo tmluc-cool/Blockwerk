@@ -15,6 +15,7 @@ on:
       - apps/desktop/src/playerMain.ts
       - scripts/build-player-template.mjs
       - scripts/changelog.mjs
+      - examples/endspiel/**
   workflow_dispatch:
 
 permissions:
@@ -95,6 +96,15 @@ jobs:
           powershell -NoProfile -Command "Compress-Archive -Path apps/editor/dist/* -DestinationPath release-assets/Blockwerk-web-${{ steps.version.outputs.version }}.zip"
           powershell -NoProfile -Command "Compress-Archive -Path library -DestinationPath release-assets/Blockwerk-start-package-${{ steps.version.outputs.version }}.zip"
           ls -la release-assets
+
+      # The final game of the project as a Windows app: proves that a game made with Blockwerk
+      # becomes an .exe (SPEC phase 11). The player template was built above.
+      - name: Final game (examples/endspiel) as a Windows app
+        run: |
+          pnpm export examples/endspiel --out out/Endspiel --platform windows
+          ls -la out/Endspiel
+          test -f out/Endspiel/Endspiel.exe
+          powershell -NoProfile -Command "Compress-Archive -Path out/Endspiel/* -DestinationPath release-assets/Endspiel-windows-${{ steps.version.outputs.version }}.zip"
 
       - name: Changelog
         run: |

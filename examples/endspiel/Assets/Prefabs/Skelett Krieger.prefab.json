@@ -1,0 +1,28 @@
+{
+  "base": "espfskelett1",
+  "formatVersion": 1,
+  "objects": {},
+  "overrides": [
+    {
+      "object": "eso000000337",
+      "path": "name",
+      "value": "Skelett Krieger"
+    },
+    {
+      "object": "eso000000337",
+      "path": "component:esc000000665:model",
+      "value": "library:kaykit-skeletons/skeleton-warrior"
+    },
+    {
+      "object": "eso000000337",
+      "path": "component:esc000000672:damage",
+      "value": 18
+    },
+    {
+      "object": "eso000000337",
+      "path": "component:esc000000673:max",
+      "value": 90
+    }
+  ],
+  "root": "eso000000337"
+}

@@ -11,6 +11,11 @@ repository (documentation, issues, pull requests) is in English.
 
 ![A short tour of the editor: Scene view, Inspector, block script and Play mode](docs/screenshots/editor-tour.gif)
 
+The final game **Birkenau** (`examples/endspiel`) was built only with Blockwerk: main menu, open
+landscape with a village and a day-night cycle, a hero from the Character Studio, villagers with
+dialogs, skeletons, items, split screen for two players, saving and loading, winning and losing.
+What is proven and what is still open: [docs/final-acceptance.md](docs/final-acceptance.md).
+
 **[Try it in your browser](https://tmluc-cool.github.io/Blockwerk/)**: the editor and playable example
 games, nothing to install (available once GitHub Pages is switched on for the repository).
 
@@ -77,21 +82,21 @@ trying out characters, the Character Studio and an asset library with CC0 models
 
 ## Roadmap
 
-| Phase | Content                                       | Status  |
-| ----- | --------------------------------------------- | ------- |
-| 0     | Foundation and Unity layout                   | ✅ done |
-| 1     | Objects, components, block scripts, play mode | ✅ done |
-| 2     | Project window, asset library, prefabs        | ✅ done |
-| 3     | Player, physics, animation                    | ✅ done |
-| 3b    | Character Studio                              | ✅ done |
-| 4     | Environment and graphics                      | ✅ done |
-| 5     | NPCs and game logic                           | ✅ done |
-| 6     | UI, menus, saving                             | ✅ done |
-| 7     | Large projects                                | ✅ done |
-| 8     | Debugging                                     | ✅ done |
-| 9     | Build and export                              | ✅ done |
-| 10    | AI assistant                                  | ✅ done |
-| 11    | Polish and final acceptance                   | planned |
+| Phase | Content                                       | Status                                       |
+| ----- | --------------------------------------------- | -------------------------------------------- |
+| 0     | Foundation and Unity layout                   | ✅ done                                      |
+| 1     | Objects, components, block scripts, play mode | ✅ done                                      |
+| 2     | Project window, asset library, prefabs        | ✅ done                                      |
+| 3     | Player, physics, animation                    | ✅ done                                      |
+| 3b    | Character Studio                              | ✅ done                                      |
+| 4     | Environment and graphics                      | ✅ done                                      |
+| 5     | NPCs and game logic                           | ✅ done                                      |
+| 6     | UI, menus, saving                             | ✅ done                                      |
+| 7     | Large projects                                | ✅ done                                      |
+| 8     | Debugging                                     | ✅ done                                      |
+| 9     | Build and export                              | ✅ done                                      |
+| 10    | AI assistant                                  | ✅ done                                      |
+| 11    | Polish and final acceptance                   | final game and docs done, manual checks open |
 
 The full specification is in [SPEC.md](SPEC.md) (German), the progress of each phase in
 [PROGRESS.md](PROGRESS.md).
