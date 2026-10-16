@@ -21,6 +21,7 @@ import type {
   AnyAsset,
   AssetDataByType,
   AssetEntry,
+  BuildSettings,
   AssetType,
   BlockScriptData,
   DialogData,
@@ -342,7 +343,7 @@ export function applyAssetChanges(
 }
 
 /** Writes the working scene (or the prefab in prefab mode) into the project. */
-function flushScene(): void {
+export function flushScene(): void {
   const { project, sceneId, scene, prefabStage } = useDocument.getState();
   if (project && sceneId && scene && project.asset(sceneId)?.data !== scene) {
     project.updateAsset(sceneId, 'scene', scene);
@@ -1016,5 +1017,28 @@ export function setProjectGraphicsLevel(level: 'low' | 'medium' | 'high' | 'ultr
   if (!project) return;
   const { graphicsLevel: _before, ...rest } = project.settings;
   project.settings = level ? { ...rest, graphicsLevel: level } : rest;
+  assetsChanged();
+}
+
+/** Changes the build settings of the project (SPEC 9.3); a `null` or missing value clears one. */
+export function setBuildSettings(patch: {
+  [K in keyof BuildSettings]?: BuildSettings[K] | null;
+}): void {
+  const { project } = useDocument.getState();
+  if (!project) return;
+  const kept = Object.entries({ ...project.settings.build, ...patch }).filter(
+    ([, value]) => value !== null && value !== undefined && value !== '',
+  );
+  const { build: _before, ...rest } = project.settings;
+  project.settings =
+    kept.length > 0 ? { ...rest, build: Object.fromEntries(kept) as BuildSettings } : rest;
+  assetsChanged();
+}
+
+/** Sets the scene the game starts in. */
+export function setProjectStartScene(sceneId: string): void {
+  const { project } = useDocument.getState();
+  if (!project || !project.assetOfType(sceneId, 'scene')) return;
+  project.settings = { ...project.settings, startScene: sceneId };
   assetsChanged();
 }

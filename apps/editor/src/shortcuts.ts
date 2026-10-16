@@ -40,7 +40,7 @@ function run(event: KeyboardEvent, action: () => void): void {
 /**
  * Handles the global Unity-style shortcuts: Q W E R T Y tools, F frame selection, Ctrl+1–5 focus
  * windows, Alt+1–9 switch area tabs, Ctrl+S save, Ctrl+Z/Y undo/redo, Ctrl+D duplicate,
- * Delete, F2 rename, Ctrl+Shift+N new object, Ctrl+Shift+F search, Ctrl+P play, Ctrl+Shift+P pause, Ctrl+Alt+P step.
+ * Delete, F2 rename, Ctrl+Shift+N new object, Ctrl+Shift+F search, Ctrl+Shift+B build settings, Ctrl+P play, Ctrl+Shift+P pause, Ctrl+Alt+P step.
  */
 export function handleShortcut(event: KeyboardEvent, options: ShortcutOptions = {}): void {
   if (event.defaultPrevented) return;
@@ -76,6 +76,10 @@ export function handleShortcut(event: KeyboardEvent, options: ShortcutOptions = 
   }
   if (ctrl && event.shiftKey && !event.altKey && key === 'f') {
     run(event, () => focusPanel('search'));
+    return;
+  }
+  if (ctrl && event.shiftKey && !event.altKey && key === 'b') {
+    run(event, () => focusPanel('buildSettings'));
     return;
   }
   if (ctrl && key === 's') {

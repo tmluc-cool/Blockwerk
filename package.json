@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "pnpm --filter @blockwerk/editor dev",
     "dev:desktop": "pnpm --filter @blockwerk/desktop dev",
-    "build": "pnpm typecheck && pnpm --filter @blockwerk/editor build && pnpm --filter @blockwerk/desktop build",
+    "build": "pnpm typecheck && pnpm --filter @blockwerk/player build && pnpm --filter @blockwerk/editor build && pnpm --filter @blockwerk/desktop build",
     "typecheck": "pnpm -r typecheck",
     "test": "vitest run",
     "test:watch": "vitest",

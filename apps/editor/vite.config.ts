@@ -75,10 +75,57 @@ function assetLibrary(): Plugin {
   };
 }
 
+/** Every file below a folder, as `/` paths relative to it, sorted. */
+function listFiles(dir: string, base = ''): string[] {
+  const found: string[] = [];
+  for (const entry of readdirSync(join(dir, base), { withFileTypes: true })) {
+    const path = base ? `${base}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) found.push(...listFiles(dir, path));
+    else found.push(path);
+  }
+  return found.sort();
+}
+
+/**
+ * Ships the built player (`apps/player`, run `pnpm --filter @blockwerk/player build` first) next
+ * to the editor in `player/`, with `player/files.json` listing its files: "Build" for the web
+ * puts the game next to a copy of it. Without a built player the editor still works and the
+ * Build Settings window says that the web build is not available.
+ */
+function playerTemplate(): Plugin {
+  const dir = resolve(import.meta.dirname, '..', 'player', 'dist');
+  return {
+    name: 'blockwerk:player',
+    configureServer(server) {
+      server.middlewares.use('/player/files.json', (_request, response) => {
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(existsSync(dir) ? listFiles(dir) : []));
+      });
+      server.middlewares.use('/player', serveFolder(dir));
+    },
+    generateBundle() {
+      if (!existsSync(dir)) return;
+      const files = listFiles(dir);
+      for (const name of files) {
+        this.emitFile({
+          type: 'asset',
+          fileName: `player/${name}`,
+          source: readFileSync(join(dir, name)),
+        });
+      }
+      this.emitFile({
+        type: 'asset',
+        fileName: 'player/files.json',
+        source: JSON.stringify(files),
+      });
+    },
+  };
+}
+
 export default defineConfig({
   // Relative asset paths so the build also works from Electron's custom protocol.
   base: './',
-  plugins: [react(), blocklyMedia(), assetLibrary()],
+  plugins: [react(), blocklyMedia(), assetLibrary(), playerTemplate()],
   // Terrain files of the bundled examples are binary assets.
   assetsInclude: ['**/*.bin'],
   server: { port: 5173, strictPort: true },

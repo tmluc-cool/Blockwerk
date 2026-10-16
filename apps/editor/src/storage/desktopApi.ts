@@ -26,6 +26,34 @@ export interface DesktopApi {
     remove(root: string, path: string): Promise<void>;
     rename(root: string, from: string, to: string): Promise<void>;
   };
+  readonly exporter?: DesktopExporter;
+}
+
+/** A file the desktop app writes for an export. */
+export interface DesktopExportFile {
+  /** Path relative to the export folder, with `/`. */
+  readonly path: string;
+  readonly data: Uint8Array | string;
+}
+
+/** Export services of the desktop app (SPEC 9.3). */
+export interface DesktopExporter {
+  /** Asks where to put the build; `null` if the user cancels. */
+  chooseFolder(): Promise<string | null>;
+  /** Writes files below a folder; with `clean` an existing folder is emptied first. */
+  writeFiles(folder: string, files: readonly DesktopExportFile[], clean: boolean): Promise<void>;
+  /** Whether this app carries a player for Windows (only the Windows app does). */
+  windowsAvailable(): Promise<boolean>;
+  /** Makes the Windows app: player template, game files, exe named after the game, icon. */
+  buildWindows(options: {
+    readonly folder: string;
+    readonly name: string;
+    readonly files: readonly DesktopExportFile[];
+    /** PNG of the app icon, if the game has one. */
+    readonly icon: Uint8Array | null;
+  }): Promise<{ readonly exe: string; readonly warnings: readonly string[] }>;
+  /** Starts a built app. */
+  run(path: string): Promise<void>;
 }
 
 declare global {

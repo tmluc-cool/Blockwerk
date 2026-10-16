@@ -240,7 +240,13 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
           action: () => settings.setAutosave(!settings.autosave),
         },
         { kind: 'separator' },
-        { label: t('menu.file.buildSettings'), shortcut: 'Ctrl+Shift+B', disabled: true },
+        {
+          label: t('menu.file.buildSettings'),
+          shortcut: 'Ctrl+Shift+B',
+          testId: 'menu-build-settings',
+          disabled: !document.project,
+          action: () => openPanel('buildSettings'),
+        },
       ],
     },
     {

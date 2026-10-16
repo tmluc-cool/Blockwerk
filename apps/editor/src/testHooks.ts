@@ -23,6 +23,7 @@ import {
   updateBlockScript,
   useDocument,
 } from './state/document';
+import { useBuild } from './export/exportGame';
 import { useDebug } from './state/debug';
 import { useEditor } from './state/editor';
 import { currentGame, playPerformance, usePlay } from './state/play';
@@ -81,6 +82,8 @@ export interface BlockwerkDebugHooks {
   liveObjects(name: string): ObjectProbe[];
   gameVars(): Readonly<Record<string, unknown>>;
   /** Breakpoints and the block a script stopped at (phase 8). */
+  /** Files of the last build (paths) and whether it worked. */
+  buildResult(): { ok: boolean; files: string[] } | null;
   debugState(): {
     breakpoints: string[];
     hit: { assetId: string; blockId: string; objectName: string } | null;
@@ -223,6 +226,10 @@ export function installTestHooks(): void {
           visible: object.visible,
         })),
     gameVars: () => ({ ...(currentGame()?.vars ?? {}) }),
+    buildResult: () => {
+      const { outcome, files } = useBuild.getState();
+      return outcome ? { ok: outcome.ok, files: [...files] } : null;
+    },
     debugState: () => {
       const { breakpoints, hit } = useDebug.getState();
       return { breakpoints: Object.keys(breakpoints), hit };
