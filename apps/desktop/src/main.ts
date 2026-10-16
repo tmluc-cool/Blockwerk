@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, net, protocol } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { join, normalize, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { registerAi } from './ai';
 import { registerExporter } from './exporter';
 import { registerProjectFiles } from './projectFiles';
 
@@ -132,6 +133,7 @@ void app.whenReady().then(() => {
   });
   registerProjectFiles(() => mainWindow);
   registerExporter();
+  registerAi();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });

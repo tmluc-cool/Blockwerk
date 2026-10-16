@@ -26,7 +26,7 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import type { Camera, Intersection, WebGLRenderer, Matrix4 } from 'three';
+import type { Camera, Intersection, Material, Matrix4, WebGLRenderer } from 'three';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { transformFromMatrix } from '../document/sceneOps';
 import { editorModels } from '../library/models';
@@ -453,6 +453,83 @@ export class SceneViewport {
       this.dropPreview.object?.position.copy(point);
     }
     this.requestRender();
+  }
+
+  private ghosts: { group: Group; token: object } | null = null;
+
+  /**
+   * Shows a proposal (the AI assistant's world) as half-transparent models standing where they
+   * would be placed; `null` removes them. The Scene view frames them so they are in sight.
+   */
+  showGhosts(
+    items:
+      | readonly {
+          readonly model: string;
+          readonly position: readonly [number, number, number];
+          readonly rotationY: number;
+          readonly scale: number;
+        }[]
+      | null,
+  ): void {
+    if (this.ghosts) {
+      this.ghosts.group.removeFromParent();
+      this.ghosts.group.traverse((node) => {
+        const mesh = node as Mesh;
+        if (mesh.isMesh) {
+          for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+            material.dispose();
+          }
+        }
+      });
+      this.ghosts = null;
+    }
+    const world = this.world;
+    if (!items || items.length === 0 || !world) {
+      this.requestRender();
+      return;
+    }
+    const token = {};
+    const group = new Group();
+    group.name = 'ai-ghosts';
+    this.ghosts = { group, token };
+    world.scene.add(group);
+    const bounds = new Box3();
+    let pending = items.length;
+    for (const item of items) {
+      void editorModels.load(`library:${item.model}`).then((template) => {
+        pending -= 1;
+        if (this.ghosts?.token !== token) return;
+        if (template) {
+          const object = ModelCache.instantiate(template);
+          object.position.set(item.position[0], item.position[1], item.position[2]);
+          object.rotation.y = (item.rotationY * Math.PI) / 180;
+          object.scale.setScalar(item.scale);
+          object.traverse((node) => {
+            const mesh = node as Mesh;
+            if (!mesh.isMesh) return;
+            // Own materials: the models share theirs with the scene.
+            const make = (material: Material): Material => {
+              const copy = material.clone();
+              copy.transparent = true;
+              copy.opacity = 0.45;
+              copy.depthWrite = false;
+              return copy;
+            };
+            mesh.material = Array.isArray(mesh.material)
+              ? mesh.material.map(make)
+              : make(mesh.material);
+            mesh.castShadow = false;
+          });
+          group.add(object);
+          bounds.expandByObject(object);
+        }
+        if (pending === 0 && !bounds.isEmpty()) {
+          const sphere = bounds.getBoundingSphere(new Sphere());
+          this.camera.frame(sphere.center, Math.min(Math.max(sphere.radius, 2), 80));
+        }
+        this.requestRender();
+      });
+    }
   }
 
   /** Turns to an axis view (scene gizmo). */

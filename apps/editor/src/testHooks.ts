@@ -23,6 +23,8 @@ import {
   updateBlockScript,
   useDocument,
 } from './state/document';
+import { useAiSettings } from './ai/aiSettings';
+import { useAi } from './ai/useAi';
 import { useBuild } from './export/exportGame';
 import { useDebug } from './state/debug';
 import { useEditor } from './state/editor';
@@ -84,6 +86,14 @@ export interface BlockwerkDebugHooks {
   /** Breakpoints and the block a script stopped at (phase 8). */
   /** Files of the last build (paths) and whether it worked. */
   buildResult(): { ok: boolean; files: string[] } | null;
+  /** The assistant: whether it exists, the proposal waiting, whether a request is running. */
+  aiState(): {
+    hasKey: boolean;
+    model: string;
+    status: string;
+    resultKind: string | null;
+    task: string;
+  };
   debugState(): {
     breakpoints: string[];
     hit: { assetId: string; blockId: string; objectName: string } | null;
@@ -229,6 +239,17 @@ export function installTestHooks(): void {
     buildResult: () => {
       const { outcome, files } = useBuild.getState();
       return outcome ? { ok: outcome.ok, files: [...files] } : null;
+    },
+    aiState: () => {
+      const ai = useAi.getState();
+      const settings = useAiSettings.getState();
+      return {
+        hasKey: settings.hasKey,
+        model: settings.model,
+        status: ai.status,
+        resultKind: ai.result?.kind ?? null,
+        task: ai.task,
+      };
     },
     debugState: () => {
       const { breakpoints, hit } = useDebug.getState();

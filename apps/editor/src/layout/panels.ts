@@ -15,6 +15,7 @@ export type PanelId =
   | 'navigation'
   | 'profiler'
   | 'buildSettings'
+  | 'ai'
   | 'project'
   | 'assetLibrary'
   | 'console';
@@ -43,6 +44,7 @@ export const PANELS: readonly PanelDefinition[] = [
   { id: 'navigation', titleKey: 'panel.navigation' },
   { id: 'profiler', titleKey: 'panel.profiler' },
   { id: 'buildSettings', titleKey: 'panel.buildSettings' },
+  { id: 'ai', titleKey: 'panel.ai' },
   { id: 'assetLibrary', titleKey: 'panel.assetLibrary' },
   { id: 'console', titleKey: 'panel.console' },
 ];

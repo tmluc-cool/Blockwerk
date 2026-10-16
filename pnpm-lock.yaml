@@ -66,6 +66,9 @@ importers:
       '@blockly/field-colour':
         specifier: 13.3.0
         version: 13.3.0(blockly@13.3.0(jsdom@29.1.1(@noble/hashes@2.4.0)))
+      '@blockwerk/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@blockwerk/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks

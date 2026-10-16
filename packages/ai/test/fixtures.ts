@@ -14,7 +14,16 @@ export function scriptContext(): ScriptContext {
       ui: new Set(),
       audio: new Set(),
     },
-    gameVariables: [{ id: 'gamevar00001', name: 'punkte', type: 'number' }],
+    gameVariables: [
+      {
+        id: 'gamevar00001',
+        name: 'punkte',
+        type: 'number',
+        scope: 'game',
+        default: 0,
+        inspector: false,
+      },
+    ],
   };
 }
 

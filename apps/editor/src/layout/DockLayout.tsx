@@ -14,6 +14,7 @@ import { DialogEditorPanel } from '../panels/DialogEditorPanel';
 import { SearchPanel } from '../panels/SearchPanel';
 import { UiEditorPanel } from '../panels/UiEditorPanel';
 import { NavigationPanel } from '../panels/NavigationPanel';
+import { AiPanel } from '../panels/AiPanel';
 import { BuildSettingsPanel } from '../panels/BuildSettingsPanel';
 import { ProfilerPanel } from '../panels/ProfilerPanel';
 import { ProjectPanel } from '../panels/ProjectPanel';
@@ -41,6 +42,7 @@ const PANEL_COMPONENTS: Readonly<Record<PanelId, FunctionComponent<IDockviewPane
   navigation: NavigationPanel,
   profiler: ProfilerPanel,
   buildSettings: BuildSettingsPanel,
+  ai: AiPanel,
   project: ProjectPanel,
   assetLibrary: AssetLibraryPanel,
   console: ConsolePanel,

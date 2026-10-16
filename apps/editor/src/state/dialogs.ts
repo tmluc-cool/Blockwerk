@@ -4,6 +4,7 @@ import type { CustomBlockSpec } from '../blocks/frameApi';
 /** A modal dialog request. */
 export type DialogRequest =
   | { kind: 'physics' }
+  | { kind: 'preferences' }
   | {
       kind: 'customBlock';
       spec: CustomBlockSpec;
@@ -50,6 +51,11 @@ export function choose(
   return new Promise((resolve) => {
     useDialogs.setState({ dialog: { kind: 'choice', title, options, resolve } });
   });
+}
+
+/** Opens the preferences (the optional AI assistant's key and model). */
+export function showPreferences(): void {
+  useDialogs.setState({ dialog: { kind: 'preferences' } });
 }
 
 /** Opens the physics settings: scene gravity and the layer collision matrix. */

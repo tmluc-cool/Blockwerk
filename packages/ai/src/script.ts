@@ -52,8 +52,10 @@ export interface ScriptContext {
     readonly ui: ReadonlySet<string>;
     readonly audio: ReadonlySet<string>;
   };
-  /** Game variables the project already has (shared by all scripts). */
-  readonly gameVariables: readonly Pick<VariableData, 'id' | 'name' | 'type'>[];
+  /** Game variables the project already has (shared by all scripts, one ID in all of them). */
+  readonly gameVariables: readonly VariableData[];
+  /** The variables of the script that is being tidied up: declared again by name, they keep their ID. */
+  readonly ownVariables?: readonly VariableData[];
 }
 
 /** Limits that keep a proposal reviewable. */
@@ -490,6 +492,18 @@ export function checkScript(
   const variableIds = new Map<string, string>();
   const variables: VariableData[] = [];
   for (const variable of declared.values()) {
+    // A variable that exists already (in the script being tidied, or a game variable of the
+    // project) keeps its ID, so values stored in the scene and in saves stay valid.
+    const existing =
+      ctx.ownVariables?.find((own) => own.name === variable.name && own.scope === variable.scope) ??
+      (variable.scope === 'game'
+        ? ctx.gameVariables.find((own) => own.name === variable.name)
+        : undefined);
+    if (existing) {
+      variableIds.set(variable.name, existing.id);
+      variables.push(existing);
+      continue;
+    }
     const id = makeId(random);
     variableIds.set(variable.name, id);
     variables.push({
@@ -514,18 +528,21 @@ export function checkScript(
     return top;
   });
   const workspace = { blocks: { languageVersion: 0, blocks: tops } };
+  // Game variables the script uses without having declared them are declared in the script too.
+  const usedIds = new Set(
+    [...JSON.stringify(workspace).matchAll(/"variable":\{"id":"([a-z0-9]+)"\}/g)].map(
+      (match) => match[1],
+    ),
+  );
+  for (const existing of ctx.gameVariables) {
+    if (usedIds.has(existing.id) && !variables.some((variable) => variable.id === existing.id)) {
+      variables.push(existing);
+    }
+  }
   try {
     const result = compileBlockScript(workspace, {
       assetName: proposal.name,
-      variables: [
-        ...variables,
-        ...ctx.gameVariables.map((variable) => ({
-          ...variable,
-          scope: 'game' as const,
-          default: 0,
-          inspector: false,
-        })),
-      ],
+      variables,
       registry: ctx.registry,
     });
     const failed = result.diagnostics.filter((diagnostic) => diagnostic.severity === 'error');

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CustomBlockDialog } from './CustomBlockDialog';
 import { PhysicsDialog } from './PhysicsDialog';
+import { PreferencesDialog } from './PreferencesDialog';
 import { useDialogs } from '../state/dialogs';
 import type { DialogRequest } from '../state/dialogs';
 import { useT } from '../state/settings';
@@ -85,6 +86,8 @@ export function DialogHost() {
     <div className="dialog-backdrop">
       {dialog.kind === 'physics' ? (
         <PhysicsDialog />
+      ) : dialog.kind === 'preferences' ? (
+        <PreferencesDialog />
       ) : dialog.kind === 'customBlock' ? (
         <CustomBlockDialog dialog={dialog} />
       ) : dialog.kind === 'prompt' ? (

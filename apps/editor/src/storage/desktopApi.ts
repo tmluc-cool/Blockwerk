@@ -27,6 +27,7 @@ export interface DesktopApi {
     rename(root: string, from: string, to: string): Promise<void>;
   };
   readonly exporter?: DesktopExporter;
+  readonly ai?: DesktopAi;
 }
 
 /** A file the desktop app writes for an export. */
@@ -54,6 +55,21 @@ export interface DesktopExporter {
   }): Promise<{ readonly exe: string; readonly warnings: readonly string[] }>;
   /** Starts a built app. */
   run(path: string): Promise<void>;
+}
+
+/** The assistant's services in the desktop app: the key stays in the main process. */
+export interface DesktopAi {
+  hasKey(): Promise<boolean>;
+  /** Stores the key; `session` means the system offers no encryption and the key is kept until the app closes. */
+  setKey(key: string): Promise<'encrypted' | 'session'>;
+  clearKey(): Promise<void>;
+  /** Sends a Messages API request with the stored key. */
+  send(
+    request: unknown,
+  ): Promise<
+    | { readonly ok: true; readonly body: unknown }
+    | { readonly ok: false; readonly status: number; readonly message: string }
+  >;
 }
 
 declare global {

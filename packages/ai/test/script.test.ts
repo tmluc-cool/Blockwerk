@@ -52,12 +52,65 @@ describe('checkScript', () => {
     );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.variables).toHaveLength(1);
+    // The declared variable and the game variable the script uses.
+    expect(result.variables).toHaveLength(2);
     expect(result.variables[0]).toMatchObject({ name: 'leben', scope: 'object', default: 3 });
     const text = JSON.stringify(result.workspace);
     expect(text).toContain('literal.number');
-    // The game variable of the project is used by its ID.
+    // The game variable of the project is used by its ID, and declared in the script too.
     expect(text).toContain('gamevar00001');
+    expect(result.variables.map((variable) => variable.id)).toContain('gamevar00001');
+  });
+
+  it('keeps the ID of a variable that is declared again while tidying up', () => {
+    const own = [
+      {
+        id: 'ownvar000001',
+        name: 'leben',
+        type: 'number' as const,
+        scope: 'object' as const,
+        default: 3,
+        inspector: true,
+      },
+    ];
+    const result = checkScript(
+      {
+        name: 'x',
+        variables: [{ name: 'leben', type: 'number', scope: 'object' }],
+        stacks: [
+          [
+            { block: 'events.whenGameStarts' },
+            { block: 'variables.set', fields: { variable: 'leben' }, inputs: { value: 1 } },
+          ],
+        ],
+      },
+      { ...ctx, ownVariables: own },
+      seeded(),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.variables).toEqual(own);
+    expect(JSON.stringify(result.workspace)).toContain('ownvar000001');
+  });
+
+  it('does not make a second game variable when the model declares an existing one', () => {
+    const result = checkScript(
+      {
+        name: 'x',
+        variables: [{ name: 'punkte', type: 'number', scope: 'game' }],
+        stacks: [
+          [
+            { block: 'events.whenGameStarts' },
+            { block: 'variables.change', fields: { variable: 'punkte' }, inputs: { by: 1 } },
+          ],
+        ],
+      },
+      ctx,
+      seeded(),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok)
+      expect(result.variables.map((variable) => variable.id)).toEqual(['gamevar00001']);
   });
 
   it('refuses answers that are not scripts', () => {
