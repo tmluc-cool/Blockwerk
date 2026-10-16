@@ -112,6 +112,7 @@ export const phase8Cases: RuntimeCase[] = [
       expect(game.vars[B]).toBe('');
       // Continue: nothing stops any more, the script runs to its end.
       breakpoints.clear();
+      game.debugResume();
       run(game, 0.2);
       expect(hits).toHaveLength(2);
       expect(game.vars[B]).toBe(3);

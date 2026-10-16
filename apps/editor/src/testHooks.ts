@@ -23,6 +23,7 @@ import {
   updateBlockScript,
   useDocument,
 } from './state/document';
+import { useDebug } from './state/debug';
 import { useEditor } from './state/editor';
 import { currentGame, playPerformance, usePlay } from './state/play';
 import { useSettings } from './state/settings';
@@ -79,6 +80,14 @@ export interface BlockwerkDebugHooks {
   /** Live objects of the running game with a given name. */
   liveObjects(name: string): ObjectProbe[];
   gameVars(): Readonly<Record<string, unknown>>;
+  /** Breakpoints and the block a script stopped at (phase 8). */
+  debugState(): {
+    breakpoints: string[];
+    hit: { assetId: string; blockId: string; objectName: string } | null;
+  };
+  toggleBreakpoint(assetId: string, blockId: string): void;
+  /** Sets the condition of a breakpoint (an empty text: always stop). */
+  setBreakpointCondition(assetId: string, blockId: string, condition: string): void;
   /** Imports project files as a new project and opens it. */
   importFiles(name: string, files: Record<string, string>): Promise<void>;
   /** Position of an object on the scene canvas in CSS pixels, or `null`. */
@@ -214,6 +223,15 @@ export function installTestHooks(): void {
           visible: object.visible,
         })),
     gameVars: () => ({ ...(currentGame()?.vars ?? {}) }),
+    debugState: () => {
+      const { breakpoints, hit } = useDebug.getState();
+      return { breakpoints: Object.keys(breakpoints), hit };
+    },
+    toggleBreakpoint: (assetId, blockId) => useDebug.getState().toggleBreakpoint(assetId, blockId),
+    setBreakpointCondition: (assetId, blockId, condition) =>
+      useDebug
+        .getState()
+        .setCondition(assetId, blockId, condition.trim() === '' ? null : condition),
     importFiles: (name, files) => importProject(name, files),
     screenPoint: (id) => activeSceneView()?.screenPoint(id) ?? null,
     gameViews: () => {

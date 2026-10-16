@@ -166,8 +166,10 @@ export const navAgent = defineComponent({
         destination = point.clone();
         arrived = false;
         if (world.navigation.ensureBuilt()) {
+          // An agent that stands off the mesh cannot walk anywhere; the console says so.
+          const stuck = world.navigation.nearest(object.worldPosition(position), 1.5) === null;
           ensureAgent();
-          const ok = agent?.moveTo(point) ?? false;
+          const ok = !stuck && (agent?.moveTo(point) ?? false);
           moving = ok;
           if (!ok) {
             destination = null;

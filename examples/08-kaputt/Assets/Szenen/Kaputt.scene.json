@@ -1,0 +1,490 @@
+{
+  "environment": {
+    "ambientIntensity": 0.4,
+    "fog": {
+      "enabled": false,
+      "far": 160,
+      "near": 60
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 10
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "ko0000000001": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000002": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000003": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000004": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000005": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000006": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000007": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "ko0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000008": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000002",
+          "type": "camera",
+          "values": {
+            "fieldOfView": 60
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Kamera",
+      "order": 7,
+      "parent": "ko0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          6,
+          -12
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000009": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Boden",
+      "order": 8,
+      "parent": "ko0000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          30,
+          1,
+          30
+        ]
+      }
+    },
+    "ko0000000010": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000004",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-dungeon/barrel-large"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000005",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000006",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000007",
+          "type": "thirdPersonControl",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Held ohne Animation",
+      "order": 9,
+      "parent": "ko0000000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000011": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000008",
+          "type": "blockScript",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Schalter ohne Skript",
+      "order": 10,
+      "parent": "ko0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -4,
+          0,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000009",
+          "type": "navAgent",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000010",
+          "type": "npc",
+          "values": {
+            "startState": "chase"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000011",
+          "type": "follow",
+          "values": {
+            "distance": 1.5
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Wache 2",
+      "order": 11,
+      "parent": "ko0000000004",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          80,
+          0,
+          80
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "ko0000000013": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "kc0000000012",
+          "type": "blockScript",
+          "values": {
+            "script": "kaputtscr001"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000013",
+          "type": "blockScript",
+          "values": {
+            "script": "kaputtscr002"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "kc0000000014",
+          "type": "blockScript",
+          "values": {
+            "script": "kaputtscr003"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Skript-Halter",
+      "order": 12,
+      "parent": "ko0000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          4,
+          0,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}

@@ -233,6 +233,8 @@ interface Thread {
   slices: number;
   /** The block it passed last (debug play). */
   lastBlock: string | null;
+  /** Stopped at a breakpoint: the script does not run until it is continued or stepped. */
+  held: boolean;
 }
 
 interface ActiveDialog {
@@ -1231,6 +1233,7 @@ export class Game implements GameApi {
     if (!stop) return false;
     this.stepThread = null;
     this.hitThread = thread;
+    thread.held = true;
     debug.onHit({
       objectId: thread.object.cloneOf ?? thread.object.id,
       objectName: thread.object.name,
@@ -1258,6 +1261,15 @@ export class Game implements GameApi {
   /** "Step": the script that stopped runs up to its next block and stops there. */
   debugStep(): void {
     this.stepThread = this.hitThread;
+    if (this.hitThread) this.hitThread.held = false;
+    this.hitThread = null;
+  }
+
+  /** "Continue": every script that stopped at a breakpoint goes on. */
+  debugResume(): void {
+    for (const thread of this.threads) thread.held = false;
+    this.hitThread = null;
+    this.stepThread = null;
   }
 
   /** The scripts that are running and where they are (blocks only known in debug play). */
@@ -2315,6 +2327,7 @@ export class Game implements GameApi {
       sliceHit: false,
       slices: 0,
       lastBlock: null,
+      held: false,
     };
     this.running.set(key, thread);
     this.threads.push(thread);
@@ -2340,6 +2353,8 @@ export class Game implements GameApi {
         continue;
       }
       if (!thread.object.activeInHierarchy) continue;
+      // A script stopped at a breakpoint waits, however many ticks the game still runs.
+      if (thread.held) continue;
       this.current = thread;
       this.recentlyRun.set(thread.key, { thread, tick: this.tick });
       thread.sliceHit = false;

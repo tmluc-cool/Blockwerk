@@ -62,7 +62,11 @@ export function scriptFacts(
         if (input.type !== 'boolean') continue;
         const filled = block.inputs?.[slot];
         if (filled?.block || filled?.shadow) continue;
-        emptySlots.push({ blockId: block.id, blockText: definition.text[locale] });
+        emptySlots.push({
+          blockId: block.id,
+          // The block as it reads in the palette, with a hole where each value goes.
+          blockText: definition.text[locale].replace(/\{\w+\}/g, '( )'),
+        });
         break;
       }
     }
