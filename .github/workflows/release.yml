@@ -61,6 +61,10 @@ jobs:
             echo "version=0.0.0-dryrun" >> "$GITHUB_OUTPUT"
           fi
 
+      # The previews of the asset library are rendered in a browser.
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Cache asset library
         uses: actions/cache@v4
         with:
