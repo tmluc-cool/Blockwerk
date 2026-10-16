@@ -41,7 +41,7 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
 | `recast-navigation` | 0.43.1 | MIT | runtime | packages/runtime |
 | `three` | 0.186.1 | MIT | development, runtime | apps/editor, apps/player, packages/ai, packages/character, packages/compiler, packages/library, packages/runtime |
-| `tsx` | 4.23.15 | MIT | development | packages/library |
+| `tsx` | 4.23.15 | MIT | development | (root), packages/library |
 | `typescript` | 6.0.3 | Apache-2.0 | development | (root), apps/desktop |
 | `typescript-eslint` | 8.71.2 | MIT | development | (root) |
 | `vite` | 8.3.4 | MIT | development | apps/desktop, apps/editor, apps/player |
