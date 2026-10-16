@@ -27,6 +27,7 @@ import {
 import { EXAMPLES, exampleName, TEMPLATES } from '../examples';
 import type { TranslationKey } from '../i18n';
 import { choose, prompt, showMessage } from '../state/dialogs';
+import { startTutorial } from '../tutorial/useTutorial';
 import {
   createBlockScript,
   createNewProject,
@@ -416,6 +417,12 @@ export function menuBarMenus(t: Translate): { id: string; label: string; items: 
       id: 'help',
       label: t('menu.help'),
       items: [
+        {
+          label: t('menu.help.tutorial'),
+          testId: 'menu-tutorial',
+          action: startTutorial,
+        },
+        { kind: 'separator' },
         {
           label: t('menu.help.shortcuts'),
           action: () => showMessage(t('menu.help.shortcuts'), t('help.shortcutsText')),
