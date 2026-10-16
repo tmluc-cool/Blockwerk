@@ -1,12 +1,13 @@
-import { UiRenderer } from '@blockwerk/runtime';
+import { UiRenderer, uiStringsFor } from '@blockwerk/runtime';
 import type { Game, UiLoading, UiStrings } from '@blockwerk/runtime';
-import { t } from '../state/settings';
+import { useSettings } from '../state/settings';
 import { gameSettings } from './settingsStore';
 
 let renderer: UiRenderer | null = null;
 
 /** Translates the built-in texts of the UI layer with the editor's language. */
-export const uiStrings: UiStrings = (key, params) => t(`ui.${key}` as never, params as never);
+export const uiStrings: UiStrings = (key, params) =>
+  uiStringsFor(useSettings.getState().locale)(key, params);
 
 /** The Game view hands its UI layer over (and `null` when it closes). */
 export function setUiRenderer(next: UiRenderer | null): void {

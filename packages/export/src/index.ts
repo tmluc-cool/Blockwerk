@@ -5,6 +5,7 @@
  */
 export { buildGame, ExportError } from './build';
 export type { ExportFile, ExportInput, ExportProblem, ExportResult, LibrarySource } from './build';
+export { assembleWebBuild, fileBytes, zipFiles } from './assemble';
 export { buildCredits } from './credits';
 export type { CreditsInput, LicensedAsset } from './credits';
 export * from './pack';

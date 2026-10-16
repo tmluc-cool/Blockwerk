@@ -21,7 +21,8 @@
     "format": "prettier --write .",
     "licenses": "node scripts/licenses.mjs",
     "screenshot": "pnpm build && node scripts/screenshot.mjs",
-    "assets:fetch": "pnpm --filter @blockwerk/library run assets:fetch"
+    "assets:fetch": "pnpm --filter @blockwerk/library run assets:fetch",
+    "export": "tsx scripts/export-game.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

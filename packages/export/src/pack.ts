@@ -24,6 +24,14 @@ export interface PackFile {
   /** Path relative to the pack folder. */
   readonly path: string;
   readonly type: 'model' | 'image' | 'terrain' | 'audio';
+  /** How a model is placed (its import settings); only for models. */
+  readonly model?: {
+    readonly scale: number;
+    readonly pivot: 'bottom' | 'center' | 'original';
+    readonly yaw?: number;
+    readonly boneMap?: Readonly<Record<string, string>>;
+    readonly animationMap?: Readonly<Record<string, string>>;
+  };
 }
 
 /** Everything a player needs to run a game (SPEC 9.3); written to `game/game.json`. */

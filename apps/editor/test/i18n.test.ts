@@ -1,5 +1,5 @@
 import { UI_TEMPLATE_LABELS } from '@blockwerk/project';
-import { BUILTIN_SOUNDS, COMPONENTS, UI_STRING_KEYS } from '@blockwerk/runtime';
+import { BUILTIN_SOUNDS, COMPONENTS, UI_STRING_KEYS, uiStringsFor } from '@blockwerk/runtime';
 import { describe, expect, it } from 'vitest';
 import { DICTIONARIES, translate } from '../src/i18n';
 
@@ -38,7 +38,11 @@ describe('i18n', () => {
   });
 
   it('translates every text of the runtime UI layer and of the menu templates', () => {
-    for (const key of UI_STRING_KEYS) expect(DICTIONARIES.en, key).toHaveProperty(`ui.${key}`);
+    // The built-in UI texts live in the runtime (exported games carry them), in both languages.
+    for (const locale of ['de', 'en'] as const) {
+      const strings = uiStringsFor(locale);
+      for (const key of UI_STRING_KEYS) expect(strings(key), `${locale} ${key}`).not.toBe('');
+    }
     for (const key of UI_TEMPLATE_LABELS)
       expect(DICTIONARIES.en, key).toHaveProperty(`uiTemplate.${key}`);
   });

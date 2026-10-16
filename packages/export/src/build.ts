@@ -1,7 +1,7 @@
 import { buildLibrary, compileBlockScript, CompileError } from '@blockwerk/compiler';
 import type { ProjectLibrary, ProjectScript } from '@blockwerk/compiler';
 import type { LibraryEntry, LibraryIndex } from '@blockwerk/library';
-import { assetDisplayName, stringifyDeterministic } from '@blockwerk/project';
+import { assetDisplayName, modelImportSettings, stringifyDeterministic } from '@blockwerk/project';
 import type { AnyAsset, Project } from '@blockwerk/project';
 import { buildCredits } from './credits';
 import type { LicensedAsset } from './credits';
@@ -146,6 +146,8 @@ export async function buildGame(input: ExportInput): Promise<ExportResult> {
   for (const asset of [...used.values()].sort((a, b) => a.path.localeCompare(b.path))) {
     if (asset.type === 'scene' && !order.includes(asset.id)) {
       order.push(asset.id);
+      // Without a build list the scenes scripts lead to are expected; with one they are news.
+      if (build.scenes === undefined) continue;
       problems.push({
         severity: 'warning',
         code: 'sceneAdded',
@@ -209,7 +211,22 @@ export async function buildGame(input: ExportInput): Promise<ExportResult> {
     const bytes = project.assetBytes(asset.id);
     if (!bytes) continue;
     const path = `files/${asset.id}${extensionOf(asset)}`;
-    packFiles[asset.id] = { path, type: asset.type };
+    const settings = asset.type === 'model' ? modelImportSettings(asset.meta) : null;
+    packFiles[asset.id] = {
+      path,
+      type: asset.type,
+      ...(settings
+        ? {
+            model: {
+              scale: settings.scale,
+              pivot: settings.pivot,
+              ...(settings.yaw === undefined ? {} : { yaw: settings.yaw }),
+              ...(settings.boneMap ? { boneMap: settings.boneMap } : {}),
+              ...(settings.animationMap ? { animationMap: settings.animationMap } : {}),
+            },
+          }
+        : {}),
+    };
     files.push({ path: `game/${path}`, data: bytes });
   }
   const packLibrary: Record<string, string> = {};

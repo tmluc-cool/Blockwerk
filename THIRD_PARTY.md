@@ -16,17 +16,17 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `@gltf-transform/functions` | 4.5.1 | MIT | development | packages/library |
 | `@playwright/test` | 1.56.1 | Apache-2.0 | development | (root) |
 | `@recast-navigation/three` | 0.43.1 | MIT | runtime | packages/runtime |
-| `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor, packages/export, packages/library |
+| `@types/node` | 24.19.2 | MIT | development | (root), apps/desktop, apps/editor, apps/player, packages/export, packages/library |
 | `@types/react` | 19.3.0 | MIT | development | apps/editor |
 | `@types/react-dom` | 19.3.0 | MIT | development | apps/editor |
-| `@types/three` | 0.186.0 | MIT | development | apps/editor, packages/character, packages/compiler, packages/runtime |
+| `@types/three` | 0.186.0 | MIT | development | apps/editor, apps/player, packages/character, packages/compiler, packages/runtime |
 | `@vitejs/plugin-react` | 6.1.2 | MIT | development | apps/editor |
 | `blockly` | 13.3.0 | Apache-2.0 | runtime | apps/editor |
 | `dockview-react` | 8.5.1 | MIT | runtime | apps/editor |
 | `electron` | 44.7.0 | MIT | development | apps/desktop |
 | `eslint` | 10.12.0 | MIT | development | (root) |
 | `eslint-plugin-react-hooks` | 7.1.1 | MIT | development | (root) |
-| `fflate` | 0.8.2 | MIT | development | packages/library |
+| `fflate` | 0.8.2 | MIT | development, runtime | packages/export, packages/library |
 | `globals` | 17.13.0 | MIT | development | (root) |
 | `jsdom` | 29.1.1 | MIT | development | packages/runtime |
 | `lucide-react` | 1.56.0 | ISC | runtime | apps/editor |
@@ -38,11 +38,11 @@ Blockwerk itself is licensed under the MIT License (see `LICENSE`). Dependencies
 | `react` | 19.3.0 | MIT | runtime | apps/editor |
 | `react-dom` | 19.3.0 | MIT | runtime | apps/editor |
 | `recast-navigation` | 0.43.1 | MIT | runtime | packages/runtime |
-| `three` | 0.186.1 | MIT | development, runtime | apps/editor, packages/character, packages/compiler, packages/library, packages/runtime |
+| `three` | 0.186.1 | MIT | development, runtime | apps/editor, apps/player, packages/character, packages/compiler, packages/library, packages/runtime |
 | `tsx` | 4.23.15 | MIT | development | packages/library |
 | `typescript` | 6.0.3 | Apache-2.0 | development | (root), apps/desktop |
 | `typescript-eslint` | 8.71.2 | MIT | development | (root) |
-| `vite` | 8.3.4 | MIT | development | apps/desktop, apps/editor |
+| `vite` | 8.3.4 | MIT | development | apps/desktop, apps/editor, apps/player |
 | `vitest` | 5.0.4 | MIT | development | (root) |
 | `zod` | 4.6.7 | MIT | runtime | packages/library, packages/project |
 | `zustand` | 5.0.15 | MIT | runtime | apps/editor |
@@ -87,7 +87,7 @@ Everything that is installed for running the editor, the runtime or the desktop 
 | `dockview-core` | 8.5.1 | MIT |
 | `dockview-react` | 8.5.1 | MIT |
 | `entities` | 8.1.0 | BSD-2-Clause |
-| `fflate` | 0.8.3 | MIT |
+| `fflate` | 0.8.2, 0.8.3 | MIT |
 | `html-encoding-sniffer` | 6.0.0 | MIT |
 | `is-potential-custom-element-name` | 1.0.1 | MIT |
 | `jsdom` | 29.1.1 | MIT |

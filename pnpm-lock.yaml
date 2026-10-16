@@ -118,6 +118,31 @@ importers:
         specifier: ^8.3.4
         version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(tsx@4.23.15)
 
+  apps/player:
+    dependencies:
+      '@blockwerk/export':
+        specifier: workspace:*
+        version: link:../../packages/export
+      '@blockwerk/project':
+        specifier: workspace:*
+        version: link:../../packages/project
+      '@blockwerk/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
+      three:
+        specifier: ^0.186.1
+        version: 0.186.1
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(tsx@4.23.15)
+
   packages/blocks: {}
 
   packages/character:
@@ -160,6 +185,9 @@ importers:
       '@blockwerk/project':
         specifier: workspace:*
         version: link:../project
+      fflate:
+        specifier: 0.8.2
+        version: 0.8.2
     devDependencies:
       '@types/node':
         specifier: 24.19.2
