@@ -51,6 +51,7 @@ Branch: `phase/11-feinschliff` (builds on `main` with Phases 0–10 merged).
 - The five templates are small (one scene, one or two scripts, library models only) so that they open quickly and can be read by beginners; the big showcase is `examples/endspiel`.
 - Documentation is generated to Markdown files under `docs/reference/` and checked in (so it is readable on GitHub); a test regenerates it and fails on a difference.
 - The tutorial runs inside the real editor with highlights (no separate sandbox).
+- File names inside projects stay ASCII ("Muenze", not "Münze"), as in the other examples: the browser storage (OPFS) of Chromium in the test environment rejects names with umlauts. Object and script names inside the files may have umlauts.
 
 ---
 

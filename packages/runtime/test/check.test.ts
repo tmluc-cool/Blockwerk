@@ -200,6 +200,17 @@ describe('scene check', () => {
       params: { count: '2' },
     });
   });
+
+  it('does not list a figure with a Character Controller: that is its collision shape', () => {
+    const figure = objectData({
+      name: 'Ritter',
+      components: [
+        component('meshRenderer', { model: 'library:kenney/knight' }, 'knightmesh01'),
+        component('characterController', {}, 'knightctrl01'),
+      ],
+    });
+    expect(check({ ground000001: ground, knight000001: figure })).toEqual([]);
+  });
 });
 
 describe('problems found while playing', () => {

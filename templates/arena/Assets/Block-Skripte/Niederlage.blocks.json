@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "died"
+          },
+          "id": "t-12",
+          "next": {
+            "block": {
+              "fields": {
+                "level": "warning"
+              },
+              "id": "t-13",
+              "inputs": {
+                "message": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Du wurdest besiegt."
+                    },
+                    "id": "t-14",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "control.log"
+            }
+          },
+          "type": "items.whenHealth"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

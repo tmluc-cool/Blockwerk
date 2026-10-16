@@ -18,20 +18,35 @@ const binaryRaw = import.meta.glob('../../../examples/*/**/*.{bin,glb,png,wav,og
   eager: true,
 }) as Record<string, string>;
 
-function collect(): BundledExample[] {
+const templateRaw = import.meta.glob(
+  ['../../../templates/*/**/*', '!../../../templates/*/**/*.{bin,glb,png,wav,ogg,mp3}'],
+  { query: '?raw', import: 'default', eager: true },
+) as Record<string, string>;
+
+const templateBinaryRaw = import.meta.glob('../../../templates/*/**/*.{bin,glb,png,wav,ogg,mp3}', {
+  query: '?inline',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function collect(
+  rootName: string,
+  textFiles: Record<string, string>,
+  binaryFiles: Record<string, string>,
+): BundledExample[] {
   const examples = new Map<string, Record<string, string>>();
   const binaries = new Map<string, Record<string, string>>();
   const sort = (source: Record<string, string>, target: Map<string, Record<string, string>>) => {
     for (const [path, text] of Object.entries(source)) {
-      const match = /examples\/([^/]+)\/(.+)$/.exec(path);
+      const match = new RegExp(`${rootName}/([^/]+)/(.+)$`).exec(path);
       if (!match?.[1] || !match[2]) continue;
       const files = target.get(match[1]) ?? {};
       files[match[2]] = text;
       target.set(match[1], files);
     }
   };
-  sort(raw, examples);
-  sort(binaryRaw, binaries);
+  sort(textFiles, examples);
+  sort(binaryFiles, binaries);
   return [...examples]
     .filter(([, files]) => 'blockwerk.json' in files)
     .map(([id, files]) => ({ id, files, binaries: binaries.get(id) ?? {} }))
@@ -39,7 +54,14 @@ function collect(): BundledExample[] {
 }
 
 /** All bundled examples, sorted by folder name. */
-export const EXAMPLES: readonly BundledExample[] = collect();
+export const EXAMPLES: readonly BundledExample[] = collect('examples', raw, binaryRaw);
+
+/** All template projects (`templates/`, File > New Project from Template), sorted by folder name. */
+export const TEMPLATES: readonly BundledExample[] = collect(
+  'templates',
+  templateRaw,
+  templateBinaryRaw,
+);
 
 /** Name of an example (from its `blockwerk.json`). */
 export function exampleName(example: BundledExample): string {

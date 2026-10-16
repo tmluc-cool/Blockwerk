@@ -1,0 +1,82 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-15",
+          "next": {
+            "block": {
+              "fields": {
+                "level": "info"
+              },
+              "id": "t-16",
+              "inputs": {
+                "message": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Springe über die Plattformen. Leertaste springt, in der Luft noch einmal für den Doppelsprung."
+                    },
+                    "id": "t-17",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "control.log"
+            }
+          },
+          "type": "events.whenGameStarts"
+        },
+        {
+          "id": "t-18",
+          "next": {
+            "block": {
+              "id": "t-23",
+              "inputs": {
+                "condition": {
+                  "block": {
+                    "id": "t-20",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "fields": {
+                            "axis": "y"
+                          },
+                          "id": "t-19",
+                          "type": "motion.position"
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": -6
+                          },
+                          "id": "t-21",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "operators.lt"
+                  }
+                },
+                "then": {
+                  "block": {
+                    "fields": {
+                      "target": "object:tco000000020"
+                    },
+                    "id": "t-22",
+                    "type": "player.teleport"
+                  }
+                }
+              },
+              "type": "control.if"
+            }
+          },
+          "type": "events.everyFrame"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

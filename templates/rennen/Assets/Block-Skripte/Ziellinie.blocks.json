@@ -1,0 +1,172 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 0,
+      "id": "tevarrunden1",
+      "inspector": false,
+      "name": "runden",
+      "scope": "game",
+      "type": "number"
+    },
+    {
+      "default": 0,
+      "id": "tevarhalb001",
+      "inspector": false,
+      "name": "halb",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-41",
+          "next": {
+            "block": {
+              "id": "t-55",
+              "inputs": {
+                "condition": {
+                  "block": {
+                    "id": "t-43",
+                    "inputs": {
+                      "a": {
+                        "block": {
+                          "fields": {
+                            "variable": {
+                              "id": "tevarhalb001"
+                            }
+                          },
+                          "id": "t-42",
+                          "type": "variables.get"
+                        }
+                      },
+                      "b": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 1
+                          },
+                          "id": "t-44",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "type": "operators.eq"
+                  }
+                },
+                "then": {
+                  "block": {
+                    "fields": {
+                      "variable": {
+                        "id": "tevarhalb001"
+                      }
+                    },
+                    "id": "t-45",
+                    "inputs": {
+                      "value": {
+                        "shadow": {
+                          "fields": {
+                            "NUM": 0
+                          },
+                          "id": "t-46",
+                          "type": "literal.number"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "fields": {
+                          "variable": {
+                            "id": "tevarrunden1"
+                          }
+                        },
+                        "id": "t-47",
+                        "inputs": {
+                          "by": {
+                            "shadow": {
+                              "fields": {
+                                "NUM": 1
+                              },
+                              "id": "t-48",
+                              "type": "literal.number"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "id": "t-54",
+                            "inputs": {
+                              "condition": {
+                                "block": {
+                                  "id": "t-50",
+                                  "inputs": {
+                                    "a": {
+                                      "block": {
+                                        "fields": {
+                                          "variable": {
+                                            "id": "tevarrunden1"
+                                          }
+                                        },
+                                        "id": "t-49",
+                                        "type": "variables.get"
+                                      }
+                                    },
+                                    "b": {
+                                      "shadow": {
+                                        "fields": {
+                                          "NUM": 3
+                                        },
+                                        "id": "t-51",
+                                        "type": "literal.number"
+                                      }
+                                    }
+                                  },
+                                  "type": "operators.eq"
+                                }
+                              },
+                              "then": {
+                                "block": {
+                                  "fields": {
+                                    "level": "info"
+                                  },
+                                  "id": "t-52",
+                                  "inputs": {
+                                    "message": {
+                                      "shadow": {
+                                        "fields": {
+                                          "TEXT": "Ziel! Du hast alle drei Runden geschafft."
+                                        },
+                                        "id": "t-53",
+                                        "type": "literal.text"
+                                      }
+                                    }
+                                  },
+                                  "type": "control.log"
+                                }
+                              }
+                            },
+                            "type": "control.if"
+                          }
+                        },
+                        "type": "variables.change"
+                      }
+                    },
+                    "type": "variables.set"
+                  }
+                }
+              },
+              "type": "control.if"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 0,
+      "id": "tdvarmuenze1",
+      "inspector": false,
+      "name": "muenzen",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-31",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "tdvarmuenze1"
+                }
+              },
+              "id": "t-32",
+              "next": {
+                "block": {
+                  "fields": {
+                    "level": "info"
+                  },
+                  "id": "t-33",
+                  "inputs": {
+                    "message": {
+                      "shadow": {
+                        "fields": {
+                          "TEXT": "Sammelt zusammen alle Münzen! Spieler 1: WASD, Spieler 2: Pfeiltasten oder Gamepad."
+                        },
+                        "id": "t-34",
+                        "type": "literal.text"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "id": "t-38",
+                      "inputs": {
+                        "condition": {
+                          "block": {
+                            "id": "t-36",
+                            "inputs": {
+                              "a": {
+                                "block": {
+                                  "fields": {
+                                    "variable": {
+                                      "id": "tdvarmuenze1"
+                                    }
+                                  },
+                                  "id": "t-35",
+                                  "type": "variables.get"
+                                }
+                              },
+                              "b": {
+                                "shadow": {
+                                  "fields": {
+                                    "NUM": 12
+                                  },
+                                  "id": "t-37",
+                                  "type": "literal.number"
+                                }
+                              }
+                            },
+                            "type": "operators.eq"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "fields": {
+                            "level": "info"
+                          },
+                          "id": "t-39",
+                          "inputs": {
+                            "message": {
+                              "shadow": {
+                                "fields": {
+                                  "TEXT": "Geschafft! Ihr habt alle Münzen gesammelt."
+                                },
+                                "id": "t-40",
+                                "type": "literal.text"
+                              }
+                            }
+                          },
+                          "type": "control.log"
+                        }
+                      },
+                      "type": "control.waitUntil"
+                    }
+                  },
+                  "type": "control.log"
+                }
+              },
+              "type": "variables.show"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

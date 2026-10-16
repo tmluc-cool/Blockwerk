@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 0,
+      "id": "tevarrunden1",
+      "inspector": false,
+      "name": "runden",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-59",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "tevarrunden1"
+                }
+              },
+              "id": "t-60",
+              "next": {
+                "block": {
+                  "fields": {
+                    "level": "info"
+                  },
+                  "id": "t-61",
+                  "inputs": {
+                    "message": {
+                      "shadow": {
+                        "fields": {
+                          "TEXT": "Fahre drei Runden. Pfeiltasten oder WASD lenken, Shift ist Turbo."
+                        },
+                        "id": "t-62",
+                        "type": "literal.text"
+                      }
+                    }
+                  },
+                  "type": "control.log"
+                }
+              },
+              "type": "variables.show"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

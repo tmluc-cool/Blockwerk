@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "variables": [],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "id": "t-1",
+          "next": {
+            "block": {
+              "fields": {
+                "level": "info"
+              },
+              "id": "t-2",
+              "inputs": {
+                "message": {
+                  "shadow": {
+                    "fields": {
+                      "TEXT": "Sammle die Münzen und erreiche die rote Flagge. WASD laufen, Leertaste springen, Maus drehen."
+                    },
+                    "id": "t-3",
+                    "type": "literal.text"
+                  }
+                }
+              },
+              "type": "control.log"
+            }
+          },
+          "type": "events.whenGameStarts"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

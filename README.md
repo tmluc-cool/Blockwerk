@@ -14,7 +14,8 @@ repository (documentation, issues, pull requests) is in English.
 > **Status:** early development. Phases 0 to 10 are done (editor, block scripts, asset library,
 > player, physics, environment, NPCs, UI and saving, large projects, debugging, build and export,
 > and an optional AI assistant with your own key, see [docs/ai.md](docs/ai.md)). To try it out:
-> "File → Open Example Project" and press Play; "File → Build Settings" makes a web build or a
+> "File → Open Example Project" or "File → New Project from Template" (five small games,
+> [docs/templates.md](docs/templates.md)) and press Play; "File → Build Settings" makes a web build or a
 > Windows app of a game ([docs/export.md](docs/export.md)). See the [roadmap](#roadmap) for the
 > current state.
 

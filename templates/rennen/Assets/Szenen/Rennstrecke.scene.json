@@ -1,0 +1,955 @@
+{
+  "environment": {
+    "ambientIntensity": 0.4,
+    "fog": {
+      "enabled": true,
+      "far": 150,
+      "near": 55
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 11
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "teo000000001": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000002": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000003": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000004": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000005": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000006": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000007": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "teo000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          20,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000008": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#7aa05f",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Wiese",
+      "order": 7,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          100,
+          1,
+          80
+        ]
+      }
+    },
+    "teo000000009": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000004",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#4b4d55",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000005",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Straße Süd",
+      "order": 8,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.02,
+          -15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          64,
+          0.05,
+          10
+        ]
+      }
+    },
+    "teo000000010": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000006",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#4b4d55",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000007",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Straße Nord",
+      "order": 9,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.02,
+          15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          64,
+          0.05,
+          10
+        ]
+      }
+    },
+    "teo000000011": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000008",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#4b4d55",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000009",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Straße Ost",
+      "order": 10,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          27,
+          0.02,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          10,
+          0.05,
+          30
+        ]
+      }
+    },
+    "teo000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000010",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#4b4d55",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000011",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Straße West",
+      "order": 11,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -27,
+          0.02,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          10,
+          0.05,
+          30
+        ]
+      }
+    },
+    "teo000000013": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000012",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#6d8f52",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000013",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Insel",
+      "order": 12,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.75,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          44,
+          1.5,
+          20
+        ]
+      }
+    },
+    "teo000000014": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000014",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#e0e0e0",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000015",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Leitplanke Süd",
+      "order": 13,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.4,
+          -21
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          70,
+          0.8,
+          0.6
+        ]
+      }
+    },
+    "teo000000015": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000016",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#e0e0e0",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000017",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Leitplanke Nord",
+      "order": 14,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.4,
+          21
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          70,
+          0.8,
+          0.6
+        ]
+      }
+    },
+    "teo000000016": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000018",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#e0e0e0",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000019",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Leitplanke Ost",
+      "order": 15,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          33.5,
+          0.4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          0.8,
+          42
+        ]
+      }
+    },
+    "teo000000017": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000020",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#e0e0e0",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000021",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Leitplanke West",
+      "order": 16,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -33.5,
+          0.4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          0.8,
+          42
+        ]
+      }
+    },
+    "teo000000018": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000022",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-city/car-taxi"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000023",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.5,
+              0
+            ],
+            "height": 1,
+            "radius": 0.9
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000024",
+          "type": "vehicleControl",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tec000000025",
+          "type": "blockScript",
+          "values": {
+            "script": "teskript0003"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Taxi",
+      "order": 17,
+      "parent": "teo000000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          -10,
+          0.1,
+          -15
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000019": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000026",
+          "type": "camera",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tec000000027",
+          "type": "thirdPersonCamera",
+          "values": {
+            "distance": 7,
+            "height": 2.5
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 18,
+      "parent": "teo000000002",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          -18,
+          3,
+          -15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000020": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000028",
+          "type": "boxCollider",
+          "values": {
+            "isTrigger": true,
+            "size": [
+              1,
+              2,
+              10
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000029",
+          "type": "blockScript",
+          "values": {
+            "script": "teskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Ziellinie",
+      "order": 19,
+      "parent": "teo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1,
+          -15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000021": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000030",
+          "type": "boxCollider",
+          "values": {
+            "isTrigger": true,
+            "size": [
+              1,
+              2,
+              10
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000031",
+          "type": "blockScript",
+          "values": {
+            "script": "teskript0002"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Halbzeit",
+      "order": 20,
+      "parent": "teo000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1,
+          15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "teo000000022": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000032",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#ffffff",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000033",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Startlinie",
+      "order": 21,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.06,
+          -15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.02,
+          10
+        ]
+      }
+    },
+    "teo000000023": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tec000000034",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#ffd23f",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tec000000035",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Halbzeitlinie",
+      "order": 22,
+      "parent": "teo000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.06,
+          15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.02,
+          10
+        ]
+      }
+    }
+  }
+}

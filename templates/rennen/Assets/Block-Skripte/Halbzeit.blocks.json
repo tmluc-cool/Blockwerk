@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "variables": [
+    {
+      "default": 0,
+      "id": "tevarhalb001",
+      "inspector": false,
+      "name": "halb",
+      "scope": "game",
+      "type": "number"
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "blocks": [
+        {
+          "fields": {
+            "phase": "enter",
+            "target": "tag:Player"
+          },
+          "id": "t-56",
+          "next": {
+            "block": {
+              "fields": {
+                "variable": {
+                  "id": "tevarhalb001"
+                }
+              },
+              "id": "t-57",
+              "inputs": {
+                "value": {
+                  "shadow": {
+                    "fields": {
+                      "NUM": 1
+                    },
+                    "id": "t-58",
+                    "type": "literal.number"
+                  }
+                }
+              },
+              "type": "variables.set"
+            }
+          },
+          "type": "events.whenZone"
+        }
+      ],
+      "languageVersion": 0
+    }
+  }
+}

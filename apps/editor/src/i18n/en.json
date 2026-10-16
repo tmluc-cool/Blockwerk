@@ -1056,5 +1056,16 @@
   "ai.failed": "The request failed: {message}",
   "ai.failedKey": "The key was refused. Check it under Edit → Preferences.",
   "ai.objectLine": "{name} at {x}, {y}, {z}",
-  "preferences.keyPlaceholder": "sk-ant-…"
+  "preferences.keyPlaceholder": "sk-ant-…",
+  "menu.file.newFromTemplate": "New Project from Template …",
+  "template.abenteuer.name": "Adventure",
+  "template.abenteuer.about": "Third-person game: collect coins, reach the flag",
+  "template.arena.name": "Arena",
+  "template.arena.about": "First-person shooter: defeat the skeletons",
+  "template.plattformer.name": "Platformer",
+  "template.plattformer.about": "3D jump-and-run with double jump and gems",
+  "template.koop.name": "Co-op",
+  "template.koop.about": "Two players collect coins together (split screen)",
+  "template.rennen.name": "Racing",
+  "template.rennen.about": "Small racing game with three laps"
 }

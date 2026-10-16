@@ -206,14 +206,22 @@ function checkPlayers(objects: readonly GameObject[], problems: Problem[]): void
   }
 }
 
-/** Objects with a model but no collider are listed together: one line, not one per tree. */
+/**
+ * Objects with a model but no collider are listed together: one line, not one per tree. A figure
+ * with a Character Controller counts as having one.
+ */
 function checkColliders(objects: readonly GameObject[], problems: Problem[]): void {
   const without = objects.filter((object) => {
     const renderer = object.components.find(
       (component) => component.enabled && component.definition.type === 'meshRenderer',
     );
     if (!renderer || !renderer.values['model']) return false;
-    return !object.components.some((component) => component.definition.type.endsWith('Collider'));
+    // A Character Controller is the collision shape of a figure.
+    return !object.components.some(
+      (component) =>
+        component.definition.type.endsWith('Collider') ||
+        component.definition.type === 'characterController',
+    );
   });
   const first = without[0];
   if (!first) return;

@@ -1056,5 +1056,16 @@
   "ai.failed": "Die Anfrage ist fehlgeschlagen: {message}",
   "ai.failedKey": "Der Schlüssel wurde abgelehnt. Prüfe ihn unter Bearbeiten → Voreinstellungen.",
   "ai.objectLine": "{name} bei {x}, {y}, {z}",
-  "preferences.keyPlaceholder": "sk-ant-…"
+  "preferences.keyPlaceholder": "sk-ant-…",
+  "menu.file.newFromTemplate": "Neues Projekt aus Vorlage …",
+  "template.abenteuer.name": "Abenteuer",
+  "template.abenteuer.about": "Dritte-Person-Spiel: Münzen sammeln, die Flagge erreichen",
+  "template.arena.name": "Arena",
+  "template.arena.about": "Ego-Shooter: Skelette besiegen",
+  "template.plattformer.name": "Plattformer",
+  "template.plattformer.about": "3D-Hüpfspiel mit Doppelsprung und Edelsteinen",
+  "template.koop.name": "Koop",
+  "template.koop.about": "Zwei Spieler sammeln zusammen Münzen (geteilter Bildschirm)",
+  "template.rennen.name": "Rennen",
+  "template.rennen.about": "Kleines Rennspiel mit drei Runden"
 }

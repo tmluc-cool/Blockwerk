@@ -1,0 +1,1445 @@
+{
+  "environment": {
+    "ambientIntensity": 0.4,
+    "fog": {
+      "enabled": true,
+      "far": 150,
+      "near": 55
+    },
+    "sky": {
+      "dayLength": 0,
+      "sunAzimuth": 0,
+      "timeOfDay": 9
+    }
+  },
+  "formatVersion": 1,
+  "objects": {
+    "tco000000001": {
+      "active": true,
+      "area": "environment",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 0,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000002": {
+      "active": true,
+      "area": "player1",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 1,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000003": {
+      "active": true,
+      "area": "player2",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 2,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000004": {
+      "active": true,
+      "area": "npcs",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 3,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000005": {
+      "active": true,
+      "area": "items",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 4,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000006": {
+      "active": true,
+      "area": "ui",
+      "components": [],
+      "layer": "Default",
+      "name": null,
+      "order": 5,
+      "parent": null,
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000007": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000001",
+          "type": "light",
+          "values": {
+            "lightType": "directional"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Sonne",
+      "order": 6,
+      "parent": "tco000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          20,
+          0
+        ],
+        "rotation": [
+          50,
+          -30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000008": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000002",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000003",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 1",
+      "order": 7,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          -0.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000009": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000004",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000005",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 2",
+      "order": 8,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          0.15000000000000002,
+          5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000010": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000006",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000007",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 3",
+      "order": 9,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          0.65,
+          9.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000011": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000008",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000009",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 4",
+      "order": 10,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6.5,
+          1.15,
+          13
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000012": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000010",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000011",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 5",
+      "order": 11,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6.5,
+          1.75,
+          18.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000013": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000012",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000013",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 6",
+      "order": 12,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          2.45,
+          23
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000014": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000014",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000015",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 7",
+      "order": 13,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2,
+          3.05,
+          26
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000015": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000016",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000017",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 8",
+      "order": 14,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          3.75,
+          30
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000016": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000018",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000019",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 9",
+      "order": 15,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          4.35,
+          36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000017": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000020",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000021",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 10",
+      "order": 16,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2,
+          5.05,
+          40
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000018": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000022",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#b3a58b",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000023",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Plattform 11",
+      "order": 17,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2,
+          5.75,
+          44
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          3.4,
+          0.5,
+          3.4
+        ]
+      }
+    },
+    "tco000000019": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000024",
+          "type": "meshRenderer",
+          "values": {
+            "color": "#5ea862",
+            "shape": "cube",
+            "smoothness": 0.1
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000025",
+          "type": "boxCollider",
+          "values": {}
+        }
+      ],
+      "layer": "Default",
+      "name": "Ziel-Plattform",
+      "order": 18,
+      "parent": "tco000000001",
+      "static": true,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2,
+          5.75,
+          48
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          5,
+          0.5,
+          5
+        ]
+      }
+    },
+    "tco000000020": {
+      "active": true,
+      "components": [],
+      "layer": "Default",
+      "name": "Startpunkt",
+      "order": 19,
+      "parent": "tco000000001",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.2,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000021": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000026",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-adventurers/knight"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000027",
+          "type": "animator",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000028",
+          "type": "characterController",
+          "values": {
+            "center": [
+              0,
+              0.9,
+              0
+            ],
+            "height": 1.8,
+            "radius": 0.35
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000029",
+          "type": "thirdPersonControl",
+          "values": {
+            "jumpHeight": 1.5
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000030",
+          "type": "doubleJump",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000031",
+          "type": "blockScript",
+          "values": {
+            "script": "tcskript0001"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Ritter",
+      "order": 20,
+      "parent": "tco000000002",
+      "static": false,
+      "tag": "Player",
+      "transform": {
+        "position": [
+          0,
+          0.6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000022": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000032",
+          "type": "camera",
+          "values": {}
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000033",
+          "type": "thirdPersonCamera",
+          "values": {
+            "distance": 5.5
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Hauptkamera",
+      "order": 21,
+      "parent": "tco000000002",
+      "static": false,
+      "tag": "MainCamera",
+      "transform": {
+        "position": [
+          0,
+          3,
+          -6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000023": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000034",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000035",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000036",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 1",
+      "order": 22,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          0,
+          1.1,
+          5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000024": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000037",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000038",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000039",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 2",
+      "order": 23,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          1.6,
+          9.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000025": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000040",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000041",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000042",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 3",
+      "order": 24,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6.5,
+          2.0999999999999996,
+          13
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000026": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000043",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000044",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000045",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 4",
+      "order": 25,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          6.5,
+          2.7,
+          18.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000027": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000046",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000047",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000048",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 5",
+      "order": 26,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          3,
+          3.4000000000000004,
+          23
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000028": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000049",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000050",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000051",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 6",
+      "order": 27,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2,
+          4,
+          26
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000029": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000052",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000053",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000054",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 7",
+      "order": 28,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          4.7,
+          30
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000030": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000055",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000056",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000057",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 8",
+      "order": 29,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -6,
+          5.3,
+          36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000031": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000058",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-prototype/coin-b"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000059",
+          "type": "sphereCollider",
+          "values": {
+            "isTrigger": true,
+            "radius": 0.6
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000060",
+          "type": "pickup",
+          "values": {
+            "count": 1,
+            "item": "Edelstein"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Edelstein 9",
+      "order": 30,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          -2,
+          6,
+          40
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "tco000000032": {
+      "active": true,
+      "components": [
+        {
+          "enabled": true,
+          "id": "tcc000000061",
+          "type": "meshRenderer",
+          "values": {
+            "model": "library:kaykit-medieval-hexagon/flag-green"
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000062",
+          "type": "boxCollider",
+          "values": {
+            "center": [
+              0,
+              1,
+              0
+            ],
+            "isTrigger": true,
+            "size": [
+              3,
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "enabled": true,
+          "id": "tcc000000063",
+          "type": "blockScript",
+          "values": {
+            "script": "tcskript0002"
+          }
+        }
+      ],
+      "layer": "Default",
+      "name": "Flagge",
+      "order": 31,
+      "parent": "tco000000005",
+      "static": false,
+      "tag": "Untagged",
+      "transform": {
+        "position": [
+          2,
+          6,
+          48
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}
