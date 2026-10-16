@@ -12,7 +12,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 | 4 | Environment and graphics | done |
 | 5 | NPCs and game logic | done |
 | 6 | UI, menus, saving | done |
-| 7 | Large projects | in review |
+| 7 | Large projects | done |
 | 8 | Debugging | in review |
 | 9 | Build and export | open |
 | 10 | AI assistant | open |
@@ -22,7 +22,7 @@ Status of the phases from `SPEC.md`, section 10. Per phase: plan before starting
 
 ## Phase 8: Debugging
 
-Branch: `phase/08-kaputt` (builds on `main` with Phase 7 merged; Phase 7 stays "in review" until `main` is green on Windows, see its open items).
+Branch: `phase/08-kaputt` (builds on `main` with Phase 7 merged; Phase 7 is done: `main` is green on Ubuntu and Windows since PR #21).
 
 ### Plan
 
@@ -77,14 +77,14 @@ What exists already: the Console window (clear, collapse, error pause, level fil
 - [x] (d) *Breakpoint, single step, changing a value in the Inspector, continue.* End-to-end: breakpoint on the second block of "Zaehler", key Z stops, "Next block" runs one block, the variable `punkte` is changed in the play Inspector, Continue finishes; the project file is unchanged.
 - [x] Golden and runtime tests for the new block and for the debug option (with and without hooks); unit tests for the checker, the expression evaluator and the profiler samples.
 - [x] `pnpm test` (507 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end: the Phase 8 specs (3 tests) and the screenshot run pass locally, the full suite runs in CI (Ubuntu and Windows). The two desktop (Electron) tests cannot start in this container (no X server); CI runs them under a virtual display.
-- [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
+- [x] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request ([CI run](https://github.com/tmluc-cool/Blockwerk/actions/runs/38860244795)).
 
 **Open / not done**
 
 - Breakpoints are kept in memory only (lost when the editor closes); they are not part of the project.
 - Scripts run on the main thread (Phase 1 decision): the loop guard covers generated code and "without screen refresh" loops; a hand-written Code block without any loop construct that never returns cannot be stopped without a worker.
 - Locals of custom blocks cannot be edited while stopped, only object and game variables.
-- Phase 7 stays "in review" until its pull request #20 is merged and `main` is green on Windows and Ubuntu.
+- Windows runner: one retry per failing end-to-end test (`retries: 1`, pull request #20) because 3D-heavy tests time out at random there.
 - Phase 6 leftovers stay: no undo in the UI Editor, no gamepad navigation in menus, saves do not hold NPCs, doors and chests.
 
 ## Phase 7: Large projects
@@ -146,7 +146,7 @@ Branch: `phase/07-grosse-projekte` (builds on `main` with Phase 6 merged).
 - [x] (d) *A prefab with a block script and a custom block, moved to a new project, has no missing block.* `carryBlocks.test.ts` and the dependency check of the example's prefab.
 - [x] Golden and runtime tests for every new block; compiler tests for functions, locals, warp and the type check; project tests for the rename helpers.
 - [x] `pnpm test` (481 tests), `pnpm lint`, `pnpm typecheck`, `pnpm build` green locally; end-to-end 65/65 in the editor project. The two desktop (Electron) tests cannot start in this container (no X server); CI runs them under a virtual display.
-- [ ] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request (see the pull request).
+- [x] CI on GitHub green on Ubuntu and Windows for the last commit of the pull request: `main` after the merge of pull request #21 ([CI run](https://github.com/tmluc-cool/Blockwerk/actions/runs/38858029705)), with the Windows retry of pull request #20.
 
 **Open / not done**
 
