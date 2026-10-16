@@ -1090,5 +1090,6 @@
   "tutorial.stop.title": "7. Anhalten",
   "tutorial.stop.body": "Drücke Play noch einmal. Änderungen im Spielmodus werden verworfen, genau wie in Unity.",
   "tutorial.finish.title": "Geschafft!",
-  "tutorial.finish.body": "Das war dein erstes Spiel. Unter „Datei“, „Neu aus Vorlage“ findest du fertige Projekte zum Weiterbauen. Das Tutorial startest du jederzeit wieder im Menü „Hilfe“."
+  "tutorial.finish.body": "Das war dein erstes Spiel. Unter „Datei“, „Neu aus Vorlage“ findest du fertige Projekte zum Weiterbauen. Das Tutorial startest du jederzeit wieder im Menü „Hilfe“.",
+  "tutorial.restart": "Von vorn"
 }

@@ -25,6 +25,12 @@ test.describe('phase 11: tutorial', () => {
     await expect(page.getByTestId('tutorial-spot')).toBeVisible();
     await page.getByTestId('tutorial-close').click();
     await expect(page.getByTestId('tutorial-card')).toHaveCount(0);
+
+    // The progress is kept: starting again continues at the same step, "restart" goes back.
+    await startTutorial(page);
+    expect(await step(page)).toBe('cube');
+    await page.getByTestId('tutorial-restart').click();
+    expect(await step(page)).toBe('welcome');
   });
 
   test('walks from the first cube to a spinning one by doing the steps', async ({
@@ -51,7 +57,6 @@ test.describe('phase 11: tutorial', () => {
     await page.getByTestId('prompt-input').fill('Drehen');
     await page.getByTestId('prompt-ok').click();
     await expect.poll(() => step(page)).toBe('attach');
-    const scriptId = await page.getByTestId('script-select').inputValue();
 
     // 4. Attached to the cube.
     const cube = await objectId(page, 'Würfel');
@@ -59,8 +64,13 @@ test.describe('phase 11: tutorial', () => {
     await inspector.getByTestId('add-component').click();
     await inspector.getByTestId('add-component-search').fill('skript');
     await inspector.getByTestId('add-blockScript').click();
-    await inspector.getByTestId('component-blockScript-0-script').selectOption(scriptId);
+    await inspector.getByTestId('component-blockScript-0-script').selectOption({ label: 'Drehen' });
     await expect.poll(() => step(page)).toBe('blocks');
+    const scriptId =
+      (await page.evaluate(
+        () => window.__blockwerk?.assets().find((asset) => asset.name === 'Drehen')?.id,
+      )) ?? '';
+    expect(scriptId).not.toBe('');
 
     // 5. Two blocks.
     await page.evaluate((id) => {
@@ -78,7 +88,11 @@ test.describe('phase 11: tutorial', () => {
                   type: 'motion.turn',
                   id: 'tut-turn',
                   fields: { direction: 'right' },
-                  inputs: { degrees: { shadow: { type: 'math_number', fields: { NUM: 5 } } } },
+                  inputs: {
+                    degrees: {
+                      shadow: { type: 'literal.number', id: 'tut-num', fields: { NUM: 5 } },
+                    },
+                  },
                 },
               },
             },

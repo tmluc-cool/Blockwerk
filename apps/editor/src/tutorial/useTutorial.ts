@@ -48,9 +48,29 @@ export function readFacts(): TutorialFacts {
   return { cubes, scripts, scriptsOnCubes, play: usePlay.getState().status };
 }
 
-/** Starts the tutorial at the first step. */
+const STORAGE_KEY = 'blockwerk.tutorial.step';
+
+/** The step where the user left off (0 when none, or when browser storage is unavailable). */
+function savedStep(): number {
+  try {
+    const value = Number(window.localStorage.getItem(STORAGE_KEY));
+    return Number.isInteger(value) && value > 0 && value < TUTORIAL_STEPS.length - 1 ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveStep(index: number): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, String(index));
+  } catch {
+    // Without storage the tutorial simply starts from the beginning next time.
+  }
+}
+
+/** Starts the tutorial where the user left off, or at the first step. */
 export function startTutorial(): void {
-  useTutorial.setState({ active: true, index: 0, start: readFacts() });
+  useTutorial.setState({ active: true, index: savedStep(), start: readFacts() });
 }
 
 /** Ends the tutorial. */
@@ -61,9 +81,11 @@ export function stopTutorial(): void {
 /** Goes to a step (clamped); the last step's "Next" ends the tutorial. */
 export function goToStep(index: number): void {
   if (index >= TUTORIAL_STEPS.length) {
+    saveStep(0);
     stopTutorial();
     return;
   }
+  saveStep(Math.max(0, index));
   useTutorial.setState({ index: Math.max(0, index), start: readFacts() });
 }
 
